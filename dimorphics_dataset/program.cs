@@ -355,7 +355,7 @@ namespace dimorphics_dataset
 
             File.WriteAllLines(fn, result);
             Console.WriteLine("finished.");
-            Console.ReadLine();
+            //Console.ReadLine();
 
         }
 
@@ -1219,7 +1219,7 @@ namespace dimorphics_dataset
             var do_3d_nh = false;
             var do_3d_protein = false;
 
-            var dataset_name = string.Join("_", new string[] {(do_2d_interface ? "2d_if" : ""), (do_2d_nh ? "2d_nh" : ""), (do_2d_protein ? "2d_pt" : ""), (do_3d_interface ? "3d_if" : ""), (do_3d_nh ? "3d_nh" : ""), (do_3d_protein ? "3d_pt" : ""),}.Where(a => !string.IsNullOrWhiteSpace(a)).ToList());
+            
 
             if (args != null && args.Length > 0)
             {
@@ -1227,16 +1227,26 @@ namespace dimorphics_dataset
 
                 var args2 = args.SelectMany(a => a.Split(new char[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)).ToList();
 
-                do_2d_interface = args2.Any(a => a.StartsWith("2i", StringComparison.CurrentCultureIgnoreCase));
-                do_2d_interface = args2.Any(a => a.StartsWith("2n", StringComparison.CurrentCultureIgnoreCase));
-                do_2d_interface = args2.Any(a => a.StartsWith("2p", StringComparison.CurrentCultureIgnoreCase));
+                do_2d_interface = args2.Any(a => a.StartsWith("2i", StringComparison.InvariantCultureIgnoreCase));
+                do_2d_nh = args2.Any(a => a.StartsWith("2n", StringComparison.InvariantCultureIgnoreCase));
+                do_2d_protein = args2.Any(a => a.StartsWith("2p", StringComparison.InvariantCultureIgnoreCase));
                 
-                do_3d_interface = args2.Any(a => a.StartsWith("3i", StringComparison.CurrentCultureIgnoreCase));
-                do_3d_interface = args2.Any(a => a.StartsWith("3n", StringComparison.CurrentCultureIgnoreCase));
-                do_3d_interface = args2.Any(a => a.StartsWith("3p", StringComparison.CurrentCultureIgnoreCase));
+                do_3d_interface = args2.Any(a => a.StartsWith("3i", StringComparison.InvariantCultureIgnoreCase));
+                do_3d_nh = args2.Any(a => a.StartsWith("3n", StringComparison.InvariantCultureIgnoreCase));
+                do_3d_protein = args2.Any(a => a.StartsWith("3p", StringComparison.InvariantCultureIgnoreCase));
 
 
+                args2 = args2.Except(new string[] {"2i", "2n", "2p", "3i", "3n", "3p"}).ToList();
+
+                if (args2.Count > 0) throw new Exception("Unknown args: " + string.Join(", ", args2));
             }
+            else
+            {
+                throw new Exception("No args");
+            }
+
+            var dataset_name = string.Join("_", new string[] { (do_2d_interface ? "2i" : ""), (do_2d_nh ? "2n" : ""), (do_2d_protein ? "2p" : ""), (do_3d_interface ? "3i" : ""), (do_3d_nh ? "3n" : ""), (do_3d_protein ? "3p" : ""), }.Where(a => !string.IsNullOrWhiteSpace(a)).ToList());
+            program.WriteLine($@"{nameof(dataset_name)} = {dataset_name}");
 
             //var aaa= subsequence_classification_data.aaindex_subset_templates_search();
 
@@ -1676,17 +1686,17 @@ namespace dimorphics_dataset
 
 
 
-            program.WriteLine($"{nameof(Main)}: Finished. Press any key to exit...");
+            //program.WriteLine($"{nameof(Main)}: Finished. Press any key to exit...");
 
             sw1.Stop();
             var ts1 = sw1.Elapsed;
 
             Console.WriteLine($"Finished: ({ts1.Days}d {ts1.Hours}h {ts1.Minutes}m {ts1.Seconds}s)");
 
-            Console.ReadKey();
-            Console.ReadKey();
-            Console.ReadKey();
-            Console.ReadKey();
+            //Console.ReadKey();
+            //Console.ReadKey();
+            //Console.ReadKey();
+            //Console.ReadKey();
         }
 
         public class instance_meta_data
@@ -1733,6 +1743,11 @@ namespace dimorphics_dataset
             {
                 Console.WriteLine($"{class_info.class_name}: Started: finding class #{class_info.class_id} {class_info.class_name}");
                 Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+            }
+
+            if (string.IsNullOrWhiteSpace(dataset_name))
+            {
+                throw new Exception();
             }
 
             var sw1 = new Stopwatch();

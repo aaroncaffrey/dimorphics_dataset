@@ -3300,9 +3300,11 @@ namespace dimorphics_dataset
                 call_count = peptides_call_count++;
             }
 #if DEBUG
-            var exe = @"C:\Users\aaron\Desktop\Projects\dimorphics_dataset\peptides_server\bin\x64\Debug\peptides_server.exe";
+            //var exe = @"C:\Users\aaron\Desktop\Projects\dimorphics_dataset\peptides_server\bin\x64\Debug\peptides_server.exe";
+            var exe = @"C:\dimorphics_dataset\peptides_server\bin\Debug\netcoreapp3.1\peptides_server.exe";
+
 #else
-            var exe = @"C:\Users\aaron\Desktop\Projects\dimorphics_dataset\peptides_server\bin\x64\Release\peptides_server.exe";
+            var exe = @"C:\dimorphics_dataset\peptides_server\bin\Release\netcoreapp3.1\peptides_server.exe";
 #endif
 
             //var psi = new ProcessStartInfo()
@@ -3334,16 +3336,30 @@ namespace dimorphics_dataset
 
             using (var process = Process.Start(start))
             {
-                process.PriorityBoostEnabled = true;
-                process.PriorityClass = ProcessPriorityClass.High;
 
-
-                using (var reader = process.StandardOutput)
+                if (process != null)
                 {
-                    var data = reader.ReadToEnd();
+                    try
+                    {
+                        process.PriorityBoostEnabled = true;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    try
+                    {
+                        process.PriorityClass = ProcessPriorityClass.High;
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+
+                    var stdout = process.StandardOutput.ReadToEnd();
                     var stderr = process.StandardError.ReadToEnd();
 
-                    data = data.Substring(data.IndexOf('\n') + 1);
+                    stdout = stdout.Substring(stdout.IndexOf('\n') + 1);
 
 
 
@@ -3351,7 +3367,7 @@ namespace dimorphics_dataset
 
                     //Console.WriteLine("Data: " + data);
 
-                    var r = feature_info_container.deserialise(data);
+                    var r = feature_info_container.deserialise(stdout);
 
                     result = r.feautre_info_list;
                 }

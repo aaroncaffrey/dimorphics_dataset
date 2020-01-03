@@ -1,0 +1,17 @@
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\dimorphics_dataset.exe
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.exe
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.deps.json
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.runtimeconfig.json
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.runtimeconfig.dev.json
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.dll
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.pdb
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\DynamicInterop.dll
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\RDotNet.dll
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\dimorphics_dataset.dll
+c:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\dimorphics_dataset.pdb
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.csprojAssemblyReference.cache
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.AssemblyInfoInputs.cache
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.AssemblyInfo.cs
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.csproj.CopyComplete
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.dll
+c:\dimorphics_dataset\peptides_server\obj\x64\Release\netcoreapp3.1\peptides_server.pdb
