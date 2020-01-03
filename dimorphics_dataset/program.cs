@@ -16,6 +16,111 @@ namespace dimorphics_dataset
         // xtodo: 2. measure min,max,average distance between dimorphics/betastrands and LARKs
         // xtodo: 3. 
 
+        public static void CreateDirectory(string filename, string module_name, string function_name)
+        {
+            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
+
+            var dir = Path.GetDirectoryName(filename);
+            
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+
+        public static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
+        {
+            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllLines)} ( {filename} )");
+
+            CreateDirectory(filename, module_name, function_name);
+
+            while (true)
+            {
+                try
+                {
+                    File.WriteAllLines(filename, lines);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    program.WriteLine(e.ToString());
+                    Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
+                }
+            }
+        }
+
+        public static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
+        {
+            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllLines)} ( {filename} )");
+
+            CreateDirectory(filename, module_name, function_name);
+
+            while (true)
+            {
+                try
+                {
+                    File.AppendAllLines(filename, lines);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    program.WriteLine(e.ToString());
+                    Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
+                }
+            }
+        }
+
+        public static void AppendAllText(string filename, string text, string module_name, string function_name)
+        {
+            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllText)} ( {filename} )");
+
+            CreateDirectory(filename, module_name, function_name);
+
+
+
+            while (true)
+            {
+                try
+                {
+                    File.AppendAllText(filename, text);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    program.WriteLine(e.ToString());
+                    Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
+                }
+            }
+        }
+
+        public static void WriteAllText(string filename, string text, string module_name, string function_name)
+        {
+            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllText)} ( {filename} )");
+
+            CreateDirectory(filename, module_name, function_name);
+
+
+
+
+            while (true)
+            {
+                try
+                {
+                    File.WriteAllText(filename, text);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    program.WriteLine(e.ToString());
+                    Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
+                }
+            }
+        }
+
         public class subseq_match
         {
             public string pdb_id;
@@ -351,9 +456,9 @@ namespace dimorphics_dataset
 
             var fn = @"c:\bioinf\fixed_dataset.csv";
 
-            Directory.CreateDirectory(Path.GetDirectoryName(fn));
+            //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
-            File.WriteAllLines(fn, result);
+            program.WriteAllLines(fn, result, nameof(program), nameof(fill_missing_chains));
             Console.WriteLine("finished.");
             //Console.ReadLine();
 
@@ -405,7 +510,7 @@ namespace dimorphics_dataset
 
         //    var results = tasks.SelectMany(a => a.Result).ToList();
 
-        //    File.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
+        //    program.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
 
         //    Console.WriteLine("Finished.");
         //    Console.ReadLine();
@@ -585,16 +690,17 @@ namespace dimorphics_dataset
             }
 
 
-            Directory.CreateDirectory(Path.GetDirectoryName(output_filename));
-
             seqs = seqs.OrderBy(a => a).Distinct().ToList();
 
             //            var rename_list = seqs.SelectMany((a, i) => reverse_lookup.Where(b=>b.seq==a).Select(b=> $"copy {i}.* {b.pdb}.*")).ToList();
 
             var rename_list = reverse_lookup.Select(a => (a.pdb, a.seq, index: seqs.IndexOf(a.seq), cmd: new[] { $"del {a.pdb}.*", $"copy {seqs.IndexOf(a.seq)}.* {a.pdb}.*" })).ToList();
 
-            File.WriteAllLines(output_filename, seqs);
-            File.WriteAllLines(rename_filename, rename_list.SelectMany(a => a.cmd).ToList());
+            //Directory.CreateDirectory(Path.GetDirectoryName(output_filename));
+            //Directory.CreateDirectory(Path.GetDirectoryName(rename_filename));
+
+            program.WriteAllLines(output_filename, seqs, nameof(program), nameof(get_pdb_sequences));
+            program.WriteAllLines(rename_filename, rename_list.SelectMany(a => a.cmd).ToList(), nameof(program), nameof(get_pdb_sequences));
 
             //for (var i = 0; i < seqs.Count; i++)
             //{
@@ -603,7 +709,7 @@ namespace dimorphics_dataset
             //    file_seq.Add(">" + i);
             //    file_seq.Add(seqs[i]);
 
-            //    File.WriteAllLines(@"C:\betastrands_dataset\iupred2a\" + i + ".seq", file_seq);
+            //    program.WriteAllLines(@"C:\betastrands_dataset\iupred2a\" + i + ".seq", file_seq);
             //}
 
             return seqs;
@@ -722,7 +828,9 @@ namespace dimorphics_dataset
                     }
 
                     var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"blast_pssm_{(!remote ? num_iterations.ToString() + "_" : "")}{(remote ? "remote" : "local")}_{blast_db}_{evalue.ToString("000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture)}.bat");
-                    File.WriteAllLines(batch_pssm_local_file, cmd_lines);
+                    
+                    //Directory.CreateDirectory(Path.GetDirectoryName(batch_pssm_local_file));
+                    program.WriteAllLines(batch_pssm_local_file, cmd_lines, nameof(program), nameof(get_pssms));
 
                 }
             }
@@ -731,7 +839,9 @@ namespace dimorphics_dataset
 
             //var all_cmd_lines = tasks.SelectMany(a => a.Result).ToList();
 
-            File.WriteAllLines(@"c:\betastrands_dataset\dna_pred.bat", dna_pred);
+            var dna_pred_batch_filename = @"c:\betastrands_dataset\dna_pred.bat";
+            //Directory.CreateDirectory(Path.GetDirectoryName(dna_pred_batch_filename));
+            program.WriteAllLines(dna_pred_batch_filename, dna_pred, nameof(program), nameof(get_pssms));
 
             Console.WriteLine($@"{blast_db}_{num_iterations}_{(remote ? "remote" : "local")}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}");
         }
@@ -842,8 +952,9 @@ namespace dimorphics_dataset
 
                 //var data = (pdb: pdb, chain: chain, uniprot_id: uniprot_id, uniprot_header:uniprot_fasta.header, uniprot_sequence:uniprot_fasta.sequence);
 
-                Directory.CreateDirectory(uniprot_folder);
-                File.WriteAllLines(Path.Combine(uniprot_folder, pdb + chain + ".fasta"), new string[] { uniprot_fasta.header, uniprot_fasta.sequence });
+                var fn = Path.Combine(uniprot_folder, pdb + chain + ".fasta");
+                //Directory.CreateDirectory(Path.GetDirectoryName(fn));
+                program.WriteAllLines(fn, new string[] { uniprot_fasta.header, uniprot_fasta.sequence }, nameof(program), nameof(get_uniprot_sequences));
             }
 
 
@@ -915,8 +1026,11 @@ namespace dimorphics_dataset
             missing_list_del.AddRange(missing_list_del.Select(a => a.Replace("Dif", "Average")).ToList());
             missing_list_del.AddRange(missing_list_del.Select(a => a.Replace("Dif", "Raw")).ToList());
 
-            File.WriteAllLines(cmd_list_file_missing, missing_list);
-            File.WriteAllLines(cmd_list_file_missing_del, missing_list_del);
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
+
+            program.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_buildmodel_position_scan_files_are_complete));
+            program.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_buildmodel_position_scan_files_are_complete));
 
 
             Console.WriteLine();
@@ -983,8 +1097,11 @@ namespace dimorphics_dataset
             missing_list_del.AddRange(missing_list_del.Select(a => a.Replace("Dif", "Average")).ToList());
             missing_list_del.AddRange(missing_list_del.Select(a => a.Replace("Dif", "Raw")).ToList());
 
-            File.WriteAllLines(cmd_list_file_missing, missing_list);
-            File.WriteAllLines(cmd_list_file_missing_del, missing_list_del);
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
+
+            program.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_buildmodel_subseq_mutant_files_are_complete));
+            program.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_buildmodel_subseq_mutant_files_are_complete));
 
 
             Console.WriteLine();
@@ -1042,8 +1159,12 @@ namespace dimorphics_dataset
 
             var missing_list = missing.Select(a => a.a).ToList();
             var missing_list_del = missing_list.Where(a => a.StartsWith("if not exist", StringComparison.InvariantCultureIgnoreCase)).Select(b => "del " + b.Split()[3]).ToList();
-            File.WriteAllLines(cmd_list_file_missing, missing_list);
-            File.WriteAllLines(cmd_list_file_missing_del, missing_list_del);
+
+            ///Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
+
+            program.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_ala_scanning_files_are_complete));
+            program.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_ala_scanning_files_are_complete));
 
             Console.WriteLine();
         }
@@ -1152,14 +1273,18 @@ namespace dimorphics_dataset
             Console.WriteLine("incomplete_file_count: " + incomplete_files.Count);
             Console.WriteLine("complete_file_count: " + complete_files.Count);
 
-            //File.WriteAllLines(@"C:\betastrands_dataset\foldx\ps_incomplete_files.txt", incomplete_files);
+            //program.WriteAllLines(@"C:\betastrands_dataset\foldx\ps_incomplete_files.txt", incomplete_files);
 
 
 
             var missing_list = missing.Select(a => a).ToList();
             var missing_list_del = missing_list.Where(a => a.StartsWith("if not exist", StringComparison.InvariantCultureIgnoreCase)).Select(b => "del " + b.Split()[3]).ToList();
-            File.WriteAllLines(cmd_list_file_missing, missing_list);
-            File.WriteAllLines(cmd_list_file_missing_del, missing_list_del);
+
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
+            //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
+
+            program.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_foldx_position_scan_files_are_completed));
+            program.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_foldx_position_scan_files_are_completed));
 
             Console.WriteLine();
         }
@@ -1202,7 +1327,13 @@ namespace dimorphics_dataset
 
             var ids = seqs_all.Select((a, i) => seqs_limited.Contains(a) ? i : -1).Distinct().Where(a => a != -1).ToList();
 
-            File.WriteAllLines(@"c:\betastrands_dataset\copy_limited.bat", ids.Select(a=> $@"copy {a}.* limited\").ToList());
+            var fn = @"c:\betastrands_dataset\copy_limited.bat";
+
+            //Directory.CreateDirectory(Path.GetDirectoryName(fn));
+
+            var ids_lines = ids.Select(a => $@"copy {a}.* limited\").ToList();
+
+            program.WriteAllLines(fn, ids_lines, nameof(program), nameof(get_limited_ids));
             //Console.ReadKey();
 
         }
@@ -1871,7 +2002,11 @@ namespace dimorphics_dataset
 
 
                         var feature_headers_file = Path.Combine(output_folder, $"h__[{class_info.class_name}].csv");//  $@"c:\betastrands_dataset\svm_features\feature_headers_c{row.class_id}.csv";
-                        File.WriteAllLines(feature_headers_file, header_list_str_c);
+                        
+                        //Directory.CreateDirectory(Path.GetDirectoryName(feature_headers_file));
+
+                        program.WriteAllLines(feature_headers_file, header_list_str_c, nameof(program), nameof(find_class_data));
+
                         Console.WriteLine("Saved headers: " + feature_headers_file);
 
 
@@ -1949,15 +2084,15 @@ namespace dimorphics_dataset
                 // save comments file
                 comment_rows.Insert(0, string.Join(",", comment_headers));
                 var comment_file = Path.Combine(output_folder, $"c__[{class_info.class_name}].csv");
-                Directory.CreateDirectory(Path.GetDirectoryName(comment_file));
-                File.WriteAllLines(comment_file, comment_rows);
+                //Directory.CreateDirectory(Path.GetDirectoryName(comment_file));
+                program.WriteAllLines(comment_file, comment_rows, nameof(program), nameof(find_class_data));
                 program.WriteLine("Saved: " + comment_file);
 
                 // save features file
                 all_output_data.Insert(0, string.Join(",", header_list_str));
                 var all_features_file = Path.Combine(output_folder, $"f__[{class_info.class_name}].csv");
-                Directory.CreateDirectory(Path.GetDirectoryName(all_features_file));
-                File.WriteAllLines(all_features_file, all_output_data);
+                //Directory.CreateDirectory(Path.GetDirectoryName(all_features_file));
+                program.WriteAllLines(all_features_file, all_output_data, nameof(program), nameof(find_class_data));
                 program.WriteLine("Saved: " + all_features_file);
 
                 
@@ -2003,8 +2138,8 @@ namespace dimorphics_dataset
 
         //    }
 
-        //    File.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_matrix)}.txt", aa_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
-        //    File.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_group_matrix)}.txt", aa_group_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
+        //    program.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_matrix)}.txt", aa_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
+        //    program.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_group_matrix)}.txt", aa_group_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
         //}
 
         public static List<(int x, int y, double d)> matrix_to_list(double[,] matrix)

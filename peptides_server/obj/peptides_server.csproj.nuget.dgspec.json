@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {}
+    "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {}
   },
   "projects": {
-    "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
+    "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
+        "projectUniqueName": "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
         "projectName": "dimorphics_dataset",
-        "projectPath": "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
+        "projectPath": "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
         "packagesPath": "C:\\Users\\aaron\\.nuget\\packages\\",
-        "outputPath": "c:\\dimorphics_dataset\\dimorphics_dataset\\obj\\",
+        "outputPath": "C:\\dimorphics_dataset\\dimorphics_dataset\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -40,6 +40,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -59,14 +65,14 @@
         }
       }
     },
-    "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {
+    "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+        "projectUniqueName": "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
         "projectName": "peptides_server",
-        "projectPath": "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+        "projectPath": "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
         "packagesPath": "C:\\Users\\aaron\\.nuget\\packages\\",
-        "outputPath": "c:\\dimorphics_dataset\\peptides_server\\obj\\",
+        "outputPath": "C:\\dimorphics_dataset\\peptides_server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -85,8 +91,8 @@
         "frameworks": {
           "netcoreapp3.1": {
             "projectReferences": {
-              "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
-                "projectPath": "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
+              "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
+                "projectPath": "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
               }
             }
           }

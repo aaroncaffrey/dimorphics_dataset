@@ -410,18 +410,18 @@ namespace dimorphics_dataset
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
+            //Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
 
-            File.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => a.Id + "\r\n" + a.FullSequence + "\r\n").ToList()));
+            program.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => a.Id + "\r\n" + a.FullSequence + "\r\n").ToList()), nameof(sequence), nameof(Save));
         }
 
         public static void Save(string outputFastaFile, sequence sequence)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
+            //Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
 
-            File.WriteAllText(outputFastaFile, sequence.Id + "\r\n" + sequence.FullSequence + "\r\n");
+            program.WriteAllText(outputFastaFile, sequence.Id + "\r\n" + sequence.FullSequence + "\r\n", nameof(sequence), nameof(Save));
         }
     }
 }

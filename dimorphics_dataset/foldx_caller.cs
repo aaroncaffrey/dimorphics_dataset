@@ -80,22 +80,33 @@ namespace dimorphics_dataset
 
             lock (file_write_lock)
             {
-                File.AppendAllLines(Path.Combine($@"{foldx_folder}", $"foldx_calc_ala_scanning_{source.ToString()}.bat.skip"), new[]
+                var fn1 = Path.Combine($@"{foldx_folder}", $"foldx_calc_ala_scanning_{source.ToString()}.bat.skip");
+                //Directory.CreateDirectory(Path.GetDirectoryName(fn1));
+                program.AppendAllLines(fn1, new[]
                 {
                     $@"if not exist ""{result.foldx_ala_scanning_result_subsequence.wait_filename}"" {result.foldx_ala_scanning_result_subsequence.cmd_line}"
-                });
-                File.AppendAllLines(Path.Combine($@"{foldx_folder}", $"foldx_calc_position_scanning_{source.ToString()}.bat"), new[]
+                }, nameof(foldx_caller), nameof(calc_energy_differences));
+
+                var fn2 = Path.Combine($@"{foldx_folder}", $"foldx_calc_position_scanning_{source.ToString()}.bat");
+                //Directory.CreateDirectory(Path.GetDirectoryName(fn2));
+                program.AppendAllLines(fn2, new[]
                 {
                     $@"if not exist ""{result.foldx_position_scanning_result_subsequence.wait_filename}"" {result.foldx_position_scanning_result_subsequence.cmd_line}"
-                });
-                File.AppendAllLines(Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat"), new[]
+                }, nameof(foldx_caller), nameof(calc_energy_differences));
+
+                var fn3 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat");
+                //Directory.CreateDirectory(Path.GetDirectoryName(fn3));
+                program.AppendAllLines(fn3, new[]
                 {
                     $@"if not exist ""{result.foldx_buildmodel_position_scan_result_subsequence.wait_filename}"" {result.foldx_buildmodel_position_scan_result_subsequence.cmd_line}"
-                });
-                File.AppendAllLines(Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat"), new[]
+                }, nameof(foldx_caller), nameof(calc_energy_differences));
+
+                var fn4 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat");
+                //Directory.CreateDirectory(Path.GetDirectoryName(fn4));
+                program.AppendAllLines(fn4, new[]
                 {
                     $@"if not exist ""{result.foldx_buildmodel_subsequence_mutant_result_subsequence.wait_filename}"" {result.foldx_buildmodel_subsequence_mutant_result_subsequence.cmd_line}"
-                });
+                }, nameof(foldx_caller), nameof(calc_energy_differences));
             }
         
 
@@ -506,8 +517,8 @@ namespace dimorphics_dataset
 
             lock (file_write_lock)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                File.WriteAllLines(mutant_list_file, foldx_mutation_positions_data);
+                //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
+                program.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(foldx_caller), nameof(load_foldx_buildmodel_position_scan));
             }
 
             var foldx_cmd = $"BuildModel";
@@ -637,8 +648,8 @@ namespace dimorphics_dataset
 
             lock (file_write_lock)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                File.WriteAllLines(mutant_list_file, foldx_mutation_positions_data);
+                //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
+                program.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(foldx_caller), nameof(load_foldx_buildmodel_subsequence_mutant));
             }
 
 

@@ -168,12 +168,13 @@ namespace dimorphics_dataset
             var chains = pdb_lines.GroupBy(a => a[21]).Where(a => chain_id == null || a.Key == chain_id).ToList();
             chains.ForEach(a =>
             {
-                var chain_pdb_file = $@"{pdb_out_folder}{pdb_id}{a.Key}.pdb";
+                var chain_pdb_file = Path.Combine(pdb_out_folder, $@"{pdb_id}{a.Key}.pdb");
+                
                 if (!File.Exists(chain_pdb_file) || new FileInfo(chain_pdb_file).Length == 0)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(chain_pdb_file));
+                    //Directory.CreateDirectory(Path.GetDirectoryName(chain_pdb_file));
 
-                    File.WriteAllLines(chain_pdb_file, a.ToList());
+                    program.WriteAllLines(chain_pdb_file, a.ToList(), nameof(atom), nameof(extract_split_pdb_chains));
                 }
             });
             return chains.Select(a => $@"{pdb_out_folder}{pdb_id}{a.Key}.pdb").ToArray();
@@ -205,13 +206,13 @@ namespace dimorphics_dataset
             //this.residue_index = int.Parse(pdb_atom_line.Substring(22, 4));
             //this.i_code = pdb_atom_line[26];
 
-            var output_pdb_file = $@"{pdb_out_folder}{pdb_id}{chain_id}_{first_res_id}_{last_res_id}.pdb";
+            var output_pdb_file = Path.Combine($@"{pdb_out_folder}", $@"{pdb_id}{chain_id}_{first_res_id}_{last_res_id}.pdb");
 
             if (!File.Exists(output_pdb_file) || new FileInfo(output_pdb_file).Length == 0)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(output_pdb_file));
+                //Directory.CreateDirectory(Path.GetDirectoryName(output_pdb_file));
 
-                File.WriteAllLines(output_pdb_file, pdb_lines.ToList());
+                program.WriteAllLines(output_pdb_file, pdb_lines.ToList(), nameof(atom), nameof(extract_split_pdb_chains_res_ids));
             }
 
             return output_pdb_file;
@@ -576,7 +577,9 @@ namespace dimorphics_dataset
 
                 lock (dssp_mpsa_lock)
                 {
-                    File.AppendAllLines($@"c:\betastrands_dataset\dssp_mpsa_protein_q3_data.csv", data);
+                    var q3_fn = $@"c:\betastrands_dataset\dssp_mpsa_protein_q3_data.csv";
+                    //Directory.CreateDirectory(Path.GetDirectoryName(q3_fn));
+                    program.AppendAllLines(q3_fn, data, nameof(atom), nameof(load_atoms_pdb));
                 }
             }
 
@@ -895,16 +898,18 @@ namespace dimorphics_dataset
                 //result1.Add(blank);
                 //result2.Add(blank);
 
-                //result1.GroupBy(a => a.filename).ToList().ForEach(a => File.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
-                //result2.GroupBy(a => a.filename).ToList().ForEach(a => File.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
+                //result1.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
+                //result2.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
 
                 var f_q3 = $@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{nameof(q3)}.csv";
                 var r_q3 = q3.Select(a => $@"{a.pdb_id},{a.chain_id},{a.truth_format},{a.predictor_format},{a.aa_subset},{a.ss},{a.q3_value},{a.truth_total}").ToList();
-                File.AppendAllLines(f_q3, r_q3);
+                    //Directory.CreateDirectory(Path.GetDirectoryName(f_q3));
+                program.AppendAllLines(f_q3, r_q3, nameof(atom), nameof(compare_dssp_to_mpsa));
 
                 var f_av = $@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{nameof(av)}.csv";
                 var r_av = av.Select(a => $@"{a.pdb_id},{a.chain_id},{a.predictor_format},{a.aa_subset},{a.ss},{a.average},{a.truth_total}").ToList();
-                File.AppendAllLines(f_av, r_av);
+                //Directory.CreateDirectory(Path.GetDirectoryName(f_av));
+                program.AppendAllLines(f_av, r_av, nameof(atom), nameof(compare_dssp_to_mpsa));
             }
         }
 

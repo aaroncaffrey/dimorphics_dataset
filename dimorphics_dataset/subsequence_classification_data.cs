@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace dimorphics_dataset
 {
@@ -3301,10 +3302,10 @@ namespace dimorphics_dataset
             }
 #if DEBUG
             //var exe = @"C:\Users\aaron\Desktop\Projects\dimorphics_dataset\peptides_server\bin\x64\Debug\peptides_server.exe";
-            var exe = @"C:\dimorphics_dataset\peptides_server\bin\Debug\netcoreapp3.1\peptides_server.exe";
+            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Debug\netcoreapp3.1\peptides_server.exe";
 
 #else
-            var exe = @"C:\dimorphics_dataset\peptides_server\bin\Release\netcoreapp3.1\peptides_server.exe";
+            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.exe";
 #endif
 
             //var psi = new ProcessStartInfo()
@@ -4146,46 +4147,30 @@ namespace dimorphics_dataset
         {
             public List<feature_info> feautre_info_list;
 
- 
             public static string serialise_json(feature_info_container feature_info_container)
             {
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                };
-
-                return JsonSerializer.Serialize<feature_info_container>(feature_info_container, options);
-
-
-                //var json_settings = new JsonSerializerSettings() { PreserveReferencesHandling = PreserveReferencesHandling.All, };
-                //var serialised_serialise_json = JsonConvert.SerializeObject(feature_info_container, json_settings);
-                //return serialised_serialise_json;
+                var json_settings = new JsonSerializerSettings() { PreserveReferencesHandling = PreserveReferencesHandling.All, };
+                var serialised_serialise_json = JsonConvert.SerializeObject(feature_info_container, json_settings);
+                return serialised_serialise_json;
             }
 
             public static feature_info_container deserialise(string serialized_json)
             {
-                //var json_settings = new JsonSerializerSettings() { PreserveReferencesHandling = PreserveReferencesHandling.All };
-                //feature_info_container feature_info_container = null;
+                var json_settings = new JsonSerializerSettings() { PreserveReferencesHandling = PreserveReferencesHandling.All };
+                feature_info_container feature_info_container = null;
 
-                //try
-                //{
-                //    feature_info_container = JsonConvert.DeserializeObject<feature_info_container>(serialized_json, json_settings);
-                //}
-                //catch (Exception e)
-                //{
-                //    feature_info_container = null;
-
-                //    Program.WriteLine(e.ToString());
-                //}
-
-                //return feature_info_container;
-
-                var options = new JsonSerializerOptions
+                try
                 {
-                    AllowTrailingCommas = true
-                };
+                    feature_info_container = JsonConvert.DeserializeObject<feature_info_container>(serialized_json, json_settings);
+                }
+                catch (Exception e)
+                {
+                    feature_info_container = null;
 
-                return JsonSerializer.Deserialize<feature_info_container>(serialized_json, options);
+                    program.WriteLine(e.ToString());
+                }
+
+                return feature_info_container;
             }
         }
 

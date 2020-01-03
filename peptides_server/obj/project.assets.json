@@ -52,6 +52,15 @@
           }
         }
       },
+      "Newtonsoft.Json/12.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+        }
+      },
       "R.NET/1.8.2": {
         "type": "package",
         "dependencies": {
@@ -110,6 +119,9 @@
       "dimorphics_dataset/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3"
+        },
         "compile": {
           "bin/placeholder/dimorphics_dataset.dll": {}
         },
@@ -258,6 +270,37 @@
         "version.txt"
       ]
     },
+    "Newtonsoft.Json/12.0.3": {
+      "sha512": "6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
+      "type": "package",
+      "path": "newtonsoft.json/12.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.md",
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/netstandard1.0/Newtonsoft.Json.dll",
+        "lib/netstandard1.0/Newtonsoft.Json.xml",
+        "lib/netstandard1.3/Newtonsoft.Json.dll",
+        "lib/netstandard1.3/Newtonsoft.Json.xml",
+        "lib/netstandard2.0/Newtonsoft.Json.dll",
+        "lib/netstandard2.0/Newtonsoft.Json.xml",
+        "lib/portable-net40+sl5+win8+wp8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net40+sl5+win8+wp8+wpa81/Newtonsoft.Json.xml",
+        "lib/portable-net45+win8+wp8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net45+win8+wp8+wpa81/Newtonsoft.Json.xml",
+        "newtonsoft.json.12.0.3.nupkg.sha512",
+        "newtonsoft.json.nuspec",
+        "packageIcon.png"
+      ]
+    },
     "R.NET/1.8.2": {
       "sha512": "WXIs0r+WS8IrqIOBg4KoVTC5A/fIMySaZM5OotoE0BCb2RI+CQcR6FFDsDXqNy6+7cx4uLp7NX6mt5SGFyAKRg==",
       "type": "package",
@@ -375,11 +418,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+      "projectUniqueName": "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
       "projectName": "peptides_server",
-      "projectPath": "c:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+      "projectPath": "C:\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
       "packagesPath": "C:\\Users\\aaron\\.nuget\\packages\\",
-      "outputPath": "c:\\dimorphics_dataset\\peptides_server\\obj\\",
+      "outputPath": "C:\\dimorphics_dataset\\peptides_server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -398,8 +441,8 @@
       "frameworks": {
         "netcoreapp3.1": {
           "projectReferences": {
-            "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
-              "projectPath": "c:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
+            "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
+              "projectPath": "C:\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
             }
           }
         }
