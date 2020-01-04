@@ -210,7 +210,7 @@ namespace dimorphics_dataset
 
 
 
-            var split_sequence = feature_calcs.split_sequence(complete_sequence, 3, 0, false);
+            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, 0, false);
             var sequences = new List<(string name, List<atom> sequence)>();
             sequences.Add(("unsplit", complete_sequence));
             sequences.AddRange(split_sequence.Select(a => ("split", a)).ToList());
@@ -684,6 +684,14 @@ namespace dimorphics_dataset
         public static int fx2 = 0;
         public static int fx3 = 0;
         public static int fx4 = 0;
+        
+        public static int fx3a = 0;
+        public static int fx3b = 0;
+        public static int fx3c = 0;
+        public static int fx3d = 0;
+        public static int fx3e = 0;
+        public static int fx3f = 0;
+        public static int fx3g = 0;
 
         public static List<feature_info> calculate_foldx_classification_data(subsequence_classification_data scd, List<atom> subsequence_master_atoms, protein_data_sources source, int max_features)
         {
@@ -771,7 +779,7 @@ namespace dimorphics_dataset
 
                 var foldx_ala_scanning_result = foldx_energy_differences.foldx_ala_scanning_result_subsequence.data
                     .OrderBy(a => a.residue_index).ToList();
-                var foldx_ala_scanning_result_split = feature_calcs.split_sequence(foldx_ala_scanning_result, 3, 0, false);
+                var foldx_ala_scanning_result_split = feature_calcs.split_sequence(foldx_ala_scanning_result);//, 3, 0, false);
 
                 var foldx_ala = foldx_ala_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
                 foldx_ala.Add((name: $@"unsplit", items: foldx_ala_scanning_result));
@@ -830,7 +838,7 @@ namespace dimorphics_dataset
 
 
                     var foldx_pos_scanning_result = foldx_energy_differences.foldx_position_scanning_result_subsequence.data.OrderBy(a => a.residue_index).ToList();
-                    var foldx_pos_scanning_result_split = feature_calcs.split_sequence(foldx_pos_scanning_result, 3, 0, false);
+                    var foldx_pos_scanning_result_split = feature_calcs.split_sequence(foldx_pos_scanning_result);//, 3, 0, false);
 
                     var foldx_pos = foldx_pos_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
                     foldx_pos.Add((name: $@"unsplit", items: foldx_pos_scanning_result));
@@ -851,6 +859,7 @@ namespace dimorphics_dataset
                                     var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1)).ToList();
                                     var items_ddg = items.Select(a => a.ddg).ToArray();
 
+                                    //if (items == null || items.Count == 0) throw new Exception(); // just to test
 
                                     var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}");
                                     var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
@@ -938,14 +947,18 @@ namespace dimorphics_dataset
                     var foldx_cmd = $@"foldx_bm_ps";
                     var foldx_bm_ps_feats = new List<feature_info>();
 
-
+                    //155, 558, 372
                     var foldx_bm_ps_scanning_result = foldx_energy_differences.foldx_buildmodel_position_scan_result_subsequence.data.OrderBy(a => a.mutation_positions_data.residue_index).ToList();
 
+                    //3 (4,4,4) (31,31,31)
+                    // todo: should 'distribute' not be true? (currently giving 1,3,1 and etc.)
 
-                    var foldx_bm_ps_scanning_result_split_grouped = feature_calcs.split_sequence(foldx_bm_ps_scanning_result.GroupBy(a => a.mutation_positions_data.residue_index).Select(a => a.ToList()).ToList(), 3, 0, false);
+                    var foldx_bm_ps_scanning_result_split_grouped = feature_calcs.split_sequence(foldx_bm_ps_scanning_result.GroupBy(a => a.mutation_positions_data.residue_index).Select(a => a.ToList()).ToList());//, 3, 0, false);
 
+                    //3
                     var foldx_bm_ps_scanning_result_split = foldx_bm_ps_scanning_result_split_grouped.Select(a => a.SelectMany(b => b).ToList()).ToList();
 
+                    //4
                     var foldx_bm_ps = foldx_bm_ps_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
 
                     foldx_bm_ps.Add((name: $@"unsplit", items: foldx_bm_ps_scanning_result));
@@ -961,45 +974,6 @@ namespace dimorphics_dataset
 
                             foreach (var g_row_original_foldx_amino_acid_alphabet_group in alphabet.groups)
                             {
-                                // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
-                                //if (foldx_specific_amino_acids.All(a => "" + a != g_row_original_amino_acid))
-                                {
-                                    // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
-                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1)).ToList();
-                                    var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
-
-                                    foreach (var items_ddg in items_ddg_list)
-                                    {
-                                        var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}");
-                                        var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
-                                        {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_sequence_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
-
-                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
-                                        {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
-                                    }
-                                }
-
                                 // columns: compare by mutation amino acids
                                 {
                                     var g_col_foldx_amino_acid = g_row_original_foldx_amino_acid_alphabet_group;
@@ -1022,7 +996,8 @@ namespace dimorphics_dataset
                                             perspective = a.perspective_id,
                                             feature_value = a.perspective_value
                                         }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);//1
+                                        //fx3c = items_ddg_ds_encoded_features_separated.Count;
 
                                         var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
                                         {
@@ -1035,10 +1010,67 @@ namespace dimorphics_dataset
                                             perspective = a.perspective_id,
                                             feature_value = a.perspective_value
                                         }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
+                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features); //1
+                                        //fx3d = items_ddg_ds_encoded_features.Count;
                                     }
+                                    //Console.WriteLine($@"c = {fx3c}, d = {fx3d}");
                                 }
 
+                                // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
+                                //if (foldx_specific_amino_acids.All(a => "" + a != g_row_original_amino_acid))
+                                {
+                                    // bugged
+
+                                    // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
+                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1)).ToList();
+
+                                    //if (items == null || items.Count == 0) throw new Exception();
+
+                                    var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
+
+                                    if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
+                                    {
+                                        // insert blank values to make same number of features for each input
+                                        items_ddg_list = new foldx_caller.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                    }
+
+                                    foreach (var items_ddg in items_ddg_list)
+                                    {
+                                        var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}");
+                                        var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
+                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = source.ToString(),
+                                            @group = $@"{foldx_cmd}_sequence_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
+                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
+                                            perspective = a.perspective_id,
+                                            feature_value = a.perspective_value
+                                        }).ToList();
+                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                        //fx3a = items_ddg_ds_encoded_features_separated.Count;
+
+                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = source.ToString(),
+                                            @group = $@"{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
+                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
+                                            perspective = a.perspective_id,
+                                            feature_value = a.perspective_value
+                                        }).ToList();
+                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
+                                        //fx3b = items_ddg_ds_encoded_features.Count;
+
+                                    }
+                                    //Console.WriteLine($@"a = {fx3a}, b = {fx3b}");
+                                }
+
+                                
                                 // matrix row:column code: compare by cross-reference of original amino acids and mutation amino acids
 
                                 foreach (var g_col_mutant_foldx_amino_acid_alphabet_group in alphabet.groups)
@@ -1046,6 +1078,11 @@ namespace dimorphics_dataset
                                     var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1) && g_col_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1)).ToList();
                                     var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
 
+                                    if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
+                                    {
+                                        // insert blank values to make same number of features for each input
+                                        items_ddg_list = new foldx_caller.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] {a.value})).ToList();
+                                    }
 
                                     foreach (var items_ddg in items_ddg_list)
                                     {
@@ -1063,6 +1100,7 @@ namespace dimorphics_dataset
                                             feature_value = a.perspective_value
                                         }).ToList();
                                         foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                        //fx3e = items_ddg_ds_encoded_features_separated.Count;
 
                                         var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
                                         {
@@ -1077,8 +1115,13 @@ namespace dimorphics_dataset
                                         }).ToList();
 
                                         foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
+                                        //fx3f = items_ddg_ds_encoded_features.Count;
+
                                     }
+
+                                    //Console.WriteLine($@"e = {fx3e}, f = {fx3f}");
                                 }
+                                
                             }
                         }
 
@@ -1533,7 +1576,7 @@ namespace dimorphics_dataset
             var aaindices_subsections = aaindex_subset_templates;
 
             var complete_sequence = string.Join("", subsequence_master_atoms.Select(a => a.amino_acid).ToList());
-            var split_sequence = feature_calcs.split_sequence(complete_sequence, 3, false);
+            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, false);
             var sequences = new List<(string name, string sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
@@ -1729,7 +1772,7 @@ namespace dimorphics_dataset
             var result = new List<feature_info>();
 
             var complete_sequence = subsequence_master_atoms;
-            var split_sequence = feature_calcs.split_sequence(subsequence_master_atoms, 3, 0, false);
+            var split_sequence = feature_calcs.split_sequence(subsequence_master_atoms);//, 3, 0, false);
             var sequences = new List<(string name, List<atom> sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
@@ -1890,7 +1933,7 @@ namespace dimorphics_dataset
             var complete_sequence = subsequence_master_atoms;
 
 
-            var split_sequence = feature_calcs.split_sequence(complete_sequence, 3, 0, false);
+            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, 0, false);
             var sequences = new List<(string name, List<atom> sequence)>();
             if (blast_pssm_options.make_unsplit_sequence) sequences.Add(($@"unsplit", complete_sequence));
             if (blast_pssm_options.make_split_sequence) sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
@@ -2394,7 +2437,7 @@ namespace dimorphics_dataset
             var features = new List<feature_info>();
 
             var complete_sequence = subsequence_master_atoms;
-            var split_sequence = feature_calcs.split_sequence(complete_sequence, 3, 0, false);
+            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, 0, false);
             var sequences = new List<(string name, List<atom> sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
@@ -2544,7 +2587,7 @@ namespace dimorphics_dataset
             var features = new List<feature_info>();
 
             var complete_sequence = subsequence_master_atoms;
-            var split_sequence = feature_calcs.split_sequence(complete_sequence, 3, 0, false);
+            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, 0, false);
             var sequences = new List<(string name, List<atom> sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
@@ -3937,7 +3980,7 @@ namespace dimorphics_dataset
 
                     var dist_name = $"{(as_dist ? "dist" : "count")}_{(as_sqrt ? "sqrt" : "normal")}";
 
-                    var seq_split = feature_calcs.split_sequence(sequence, 3, false);
+                    var seq_split = feature_calcs.split_sequence(sequence);//, 3, false);
 
                     var seqs = new List<(string name, string sequence)>();
 

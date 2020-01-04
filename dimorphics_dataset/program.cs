@@ -1342,6 +1342,18 @@ namespace dimorphics_dataset
 
         public static void Main(string[] args)
         {
+            //for (var b = 0; b <= 1; b++)
+            //{
+            //    for (var i = 0; i < 100; i++)
+            //    {
+            //        var inp = new string('A', i);
+            //        var x = feature_calcs.split_sequence(inp,3,0,b==1);
+            //        Console.WriteLine(inp + ": " + string.Join(", ", x));
+            //    }
+            //}
+            //return;
+            
+
             var do_2d_interface = false;
             var do_2d_nh = false;
             var do_2d_protein = false;

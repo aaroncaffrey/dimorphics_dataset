@@ -282,17 +282,17 @@ namespace dimorphics_dataset
             public double value;
         }
 
-        public static string[] split_sequence(string seq, int sections = 3, bool distribute = false)
+        public static string[] split_sequence(string seq, int sections = 3, int divisible = 0, bool distribute = false)
         {
             if (seq == null) seq = "";
 
-            var x = split_sequence(seq.ToList(), sections, 0, distribute);
+            var x = split_sequence(seq.ToList(), sections, divisible, distribute);
             var y = x.Select(a => string.Join("", a)).ToArray();
             return y;
         }
 
 
-        public static List<List<T>> split_sequence<T>(List<T> seq, int sections, int divisible = 0, bool distribute = false)
+        public static List<List<T>> split_sequence<T>(List<T> seq, int sections = 3, int divisible = 0, bool distribute = false)
         {
             var r = new List<List<T>>();
             for (var i = 0; i < sections; i++)

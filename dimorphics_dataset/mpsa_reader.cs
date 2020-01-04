@@ -54,7 +54,7 @@ namespace dimorphics_dataset
             this.ss_overall_average = prob_dist.ss_overall_average;
             this.ss_probabilities_per_aa = prob_dist.ss_probabilities_per_aa;
 
-            var mpsa_matrix_split = feature_calcs.split_sequence(mpsa_matrix, 3, 0, false);
+            var mpsa_matrix_split = feature_calcs.split_sequence(mpsa_matrix);//, 3, 0, false);
             var mpsa_matrix_split_prob_dist = mpsa_matrix_split.Select(a => calc_prob_dist(a, this.ss_column_headers)).ToList();
             this.split_ss_overall_average = mpsa_matrix_split_prob_dist.Select(a => a.ss_overall_average).ToList();
             this.split_ss_probabilities_per_aa = mpsa_matrix_split_prob_dist.Select(a => a.ss_probabilities_per_aa).ToList();
