@@ -117,17 +117,17 @@ namespace dimorphics_dataset
             //var dhc_features = new List<List<(string id, object value)>>();
 
 
-            int cl;
-            int ct;
+            //int cl;
+            //int ct;
 
-            lock (program._console_lock)
-            {
-                Console.WriteLine();
-                cl = Console.CursorLeft + 1;
-                ct = Console.CursorTop;
-                Console.WriteLine($"[{new string('.', dimorphics_data.Count)}]");
-                Console.WriteLine();
-            }
+            //lock (program._console_lock)
+            //{
+            //    Console.WriteLine();
+            //    cl = Console.CursorLeft + 1;
+            //    ct = Console.CursorTop;
+            //    Console.WriteLine($"[{new string('.', dimorphics_data.Count)}]");
+            //    Console.WriteLine();
+            //}
             //var console_lock = new object();
 
             //Console.SetCursorPosition(0,ct+1);
@@ -143,6 +143,9 @@ namespace dimorphics_dataset
                 max_tasks = 2000;//Math.Abs(max_tasks) * Environment.ProcessorCount * 10;
             }
 
+            var progress_lock = new object();
+            var progress = 0;
+            var progress_goal = dimorphics_data.Count;
 
             foreach (var di in dimorphics_data)
             {
@@ -425,19 +428,26 @@ namespace dimorphics_dataset
 
 
 
-                    lock (program._console_lock)
-                    {
-                        //Console.WriteLine($"{dimorphic_seq},{subsequence_data.aa_subsequence},{subsequence_data.dssp_multimer_subsequence},{subsequence_data.dssp_monomer_subsequence},{dhc_stride_multimer_sequence},{dhc_stride_monomer_sequence}");
-                    
-                        var cl2 = Console.CursorLeft;
-                        var ct2 = Console.CursorTop;
+                    //lock (program._console_lock)
+                    //{
+                    //    //Console.WriteLine($"{dimorphic_seq},{subsequence_data.aa_subsequence},{subsequence_data.dssp_multimer_subsequence},{subsequence_data.dssp_monomer_subsequence},{dhc_stride_multimer_sequence},{dhc_stride_monomer_sequence}");
+                    //
+                    //    var cl2 = Console.CursorLeft;
+                    //    var ct2 = Console.CursorTop;
+                    //
+                    //    Console.SetCursorPosition(cl, ct);
+                    //    Console.Write("|");
+                    //    ct = Console.CursorTop;
+                    //    cl = Console.CursorLeft;
+                    //    Console.SetCursorPosition(cl2, ct2);
+                    //}
 
-                        Console.SetCursorPosition(cl, ct);
-                        Console.Write("|");
-                        ct = Console.CursorTop;
-                        cl = Console.CursorLeft;
-                        Console.SetCursorPosition(cl2, ct2);
+                    lock (progress_lock)
+                    {
+                        progress++;
                     }
+
+                    Console.WriteLine($@"{nameof(run_dhc_dataset_maker)} -> {progress} / {progress_goal} ( {(((double)progress / (double)progress_goal) * 100):00.00} % )");
 
                     return scd;
                 });

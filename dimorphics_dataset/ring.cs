@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -37,17 +38,20 @@ namespace dimorphics_dataset
                 foreach (var d in data)
                 {
 
-                    var NodeId1_a = (d[0], d[0].Split(':')[0][0], int.Parse(d[0].Split(':')[1]), d[0].Split(':')[2][0], atom.Aa3To1(d[0].Split(':')[3]), d[0].Split(':')[3]);
-                    var Interaction_a = (d[1], d[1].Split(':')[0], d[1].Split(':')[1].Split('_')[0], d[1].Split(':')[1].Split('_')[1]);
+                    var NodeId1_a = (text:d[0], chain:d[0].Split(':')[0][0], res_id:int.Parse(d[0].Split(':')[1]), icode: d[0].Split(':')[2][0]=='_'?' ': d[0].Split(':')[2][0], amino_acid1:atom.Aa3To1(d[0].Split(':')[3]), amino_acid3:d[0].Split(':')[3]);
+                    var Interaction_a = (text:d[1], interaction_type:d[1].Split(':')[0], subtype_node1:d[1].Split(':')[1].Split('_')[0], subtype_node2:d[1].Split(':')[1].Split('_')[1]);
 
-                    var NodeId2_a = (d[2], d[2].Split(':')[0][0], int.Parse(d[2].Split(':')[1]), d[2].Split(':')[2][0], atom.Aa3To1(d[2].Split(':')[3]), d[2].Split(':')[3]);
-                    var Donor_a = (d[8], d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', d[8].Length > 0 ? int.Parse(d[8].Split(':')[1]) : 0, d[8].Length > 0 ? d[8].Split(':')[2][0] : ' ', d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', d[8].Length > 0 ? d[8].Split(':')[3] : "");
+                    var NodeId2_a = (text:d[2], chain:d[2].Split(':')[0][0], res_id:int.Parse(d[2].Split(':')[1]), icode: d[2].Split(':')[2][0]=='_'?' ': d[2].Split(':')[2][0], amino_acid1:atom.Aa3To1(d[2].Split(':')[3]), amino_acid3:d[2].Split(':')[3]);
+                    var Donor_a = (text: d[8], chain: d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', res_id: d[8].Length > 0 ? int.Parse(d[8].Split(':')[1]) : 0, 
+                        
+                        icode: d[8].Length > 0 ? (d[8].Split(':')[2][0]=='_'?' ': d[8].Split(':')[2][0]) : ' ', amino_acid1: d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3: d[8].Length > 0 ? d[8].Split(':')[3] : "");
 
-                    var NodeId2_b = (d[0], d[0].Split(':')[0][0], int.Parse(d[0].Split(':')[1]), d[0].Split(':')[2][0], atom.Aa3To1(d[0].Split(':')[3]), d[0].Split(':')[3]);
-                    var Interaction_b = (d[1], d[1].Split(':')[0], d[1].Split(':')[1].Split('_')[1], d[1].Split(':')[1].Split('_')[0]);
+                    var NodeId2_b = (text:d[0], chain:d[0].Split(':')[0][0], res_id:int.Parse(d[0].Split(':')[1]), icode: d[0].Split(':')[2][0]=='_'?' ': d[0].Split(':')[2][0], amino_acid1:atom.Aa3To1(d[0].Split(':')[3]), amino_acid3:d[0].Split(':')[3]);
+                    var Interaction_b = (text:d[1], interaction_type:d[1].Split(':')[0], subtype_node1:d[1].Split(':')[1].Split('_')[1], subtype_node2:d[1].Split(':')[1].Split('_')[0]);
 
-                    var NodeId1_b = (d[2], d[2].Split(':')[0][0], int.Parse(d[2].Split(':')[1]), d[2].Split(':')[2][0], atom.Aa3To1(d[2].Split(':')[3]), d[2].Split(':')[3]);
-                    var Donor_b = (d[8], d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', d[8].Length > 0 ? int.Parse(d[8].Split(':')[1]) : 0, d[8].Length > 0 ? d[8].Split(':')[2][0] : ' ', d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', d[8].Length > 0 ? d[8].Split(':')[3] : "");
+                    var NodeId1_b = (text:d[2], chain:d[2].Split(':')[0][0], res_id:int.Parse(d[2].Split(':')[1]), icode: d[2].Split(':')[2][0]=='_'?' ': d[2].Split(':')[2][0], amino_acid1:atom.Aa3To1(d[2].Split(':')[3]), amino_acid3:d[2].Split(':')[3]);
+                    var Donor_b = (text:d[8], chain: d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', res_id:d[8].Length > 0 ? int.Parse(d[8].Split(':')[1]) : 0, 
+                        icode: d[8].Length > 0 ? (d[8].Split(':')[2][0]=='_'?' ': d[8].Split(':')[2][0]) : ' ', amino_acid1:d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3:d[8].Length > 0 ? d[8].Split(':')[3] : "");
 
                     result.Add(new ring_edge()
                     {
@@ -80,6 +84,8 @@ namespace dimorphics_dataset
                         Cation = d[10],
                         Orientation = d[11],
                     });
+
+                    //Console.WriteLine();
                 }
 
                 return result;
@@ -115,8 +121,8 @@ namespace dimorphics_dataset
 
                 foreach (var d in data)
                 {
-                    var NodeId = (d[0], d[0].Split(':')[0][0], int.Parse(d[0].Split(':')[1]), d[0].Split(':')[2][0],
-                        atom.Aa3To1(d[0].Split(':')[3]), d[0].Split(':')[3]);
+                    var NodeId = (text:d[0], chain:d[0].Split(':')[0][0], res_id:int.Parse(d[0].Split(':')[1]), icode: d[0].Split(':')[2][0]=='_' ? ' ' : d[0].Split(':')[2][0],
+                        amino_acid1:atom.Aa3To1(d[0].Split(':')[3]), amino_acid3:d[0].Split(':')[3]);
 
                     result.Add(new ring_node()
                     {

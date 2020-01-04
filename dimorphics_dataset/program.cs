@@ -18,10 +18,10 @@ namespace dimorphics_dataset
 
         public static void CreateDirectory(string filename, string module_name, string function_name)
         {
-            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
+            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
 
             var dir = Path.GetDirectoryName(filename);
-            
+
             if (!string.IsNullOrWhiteSpace(dir))
             {
                 Directory.CreateDirectory(dir);
@@ -34,7 +34,7 @@ namespace dimorphics_dataset
 
         public static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
         {
-            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllLines)} ( {filename} )");
+            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllLines)} ( {filename} )");
 
             CreateDirectory(filename, module_name, function_name);
 
@@ -55,7 +55,7 @@ namespace dimorphics_dataset
 
         public static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
         {
-            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllLines)} ( {filename} )");
+            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllLines)} ( {filename} )");
 
             CreateDirectory(filename, module_name, function_name);
 
@@ -76,7 +76,7 @@ namespace dimorphics_dataset
 
         public static void AppendAllText(string filename, string text, string module_name, string function_name)
         {
-            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllText)} ( {filename} )");
+            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllText)} ( {filename} )");
 
             CreateDirectory(filename, module_name, function_name);
 
@@ -99,7 +99,7 @@ namespace dimorphics_dataset
 
         public static void WriteAllText(string filename, string text, string module_name, string function_name)
         {
-            program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllText)} ( {filename} )");
+            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllText)} ( {filename} )");
 
             CreateDirectory(filename, module_name, function_name);
 
@@ -517,22 +517,22 @@ namespace dimorphics_dataset
         //}
 
         // xtodo: encode the foldx scores
-        internal static object _console_lock = new object();
+        //internal static object _console_lock = new object();
 
         public static void Write(string text = "")
         {
-            lock (_console_lock)
-            {
-                Console.Write(text);
-            }
+            //lock (_console_lock)
+            //{
+            Console.Write(text);
+            //}
         }
 
         public static void WriteLine(string text = "")
         {
-            lock (_console_lock)
-            {
-                Console.WriteLine(text);
-            }
+            //lock (_console_lock)
+            //{
+            Console.WriteLine(text);
+            //}
         }
 
         //subsequence_classification_data.encode_sequence("x", "ALGY");
@@ -828,7 +828,7 @@ namespace dimorphics_dataset
                     }
 
                     var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"blast_pssm_{(!remote ? num_iterations.ToString() + "_" : "")}{(remote ? "remote" : "local")}_{blast_db}_{evalue.ToString("000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture)}.bat");
-                    
+
                     //Directory.CreateDirectory(Path.GetDirectoryName(batch_pssm_local_file));
                     program.WriteAllLines(batch_pssm_local_file, cmd_lines, nameof(program), nameof(get_pssms));
 
@@ -1350,24 +1350,24 @@ namespace dimorphics_dataset
             var do_3d_nh = false;
             var do_3d_protein = false;
 
-            
+
 
             if (args != null && args.Length > 0)
             {
                 // dimorphics_dataset.exe 2i,2n,2p,3i,3n,3p
 
-                var args2 = args.SelectMany(a => a.Split(new char[] {' ', ',', ';'}, StringSplitOptions.RemoveEmptyEntries)).ToList();
+                var args2 = args.SelectMany(a => a.Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)).ToList();
 
                 do_2d_interface = args2.Any(a => a.StartsWith("2i", StringComparison.InvariantCultureIgnoreCase));
                 do_2d_nh = args2.Any(a => a.StartsWith("2n", StringComparison.InvariantCultureIgnoreCase));
                 do_2d_protein = args2.Any(a => a.StartsWith("2p", StringComparison.InvariantCultureIgnoreCase));
-                
+
                 do_3d_interface = args2.Any(a => a.StartsWith("3i", StringComparison.InvariantCultureIgnoreCase));
                 do_3d_nh = args2.Any(a => a.StartsWith("3n", StringComparison.InvariantCultureIgnoreCase));
                 do_3d_protein = args2.Any(a => a.StartsWith("3p", StringComparison.InvariantCultureIgnoreCase));
 
 
-                args2 = args2.Except(new string[] {"2i", "2n", "2p", "3i", "3n", "3p"}).ToList();
+                args2 = args2.Except(new string[] { "2i", "2n", "2p", "3i", "3n", "3p" }).ToList();
 
                 if (args2.Count > 0) throw new Exception("Unknown args: " + string.Join(", ", args2));
             }
@@ -1543,7 +1543,7 @@ namespace dimorphics_dataset
             //var calculate_1d_nh_features = false;
             //var calculate_3d_nh_features = false;
             var use_dssp3 = true;
-            var limit_for_testing = false;
+            var limit_for_testing = true;
             var max_features = 100;//(int)Math.Round((132 * 2) * 1.1);
 
             if (limit_for_testing)
@@ -1588,7 +1588,7 @@ namespace dimorphics_dataset
                 dna_binding_prediction_data = false,//do_2d && do_interface, //4. 7 features
                 intrinsically_unordered_data = do_2d_interface, //5. 1,921 features
 
-                mpsa_classification_data_subsequence = do_2d_interface , //6. 82,993 features
+                mpsa_classification_data_subsequence = do_2d_interface, //6. 82,993 features
                 aa_index_classification_data = do_2d_interface, //7. before: ,128,161 features, updated: less
                 blast_pssm_subsequence_classification_data = do_2d_interface, //8. 2,126,881 features
 
@@ -1596,7 +1596,7 @@ namespace dimorphics_dataset
 
 
             };
-            
+
             if (!do_2d_interface) feature_types_subsequence_1d = null;
 
 
@@ -1608,14 +1608,14 @@ namespace dimorphics_dataset
                 sequence_geometry_classification_data = do_2d_nh,
 
                 mpsa_classification_data_subsequence = do_2d_nh,
-                intrinsically_unordered_data =  do_2d_nh,
+                intrinsically_unordered_data = do_2d_nh,
                 aa_index_classification_data = do_2d_nh,
                 sable_classification_data = do_2d_nh,
                 dna_binding_prediction_data = false,//must be false - protein level only
                 blast_pssm_subsequence_classification_data = do_2d_nh,
                 r_peptides = do_2d_nh,
             };
-            
+
             if (!do_2d_nh) feature_types_neighbourhood_1d = null;
 
 
@@ -1632,7 +1632,7 @@ namespace dimorphics_dataset
                 blast_pssm_subsequence_classification_data = do_2d_protein,
                 r_peptides = do_2d_protein,
             };
-            
+
             if (!do_2d_protein) feature_types_protein_1d = null;
 
 
@@ -1659,7 +1659,7 @@ namespace dimorphics_dataset
                 ring_classification_data = do_3d_nh,
                 pse_ssc_dssp_classification_data = do_3d_nh,
             };
-            
+
             if (!do_3d_nh) feature_types_neighbourhood_3d = null;
 
             subsequence_classification_data.feature_types_3d feature_types_protein_3d = new subsequence_classification_data.feature_types_3d()
@@ -1684,7 +1684,7 @@ namespace dimorphics_dataset
             //feature_types_subsequence_3d = null;
             //feature_types_neighbourhood_3d = null;
             //feature_types_protein_3d = null;
-            
+
 
             var class_info_list = new List<class_info>();
 
@@ -1842,7 +1842,7 @@ namespace dimorphics_dataset
 
             public string subsequence_aa_seq;
             public List<(int residue_index, char i_code, char amino_acid)> subsequence_res_ids;
-           
+
             public string subsequence_dssp_monomer;
             public string subsequence_dssp3_monomer;
             public string subsequence_dssp_multimer;
@@ -1870,11 +1870,11 @@ namespace dimorphics_dataset
             int max_tasks
             )
         {
-            lock (program._console_lock)
-            {
-                Console.WriteLine($"{class_info.class_name}: Started: finding class #{class_info.class_id} {class_info.class_name}");
-                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-            }
+            //lock (program._console_lock)
+            //{
+            Console.WriteLine($"{class_info.class_name}: Started: finding class #{class_info.class_id} {class_info.class_name}");
+            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+            //}
 
             if (string.IsNullOrWhiteSpace(dataset_name))
             {
@@ -1889,13 +1889,13 @@ namespace dimorphics_dataset
 
 
 
-            lock (program._console_lock)
-            {
-                Console.WriteLine($"{class_info.class_name}: {nameof(data_list)}: {data_list.Count} ({ts1.Days}d {ts1.Hours}h {ts1.Minutes}m {ts1.Seconds}s)");
-                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-                Console.WriteLine($"{class_info.class_name}: Finished: finding class #{class_info.class_id} {class_info.class_name}");
-                Console.WriteLine();
-            }
+            //lock (program._console_lock)
+            //{
+            Console.WriteLine($"{class_info.class_name}: {nameof(data_list)}: {data_list.Count} ({ts1.Days}d {ts1.Hours}h {ts1.Minutes}m {ts1.Seconds}s)");
+            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+            Console.WriteLine($"{class_info.class_name}: Finished: finding class #{class_info.class_id} {class_info.class_name}");
+            Console.WriteLine();
+            //}
 
             //return data_list;
 
@@ -1903,24 +1903,24 @@ namespace dimorphics_dataset
 
             if (encode_features)
             {
-                lock (program._console_lock)
-                {
-                    Console.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-                    Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-                }
+                //lock (program._console_lock)
+                //{
+                Console.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+                //}
 
 
-                int cl;
-                int ct;
+                //int cl;
+                //int ct;
 
-                lock (program._console_lock)
-                {
-                    Console.WriteLine();
-                    cl = Console.CursorLeft + 1;
-                    ct = Console.CursorTop;
-                    Console.WriteLine($"[{new string('.', data_list.Count)}]");
-                    Console.WriteLine();
-                }
+                //lock (program._console_lock)
+                //{
+                //    Console.WriteLine();
+                //    cl = Console.CursorLeft + 1;
+                //    ct = Console.CursorTop;
+                //    Console.WriteLine($"[{new string('.', data_list.Count)}]");
+                //    Console.WriteLine();
+                //}
 
                 var all_output_data = new List<string>();
                 var comment_rows = new List<string>();
@@ -1955,13 +1955,17 @@ namespace dimorphics_dataset
 
                 //var header_dupe_check = new List<string>();
 
+                var progress_lock = new object();
+                var progress = 0;
+                var progress_goal = data_list.Count;
+
                 foreach (var row in data_list)
                 {
                     var row_index = data_list.IndexOf(row);
 
                     var row_encoded = subsequence_classification_data.encode_subsequence_classification_data_row(row, max_features, feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d);
-                        
-                        
+
+
 
                     if (header_list == null)
                     {
@@ -1978,7 +1982,7 @@ namespace dimorphics_dataset
 
                         if (header_list_str_dupe_check.Count != header_list_str_dupe_check_distinct.Count)
                         {
-                            var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.Select(a => (item: a, count: header_list_str_dupe_check.Count(b => b == a))).OrderByDescending(a=>a.count).ToList();
+                            var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.Select(a => (item: a, count: header_list_str_dupe_check.Count(b => b == a))).OrderByDescending(a => a.count).ToList();
                             throw new Exception("duplicate headers found");
                         }
 
@@ -2002,7 +2006,7 @@ namespace dimorphics_dataset
 
 
                         var feature_headers_file = Path.Combine(output_folder, $"h__[{class_info.class_name}].csv");//  $@"c:\betastrands_dataset\svm_features\feature_headers_c{row.class_id}.csv";
-                        
+
                         //Directory.CreateDirectory(Path.GetDirectoryName(feature_headers_file));
 
                         program.WriteAllLines(feature_headers_file, header_list_str_c, nameof(program), nameof(find_class_data));
@@ -2053,33 +2057,39 @@ namespace dimorphics_dataset
                     comments.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.prediction).ToList());
                     comment_rows.Add(string.Join(",", comments));
 
-                    lock (program._console_lock)
-                    {
-                        var cl2 = Console.CursorLeft;
-                        var ct2 = Console.CursorTop;
+                    //lock (program._console_lock)
+                    //{
+                    //    var cl2 = Console.CursorLeft;
+                    //    var ct2 = Console.CursorTop;
 
-                        Console.SetCursorPosition(cl, ct);
-                        Console.Write("|");
-                        ct = Console.CursorTop;
-                        cl = Console.CursorLeft;
-                        Console.SetCursorPosition(cl2, ct2);
+                    //    Console.SetCursorPosition(cl, ct);
+                    //    Console.Write("|");
+                    //    ct = Console.CursorTop;
+                    //    cl = Console.CursorLeft;
+                    //    Console.SetCursorPosition(cl2, ct2);
+                    //}
+
+                    lock (progress_lock)
+                    {
+                        progress++;
                     }
 
+                    Console.WriteLine($@"{nameof(find_class_data)} -> {progress} / {progress_goal} ( {(((double)progress / (double)progress_goal) * 100):00.00} % )");
                 }
 
                 sw2.Stop();
                 var ts2 = sw2.Elapsed;
 
-                lock (program._console_lock)
-                {
-                    Console.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
-                    Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-                    Console.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-                    Console.WriteLine();
-                }
+                //lock (program._console_lock)
+                //{
+                Console.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
+                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+                Console.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+                Console.WriteLine();
+                //}
 
 
-                
+
 
                 // save comments file
                 comment_rows.Insert(0, string.Join(",", comment_headers));
@@ -2095,7 +2105,7 @@ namespace dimorphics_dataset
                 program.WriteAllLines(all_features_file, all_output_data, nameof(program), nameof(find_class_data));
                 program.WriteLine("Saved: " + all_features_file);
 
-                
+
 
             }
 

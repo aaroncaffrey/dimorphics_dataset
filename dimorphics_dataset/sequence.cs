@@ -197,19 +197,19 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public Tuple<string, string> GetAsTuple() { return new Tuple<string, string>(Id, FullSequence); }
+        //public (string Id, string FullSequence) GetAsTuple() { return (Id, FullSequence); }
 
-        public static List<Tuple<string, string>> GetAsTuple(List<sequence> sequenceList)
-        {
-            var result = new List<Tuple<string, string>>();
+        //public static List<(string Id, string FullSequence)> GetAsTuple(List<sequence> sequenceList)
+        //{
+        //    var result = new List<(string Id, string FullSequence)>();
 
-            foreach (var s in sequenceList)
-            {
-                result.Add(s.GetAsTuple());
-            }
+        //    foreach (var s in sequenceList)
+        //    {
+        //        result.Add(s.GetAsTuple());
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public static string GetAsFasta(List<sequence> sequenceList)
         {

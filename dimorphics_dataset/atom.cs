@@ -1306,41 +1306,79 @@ namespace dimorphics_dataset
 
             foreach (var chain in chains)
             {
-                var ring_monomer_edge_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.edges");
-                var ring_monomer_node_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.nodes");
-
-                if (!File.Exists(ring_monomer_edge_filename) || new FileInfo(ring_monomer_edge_filename).Length == 0) Console.WriteLine("Warning: Ring Edge File is missing or empty: " + ring_monomer_edge_filename);
-                if (!File.Exists(ring_monomer_node_filename) || new FileInfo(ring_monomer_node_filename).Length == 0) Console.WriteLine("Warning: Ring Node File is missing or empty: " + ring_monomer_edge_filename);
-
-                var ring_monomer_edges = ring.ring_edge.load(ring_monomer_edge_filename);
-
-                var ring_monomer_nodes = ring.ring_node.load(ring_monomer_node_filename);
-
-                foreach (var ring_monomer_edge in ring_monomer_edges)
                 {
-                    var edge_atoms = atoms.Where(a => (ring_monomer_edge.NodeId1.chain == a.chain_id && ring_monomer_edge.NodeId1.res_id == a.residue_index && ring_monomer_edge.NodeId1.icode == a.i_code && ring_monomer_edge.NodeId1.amino_acid1 == a.amino_acid)
-                        //||
-                        //(ring_monomer_edge.NodeId2.chain == a.chain_id &&
-                        // ring_monomer_edge.NodeId2.res_id == a.residue_index &&
-                        // ring_monomer_edge.NodeId2.icode == a.i_code &&
-                        // ring_monomer_edge.NodeId2.amino_acid1 == a.amino_acid)
-                    ).ToList();
+                    var ring_monomer_edge_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.edges");
 
-                    foreach (var a in edge_atoms)
+                    if (!File.Exists(ring_monomer_edge_filename) || new FileInfo(ring_monomer_edge_filename).Length == 0)
                     {
-                        if (a.monomer_ring_edges == null) a.monomer_ring_edges = new List<ring.ring_edge>();
-                        a.monomer_ring_edges.Add(ring_monomer_edge);
+                        var missing_edges_file = Path.Combine(ring_folder, "missing_edges.txt");
+                        var missing_edges_text = "Warning: Ring Edge File is missing or empty: " + ring_monomer_edge_filename;
+
+                        program.AppendAllLines(missing_edges_file, new string[] { missing_edges_text}, nameof(atom), nameof(load_ring));
+                        program.WriteLine(missing_edges_text);
+                    }
+
+                    var ring_monomer_edges = ring.ring_edge.load(ring_monomer_edge_filename);
+
+                    foreach (var ring_monomer_edge in ring_monomer_edges)
+                    {
+                        var edge_atoms = atoms.Where(a => (
+                                ring_monomer_edge.NodeId1.chain == a.chain_id && 
+                                ring_monomer_edge.NodeId1.res_id == a.residue_index && 
+                                ring_monomer_edge.NodeId1.icode == a.i_code && 
+                                ring_monomer_edge.NodeId1.amino_acid1 == a.amino_acid
+                                )
+                            //||
+                            //(ring_monomer_edge.NodeId2.chain == a.chain_id &&
+                            // ring_monomer_edge.NodeId2.res_id == a.residue_index &&
+                            // ring_monomer_edge.NodeId2.icode == a.i_code &&
+                            // ring_monomer_edge.NodeId2.amino_acid1 == a.amino_acid)
+                        ).ToList();
+
+                        if (edge_atoms == null || edge_atoms.Count == 0)
+                        {
+                            Console.WriteLine();
+                        }
+
+                        foreach (var a in edge_atoms)
+                        {
+                            if (a.monomer_ring_edges == null) a.monomer_ring_edges = new List<ring.ring_edge>();
+                            a.monomer_ring_edges.Add(ring_monomer_edge);
+                        }
                     }
                 }
 
-                foreach (var ring_monomer_node in ring_monomer_nodes)
                 {
-                    var node_atoms = atoms.Where(a => ring_monomer_node.Chain == a.chain_id && ring_monomer_node.Position == a.residue_index && ring_monomer_node.Residue1 == a.amino_acid).ToList();
+                    var ring_monomer_node_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.nodes");
 
-                    foreach (var a in node_atoms)
+                    if (!File.Exists(ring_monomer_node_filename) || new FileInfo(ring_monomer_node_filename).Length == 0)
                     {
-                        if (a.monomer_ring_nodes == null) a.monomer_ring_nodes = new List<ring.ring_node>();
-                         a.monomer_ring_nodes.Add(ring_monomer_node);
+                        Console.WriteLine("Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename);
+
+                        var missing_nodes_file = Path.Combine(ring_folder, "missing_nodes.txt");
+                        var missing_nodes_text = "Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename;
+
+                        program.AppendAllLines(missing_nodes_file, new string[] { missing_nodes_text }, nameof(atom), nameof(load_ring));
+                        program.WriteLine(missing_nodes_text);
+
+                    }
+
+                    var ring_monomer_nodes = ring.ring_node.load(ring_monomer_node_filename);
+
+                    foreach (var ring_monomer_node in ring_monomer_nodes)
+                    {
+                        var node_atoms = atoms.Where(a => ring_monomer_node.Chain == a.chain_id && ring_monomer_node.Position == a.residue_index && ring_monomer_node.Residue1 == a.amino_acid).ToList();
+
+                        if (node_atoms == null || node_atoms.Count == 0)
+                        {
+                            Console.WriteLine();
+                        }
+
+                        foreach (var a in node_atoms)
+                        {
+                            if (a.monomer_ring_nodes == null) a.monomer_ring_nodes = new List<ring.ring_node>();
+                            a.monomer_ring_nodes.Add(ring_monomer_node);
+                        }
                     }
                 }
             }

@@ -296,10 +296,10 @@ namespace dimorphics_dataset
                 }
                 catch (IOException e)
                 {
-                    lock (program._console_lock)
-                    {
+                    //lock (program._console_lock)
+                    //{
                         Console.WriteLine(e.Message);
-                    }
+                    //}
 
                     Task.Delay(delay_ms).Wait();
                 }
@@ -368,10 +368,10 @@ namespace dimorphics_dataset
                 if (run)
                 {
 
-                    lock (program._console_lock)
-                    {
+                    //lock (program._console_lock)
+                    //{
                         Console.WriteLine($"{nameof(call_foldx)}: run: \"" + start.FileName + "\" " + start.Arguments);
-                    }
+                    //}
 
                     using (var process = Process.Start(start))
                     {
@@ -384,10 +384,10 @@ namespace dimorphics_dataset
                             stdout = stdout.Replace("\r\n", "\r\nstdout: ");
                             if (!string.IsNullOrWhiteSpace(stdout))
                             {
-                                lock (program._console_lock)
-                                {
+                                //lock (program._console_lock)
+                                //{
                                     Console.WriteLine($"{nameof(stdout)}: {stdout}");
-                                }
+                                //}
                             }
 
                             var stderr = process.StandardError.ReadToEnd();
@@ -395,10 +395,10 @@ namespace dimorphics_dataset
 
                             if (!string.IsNullOrWhiteSpace(stderr))
                             {
-                                lock (program._console_lock)
-                                {
+                                //lock (program._console_lock)
+                                //{
                                     Console.WriteLine($"{nameof(call_foldx)}: {stderr}");
-                                }
+                                //}
                             }
                         }
 

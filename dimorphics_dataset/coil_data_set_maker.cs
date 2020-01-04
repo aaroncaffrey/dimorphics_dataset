@@ -155,17 +155,17 @@ namespace dimorphics_dataset
             }
             //var console_lock = new object();
 
-            int cl;
-            int ct;
+            //int cl;
+            //int ct;
 
-            lock (program._console_lock)
-            {
-                Console.WriteLine();
-                cl = Console.CursorLeft + 1;
-                ct = Console.CursorTop;
-                Console.WriteLine($"[{new string('.', pdb_id_list.Count)}]");
-                Console.WriteLine();
-            }
+            //lock (program._console_lock)
+            //{
+            //    Console.WriteLine();
+            //    cl = Console.CursorLeft + 1;
+            //    ct = Console.CursorTop;
+            //    Console.WriteLine($"[{new string('.', pdb_id_list.Count)}]");
+            //    Console.WriteLine();
+            //}
 
             var tasks = new List<Task<List<subsequence_classification_data>>>();
 
@@ -173,6 +173,10 @@ namespace dimorphics_dataset
             {
                 max_tasks = 2000;//Environment.ProcessorCount * Math.Abs(max_tasks) * 10;
             }
+
+            var progress_lock = new object();
+            var progress = 0;
+            var progress_goal = pdb_id_list.Count;
 
             foreach (var loop_pdb_id in pdb_id_list)
             {
@@ -185,18 +189,25 @@ namespace dimorphics_dataset
 
                     var pdb_coils = find_coils(pdb_id.dimer_type, pdb_id.pdb_id, pdb_atoms);
 
-                    lock (program._console_lock)
-                    {
-                        var cl2 = Console.CursorLeft;
-                        var ct2 = Console.CursorTop;
+                    //lock (program._console_lock)
+                    //{
+                    //    var cl2 = Console.CursorLeft;
+                    //    var ct2 = Console.CursorTop;
+                    //
+                    //    Console.SetCursorPosition(cl, ct);
+                    //    Console.Write("|");
+                    //    ct = Console.CursorTop;
+                    //    cl = Console.CursorLeft;
+                    //    Console.SetCursorPosition(cl2, ct2);
+                    //}
 
-                        Console.SetCursorPosition(cl, ct);
-                        Console.Write("|");
-                        ct = Console.CursorTop;
-                        cl = Console.CursorLeft;
-                        Console.SetCursorPosition(cl2, ct2);
+                    lock (progress_lock)
+                    {
+                        progress++;
                     }
 
+                    Console.WriteLine($@"{nameof(run_coil_dataset_maker)} -> {progress} / {progress_goal} ( {(((double)progress / (double)progress_goal) * 100):00.00} % )");
+                    
                     return pdb_coils;
                 });
 

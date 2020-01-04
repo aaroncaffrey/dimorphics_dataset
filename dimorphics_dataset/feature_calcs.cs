@@ -246,7 +246,7 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + string.Join("", foldx_caller.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).ToList());
+                    var y = b.group_amino_acids + string.Join("", foldx_caller.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).Select(a => a.foldx_aa_code1).ToList());
                     return (b.group_name,y);
                 }).ToList());
                 return x;

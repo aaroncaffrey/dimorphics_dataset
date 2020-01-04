@@ -58,7 +58,7 @@ namespace dimorphics_dataset
             #install.packages(""devtools"")
             #library(devtools)
             #install_github(""dosorio/Peptides"")
-            sink(""NULL"")
+            #sink(""NULL"")
             library(Peptides)
             if (!exists(""AAdata"")) data(AAdata)
             ";
