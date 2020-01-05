@@ -777,8 +777,8 @@ namespace dimorphics_dataset
                 var foldx_ala_scan_feats = new List<feature_info>();
 
 
-                var foldx_ala_scanning_result = foldx_energy_differences.foldx_ala_scanning_result_subsequence.data
-                    .OrderBy(a => a.residue_index).ToList();
+                var foldx_ala_scanning_result = foldx_energy_differences?.foldx_ala_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<foldx_caller.foldx_ala_scanning_result>();
+
                 var foldx_ala_scanning_result_split = feature_calcs.split_sequence(foldx_ala_scanning_result);//, 3, 0, false);
 
                 var foldx_ala = foldx_ala_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
@@ -837,7 +837,7 @@ namespace dimorphics_dataset
                     var foldx_pos_feats = new List<feature_info>();
 
 
-                    var foldx_pos_scanning_result = foldx_energy_differences.foldx_position_scanning_result_subsequence.data.OrderBy(a => a.residue_index).ToList();
+                    var foldx_pos_scanning_result = foldx_energy_differences?.foldx_position_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<foldx_caller.foldx_position_scanning_result>();
                     var foldx_pos_scanning_result_split = feature_calcs.split_sequence(foldx_pos_scanning_result);//, 3, 0, false);
 
                     var foldx_pos = foldx_pos_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
@@ -948,7 +948,7 @@ namespace dimorphics_dataset
                     var foldx_bm_ps_feats = new List<feature_info>();
 
                     //155, 558, 372
-                    var foldx_bm_ps_scanning_result = foldx_energy_differences.foldx_buildmodel_position_scan_result_subsequence.data.OrderBy(a => a.mutation_positions_data.residue_index).ToList();
+                    var foldx_bm_ps_scanning_result = foldx_energy_differences?.foldx_buildmodel_position_scan_result_subsequence.data?.OrderBy(a => a.mutation_positions_data.residue_index).ToList() ?? new List<foldx_caller.foldx_energy_terms_ps>();
 
                     //3 (4,4,4) (31,31,31)
                     // todo: should 'distribute' not be true? (currently giving 1,3,1 and etc.)
@@ -1148,7 +1148,7 @@ namespace dimorphics_dataset
                     var foldx_bm_if_sub_feats = new List<feature_info>();
 
 
-                    var foldx_bm_if_sub = foldx_energy_differences.foldx_buildmodel_subsequence_mutant_result_subsequence.data.ToList();
+                    var foldx_bm_if_sub = foldx_energy_differences?.foldx_buildmodel_subsequence_mutant_result_subsequence.data?.ToList() ?? new List<foldx_caller.foldx_energy_terms_sm>();
 
 
 
@@ -3937,7 +3937,8 @@ namespace dimorphics_dataset
         //    return (b & (1 << pos)) != 0;
         //}
 
-        public static List<feature_info> calculate_aa_or_ss_sequence_classification_data_template = null;
+        public static List<feature_info> calculate_aa_or_ss_sequence_classification_data_aa_template = null;
+        public static List<feature_info> calculate_aa_or_ss_sequence_classification_data_ss_template = null;
 
         public static List<feature_info> calculate_aa_or_ss_sequence_classification_data(protein_data_sources source, string category_prefix, string group_prefix, string sequence, feature_calcs.seq_type seq_type, pse_aac_options pse_aac_options, int max_features)
         {
@@ -3947,15 +3948,28 @@ namespace dimorphics_dataset
 
             if (sequence == null || sequence.Length == 0)
             {
-                if (calculate_aa_or_ss_sequence_classification_data_template == null) throw new Exception();
-
-                var template = calculate_aa_or_ss_sequence_classification_data_template.Select(a => new feature_info(a)
+                if (seq_type == feature_calcs.seq_type.amino_acid_sequence)
                 {
-                    source = source.ToString(),
-                    feature_value = 0
-                }).ToList();
+                    if (calculate_aa_or_ss_sequence_classification_data_aa_template == null) throw new Exception();
 
-                return template;
+                    var template = calculate_aa_or_ss_sequence_classification_data_aa_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
+
+                    return template;
+                }
+
+                else if (seq_type == feature_calcs.seq_type.secondary_structure_sequence)
+                {
+                    if (calculate_aa_or_ss_sequence_classification_data_ss_template == null) throw new Exception();
+
+                    var template = calculate_aa_or_ss_sequence_classification_data_ss_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
+
+                    return template;
+                }
+
+                else
+                {
+                    throw new Exception();
+                }
             }
 
             var features = new List<feature_info>();
@@ -4246,11 +4260,19 @@ namespace dimorphics_dataset
                 }
             }
 
-            if (calculate_aa_or_ss_sequence_classification_data_template == null)
+            if (seq_type == feature_calcs.seq_type.amino_acid_sequence && calculate_aa_or_ss_sequence_classification_data_aa_template == null)
             {
                 var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
-                calculate_aa_or_ss_sequence_classification_data_template = template;
+                calculate_aa_or_ss_sequence_classification_data_aa_template = template;
             }
+
+
+            if (seq_type == feature_calcs.seq_type.secondary_structure_sequence && calculate_aa_or_ss_sequence_classification_data_ss_template == null)
+            {
+                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                calculate_aa_or_ss_sequence_classification_data_ss_template = template;
+            }
+
 
             return features;
         }

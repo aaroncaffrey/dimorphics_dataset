@@ -1342,6 +1342,35 @@ namespace dimorphics_dataset
 
         public static void Main(string[] args)
         {
+            /*for (var i = 10; i >= 0; i--)
+            {
+                var aa_seq_pse_aac_options = new pse_aac_options()
+                {
+                    oaac = true,
+                    oaac_binary = true,
+                    motifs = true,
+                    motifs_binary = true,
+                    dipeptides = true,
+                    dipeptides_binary = true,
+                    //saac = true,
+                    //saac_binary = true,
+                    average_seq_position = true,
+                    average_dipeptide_distance = true,
+                };
+
+                var ps = subsequence_classification_data.protein_data_sources.neighbourhood_1d;
+                var category_prefix = new string('S', i);
+                var group_prefix = new string('S', i);
+                var aa_subsequence = new string('S', i);
+                //var pse_ssc = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps,category_prefix, group_prefix, ss_seq, feature_calcs.seq_type.secondary_structure_sequence, mpsa_pse_aac_options, max_features);
+                //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, "dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, max_features);
+                var pse_aac_sequence_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, group_prefix, aa_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, 100);
+
+                Console.WriteLine(pse_aac_sequence_classification_data.Count);
+            }
+
+            return;*/
+
             //for (var b = 0; b <= 1; b++)
             //{
             //    for (var i = 0; i < 100; i++)
@@ -1352,7 +1381,7 @@ namespace dimorphics_dataset
             //    }
             //}
             //return;
-            
+
 
             var do_2d_interface = false;
             var do_2d_nh = false;
