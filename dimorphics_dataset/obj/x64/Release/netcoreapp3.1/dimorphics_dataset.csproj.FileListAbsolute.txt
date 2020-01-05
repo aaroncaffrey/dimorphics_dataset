@@ -10,4 +10,3 @@ C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\netcoreapp3.1\dimorphic
 C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\netcoreapp3.1\dimorphics_dataset.csproj.CopyComplete
 C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\netcoreapp3.1\dimorphics_dataset.dll
 C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\netcoreapp3.1\dimorphics_dataset.pdb
-C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\netcoreapp3.1\dimorphics_dataset.csprojAssemblyReference.cache

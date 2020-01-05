@@ -1673,11 +1673,11 @@ namespace dimorphics_dataset
 #endif
 
             //if (!source.Contains("protein") || !source.Contains("1d"))
-            if (source != protein_data_sources.subsequence_1d)
-            {
-                return new List<feature_info>();
-                //throw new ArgumentOutOfRangeException(nameof(source));
-            }
+            //if (source != protein_data_sources.subsequence_1d)
+            //{
+            //    return new List<feature_info>();
+            //    //throw new ArgumentOutOfRangeException(nameof(source));
+            //}
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
@@ -3388,8 +3388,20 @@ namespace dimorphics_dataset
         private static int peptides_call_count = 0;
         private static object peptides_call_count_lock = new object();
 
+        private static List<feature_info> peptides_data_template = null;
+
         public static List<feature_info> peptides_data(string sequence)
         {
+            if (sequence == null || sequence.Length == 0)
+            {
+                if (peptides_data_template == null) throw new Exception();
+                
+                var template = peptides_data_template.ToList();
+
+                return template;
+                
+            }
+
             var call_count = 0;
             lock (peptides_call_count_lock)
             {
@@ -3467,6 +3479,11 @@ namespace dimorphics_dataset
 
                     result = r.feautre_info_list;
                 }
+            }
+
+            if (peptides_data_template == null)
+            {
+                peptides_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
 
             return result;
