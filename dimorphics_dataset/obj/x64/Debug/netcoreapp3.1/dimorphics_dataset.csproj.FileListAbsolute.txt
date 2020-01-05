@@ -1,0 +1,13 @@
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.exe
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.deps.json
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.runtimeconfig.json
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.runtimeconfig.dev.json
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.dll
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\dimorphics_dataset.pdb
+C:\dimorphics_dataset\dimorphics_dataset\bin\x64\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.csprojAssemblyReference.cache
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.AssemblyInfoInputs.cache
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.AssemblyInfo.cs
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.csproj.CopyComplete
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.dll
+C:\dimorphics_dataset\dimorphics_dataset\obj\x64\Debug\netcoreapp3.1\dimorphics_dataset.pdb

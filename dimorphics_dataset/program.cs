@@ -1555,7 +1555,7 @@ namespace dimorphics_dataset
             //var calculate_1d_nh_features = false;
             //var calculate_3d_nh_features = false;
             var use_dssp3 = true;
-            var limit_for_testing = true;
+            var limit_for_testing = false;
             var max_features = 100;//(int)Math.Round((132 * 2) * 1.1);
 
             if (limit_for_testing)
