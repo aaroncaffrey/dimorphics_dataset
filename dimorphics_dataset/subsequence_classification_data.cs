@@ -2598,19 +2598,12 @@ namespace dimorphics_dataset
             
             // todo: make tortuosity between amino acid groups instead of all amino acids
 
-            var alphabets = feature_calcs.aa_alphabets_inc_overall;
-
-           
-
-                
-            
-
             for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
             {
                 var sq_all = sequences[sq_index];
                 var feats = new List<feature_info>();
 
-                foreach (var alphabet in alphabets)
+                foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
                 {
                     foreach (var alphabet_group in alphabet.groups)
                     {
@@ -2629,8 +2622,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_default" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_tortuosity1_{alphabet.name}",
+                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
                             perspective = $@"default",
                             feature_value = tortuosity1.tortuosity1
                         };
@@ -2644,8 +2637,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity2" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_tortuosity2_{alphabet.name}",
+                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
                             perspective = a.perspective_id,
                             feature_value = a.perspective_value
                         }).ToList();
@@ -2659,8 +2652,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{nameof(tortuosity1)}" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{alphabet.name}",
+                            member = $@"{sq_index}_{nameof(tortuosity1)}_{alphabet_group.group_name}",
                             perspective = $@"default",
                             feature_value = tortuosity1.tortuosity1
                         };
@@ -2672,8 +2665,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{alphabet.name}",
+                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
                             perspective = a.perspective_id,
                             feature_value = a.perspective_value
                         }).ToList();
@@ -2686,8 +2679,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_displacement_3d_global" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_default" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_displacement_3d_global_{alphabet.name}",
+                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
                             perspective = $@"default",
                             feature_value = tortuosity1.displacement
                         };
@@ -2700,8 +2693,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_peptide_length_3d_global" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_default" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_peptide_length_3d_global_{alphabet.name}",
+                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
                             perspective = $@"default",
                             feature_value = tortuosity1.distance_of_curve
                         };
@@ -2716,7 +2709,7 @@ namespace dimorphics_dataset
                             category = $@"geometry",
                             source = source.ToString(),
                             @group = $@"geometry_{sq.name}_displacement_3d_local" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}" + $@"_{alphabet_group.group_name}",
+                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
                             perspective = a.perspective_id,
                             feature_value = a.perspective_value
                         }).ToList();
@@ -2730,8 +2723,8 @@ namespace dimorphics_dataset
                             dimension = 3,
                             category = $@"geometry",
                             source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_peptide_length_3d_local" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}" + $@"_{alphabet_group.group_name}",
+                            @group = $@"geometry_{sq.name}_peptide_length_3d_local_{alphabet.name}",
+                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
                             perspective = a.perspective_id,
                             feature_value = a.perspective_value
                         }).ToList();

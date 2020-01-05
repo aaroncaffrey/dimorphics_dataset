@@ -1006,6 +1006,8 @@ namespace dimorphics_dataset
 
         public static List<atom> select_amino_acid_master_atoms(string pdb_id, List<atom> atoms)
         {
+            if (atoms == null || atoms.Count == 0) return atoms;
+
             atoms = atoms.Where(a => pdb_id == null || string.Equals(pdb_id, a.pdb_id, StringComparison.InvariantCultureIgnoreCase)).Distinct().ToList();
 
             atoms = atoms.OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code).ToList();
@@ -1554,13 +1556,22 @@ namespace dimorphics_dataset
 
         public static (descriptive_stats displacement_stat_values, descriptive_stats curve_stat_values, descriptive_stats tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
         {
-            if (atoms == null || atoms.Count <= 1) return (null, null, null);
+            //if (atoms == null || atoms.Count <= 1)
+            //{
+            //    return (null, null, null);
+            //}
 
             atoms = select_amino_acid_master_atoms(null, atoms);
 
-            var pairs = atoms.SelectMany((a, x) => atoms.Where((b, y) => x < y).Select((b, y) => (atom1: a, atom2: b)).ToList()).ToList();
+            
 
-            var distances = pairs.Select(a => (curve_distance: measure_atomic_curve_distance(list_subsection_from_obj_to_obj(atoms, a.atom1, a.atom2)), displacement_distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z))).ToArray();
+            var distances = new (double curve_distance, double displacement_distance)[0];
+
+            if (atoms != null && atoms.Count >= 2)
+            {
+                var pairs = atoms.SelectMany((a, x) => atoms.Where((b, y) => x < y).Select((b, y) => (atom1: a, atom2: b)).ToList()).ToList();
+                distances = pairs.Select(a => (curve_distance: measure_atomic_curve_distance(list_subsection_from_obj_to_obj(atoms, a.atom1, a.atom2)), displacement_distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z))).ToArray();
+            }
 
             // linear_distance / linear_list / linear_stat_values --> list of distances between all pairs of atoms, then averaged
             // curve_distance / 
@@ -1568,7 +1579,7 @@ namespace dimorphics_dataset
             //var curve_stat_list = distances.Select(a => a.curve_distance).ToArray(); // list of all curve distances between all pairs of points (CA atoms) 
             var curve_distance_list = distances.Select(a => a.curve_distance).ToArray(); //curve_stat_list.Select(a => a.sum).ToArray();
 
-            var tortuosity_list = distances.Select(a => a.curve_distance / a.displacement_distance).ToArray();
+            var tortuosity_list = distances.Select(a => a.displacement_distance == 0 ? 0 : a.curve_distance / a.displacement_distance).ToArray();
 
             descriptive_stats displacement_stat_values = descriptive_stats.get_stat_values(displacement_distance_list, nameof(displacement_stat_values)); // "linear_stat_values");
             descriptive_stats curve_stat_values = descriptive_stats.get_stat_values(curve_distance_list, nameof(curve_stat_values)); // "curve_stat_values");
