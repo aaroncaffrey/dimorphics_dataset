@@ -129,7 +129,7 @@ namespace dimorphics_dataset
 
             
             // only used to limit the coils data set to the same pdb ids as the dimorphics (for same distribution as found in nature)
-            var dimorphics_data = File.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv")
+            var dimorphics_data = program.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv")
                 .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
                 {
                     var x = a.Split(',');

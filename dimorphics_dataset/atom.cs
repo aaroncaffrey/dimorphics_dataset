@@ -160,7 +160,7 @@ namespace dimorphics_dataset
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
             pdb_id = pdb_id.ToUpperInvariant();
 
-            var pdb_lines = File.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = program.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL"));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ")).ToList();
@@ -198,7 +198,7 @@ namespace dimorphics_dataset
             var pdb_out_folder = $@"{drive_letter}:\betastrands_dataset\pdb_split\";
 
             pdb_id = pdb_id.ToUpperInvariant();
-            var pdb_lines = File.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = program.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL"));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ") && a[21] == chain_id && int.Parse(a.Substring(22, 4)) >= first_res_id && int.Parse(a.Substring(22, 4)) <= last_res_id).ToList();
@@ -292,7 +292,7 @@ namespace dimorphics_dataset
             var pdb_id_simple = pdb_id.Substring(0, 4);
             var result = new List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)>();
             var pdb_filename = $@"{pdb_folder}{pdb_id}.pdb";
-            var pdb_lines = File.ReadAllLines(pdb_filename).ToList();
+            var pdb_lines = program.ReadAllLines(pdb_filename).ToList();
             var pdb_model_array_index = -1;
 
 
@@ -474,7 +474,7 @@ namespace dimorphics_dataset
 
                     if (!File.Exists(uniprot_file) || new FileInfo(uniprot_file).Length == 0) continue;
 
-                    var uniprot_sequence = string.Join("", File.ReadAllLines(uniprot_file).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">")).ToList());
+                    var uniprot_sequence = string.Join("", program.ReadAllLines(uniprot_file).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">")).ToList());
 
                     c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
                 }
@@ -1122,7 +1122,7 @@ namespace dimorphics_dataset
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
 
-            var lookup_sequence_table = File.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
+            var lookup_sequence_table = program.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
 
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
@@ -1199,7 +1199,7 @@ namespace dimorphics_dataset
 
             foreach (var file in files)
             {
-                var data = File.ReadAllLines(file).First();
+                var data = program.ReadAllLines(file).First();
                 var data2 = string.Join("",data.Where(a => !"{}'':,".Contains(a)).ToList()).Split().ToList();
 
                 var non_binding_prob = double.Parse(data2[data2.IndexOf("non-binding_prob") + 1]);
@@ -1225,7 +1225,7 @@ namespace dimorphics_dataset
 
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
-            //var lookup_sequence_table = File.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
+            //var lookup_sequence_table = program.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
 

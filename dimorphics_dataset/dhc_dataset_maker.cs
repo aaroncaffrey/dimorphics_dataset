@@ -78,7 +78,7 @@ namespace dimorphics_dataset
 
             
 
-            var dimorphics_data_all = File.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv")
+            var dimorphics_data_all = program.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv")
                 .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
                 {
                     var x = a.Split(',');
@@ -94,7 +94,7 @@ namespace dimorphics_dataset
                     );
                 }).ToList();
 
-            //var dimorphics_data = File.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv").Skip(1).Select(a => a.Split(',')).ToList();
+            //var dimorphics_data = program.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv").Skip(1).Select(a => a.Split(',')).ToList();
             var dimorphics_data = dimorphics_data_all.Where(a => a.class_name == class_name_in_file).ToList();
 
             if (limit_for_testing)

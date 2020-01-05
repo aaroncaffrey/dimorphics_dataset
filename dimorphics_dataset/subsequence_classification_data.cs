@@ -1275,7 +1275,7 @@ namespace dimorphics_dataset
 
             //var pdb_id_simple = scd.pdb_id.Substring(0, 4) + scd.chain_id;
 
-            //var uniprot_mapping = File.ReadAllLines($@"C:\betastrands_dataset\uniprot_pdb_mapping\{pdb_id_simple}.txt").Select(a =>
+            //var uniprot_mapping = program.ReadAllLines($@"C:\betastrands_dataset\uniprot_pdb_mapping\{pdb_id_simple}.txt").Select(a =>
             //{
             //    var s = a.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             //    var i = 0;

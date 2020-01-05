@@ -223,7 +223,7 @@ namespace dimorphics_dataset
                 return new List<pssm_entry>();
             }
 
-            var line_list = File.ReadAllLines(pssm_filename).Skip(2).ToList();
+            var line_list = program.ReadAllLines(pssm_filename).Skip(2).ToList();
             var pssm_end_index = line_list.IndexOf("");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 

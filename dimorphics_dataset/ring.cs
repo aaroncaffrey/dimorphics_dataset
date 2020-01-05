@@ -33,7 +33,7 @@ namespace dimorphics_dataset
             {
                 var result = new List<ring_edge>();
 
-                var data = File.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a=>a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
+                var data = program.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a=>a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
 
                 foreach (var d in data)
                 {
@@ -117,7 +117,7 @@ namespace dimorphics_dataset
             {
                 var result = new List<ring_node>();
 
-                var data = File.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
+                var data = program.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
 
                 foreach (var d in data)
                 {

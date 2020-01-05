@@ -114,7 +114,7 @@ namespace dimorphics_dataset
         public static List<aaindex_entry> Load(string aaindex1_file= @"C:\betastrands_dataset\aaindex\aaindex1.txt", bool remove_incomplete_entries = false)
         {
             var result = new List<aaindex_entry>();
-            var lines = File.ReadAllLines(aaindex1_file);
+            var lines = program.ReadAllLines(aaindex1_file);
             aaindex_entry entry=null;
             
             var i_amino_acid_order = "";

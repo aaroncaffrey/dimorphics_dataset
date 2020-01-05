@@ -363,7 +363,7 @@ namespace dimorphics_dataset
                 throw new FileNotFoundException(sequenceFilename);
             }
 
-            var lines = File.ReadAllLines(sequenceFilename);
+            var lines = program.ReadAllLines(sequenceFilename);
 
             return LoadSequenceFile(lines, molNames);
         }

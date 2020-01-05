@@ -28,7 +28,7 @@ namespace dimorphics_dataset
 
         public static List<sable_item> load(string filename)// = @"c:\betastrands_dataset\sable\OUT_SABLE_RES.txt")
         {
-            var lines = File.ReadAllLines(filename).ToList();
+            var lines = program.ReadAllLines(filename).ToList();
 
             var queries = new List<List<string>>();
 

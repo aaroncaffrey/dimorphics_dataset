@@ -46,7 +46,7 @@ namespace dimorphics_dataset
 
                 var algo = Path.GetExtension(file)[1];
 
-                var lines = File.ReadAllLines(file).ToList();
+                var lines = program.ReadAllLines(file).ToList();
 
                 lines = lines.Where(a => a.StartsWith("RES ")).ToList();
 

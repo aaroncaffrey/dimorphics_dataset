@@ -65,7 +65,7 @@ namespace dimorphics_dataset
             // repair
             var monomer_file_repair = foldx_repair_pdb(Path.GetFileNameWithoutExtension(monomer_file), run);
 
-            var repair_res_ids = File.ReadAllLines(monomer_file_repair).Where(a => a.StartsWith("ATOM")).Select(a => int.Parse(a.Substring(22, 4))).Distinct().OrderBy(a => a).ToList();
+            var repair_res_ids = program.ReadAllLines(monomer_file_repair).Where(a => a.StartsWith("ATOM")).Select(a => int.Parse(a.Substring(22, 4))).Distinct().OrderBy(a => a).ToList();
 
             // filter res ids to remove res ides which were in the original pdb structure file but removed by the foldx repair
             res_ids = res_ids.Where(a => repair_res_ids.Contains(a.residue_index)).ToList();
@@ -270,7 +270,7 @@ namespace dimorphics_dataset
                     {
                         var f_len1 = new FileInfo(wait_file).Length;
 
-                        data = File.ReadAllLines(wait_file);
+                        data = program.ReadAllLines(wait_file);
 
                         var f_len2 = new FileInfo(wait_file).Length;
 
@@ -411,7 +411,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? File.ReadAllLines(wait_filename) : new string[0];
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? program.ReadAllLines(wait_filename) : new string[0];
                     }
                 }
             }
@@ -425,7 +425,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? File.ReadAllLines(wait_filename) : new string[0];
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? program.ReadAllLines(wait_filename) : new string[0];
                     }
                 }
             }
@@ -872,7 +872,7 @@ namespace dimorphics_dataset
             //}
             //else
             //{
-            //    file_data = File.ReadAllLines(wait_filename);
+            //    file_data = program.ReadAllLines(wait_filename);
             //}
 
             if (file_data == null || file_data.Length == 0)

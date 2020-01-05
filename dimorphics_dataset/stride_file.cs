@@ -336,7 +336,7 @@ namespace dimorphics_dataset
         {
             var result = new List<Stride_Record>();
 
-            var lines = File.ReadAllLines(strideFilename);
+            var lines = program.ReadAllLines(strideFilename);
 
             foreach (var columnFormatLine in lines)
             {

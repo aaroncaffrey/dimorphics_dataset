@@ -457,7 +457,7 @@ namespace dimorphics_dataset
 
             if (File.Exists(filename) && new FileInfo(filename).Length > 0)
             {
-                lines = File.ReadAllLines(filename).ToList();
+                lines = program.ReadAllLines(filename).ToList();
             }
             
 
