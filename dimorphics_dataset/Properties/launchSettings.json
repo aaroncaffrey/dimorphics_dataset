@@ -2,7 +2,7 @@
   "profiles": {
     "dimorphics_dataset": {
       "commandName": "Project",
-      "commandLineArgs": "2i 3i 2n 3n 2p 3p"
+      "commandLineArgs": "3i"
     }
   }
 }

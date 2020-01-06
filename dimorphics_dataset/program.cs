@@ -1435,7 +1435,12 @@ namespace dimorphics_dataset
                 throw new Exception("No args");
             }
 
-            var dataset_name = string.Join("_", new string[] { (do_2d_interface ? "2i" : ""), (do_2d_nh ? "2n" : ""), (do_2d_protein ? "2p" : ""), (do_3d_interface ? "3i" : ""), (do_3d_nh ? "3n" : ""), (do_3d_protein ? "3p" : ""), }.Where(a => !string.IsNullOrWhiteSpace(a)).ToList());
+            var dataset_name = string.Join("_", new string[]
+            {
+                (do_2d_interface ? "2i" : ""), (do_2d_nh ? "2n" : ""), (do_2d_protein ? "2p" : ""), 
+                (do_3d_interface ? "3i" : ""), (do_3d_nh ? "3n" : ""), (do_3d_protein ? "3p" : ""),
+            }.Where(a => !string.IsNullOrWhiteSpace(a)).ToList());
+
             program.WriteLine($@"{nameof(dataset_name)} = {dataset_name}");
 
             //var aaa= subsequence_classification_data.aaindex_subset_templates_search();

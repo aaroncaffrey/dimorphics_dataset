@@ -981,6 +981,12 @@ namespace dimorphics_dataset
                                     var items = sq.items.Where(a => g_col_foldx_amino_acid.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1)).ToList();
                                     var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
 
+                                    if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
+                                    {
+                                        // insert blank values to make same number of features for each input
+                                        items_ddg_list = new foldx_caller.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                    }
+
                                     foreach (var items_ddg in items_ddg_list)
                                     {
                                         var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_col_foldx_amino_acid.group_name}");
@@ -1166,6 +1172,13 @@ namespace dimorphics_dataset
                                 // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
                                 var items = foldx_bm_if_sub.Where(a => g_row_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.First().mutant_foldx_amino_acid1)).ToList();
                                 var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
+
+
+                                if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
+                                {
+                                    // insert blank values to make same number of features for each input
+                                    items_ddg_list = new foldx_caller.foldx_energy_terms_sm().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                }
 
                                 foreach (var items_ddg in items_ddg_list)
                                 {
