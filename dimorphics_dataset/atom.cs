@@ -1841,7 +1841,7 @@ namespace dimorphics_dataset
         {
             if (max_dist > 8.0)
             {
-                throw new Exception("max atomic distance too long for contat");
+                throw new Exception("the specified maximum atomic distance is too long for contacts");
             }
 
             var result = new subsequence_classification_data()

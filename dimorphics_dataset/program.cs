@@ -39,7 +39,7 @@ namespace dimorphics_dataset
                 try
                 {
                     var ret = File.ReadAllLines(filename);
-                    
+
                     return ret;
                 }
                 catch (Exception e)
@@ -1380,8 +1380,8 @@ namespace dimorphics_dataset
                 var category_prefix = new string('S', i);
                 var group_prefix = new string('S', i);
                 var aa_subsequence = new string('S', i);
-                //var pse_ssc = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps,category_prefix, group_prefix, ss_seq, feature_calcs.seq_type.secondary_structure_sequence, mpsa_pse_aac_options, max_features);
-                //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, "dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, max_features);
+                //var pse_ssc = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps,category_prefix, group_prefix, ss_seq, feature_calcs.seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
+                //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, "dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
                 var pse_aac_sequence_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, group_prefix, aa_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, 100);
 
                 Console.WriteLine(pse_aac_sequence_classification_data.Count);
@@ -1437,7 +1437,7 @@ namespace dimorphics_dataset
 
             var dataset_name = string.Join("_", new string[]
             {
-                (do_2d_interface ? "2i" : ""), (do_2d_nh ? "2n" : ""), (do_2d_protein ? "2p" : ""), 
+                (do_2d_interface ? "2i" : ""), (do_2d_nh ? "2n" : ""), (do_2d_protein ? "2p" : ""),
                 (do_3d_interface ? "3i" : ""), (do_3d_nh ? "3n" : ""), (do_3d_protein ? "3p" : ""),
             }.Where(a => !string.IsNullOrWhiteSpace(a)).ToList());
 
@@ -1607,7 +1607,7 @@ namespace dimorphics_dataset
             //var calculate_1d_nh_features = false;
             //var calculate_3d_nh_features = false;
             var use_dssp3 = true;
-            var limit_for_testing = false;
+            var limit_for_testing = true;
             var max_features = 100;//(int)Math.Round((132 * 2) * 1.1);
 
             if (limit_for_testing)
@@ -1914,6 +1914,8 @@ namespace dimorphics_dataset
             public List<(string format, string prediction)> ss_predictions;
 
             public string protein_aa_seq;
+
+            public static List<string> ss_prediction_formats = null;
         }
 
         private static List<subsequence_classification_data> find_class_data
@@ -1927,23 +1929,25 @@ namespace dimorphics_dataset
             subsequence_classification_data.feature_types_3d feature_types_neighbourhood_3d,
             subsequence_classification_data.feature_types_3d feature_types_protein_3d,
             bool make_distance_matrices,
-            bool encode_features,
+
             int max_features,
             bool use_dssp3,
             bool limit_for_testing,
             int max_tasks
+
             )
         {
-            //lock (program._console_lock)
-            //{
-            Console.WriteLine($"{class_info.class_name}: Started: finding class #{class_info.class_id} {class_info.class_name}");
-            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-            //}
-
             if (string.IsNullOrWhiteSpace(dataset_name))
             {
                 throw new Exception();
             }
+
+            var output_folder = $@"F:\dataset\{dataset_name}\";
+
+
+            Console.WriteLine($"{class_info.class_name}: Started: finding class #{class_info.class_id} {class_info.class_name}");
+            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+
 
             var sw1 = new Stopwatch();
             sw1.Start();
@@ -1952,228 +1956,196 @@ namespace dimorphics_dataset
             var ts1 = sw1.Elapsed;
 
 
-
-            //lock (program._console_lock)
-            //{
             Console.WriteLine($"{class_info.class_name}: {nameof(data_list)}: {data_list.Count} ({ts1.Days}d {ts1.Hours}h {ts1.Minutes}m {ts1.Seconds}s)");
             Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
             Console.WriteLine($"{class_info.class_name}: Finished: finding class #{class_info.class_id} {class_info.class_name}");
             Console.WriteLine();
-            //}
 
-            //return data_list;
 
-            var output_folder = $@"F:\dataset\{dataset_name}\"; //@"C:\betastrands_dataset\svm_features\";
 
-            if (encode_features)
+
+
+            Console.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+
+            var all_output_data = new List<string>();
+            var comment_rows = new List<string>();
+            var sw2 = new Stopwatch();
+            sw2.Start();
+
+
+            for (var index = 0; index < data_list.Count; index++)
             {
-                //lock (program._console_lock)
-                //{
-                Console.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-                //}
+                var data_list_row = data_list[index];
 
+                var row_encoded = encode_row(feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d, max_features, data_list_row);
 
-                //int cl;
-                //int ct;
+                var row_comments = get_row_comments(index, class_info, row_encoded.feature_info);
 
-                //lock (program._console_lock)
-                //{
-                //    Console.WriteLine();
-                //    cl = Console.CursorLeft + 1;
-                //    ct = Console.CursorTop;
-                //    Console.WriteLine($"[{new string('.', data_list.Count)}]");
-                //    Console.WriteLine();
-                //}
+                comment_rows.Add(string.Join(",", row_comments));
 
-                var all_output_data = new List<string>();
-                var comment_rows = new List<string>();
-                var comment_headers = new List<string>() // headers starting with '#' are excluded from copying to classification statistics
-                {
-                    $"row_index",
-                    $"{nameof(instance_meta_data.protein_pdb_id)}",
-                    $"{nameof(instance_meta_data.protein_chain_id)}",
-                    $"{nameof(instance_meta_data.protein_dimer_type)}",
-                    $"{nameof(instance_meta_data.subsequence_class_id)}",
-                    $"subsequence_{nameof(class_info.class_name)}",
-                    $"{nameof(instance_meta_data.subsequence_parallelism)}",
-                    $"{nameof(instance_meta_data.subsequence_symmetry_mode)}",
-                    $"{nameof(instance_meta_data.subsequence_aa_seq)}_len",
-                    $"{nameof(instance_meta_data.subsequence_aa_seq)}",
-                    $"#{nameof(instance_meta_data.protein_aa_seq)}_len",
-                    $"#{nameof(instance_meta_data.protein_aa_seq)}",
-                    $"{nameof(instance_meta_data.subsequence_res_ids)}",
-                    $"{nameof(instance_meta_data.subsequence_dssp_monomer)}",
-                    $"{nameof(instance_meta_data.subsequence_dssp_multimer)}",
-                    $"{nameof(instance_meta_data.subsequence_dssp3_monomer)}",
-                    $"{nameof(instance_meta_data.subsequence_dssp3_multimer)}",
-                };
-
-                var sw2 = new Stopwatch();
-                sw2.Start();
-
-                var total_featues_check = -1;
-
-                List<subsequence_classification_data.feature_info> header_list = null;
-                List<string> header_list_str = null;
-
-                //var header_dupe_check = new List<string>();
-
-                var progress_lock = new object();
-                var progress = 0;
-                var progress_goal = data_list.Count;
-
-                foreach (var row in data_list)
-                {
-                    var row_index = data_list.IndexOf(row);
-
-                    var row_encoded = subsequence_classification_data.encode_subsequence_classification_data_row(row, max_features, feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d);
-
-
-
-                    if (header_list == null)
-                    {
-                        header_list = row_encoded.feature_info.Select(a => new subsequence_classification_data.feature_info(a) { feature_value = 0 }).ToList();
-
-
-                        //header_list_str = header_list.Select(a => $"{a.source}.{a.@group}.{a.member}.{a.perspective}").ToList();
-                        //header_list_str =       header_list.Select(a => $"{a.alphabet}.{a.dimension}.{a.category}.{a.source}.{a.@group}.{a.member}.{a.perspective}").ToList();
-
-                        header_list_str = header_list.Select((a, i) => i.ToString()).ToList();
-
-                        var header_list_str_dupe_check = header_list.Select((a, i) => $"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
-                        var header_list_str_dupe_check_distinct = header_list_str_dupe_check.Distinct().ToList();
-
-                        if (header_list_str_dupe_check.Count != header_list_str_dupe_check_distinct.Count)
-                        {
-                            var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.Select(a => (item: a, count: header_list_str_dupe_check.Count(b => b == a))).OrderByDescending(a => a.count).ToList();
-                            throw new Exception("duplicate headers found");
-                        }
-
-                        //header_dupe_check.Add(header_list_str_c_noindex);
-
-                        var header_list_str_c = header_list.Select((a, i) => $"{i.ToString()},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
-                        header_list_str_c.Insert(0, "fid,alphabet,dimension,category,source,group,member,perspective");
-
-                        Console.WriteLine("Total features: " + header_list.Count);
-                        Console.WriteLine();
-                        Console.WriteLine("Total dimension: " + header_list.Select(a => a.dimension).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.dimension).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total alphabet: " + header_list.Select(a => a.alphabet).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.alphabet).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total category: " + header_list.Select(a => a.category).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.category).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total source: " + header_list.Select(a => a.source).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.source).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total group: " + header_list.Select(a => a.@group).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.@group).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total member: " + header_list.Select(a => a.member).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.member).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine("Total perspective: " + header_list.Select(a => a.perspective).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.perspective).Distinct().Take(20).ToList()) + "...");
-                        Console.WriteLine();
-
-
-
-
-                        var feature_headers_file = Path.Combine(output_folder, $"h__[{class_info.class_name}].csv");//  $@"c:\betastrands_dataset\svm_features\feature_headers_c{row.class_id}.csv";
-
-                        //Directory.CreateDirectory(Path.GetDirectoryName(feature_headers_file));
-
-                        program.WriteAllLines(feature_headers_file, header_list_str_c, nameof(program), nameof(find_class_data));
-
-                        Console.WriteLine("Saved headers: " + feature_headers_file);
-
-
-                        comment_headers.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.format).ToList());
-                    }
-
-                    var total_features = row_encoded.feature_info.Count;
-
-                    if (total_featues_check > -1 && total_featues_check != total_features)
-                    {
-                        throw new Exception();
-                    }
-                    else
-                    {
-                        total_featues_check = total_features;
-                    }
-
-                    var all_feature_values = row_encoded.feature_info.Select(a => a.feature_value.ToString("G17")).ToList();
-                    all_output_data.Add(string.Join(",", all_feature_values));
-
-
-
-                    var comments = new List<string>();
-                    comments.Add(row_index.ToString());
-                    comments.Add($"{(row_encoded.instance_meta_data.protein_pdb_id)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.protein_chain_id)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.protein_dimer_type)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_class_id)}");
-                    comments.Add($"{(class_info.class_name)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_parallelism)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_symmetry_mode)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq.Length)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq)}");
-                    comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq.Length)}");
-                    comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq)}");
-                    comments.Add($"{(string.Join(" ", row_encoded.instance_meta_data.subsequence_res_ids.Select(a => a.amino_acid.ToString() + a.residue_index.ToString() + (a.i_code != default && a.i_code != ' ' ? a.i_code.ToString() : "")).ToList()))}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_monomer)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_multimer)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_monomer)}");
-                    comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_multimer)}");
-
-
-
-                    comments.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.prediction).ToList());
-                    comment_rows.Add(string.Join(",", comments));
-
-                    //lock (program._console_lock)
-                    //{
-                    //    var cl2 = Console.CursorLeft;
-                    //    var ct2 = Console.CursorTop;
-
-                    //    Console.SetCursorPosition(cl, ct);
-                    //    Console.Write("|");
-                    //    ct = Console.CursorTop;
-                    //    cl = Console.CursorLeft;
-                    //    Console.SetCursorPosition(cl2, ct2);
-                    //}
-
-                    lock (progress_lock)
-                    {
-                        progress++;
-                    }
-
-                    Console.WriteLine($@"{nameof(find_class_data)} -> {progress} / {progress_goal} ( {(((double)progress / (double)progress_goal) * 100):00.00} % )");
-                }
-
-                sw2.Stop();
-                var ts2 = sw2.Elapsed;
-
-                //lock (program._console_lock)
-                //{
-                Console.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
-                Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-                Console.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-                Console.WriteLine();
-                //}
-
-
-
-
-                // save comments file
-                comment_rows.Insert(0, string.Join(",", comment_headers));
-                var comment_file = Path.Combine(output_folder, $"c__[{class_info.class_name}].csv");
-                //Directory.CreateDirectory(Path.GetDirectoryName(comment_file));
-                program.WriteAllLines(comment_file, comment_rows, nameof(program), nameof(find_class_data));
-                program.WriteLine("Saved: " + comment_file);
-
-                // save features file
-                all_output_data.Insert(0, string.Join(",", header_list_str));
-                var all_features_file = Path.Combine(output_folder, $"f__[{class_info.class_name}].csv");
-                //Directory.CreateDirectory(Path.GetDirectoryName(all_features_file));
-                program.WriteAllLines(all_features_file, all_output_data, nameof(program), nameof(find_class_data));
-                program.WriteLine("Saved: " + all_features_file);
-
-
-
+                var feature_headers = get_feature_headers(row_encoded);
+                var comment_heads = get_comment_headers();
             }
 
+            sw2.Stop();
+            var ts2 = sw2.Elapsed;
+
+            
+            Console.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
+            Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+            Console.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+            Console.WriteLine();
+            
+
+            // save comments file
+            comment_rows.Insert(0, string.Join(",", comment_headers));
+            var comment_file = Path.Combine(output_folder, $"c__[{class_info.class_name}].csv");
+            //Directory.CreateDirectory(Path.GetDirectoryName(comment_file));
+            program.WriteAllLines(comment_file, comment_rows, nameof(program), nameof(find_class_data));
+            program.WriteLine("Saved: " + comment_file);
+
+            // save features file
+            all_output_data.Insert(0, string.Join(",", header_list_str));
+            var all_features_file = Path.Combine(output_folder, $"f__[{class_info.class_name}].csv");
+            //Directory.CreateDirectory(Path.GetDirectoryName(all_features_file));
+            program.WriteAllLines(all_features_file, all_output_data, nameof(program), nameof(find_class_data));
+            program.WriteLine("Saved: " + all_features_file);
+
+
             return data_list;
+        }
+
+        private static List<string> get_comment_headers()
+        {
+            var comment_headers = new List<string>() // headers starting with '#' are excluded from copying to classification statistics
+            {
+                $"row_index",
+                $"{nameof(instance_meta_data.protein_pdb_id)}",
+                $"{nameof(instance_meta_data.protein_chain_id)}",
+                $"{nameof(instance_meta_data.protein_dimer_type)}",
+                $"{nameof(instance_meta_data.subsequence_class_id)}",
+                $"subsequence_{nameof(class_info.class_name)}",
+                $"{nameof(instance_meta_data.subsequence_parallelism)}",
+                $"{nameof(instance_meta_data.subsequence_symmetry_mode)}",
+                $"{nameof(instance_meta_data.subsequence_aa_seq)}_len",
+                $"{nameof(instance_meta_data.subsequence_aa_seq)}",
+                $"#{nameof(instance_meta_data.protein_aa_seq)}_len",
+                $"#{nameof(instance_meta_data.protein_aa_seq)}",
+                $"{nameof(instance_meta_data.subsequence_res_ids)}",
+                $"{nameof(instance_meta_data.subsequence_dssp_monomer)}",
+                $"{nameof(instance_meta_data.subsequence_dssp_multimer)}",
+                $"{nameof(instance_meta_data.subsequence_dssp3_monomer)}",
+                $"{nameof(instance_meta_data.subsequence_dssp3_multimer)}",
+            };
+
+            if (instance_meta_data.ss_prediction_formats != null && instance_meta_data.ss_prediction_formats.Count > 0)
+            {
+                comment_headers.AddRange(instance_meta_data.ss_prediction_formats);
+            }
+
+            return comment_headers;
+        }
+
+        public static List<string> find_duplicate_strings(List<string> query)
+        {
+            if (query == null || query.Count == 0) return null;
+
+            var query_distinct = query.Distinct().ToList();
+
+            if (query.Count == query_distinct.Count) return null;
+
+            var ret = query_distinct.Where(a => query.Count(b => a == b) > 1).ToList();
+
+            return ret;
+        }
+
+        private static List<subsequence_classification_data.feature_info> get_feature_headers((instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
+        {
+            var header_list = row_encoded.feature_info.Select(a => new subsequence_classification_data.feature_info(a) { feature_value = 0 }).ToList();
+
+            //var header_list_str = header_list.Select((a, i) => i.ToString()).ToList();
+
+            var header_list_str = header_list.Select((a, fid) => $"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            var dupes = find_duplicate_strings(header_list_str);
+            if (dupes != null && dupes.Count > 0)
+            {
+                throw new Exception("Duplicate headers found: " + string.Join(", ", dupes));
+            }
+
+            var header_list_str_c = header_list.Select((a, fid) => $"{fid.ToString()},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            header_list_str_c.Insert(0, "fid,alphabet,dimension,category,source,group,member,perspective");
+
+            var info = new List<string>();
+            info.Add("Total features: " + header_list.Count);
+            info.Add("Total dimension: " + header_list.Select(a => a.dimension).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.dimension).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total alphabet: " + header_list.Select(a => a.alphabet).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.alphabet).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total category: " + header_list.Select(a => a.category).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.category).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total source: " + header_list.Select(a => a.source).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.source).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total group: " + header_list.Select(a => a.@group).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.@group).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total member: " + header_list.Select(a => a.member).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.member).Distinct().Take(20).ToList()) + "...");
+            info.Add("Total perspective: " + header_list.Select(a => a.perspective).Distinct().Count() + ": " + string.Join(", ", header_list.Select(a => a.perspective).Distinct().Take(20).ToList()) + "...");
+
+            //var feature_headers_file = Path.Combine(output_folder, $"h__[{class_info.class_name}].csv"); //  $@"c:\betastrands_dataset\svm_features\feature_headers_c{row.class_id}.csv";
+            //Directory.CreateDirectory(Path.GetDirectoryName(feature_headers_file));
+            //program.WriteAllLines(feature_headers_file, header_list_str_c, nameof(program), nameof(find_class_data));
+            //Console.WriteLine("Saved headers: " + feature_headers_file);
+
+            if (instance_meta_data.ss_prediction_formats == null || instance_meta_data.ss_prediction_formats.Count == 0)
+            {
+                instance_meta_data.ss_prediction_formats = row_encoded.instance_meta_data.ss_predictions.Select(a => a.format).ToList();
+            }
+
+            return header_list;
+        }
+
+        private static (instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) encode_row
+        (
+            subsequence_classification_data.feature_types_1d feature_types_subsequence_1d,
+            subsequence_classification_data.feature_types_1d feature_types_neighbourhood_1d,
+            subsequence_classification_data.feature_types_1d feature_types_protein_1d,
+            subsequence_classification_data.feature_types_3d feature_types_subsequence_3d,
+            subsequence_classification_data.feature_types_3d feature_types_neighbourhood_3d,
+            subsequence_classification_data.feature_types_3d feature_types_protein_3d,
+            int max_features,
+            subsequence_classification_data row
+            )
+        {
+            var row_encoded = subsequence_classification_data.encode_subsequence_classification_data_row(row, max_features, feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d);
+
+            var all_feature_values = row_encoded.feature_info.Select(a => a.feature_value.ToString("G17")).ToList();
+            var all_feature_values_str = string.Join(",", all_feature_values);
+
+            return row_encoded;
+        }
+
+        public static List<string> get_row_comments(int row_index, class_info class_info, (instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
+        {
+            var row_comments = new List<string>();
+            
+            row_comments.Add(row_index.ToString());
+            row_comments.Add($"{(row_encoded.instance_meta_data.protein_pdb_id)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.protein_chain_id)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.protein_dimer_type)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_class_id)}");
+            row_comments.Add($"{(class_info.class_name)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_parallelism)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_symmetry_mode)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq.Length)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq)}");
+            row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq.Length)}");
+            row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq)}");
+            row_comments.Add($"{(string.Join(" ", row_encoded.instance_meta_data.subsequence_res_ids.Select(a => a.amino_acid.ToString() + a.residue_index.ToString() + (a.i_code != default && a.i_code != ' ' ? a.i_code.ToString() : "")).ToList()))}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_monomer)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_multimer)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_monomer)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_multimer)}");
+
+            row_comments.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.prediction).ToList());
+
+            var row_comments_str = string.Join(",", row_comments);
+
+            return row_comments;
         }
 
         //public static void make_distance_matrix(string file_marker, List<string> sequence_list, bool cluster = false)
@@ -2186,88 +2158,88 @@ namespace dimorphics_dataset
         //        for (var j = 0; j < sequence_list.Count; j++)
         //        {
         //            if (i < j) continue;
-
+        //
         //            var seq2 = sequence_list[j];
-
+        //
         //            var aa_seq_distance = feature_calcs.aa_sequence_distance(seq1, seq2);
         //            aa_matrix[i, j] = aa_seq_distance;
         //            aa_matrix[j, i] = aa_seq_distance;
-
+        //
         //            var aa_group_seq_distance = feature_calcs.aa_group_sequence_distance(seq1, seq2);
         //            aa_group_matrix[i, j] = aa_group_seq_distance;
         //            aa_group_matrix[j, i] = aa_group_seq_distance;
         //        }
         //    }
-
+        //
         //    if (cluster)
         //    {
         //        Console.WriteLine($"clustering {nameof(aa_matrix)}");
         //        cluster_distance_matrix(aa_matrix);
-
+        //
         //        Console.ReadKey();
-
+        //
         //        Console.WriteLine($"clustering {nameof(aa_group_matrix)}");
         //        cluster_distance_matrix(aa_group_matrix);
         //        Console.ReadKey();
-
+        //
         //    }
-
+        //
         //    program.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_matrix)}.txt", aa_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
         //    program.WriteAllLines($@"c:\bioinf\dm_{file_marker}_{nameof(aa_group_matrix)}.txt", aa_group_matrix.ToJagged().Select(a => string.Join(",", a)).ToList());
         //}
 
-        public static List<(int x, int y, double d)> matrix_to_list(double[,] matrix)
-        {
-            var matrix_list = new List<(int x, int y, double d)>();
-            for (var x = 0; x < matrix.GetLength(0); x++)
-            {
-                for (var y = 0; y < matrix.GetLength(0); y++)
-                {
-                    if (x < y) continue;
+        //public static List<(int x, int y, double d)> matrix_to_list(double[,] matrix)
+        //{
+        //    var matrix_list = new List<(int x, int y, double d)>();
+        //    for (var x = 0; x < matrix.GetLength(0); x++)
+        //    {
+        //        for (var y = 0; y < matrix.GetLength(0); y++)
+        //        {
+        //            if (x < y) continue;
+        //
+        //            matrix_list.Add((x, y, matrix[x, y]));
+        //        }
+        //    }
+        //
+        //    matrix_list = matrix_list.OrderBy(a => a.d).ThenBy(a => a.x).ThenBy(a => a.y).ToList();
+        //    return matrix_list;
+        //}
 
-                    matrix_list.Add((x, y, matrix[x, y]));
-                }
-            }
-
-            matrix_list = matrix_list.OrderBy(a => a.d).ThenBy(a => a.x).ThenBy(a => a.y).ToList();
-            return matrix_list;
-        }
-
-        public static void cluster_distance_matrix(double[,] matrix)
-        {
-            var matrix_list = matrix_to_list(matrix);
-
-            var clusters = new List<List<int>>();
-
-            for (var i = 0; i < matrix_list.Count; i++)
-            {
-                var x_cluster = clusters.First(a => a.Contains(matrix_list[i].x));
-                var y_cluster = clusters.First(a => a.Contains(matrix_list[i].y));
-
-                var cluster = new List<int>();
-                if (x_cluster != null)
-                {
-                    cluster.AddRange(x_cluster);
-                    clusters.Remove(x_cluster);
-                }
-                else
-                {
-                    cluster.Add(matrix_list[i].x);
-                }
-                if (y_cluster != null)
-                {
-                    cluster.AddRange(y_cluster);
-                    clusters.Remove(y_cluster);
-                }
-                else
-                {
-                    cluster.Add(matrix_list[i].y);
-                }
-                clusters.Add(cluster);
-
-                Console.WriteLine($"{i}: {clusters.Count}: {string.Join(", ", clusters.Select((a, j) => $"{j}: {a.Count}").ToList())}");
-
-            }
-        }
+        //public static void cluster_distance_matrix(double[,] matrix)
+        //{
+        //    var matrix_list = matrix_to_list(matrix);
+        //
+        //    var clusters = new List<List<int>>();
+        //
+        //    for (var i = 0; i < matrix_list.Count; i++)
+        //    {
+        //        var x_cluster = clusters.First(a => a.Contains(matrix_list[i].x));
+        //        var y_cluster = clusters.First(a => a.Contains(matrix_list[i].y));
+        //
+        //        var cluster = new List<int>();
+        //        if (x_cluster != null)
+        //        {
+        //            cluster.AddRange(x_cluster);
+        //            clusters.Remove(x_cluster);
+        //        }
+        //        else
+        //        {
+        //            cluster.Add(matrix_list[i].x);
+        //        }
+        //        if (y_cluster != null)
+        //        {
+        //            cluster.AddRange(y_cluster);
+        //            clusters.Remove(y_cluster);
+        //        }
+        //        else
+        //        {
+        //            cluster.Add(matrix_list[i].y);
+        //        }
+        //        clusters.Add(cluster);
+        //
+        //        Console.WriteLine($"{i}: {clusters.Count}: {string.Join(", ", clusters.Select((a, j) => $"{j}: {a.Count}").ToList())}");
+        //
+        //    }
+        //}
     }
 }
