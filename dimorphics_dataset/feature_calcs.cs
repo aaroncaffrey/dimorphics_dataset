@@ -5,39 +5,8 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public partial class feature_calcs
+    public class feature_calcs
     {
-        //public static List<Tuple<char, char, int>> SequencePropensityPairs(string sequence)
-        //{
-        //    var sequencePad = sequence + "__";
-        //    var subsequences = sequence.Select((a, i) => sequencePad.Substring(i, 2)).ToList();
-        //    subsequences.AddRange(sequence.Select((a, i) => sequencePad.Substring(i + 1, 2)).ToList());
-
-        //    var aa = new char[] { 'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V' };
-
-        //    var scores = new List<Tuple<char, char, int>>();
-        //    foreach (var a1 in aa)
-        //    {
-        //        foreach (var a2 in aa)
-        //        {
-        //            var c = subsequences.Count(b => b == "" + a1 + a2);
-
-        //            scores.Add(new Tuple<char, char, int>(a1, a2, c));
-        //        }
-        //    }
-
-        //    return scores;
-        //}
-
-        //public static List<Tuple<char, int>> SequencePropensity(string sequence)
-        //{
-        //    var aa = new char[] { 'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V' };
-
-        //    var prop = aa.Select(a => new Tuple<char, int>(a, sequence.Count(b => b == a))).ToList();
-
-        //    return prop;
-        //}
-
         public static double transform_value(double value, double length, bool sqrt, bool as_dist)
         {
             if (value == 0.0)
@@ -58,83 +27,6 @@ namespace dimorphics_dataset
             return value;
         }
 
-        //public static List<(char ss_type, double value)> ss_distribution(string ss_sequence, bool sqrt, bool as_dist, ss_types ss_type)// = ss_types.DSSP3)
-        //{
-        //    const string dssp3_types = "EHC";
-        //    const string dssp_types = "HBEGITSC";
-
-        //    const string stride3_types = "EHC";
-        //    const string stride_types = "HBEGITbC";
-
-        //    var ss_codes = "";
-
-        //    if (ss_type == ss_types.DSSP)
-        //    {
-        //        ss_codes = dssp_types;
-        //    }
-        //    else if (ss_type == ss_types.DSSP3)
-        //    {
-        //        ss_codes = dssp3_types;
-        //        ss_sequence = Atom.secondary_structure_state_reduction(ss_sequence);
-        //    }
-        //    else if (ss_type == ss_types.STRIDE)
-        //    {
-        //        ss_codes = stride_types;
-        //    }
-        //    else if (ss_type == ss_types.STRIDE3)
-        //    {
-        //        ss_codes = stride3_types;
-        //        ss_sequence = Atom.secondary_structure_state_reduction(ss_sequence);
-        //    }
-
-
-        //    var d = ss_codes.Select(a => (a, string.IsNullOrWhiteSpace(ss_sequence) ? (double)0 : transform_value(ss_sequence.Count(b => a == b), ss_sequence.Length, sqrt, as_dist))).ToList();
-
-        //    return d;
-        //}
-
-
-
-        //public static List<(char aa_type, double value)> aa_distribution(string sequence, bool sqrt, bool as_dist)
-        //{
-        //    // 20 features
-        //    var prop = aa_list.Select(aa => (aa_type: aa, value: string.IsNullOrWhiteSpace(sequence) ? (double)0 :
-        //        transform_value(sequence.Count(seq_aa => seq_aa == aa), sequence.Length, sqrt, as_dist))).ToList();
-        //    return prop;
-        //}
-
-        //public static List<(string pp_group_name, double value)> aa_group_distribution(string sequence, bool sqrt, bool as_dist)
-        //{
-        //    // 13 features
-        //    var prop = aa_chem_groups.Select(group =>
-        //        (pp_group_name: group.group_name, value: string.IsNullOrWhiteSpace(sequence) ? (double)0 :
-        //            transform_value(sequence.Count(seq_aa => group.aa_list.Contains(seq_aa)), sequence.Length, sqrt, as_dist))).ToList();
-        //    return prop;
-        //}
-
-        //public List<(int id, string name, double[] values)> feature_AAComposition(string seq, bool sqrt, bool as_dist)
-        //{
-
-        //    var result = new List<(int id, string name, double[] values)>();
-        //    for (var alphabet_index = 0; alphabet_index < alphabets.Count; alphabet_index++)
-        //    {
-        //        var alphabet = alphabets[alphabet_index];
-        //        var alphabet_result = new double[alphabet.groups.Count];
-
-        //        for (var group_index = 0; group_index < alphabet.groups.Count; group_index++)
-        //        {
-        //            var group = alphabet.groups[group_index];
-
-        //            var value = (double) seq.Count(a => group.Contains(a));
-        //            value = transform_value(value, seq.Length, sqrt, as_dist);
-        //            alphabet_result[group_index] = value;
-        //        }
-
-        //        result.Add((alphabet.id,alphabet.name,alphabet_result));
-        //    }
-
-        //    return result;
-        //}
 
         public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
         {
@@ -160,7 +52,7 @@ namespace dimorphics_dataset
                 ("Sulphuric_CM","CM")
             }),
             (3, "UniProtKb",new List<(string group_name, string group_amino_acids)>(){
-                ("LAGVIP","LAGVIP"),
+                ("Alaphatic_LAGVIP","LAGVIP"),
                 ("Negative_DE","DE"),
                 ("Hydroxylic_ST","ST"),
                 ("Positive_HKR","HKR"),
@@ -227,8 +119,8 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + string.Join("", foldx_caller.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).ToList());
-                    return (b.group_name,y);
+                    var y = b.group_amino_acids + string.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).ToList());
+                    return (b.group_name, y);
                 }).ToList());
                 return x;
             }).ToList();
@@ -246,19 +138,24 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + string.Join("", foldx_caller.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).Select(a => a.foldx_aa_code1).ToList());
-                    return (b.group_name,y);
+                    var y = b.group_amino_acids + string.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).Select(a => a.foldx_aa_code1).ToList());
+                    return (b.group_name, y);
                 }).ToList());
                 return x;
             }).ToList();
 
         public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> ss_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
         {
-            (-1, "SS_HEC"/*T*/,new List<(string group_name, string group_amino_acids)>(){
+            (0, "SS_HEC"/*T*/,new List<(string group_name, string group_amino_acids)>(){
                 ("Helix_H","H"),
                 ("Strand_E","E"),
                 ("Coil_C","C"),
                 //("Turn_T","T")
+            }),
+            (1, "SS_HEC_pairs"/*T*/,new List<(string group_name, string group_amino_acids)>(){
+                ("CoilHelix_CH","CH"),
+                ("CoilStrand_CE","CE"),
+                ("StrandHelix_EH","EH"),
             }),
         };
 
@@ -337,27 +234,73 @@ namespace dimorphics_dataset
         }
 
 
-        public enum seq_type
+
+        public static List<int> IndexOfAll(string text, char[] substring)
         {
-            amino_acid_sequence,
-            secondary_structure_sequence
+            return substring.SelectMany(a => IndexOfAll(text, a)).ToList();
         }
 
-        public static 
-            List<( 
-                int alphabet_id, 
-                string alphabet_name, 
+        public static List<int> IndexOfAll(string text, List<char> substring)
+        {
+            return substring.SelectMany(a => IndexOfAll(text, a)).ToList();
+        }
+
+        public static List<int> IndexOfAll(string text, char substring)
+        {
+            var indexes = new List<int>();
+
+            if (string.IsNullOrEmpty(text)) return new List<int>();
+
+            int index = -1;
+
+            do
+            {
+                index = text.IndexOf(substring, index + 1);//, StringComparison.InvariantCulture);
+                if (index != -1) indexes.Add(index);
+
+            } while (index != -1);
+
+
+            return indexes;
+        }
+
+        public static List<int> IndexOfAll(string text, string substring)
+        {
+            var indexes = new List<int>();
+
+            if (string.IsNullOrEmpty(text)) return new List<int>();
+
+
+            if (!string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(substring))
+            {
+                int index = -1;
+
+                do
+                {
+                    index = text.IndexOf(substring, index + 1, StringComparison.InvariantCulture);
+                    if (index != -1) indexes.Add(index);
+
+                } while (index != -1);
+            }
+
+            return indexes;
+        }
+
+        public static
+            List<(
+                int alphabet_id,
+                string alphabet_name,
                 named_double[][] motifs, // A B C ... AA AB AC ... AAA AAB AAC ...
-                named_double[][] motifs_binary, 
+                named_double[][] motifs_binary,
                 //named_double[] saac, // saac
                 //named_double[] saac_binary, 
                 named_double[] oaac, // oaac
-                named_double[] oaac_binary, 
+                named_double[] oaac_binary,
                 named_double[] average_seq_positions, // average position of each AA in sequence,
                 named_double[][] dipeptides, // AA A?A A??A AB A?B A??B // the average distance between A and B.  What about between AX and BX...?  800 features with full alphabet, or 32 features with 4 letter alphabet... but with only 1 distance, or 64 with 2 distance
                 named_double[][] dipeptides_binary, // AA A?A A??A AB A?B A??B
                 named_double[] average_dipeptide_distance // average distance between each AA
-            )> 
+            )>
             feature_pse_aac(string seq, seq_type seq_type, pse_aac_options pse_aac_options, bool sqrt, bool as_dist)
         {
             // number of distinct amino acids in sequence
@@ -373,20 +316,20 @@ namespace dimorphics_dataset
 
             //var seq_split = split_sequence(seq);
 
-            var indexes0based = alphabets.Select(alphabet => alphabet.groups.Select(alphabet_group => (alphabet_group: alphabet_group, indexofall: seq.IndexOfAll(alphabet_group.group_amino_acids.ToCharArray()).ToList())).ToList()).ToList();
+            var indexes0based = alphabets.Select(alphabet => alphabet.groups.Select(alphabet_group => (alphabet_group: alphabet_group, indexofall: IndexOfAll(seq, alphabet_group.group_amino_acids.ToCharArray()).ToList())).ToList()).ToList();
 
             //var split_indexes0based = alphabets.Select(alphabet => alphabet.groups.Select(alphabet_group => (alphabet: alphabet, alphabet_group: alphabet_group, indexofall: seq_split.Select(a_seq_split => (alphabet: alphabet, alphabet_group: alphabet_group, a_seq_split: a_seq_split, indexofall: a_seq_split.IndexOfAll(alphabet_group.group_amino_acids.ToCharArray()).ToList())).ToList())).ToList()).ToList();
 
 
             var a_tasks = new List<Task<List<(
                 int alphabet_id,
-                string alphabet_name, 
+                string alphabet_name,
                 named_double[][] motifs, // A B C ... AA AB AC ... AAA AAB AAC ...
                 named_double[][] motifs_binary,
                 //named_double[] saac, // saac
                 //named_double[] saac_binary,
                 named_double[] oaac, // oaac
-                named_double[] oaac_binary, 
+                named_double[] oaac_binary,
                 named_double[] average_seq_positions, // average position of each AA in sequence,
                 named_double[][] dipeptides, // AA A?A A??A AB A?B A??B
                 named_double[][] dipeptides_binary, // AA A?A A??A AB A?B A??B
@@ -402,8 +345,8 @@ namespace dimorphics_dataset
                 var a_task = Task.Run(() =>
                 {
                     var result = new List<(
-                        int alphabet_id, 
-                        string alphabet_name, 
+                        int alphabet_id,
+                        string alphabet_name,
                         named_double[][] motifs, // A B C ... AA AB AC ... AAA AAB AAC ...
                         named_double[][] motifs_binary,
                         //named_double[] saac, // saac
@@ -431,7 +374,7 @@ namespace dimorphics_dataset
                     named_double[][] motifs = null;
                     if (pse_aac_options.motifs || pse_aac_options.motifs_binary)
                     {
-                        
+
 
                         var task = Task.Run(() =>
                         {
@@ -439,7 +382,7 @@ namespace dimorphics_dataset
 
                             for (var i = 0; i < sequence_relation_levels; i++)
                             {
-                                motifs[i] = new named_double[(int) Math.Pow(alphabet.groups.Count, i + 1)];
+                                motifs[i] = new named_double[(int)Math.Pow(alphabet.groups.Count, i + 1)];
                             }
 
                             var motif_index1 = -1;
@@ -450,9 +393,9 @@ namespace dimorphics_dataset
                                 motif_index1++;
                                 var alphabet_group1 = alphabet.groups[alphabet_group_index1];
                                 var motif_expressions1 = alphabet_group1.group_amino_acids.Select(a => a).ToList();
-                                var count1 = string.IsNullOrEmpty(seq) ? 0d : (double) seq.Count(a => motif_expressions1.Contains(a));
+                                var count1 = string.IsNullOrEmpty(seq) ? 0d : (double)seq.Count(a => motif_expressions1.Contains(a));
                                 count1 = transform_value(count1, seq == null ? 0 : seq.Length, sqrt, as_dist);
-                                motifs[0][motif_index1] = new named_double() {name = alphabet_group1.group_amino_acids, value = count1};
+                                motifs[0][motif_index1] = new named_double() { name = alphabet_group1.group_amino_acids, value = count1 };
 
                                 // calc motif len 1 
                                 for (var alphabet_group_index2 = 0; alphabet_group_index2 < alphabet.groups.Count; alphabet_group_index2++)
@@ -460,9 +403,9 @@ namespace dimorphics_dataset
                                     motif_index2++;
                                     var alphabet_group2 = alphabet.groups[alphabet_group_index2];
                                     var motif_expressions2 = alphabet_group1.group_amino_acids.SelectMany(a => alphabet_group2.group_amino_acids.Select(b => $"{a}{b}").ToList()).ToList();
-                                    var count2 = string.IsNullOrEmpty(seq) ? 0d : (double) motif_expressions2.Sum(m => seq.IndexOfAll(m).Count);
+                                    var count2 = string.IsNullOrEmpty(seq) ? 0d : (double)motif_expressions2.Sum(m => IndexOfAll(seq, m).Count);
                                     count2 = transform_value(count2, seq == null ? 0 : seq.Length, sqrt, as_dist);
-                                    motifs[1][motif_index2] = new named_double() {name = $"{alphabet_group1.group_amino_acids}_{alphabet_group2.group_amino_acids}", value = count2};
+                                    motifs[1][motif_index2] = new named_double() { name = $"{alphabet_group1.group_amino_acids}_{alphabet_group2.group_amino_acids}", value = count2 };
 
                                     // calc motif len 2
 
@@ -473,10 +416,10 @@ namespace dimorphics_dataset
 
                                         var motif_expressions3 = alphabet_group1.group_amino_acids.SelectMany(a => alphabet_group2.group_amino_acids.SelectMany(b => alphabet_group3.group_amino_acids.Select(c => $"{a}{b}{c}").ToList()).ToList()).ToList();
 
-                                        var count3 = string.IsNullOrEmpty(seq) ? 0d : (double) motif_expressions3.Sum(m => seq.IndexOfAll(m).Count);
+                                        var count3 = string.IsNullOrEmpty(seq) ? 0d : (double)motif_expressions3.Sum(m => IndexOfAll(seq, m).Count);
                                         count3 = transform_value(count3, seq == null ? 0 : seq.Length, sqrt, as_dist);
 
-                                        motifs[2][motif_index3] = new named_double() {name = $"{alphabet_group1.group_amino_acids}_{alphabet_group2.group_amino_acids}_{alphabet_group3.group_amino_acids}", value = count3};
+                                        motifs[2][motif_index3] = new named_double() { name = $"{alphabet_group1.group_amino_acids}_{alphabet_group2.group_amino_acids}_{alphabet_group3.group_amino_acids}", value = count3 };
 
                                         // calc motif len 3
                                     }
@@ -493,8 +436,8 @@ namespace dimorphics_dataset
                     //named_double[][] saac_jagged = null;
                     if (pse_aac_options.oaac || pse_aac_options.oaac_binary || /*pse_aac_options.saac || pse_aac_options.saac_binary ||*/ pse_aac_options.average_seq_position)
                     {
-                        
-                        
+
+
 
                         var task = Task.Run(() =>
                         {
@@ -521,18 +464,18 @@ namespace dimorphics_dataset
 
                                 if (pse_aac_options.oaac || pse_aac_options.oaac_binary)
                                 {
-                                    var group_instance_count = (double) alphabet_group_indexes0based.Count;
-                                    
+                                    var group_instance_count = (double)alphabet_group_indexes0based.Count;
+
                                     group_instance_count = transform_value(group_instance_count, string.IsNullOrEmpty(seq) ? 0 : seq.Length, sqrt, as_dist);
 
-                                    oaac[alphabet_group_index] = new named_double() {name = alphabet_group.group_amino_acids, value = group_instance_count};
+                                    oaac[alphabet_group_index] = new named_double() { name = alphabet_group.group_amino_acids, value = group_instance_count };
                                 }
 
                                 //if (pse_aac_options.saac || pse_aac_options.saac_binary)
                                 //{
 
                                 //    var split_alphabet_group_indexes0based = split_alphabet_indexes0based[alphabet_group_index];
-                                    
+
                                 //    var split_group_instance_count = split_alphabet_group_indexes0based.indexofall.Select(a => (double) a.indexofall.Count).ToList();
 
                                 //    split_group_instance_count = split_group_instance_count.Select((a,i) => transform_value(a, string.IsNullOrEmpty(seq) ? 0 : seq_split[i].Length, sqrt, as_dist)).ToList();
@@ -544,7 +487,7 @@ namespace dimorphics_dataset
                                 {
                                     var average_position = string.IsNullOrEmpty(seq) ? 0 : (alphabet_group_indexes0based.Count > 0 ? (alphabet_group_indexes0based.Average() / (seq.Length - 1)) : 0.5);
 
-                                    average_seq_positions[alphabet_group_index] = new named_double() {name = alphabet_group.group_amino_acids, value = average_position};
+                                    average_seq_positions[alphabet_group_index] = new named_double() { name = alphabet_group.group_amino_acids, value = average_position };
                                 }
                             }
 
@@ -563,7 +506,7 @@ namespace dimorphics_dataset
                     named_double[][] dipeptides = null;
                     if (pse_aac_options.average_dipeptide_distance || pse_aac_options.dipeptides || pse_aac_options.dipeptides_binary)
                     {
-                        
+
 
                         var task = Task.Run(() =>
                         {
@@ -604,7 +547,7 @@ namespace dimorphics_dataset
                                 {
                                     var distance_value = distances.Count > 0 ? distances.Average() : 0;
                                     distance_value = transform_value(distance_value, string.IsNullOrEmpty(seq) ? 0 : seq.Length, sqrt, as_dist);
-                                    average_dipeptide_distance[alphabet_pairs_index] = new named_double() {name = $"{group1.group_amino_acids}_{group2.group_amino_acids}", value = distance_value};
+                                    average_dipeptide_distance[alphabet_pairs_index] = new named_double() { name = $"{group1.group_amino_acids}_{group2.group_amino_acids}", value = distance_value };
                                 }
 
                                 if (pse_aac_options.dipeptides || pse_aac_options.dipeptides_binary)
@@ -612,9 +555,9 @@ namespace dimorphics_dataset
                                     for (var n_index = 0; n_index < sequence_relation_levels; n_index++)
                                     {
                                         var n = n_index + 1;
-                                        var context_n = (double) distances.Count(a => a == n);
+                                        var context_n = (double)distances.Count(a => a == n);
                                         context_n = transform_value(context_n, string.IsNullOrEmpty(seq) ? 0 : seq.Length, sqrt, as_dist);
-                                        dipeptides[n_index][alphabet_pairs_index] = new named_double() {name = $"{group1.group_amino_acids}_{group2.group_amino_acids}", value = context_n};
+                                        dipeptides[n_index][alphabet_pairs_index] = new named_double() { name = $"{group1.group_amino_acids}_{group2.group_amino_acids}", value = context_n };
                                     }
                                 }
                             }
@@ -625,24 +568,24 @@ namespace dimorphics_dataset
                     Task.WaitAll(tasks.ToArray<Task>());
 
 
-                    
-                    
-                    
-                    
+
+
+
+
 
                     var tasks2 = new List<Task>();
 
                     named_double[][] motifs_binary = null;
-                    tasks2.Add(Task.Run(() => { motifs_binary = motifs == null ? motifs : motifs.Select(a => a == null ? a : a.Select(b => new named_double() {name = b.name, value = b.value != 0 ? 1 : 0}).ToArray()).ToArray(); }));
+                    tasks2.Add(Task.Run(() => { motifs_binary = motifs == null ? motifs : motifs.Select(a => a == null ? a : a.Select(b => new named_double() { name = b.name, value = b.value != 0 ? 1 : 0 }).ToArray()).ToArray(); }));
 
                     //named_double[] saac_binary = null;
                     //tasks2.Add(Task.Run(() => { saac_binary = saac == null ? saac : saac.Select(b => new named_double() {name = b.name, value = b.value != 0 ? 1 : 0}).ToArray(); }));
 
                     named_double[] oaac_binary = null;
-                    tasks2.Add(Task.Run(() => { oaac_binary = oaac == null ? oaac : oaac.Select(b => new named_double() {name = b.name, value = b.value != 0 ? 1 : 0}).ToArray(); }));
+                    tasks2.Add(Task.Run(() => { oaac_binary = oaac == null ? oaac : oaac.Select(b => new named_double() { name = b.name, value = b.value != 0 ? 1 : 0 }).ToArray(); }));
 
                     named_double[][] dipeptides_binary = null;
-                    tasks2.Add(Task.Run(() => { dipeptides_binary = dipeptides == null ? dipeptides : dipeptides.Select(a => a == null ? a : a.Select(b => new named_double() {name = b.name, value = b.value != 0 ? 1 : 0}).ToArray()).ToArray(); }));
+                    tasks2.Add(Task.Run(() => { dipeptides_binary = dipeptides == null ? dipeptides : dipeptides.Select(a => a == null ? a : a.Select(b => new named_double() { name = b.name, value = b.value != 0 ? 1 : 0 }).ToArray()).ToArray(); }));
 
                     Task.WaitAll(tasks2.ToArray<Task>());
 

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class mpsa_reader
+    public class info_mpsa_reader
     {
         public string filename = null;
         public string format = null;
@@ -21,7 +21,7 @@ namespace dimorphics_dataset
 
         public class mpsa_line_entry
         {
-            public mpsa_reader reader = null;
+            public info_mpsa_reader reader = null;
             public int index = -1;
             public char amino_acid = ' ';
             public char predicted_ss_code = ' ';
@@ -90,7 +90,7 @@ namespace dimorphics_dataset
             //this.split_ss_probabilities_per_aa = mpsa_matrix_split_prob_dist.Select(a => a.ss_probabilities_per_aa).ToList();
         }
 
-        public mpsa_reader(string format, List<(int index, char amino_acid, char predicted_ss_code, double prob_h, double prob_e, double prob_c)> ss_matrix)
+        public info_mpsa_reader(string format, List<(int index, char amino_acid, char predicted_ss_code, double prob_h, double prob_e, double prob_c)> ss_matrix)
         {
             this.ss_column_headers = new List<char>() {'H', 'E', 'C'};
             this.filename = "";
@@ -114,7 +114,7 @@ namespace dimorphics_dataset
             mpsa_reader_init();
         }
 
-        public mpsa_reader(mpsa_reader mpsa_reader, List<int> indexes)
+        public info_mpsa_reader(info_mpsa_reader mpsa_reader, List<int> indexes)
         {
             this.filename = mpsa_reader.filename;
             this.format = mpsa_reader.format;
@@ -124,7 +124,7 @@ namespace dimorphics_dataset
             mpsa_reader_init();
         }
 
-        public mpsa_reader(List<mpsa_reader> mpsa_readers)
+        public info_mpsa_reader(List<info_mpsa_reader> mpsa_readers)
         {
             this.filename = "consensus";
             this.format = "consensus";
@@ -246,7 +246,7 @@ namespace dimorphics_dataset
             return mpsa_matrix;
         }
 
-        public mpsa_reader(string filename, List<char> amino_acids = null)
+        public info_mpsa_reader(string filename, List<char> amino_acids = null)
         {
             this.filename = filename;
             this.format = Path.GetExtension(filename).Substring(1).ToLowerInvariant();
@@ -257,7 +257,7 @@ namespace dimorphics_dataset
 
             if (!File.Exists(this.filename) || new FileInfo(this.filename).Length == 0)
             {
-                var matrix_column_headers = mpsa_reader.secondary_structure_codes.First(a => a.format == this.format).ss_codes.ToList();
+                var matrix_column_headers = info_mpsa_reader.secondary_structure_codes.First(a => a.format == this.format).ss_codes.ToList();
                 this.ss_column_headers = matrix_column_headers;
                 this.mpsa_matrix = mpsa_matrix_fake(format, matrix_column_headers, amino_acids);
             }
@@ -361,7 +361,7 @@ namespace dimorphics_dataset
 
         //HEC
 
-        public static void mpsa_normalise_matrix_all(List<mpsa_reader> matrices)
+        public static void mpsa_normalise_matrix_all(List<info_mpsa_reader> matrices)
         {
             var all_values = matrices.SelectMany(a => a.mpsa_matrix.SelectMany(b => b.line_prob_values.Select(c => c.value).ToList()).ToList()).ToList();
             var all_min = all_values.Min();
@@ -451,13 +451,13 @@ namespace dimorphics_dataset
                 return (null, null);
             }
 
-            var matrix_colum_headers = mpsa_reader.secondary_structure_codes.First(a => a.format == format).ss_codes.ToList();
+            var matrix_colum_headers = info_mpsa_reader.secondary_structure_codes.First(a => a.format == format).ss_codes.ToList();
 
             var lines = new List<string>();
 
             if (File.Exists(filename) && new FileInfo(filename).Length > 0)
             {
-                lines = program.ReadAllLines(filename).ToList();
+                lines = io.ReadAllLines(filename).ToList();
             }
             
 

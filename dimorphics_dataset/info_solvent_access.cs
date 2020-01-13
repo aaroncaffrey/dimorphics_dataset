@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class solvent_access
+    public class info_solvent_access
     {
         public string pdb_id;
         public char algo;
@@ -32,13 +33,23 @@ namespace dimorphics_dataset
         public double all_polar_abs;
         public double all_polar_rel;
 
-        
 
-
-
-        public static List<solvent_access> load(List<string> files)
+        public static double try_parse_double(string value, double default_value = 0)
         {
-            var rsa_list = new List<solvent_access>();
+            if (!string.IsNullOrWhiteSpace(value) && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+            else
+            {
+                return default_value;
+            }
+        }
+
+
+        public static List<info_solvent_access> load(List<string> files)
+        {
+            var rsa_list = new List<info_solvent_access>();
 
             foreach (var file in files)
             {
@@ -46,7 +57,7 @@ namespace dimorphics_dataset
 
                 var algo = Path.GetExtension(file)[1];
 
-                var lines = program.ReadAllLines(file).ToList();
+                var lines = io.ReadAllLines(file).ToList();
 
                 lines = lines.Where(a => a.StartsWith("RES ")).ToList();
 
@@ -59,7 +70,7 @@ namespace dimorphics_dataset
                     if (split[2].Any(char.IsDigit) && split[2].Any(char.IsLetter)) { var a = split[2][0]; var b = split[2].Substring(1); split.RemoveAt(2); split.Insert(2, "" + a); split.Insert(3, b); }
 
                     var i = 0;//skip first
-                    var rsa = new solvent_access()
+                    var rsa = new info_solvent_access()
                     {
                         pdb_id = pdb_id,
                         algo = algo,
@@ -67,18 +78,18 @@ namespace dimorphics_dataset
                         amino_acid = atom.Aa3To1(split[++i]),
 
                         chain_id = split[++i][0],
-                        res_num = int.Parse(split[++i]),
+                        res_num = int.Parse(split[++i], NumberStyles.Integer, CultureInfo.InvariantCulture),
 
-                        all_atoms_abs = split[++i].try_parse_double(),
-                        all_atoms_rel = split[++i].try_parse_double(),
-                        total_side_abs =split[++i].try_parse_double(),
-                        total_side_rel =split[++i].try_parse_double(),
-                        main_chain_abs =split[++i].try_parse_double(),
-                        main_chain_rel =split[++i].try_parse_double(),
-                        non_polar_abs = split[++i].try_parse_double(),
-                        non_polar_rel = split[++i].try_parse_double(),
-                        all_polar_abs = split[++i].try_parse_double(),
-                        all_polar_rel = split[++i].try_parse_double(),
+                        all_atoms_abs = try_parse_double(split[++i]),
+                        all_atoms_rel = try_parse_double(split[++i]),
+                        total_side_abs =try_parse_double(split[++i]),
+                        total_side_rel =try_parse_double(split[++i]),
+                        main_chain_abs =try_parse_double(split[++i]),
+                        main_chain_rel =try_parse_double(split[++i]),
+                        non_polar_abs = try_parse_double(split[++i]),
+                        non_polar_rel = try_parse_double(split[++i]),
+                        all_polar_abs = try_parse_double(split[++i]),
+                        all_polar_rel = try_parse_double(split[++i]),
                     };
 
                     rsa_list.Add(rsa);

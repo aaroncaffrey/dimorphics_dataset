@@ -4,7 +4,7 @@ using System.IO;
 
 namespace dimorphics_dataset
 {
-    public static class dssp
+    public static class info_dssp
     {
         public class dssp_record
         {
@@ -79,7 +79,7 @@ namespace dimorphics_dataset
         {
             const string SsDataMarker1 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA ";
             const string SsDataMarker2 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA            CHAIN";
-            var lines = program.ReadAllLines(file);
+            var lines = io.ReadAllLines(file);
             
             var dssp_record_list = new List<dssp_record>();
 

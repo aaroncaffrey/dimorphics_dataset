@@ -7,7 +7,7 @@ using System.Linq;
 namespace dimorphics_dataset
 {
     
-    public class atom
+    public partial class atom
     {
         public string uniprot_sequence;
 
@@ -52,15 +52,15 @@ namespace dimorphics_dataset
         public double Y;
         public double Z;
 
-        public solvent_access RSA_L;
-        public solvent_access RSA_S;
+        public info_solvent_access RSA_L;
+        public info_solvent_access RSA_S;
 
-        public sable.sable_item sable_item;
+        public info_sable.sable_item sable_item;
 
-        public List<(string database, List<pssm.pssm_entry> pssm_entries)> amino_acid_pssm_unnormalised;
-        public List<(string database, List<pssm.pssm_entry> pssm_entries)> amino_acid_pssm_normalised;
+        public List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)> amino_acid_pssm_unnormalised;
+        public List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)> amino_acid_pssm_normalised;
 
-        public List<(string format, mpsa_reader.mpsa_line_entry mpsa_entry)> mpsa_entries;
+        public List<(string format, info_mpsa_reader.mpsa_line_entry mpsa_entry)> mpsa_entries;
 
         public (int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score) iup_entry;
 
@@ -75,8 +75,8 @@ namespace dimorphics_dataset
 
         public double foldx_monomer_ala_scan_ddg;
 
-        public List<ring.ring_edge> monomer_ring_edges;
-        public List<ring.ring_node> monomer_ring_nodes;
+        public List<info_ring.ring_edge> monomer_ring_edges;
+        public List<info_ring.ring_node> monomer_ring_nodes;
 
 
         public bool amino_acid_exists_in_repaired_structure = false;
@@ -160,7 +160,7 @@ namespace dimorphics_dataset
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
             pdb_id = pdb_id.ToUpperInvariant();
 
-            var pdb_lines = program.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = io.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL"));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ")).ToList();
@@ -174,7 +174,7 @@ namespace dimorphics_dataset
                 {
                     //Directory.CreateDirectory(Path.GetDirectoryName(chain_pdb_file));
 
-                    program.WriteAllLines(chain_pdb_file, a.ToList(), nameof(atom), nameof(extract_split_pdb_chains));
+                    io.WriteAllLines(chain_pdb_file, a.ToList(), nameof(atom), nameof(extract_split_pdb_chains));
                 }
             });
             return chains.Select(a => $@"{pdb_out_folder}{pdb_id}{a.Key}.pdb").ToArray();
@@ -198,7 +198,7 @@ namespace dimorphics_dataset
             var pdb_out_folder = $@"{drive_letter}:\betastrands_dataset\pdb_split\";
 
             pdb_id = pdb_id.ToUpperInvariant();
-            var pdb_lines = program.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = io.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL"));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ") && a[21] == chain_id && int.Parse(a.Substring(22, 4)) >= first_res_id && int.Parse(a.Substring(22, 4)) <= last_res_id).ToList();
@@ -212,14 +212,17 @@ namespace dimorphics_dataset
             {
                 //Directory.CreateDirectory(Path.GetDirectoryName(output_pdb_file));
 
-                program.WriteAllLines(output_pdb_file, pdb_lines.ToList(), nameof(atom), nameof(extract_split_pdb_chains_res_ids));
+                io.WriteAllLines(output_pdb_file, pdb_lines.ToList(), nameof(atom), nameof(extract_split_pdb_chains_res_ids));
             }
 
             return output_pdb_file;
         }
 
-        public static void run_dssp(string pdb_id, string pdb_folder = @"c:\betastrands_dataset\pdb\", string dssp_exe = @"c:\betastrands_dataset\pdb\dssp2.exe")
+        public static void run_dssp(string pdb_id, string pdb_folder = "pdb", string dssp_exe = "dssp2.exe")
         {
+            pdb_folder = Path.Combine(program.data_root_folder, pdb_folder);
+            dssp_exe = Path.Combine(program.data_root_folder, pdb_folder, dssp_exe);
+
             var pdb_file = $@"{pdb_folder}{pdb_id}.pdb";
             var dssp_file = $@"{pdb_folder}{pdb_id}.dssp";
 
@@ -239,14 +242,14 @@ namespace dimorphics_dataset
             {
                 if (process == null) return;
 
-                program.WriteLine(start.FileName + " " + start.Arguments);
+                io.WriteLine(start.FileName + " " + start.Arguments);
                 using (var reader = process.StandardOutput)
                 {
                     var result = reader.ReadToEnd(); // Here is the result of StdOut(for example: print "test")
-                    if (!string.IsNullOrWhiteSpace(result)) program.WriteLine(result);
+                    if (!string.IsNullOrWhiteSpace(result)) io.WriteLine(result);
 
                     var stderr = process.StandardError.ReadToEnd(); // Here are the exceptions from our Python script
-                    if (!string.IsNullOrWhiteSpace(stderr)) program.WriteLine(stderr);
+                    if (!string.IsNullOrWhiteSpace(stderr)) io.WriteLine(stderr);
                     return;
                 }
             }
@@ -272,27 +275,63 @@ namespace dimorphics_dataset
         }
 
         //public static bool use_ram_disk = true;
-        public const string pdb_folder = /*$@"{(use_ram_disk?"r":"c")}*/ @"c:\betastrands_dataset\pdb\";
+        //public const string pdb_folder = /*$@"{(use_ram_disk?"r":"c")}*/ Path.Combine(program.data_root_folder,"pdb\";
 
 
-        public static List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)> load_atoms_pdb(string pdb_id, bool select_first_icode = true, bool find_intramolecular = true, bool find_intermolecular = false, bool load_rsa_data = false, bool load_dssp_data = false, bool load_stride_data = false, string pdb_folder = atom.pdb_folder)
+        public class load_atoms_pdb_options
         {
-            var first_model_only = true;
+            public bool first_model_only = true;
+            public bool select_first_icode = true;
 
-            var load_ring_data = true;
-            var load_mpsa_sec_struct_predictions = true;
-            var load_blast_pssms = true;
-            var load_iup_data = true;
-            var load_sable = true;
-            var load_ala_scan = true;
-            var load_dna_binding_vars = true;
+            // 2d data
+            public bool load_rsa_data = false;
+            public bool load_dssp_data = false;
+            public bool load_stride_data = false;
+            public bool load_mpsa_sec_struct_predictions = true;
+            public bool load_blast_pssms = true;
+            public bool load_iup_data = true;
+
+            // 3d data
+            public bool find_intramolecular = true;
+            public bool find_intermolecular = false;
+            public bool load_ring_data = true;
+            
+            // don't remember, need to check if 2d or 3d
+            public bool load_sable = true;
+            public bool load_ala_scan = true;
+            public bool load_dna_binding_vars = true;
+
+        }
+
+        public static List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)> load_atoms_pdb
+        (
+            string pdb_id,
+
+            load_atoms_pdb_options options,
+
+            string pdb_folder = null
+        )
+        {
+            if (string.IsNullOrWhiteSpace(pdb_folder))
+            {
+                pdb_folder = Path.Combine(program.data_root_folder, "pdb");
+            }
+
+
+            //var load_ring_data = true;
+            //var load_mpsa_sec_struct_predictions = true;
+            //var load_blast_pssms = true;
+            //var load_iup_data = true;
+            //var load_sable = true;
+            //var load_ala_scan = true;
+            //var load_dna_binding_vars = true;
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
             pdb_id = pdb_id.ToUpperInvariant();
             var pdb_id_simple = pdb_id.Substring(0, 4);
             var result = new List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)>();
-            var pdb_filename = $@"{pdb_folder}{pdb_id}.pdb";
-            var pdb_lines = program.ReadAllLines(pdb_filename).ToList();
+            var pdb_filename = Path.Combine(pdb_folder, $@"{pdb_id}.pdb");
+            var pdb_lines = io.ReadAllLines(pdb_filename).ToList();
             var pdb_model_array_index = -1;
 
 
@@ -327,7 +366,7 @@ namespace dimorphics_dataset
                 pdb_model_atoms = pdb_model_atoms.OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code).ToList();
 
                 // remove any additional i_codes
-                if (select_first_icode)
+                if (options.select_first_icode)
                 {
                     pdb_model_atoms = pdb_model_atoms.GroupBy(a => (a.chain_id, a.residue_index)).SelectMany(a => a.ToList().GroupBy(b => b.i_code).First().ToList()).ToList();
                 }
@@ -352,24 +391,24 @@ namespace dimorphics_dataset
                 }
 
                 // load ring values
-                if (load_ring_data) atom.load_ring(pdb_id, pdb_model_atoms);
+                if (options.load_ring_data) {atom.load_ring(pdb_id, pdb_model_atoms);}
 
                 // load dssp values
-                if (load_dssp_data) atom.load_dssp(pdb_id, pdb_model_atoms);
+                if (options.load_dssp_data) {atom.load_dssp(pdb_id, pdb_model_atoms);}
 
                 // load stride values
-                if (load_stride_data) atom.load_stride(pdb_id, pdb_model_atoms);
+                if (options.load_stride_data){ atom.load_stride(pdb_id, pdb_model_atoms);}
 
                 // load free-sasa values (rsa)
-                if (load_rsa_data) atom.load_rsa(pdb_id, pdb_model_atoms);
+                if (options.load_rsa_data) {atom.load_rsa(pdb_id, pdb_model_atoms);}
 
 
                 // load psi-blast PSSMs
 
-                if (load_blast_pssms) atom.load_pssm(pdb_id, pdb_model_atoms);
+                if (options.load_blast_pssms) atom.load_pssm(pdb_id, pdb_model_atoms);
 
                 // load MPSA secondary structure predictions
-                if (load_mpsa_sec_struct_predictions)
+                if (options.load_mpsa_sec_struct_predictions)
                 {
                     atom.load_mpsa_sec_struct_predictions(pdb_id, pdb_model_atoms);
 
@@ -378,8 +417,15 @@ namespace dimorphics_dataset
 
 
                 // find intra/inter-molecular contacts/interactions
-                if (find_intermolecular) atom.find_intermolecular_contacts(pdb_id, pdb_model_atoms, (double) 5);
-                if (find_intramolecular) atom.find_intramolecular_contacts(pdb_id, pdb_model_atoms, (double) 5);
+                if (options.find_intermolecular)
+                {
+                    atom.find_intermolecular_contacts(pdb_id, pdb_model_atoms, (double) 5);
+                }
+
+                if (options.find_intramolecular)
+                {
+                    atom.find_intramolecular_contacts(pdb_id, pdb_model_atoms, (double) 5);
+                }
 
 
                 // further split model atoms into chain atoms
@@ -402,7 +448,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (load_iup_data)
+                if (options.load_iup_data)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -412,7 +458,7 @@ namespace dimorphics_dataset
                         //var chain_seq = string.Join("", pdb_model_chain_master_atoms.Select(a => a.amino_acid).ToList());
 
 
-                        var iup_data = iupred.load(pdb_id_simple, c.chain_id);
+                        var iup_data = info_iupred.load(pdb_id_simple, c.chain_id);
 
                         if (iup_data == null || iup_data.Count == 0)
                         {
@@ -433,7 +479,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (load_dna_binding_vars)
+                if (options.load_dna_binding_vars)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -441,14 +487,14 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (load_ala_scan)
+                if (options.load_ala_scan)
                 {
                     foreach (var c in pdb_model_chain_atoms)
                     {
                         // load foldx AlaScan values
 
                         // 1EV0A_Repair_AS.fxout
-                        var alascan = foldx_caller.load_foldx_ala_scanning(pdb_id + c.chain_id + "_Repair", c.chain_id, null, false).data;
+                        var alascan = info_foldx.load_foldx_ala_scanning(pdb_id + c.chain_id + "_Repair", c.chain_id, null, false).data;
 
                         if (alascan != null && alascan.Count > 0)
                         {
@@ -470,22 +516,22 @@ namespace dimorphics_dataset
                 foreach (var c in pdb_model_chain_atoms)
                     //    foreach (var chain_id in chain_ids)
                 {
-                    var uniprot_file = $@"c:\betastrands_dataset\uniprot\{pdb_id_simple}{c.chain_id}.fasta";
+                    var uniprot_file = Path.Combine(program.data_root_folder, $@"uniprot", $@"{pdb_id_simple}{c.chain_id}.fasta");
 
                     if (!File.Exists(uniprot_file) || new FileInfo(uniprot_file).Length == 0) continue;
 
-                    var uniprot_sequence = string.Join("", program.ReadAllLines(uniprot_file).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">")).ToList());
+                    var uniprot_sequence = string.Join("", io.ReadAllLines(uniprot_file).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">")).ToList());
 
                     c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
                 }
 
                 // load sable
-                if (load_sable)
+                if (options.load_sable)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
-                        var sable_file = $@"C:\betastrands_dataset\sable\{pdb_id_simple}{c.chain_id}.txt";
-                        var sable_data = sable.load(sable_file);
+                        var sable_file = Path.Combine(program.data_root_folder, $@"sable", $@"{pdb_id_simple}{c.chain_id}.txt");
+                        var sable_data = info_sable.load(sable_file);
 
 
                         // check sable sequences matches this pdb
@@ -506,12 +552,12 @@ namespace dimorphics_dataset
 
                         // load ss as mpsa instance
                         var list = sable_data.Select(a => (a.seq_index, a.amino_acid, a.predicted_ss, a.prob_h, a.prob_e, a.prob_e)).ToList();
-                        var mpsa_reader_sable = new mpsa_reader("sable", list);
+                        var mpsa_reader_sable = new info_mpsa_reader("sable", list);
 
                         for (var index = 0; index < c.pdb_model_chain_master_atoms.Count; index++)
                         {
                             var master_atom = c.pdb_model_chain_master_atoms[index];
-                            if (master_atom.mpsa_entries == null) master_atom.mpsa_entries = new List<(string format, mpsa_reader.mpsa_line_entry)>();
+                            if (master_atom.mpsa_entries == null) master_atom.mpsa_entries = new List<(string format, info_mpsa_reader.mpsa_line_entry)>();
                             var mpsa_matrix_line_entry = mpsa_reader_sable?.mpsa_matrix?.First /*OrDefault*/(a => a.index == index);
 
 
@@ -536,50 +582,56 @@ namespace dimorphics_dataset
                 //pdb_model_chain_atoms.ForEach(a => compare_dssp_to_mpsa(pdb_id, a.chain_id, a.pdb_model_chain_atoms));
             }
 
-            if (first_model_only)
+            if (options.first_model_only)
             {
                 result = result.Where(a => a.pdb_model_index == 0).ToList();
             }
 
-            foreach (var r in result)
+            if (options.load_dssp_data && options.load_mpsa_sec_struct_predictions)
             {
-                var dssp_mpsa = get_dssp_and_mpsa_subsequences(r.pdb_id, r.chain_id, r.pdb_model_chain_atoms, (get_dssp_and_mpsa_subsequences_params)0b_1111_1111_1111);
-
-                var ground_truths = dssp_mpsa;// dssp_mpsa.Where(a => a.format.StartsWith("monomer", StringComparison.InvariantCultureIgnoreCase) || a.format.StartsWith("multimer", StringComparison.InvariantCultureIgnoreCase)).ToList();
-
-                var data = new List<string>();
-
-                var header = "pdb,chain_id,format,prediction," + string.Join(",",ground_truths.Select(a=>a.format).ToList());
-
-                data.Add(header);
-
-                foreach (var a in dssp_mpsa)
+                foreach (var r in result)
                 {
-                    var x = $"{r.pdb_id},{r.chain_id},{a.format},{a.prediction}";
+                    var dssp_mpsa = get_dssp_and_mpsa_subsequences(r.pdb_id, r.chain_id, r.pdb_model_chain_atoms, (get_dssp_and_mpsa_subsequences_params) 0b_1111_1111_1111);
 
-                    foreach (var g in ground_truths)
+                    var
+                        ground_truths =
+                            dssp_mpsa; // dssp_mpsa.Where(a => a.format.StartsWith("monomer", StringComparison.InvariantCultureIgnoreCase) || a.format.StartsWith("multimer", StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+                    var data = new List<string>();
+
+                    var header = "pdb,chain_id,format,prediction," +
+                                 string.Join(",", ground_truths.Select(a => a.format).ToList());
+
+                    data.Add(header);
+
+                    foreach (var a in dssp_mpsa)
                     {
-                        var score = 0;
-                        for (var i = 0; i < g.prediction.Length; i++)
+                        var x = $"{r.pdb_id},{r.chain_id},{a.format},{a.prediction}";
+
+                        foreach (var g in ground_truths)
                         {
-                            if (g.prediction[i] == a.prediction[i]) score++;
+                            var score = 0;
+                            for (var i = 0; i < g.prediction.Length; i++)
+                            {
+                                if (g.prediction[i] == a.prediction[i]) score++;
+                            }
+
+                            var p = (double) score / (double) g.prediction.Length;
+
+                            x = x + "," + p;
                         }
 
-                        var p = (double) score / (double) g.prediction.Length;
-
-                        x = x + "," + p;
+                        data.Add(x);
                     }
 
-                    data.Add(x);
-                }
+                    data.Add("");
 
-                data.Add("");
-
-                lock (dssp_mpsa_lock)
-                {
-                    var q3_fn = $@"c:\betastrands_dataset\dssp_mpsa_protein_q3_data.csv";
-                    //Directory.CreateDirectory(Path.GetDirectoryName(q3_fn));
-                    program.AppendAllLines(q3_fn, data, nameof(atom), nameof(load_atoms_pdb));
+                    lock (dssp_mpsa_lock)
+                    {
+                        var q3_fn = Path.Combine(program.data_root_folder, "dssp_mpsa_protein_q3_data.csv");
+                        //Directory.CreateDirectory(Path.GetDirectoryName(q3_fn));
+                        io.AppendAllLines(q3_fn, data, nameof(atom), nameof(load_atoms_pdb));
+                    }
                 }
             }
 
@@ -608,7 +660,6 @@ namespace dimorphics_dataset
 
                 var filename = "";
                 var format = "pdb";
-                //var blank = (filename, "", "", "", "", new string[] { });
 
                 var aa_seq = string.Join("", master_atoms.Select(a => a.amino_acid).ToArray());
                 var aa_seq_aa_types = aa_seq.Distinct().OrderBy(a => a).ToArray();
@@ -668,12 +719,10 @@ namespace dimorphics_dataset
                 var mpsa_seqs = master_atoms.SelectMany(a => a.mpsa_entries).ToArray();
 
                 var q3 = new List<(string pdb_id, char chain_id, string truth_format, string predictor_format, string aa_subset, char ss, double q3_value, double truth_total)>();
-
                 q3.Add(("pdb_id",'c',"truth_format", "predictor_format", "aa_subset", 's', 0, 0));
-                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)>();
-
 
                 // for each subset, what is the average predicted value
+                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)>();
                 av.Add(("pdb_id", 'c', "predictor_format", "aa_subset", 's', 0, 0));
 
                 // problem(?): this doesn't separate the interfaces
@@ -898,38 +947,22 @@ namespace dimorphics_dataset
                 //result1.Add(blank);
                 //result2.Add(blank);
 
-                //result1.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
-                //result2.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines($@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
+                //result1.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
+                //result2.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
 
-                var f_q3 = $@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{nameof(q3)}.csv";
+                var f_q3 = Path.Combine(program.data_root_folder, $@"dssp_vs_mpsa", $@"ss_predictor_comparison_{nameof(q3)}.csv");
                 var r_q3 = q3.Select(a => $@"{a.pdb_id},{a.chain_id},{a.truth_format},{a.predictor_format},{a.aa_subset},{a.ss},{a.q3_value},{a.truth_total}").ToList();
-                    //Directory.CreateDirectory(Path.GetDirectoryName(f_q3));
-                program.AppendAllLines(f_q3, r_q3, nameof(atom), nameof(compare_dssp_to_mpsa));
 
-                var f_av = $@"C:\betastrands_dataset\dssp_vs_mpsa\ss_predictor_comparison_{nameof(av)}.csv";
+                io.AppendAllLines(f_q3, r_q3, nameof(atom), nameof(compare_dssp_to_mpsa));
+
+                var f_av = Path.Combine(program.data_root_folder, $@"dssp_vs_mpsa", $@"ss_predictor_comparison_{nameof(av)}.csv");
                 var r_av = av.Select(a => $@"{a.pdb_id},{a.chain_id},{a.predictor_format},{a.aa_subset},{a.ss},{a.average},{a.truth_total}").ToList();
-                //Directory.CreateDirectory(Path.GetDirectoryName(f_av));
-                program.AppendAllLines(f_av, r_av, nameof(atom), nameof(compare_dssp_to_mpsa));
+
+                io.AppendAllLines(f_av, r_av, nameof(atom), nameof(compare_dssp_to_mpsa));
             }
         }
 
-        [Flags]
-        public enum get_dssp_and_mpsa_subsequences_params
-        {
-            none =               0b_0000_0000_0000,
 
-            aa_seq =             0b_0000_0000_0001,
-
-            monomer_dssp_seq =   0b_0000_0000_0010,
-            monomer_stride_seq = 0b_0000_0000_0100,
-            monomer_dssp3_seq =  0b_0000_0000_1000,
-            monomer_stride3_seq= 0b_0000_0001_0000,
-                                 
-            multimer_dssp_seq=   0b_0000_0010_0000,
-            multimer_stride_seq= 0b_0000_0100_0000,
-            multimer_dssp3_seq=  0b_0000_1000_0000,
-            multimer_stride3_seq=0b_0001_0000_0000,
-        }
 
         public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(string pdb_id, char chain_id, List<atom> atoms, get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = get_dssp_and_mpsa_subsequences_params.none)
         {
@@ -1091,24 +1124,18 @@ namespace dimorphics_dataset
             return seq;
         }
 
-        public enum structure_oligomisation
-        {
-            monomer,
-            multimer
-        }
-
-        public static List<(string pdb_id, char chain_id, string ss_sequence)> ss_sequence(string pdb_id, List<atom> atoms, structure_oligomisation structure_oligomisation, feature_calcs.ss_types ss_type = feature_calcs.ss_types.DSSP)
+        public static List<(string pdb_id, char chain_id, string ss_sequence)> ss_sequence(string pdb_id, List<atom> atoms, structure_oligomisation structure_oligomisation, enum_ss_types ss_type = enum_ss_types.DSSP)
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
 
             return group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, ss_sequence: String.Join("", a.atom_list.Select(b =>
             {
-                if (ss_type == feature_calcs.ss_types.DSSP) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_dssp : b.monomer_dssp;
-                if (ss_type == feature_calcs.ss_types.DSSP3) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_dssp3 : b.monomer_dssp3;
+                if (ss_type == enum_ss_types.DSSP) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_dssp : b.monomer_dssp;
+                if (ss_type == enum_ss_types.DSSP3) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_dssp3 : b.monomer_dssp3;
 
-                if (ss_type == feature_calcs.ss_types.STRIDE) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_stride : b.monomer_stride;
-                if (ss_type == feature_calcs.ss_types.STRIDE3) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_stride3 : b.monomer_stride3;
+                if (ss_type == enum_ss_types.STRIDE) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_stride : b.monomer_stride;
+                if (ss_type == enum_ss_types.STRIDE3) return structure_oligomisation == structure_oligomisation.multimer ? b.multimer_stride3 : b.monomer_stride3;
                 return ' ';
             }).ToList()))).ToList();
         }
@@ -1122,7 +1149,7 @@ namespace dimorphics_dataset
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
 
-            var lookup_sequence_table = program.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
+            var lookup_sequence_table = io.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences.txt")).ToList();
 
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
@@ -1142,23 +1169,23 @@ namespace dimorphics_dataset
                 {
                 }
 
-                var format_list = mpsa_reader.secondary_structure_codes.Select(a => a.format).ToList();
+                var format_list = info_mpsa_reader.secondary_structure_codes.Select(a => a.format).ToList();
 
-                //var mpsa_files_wc = $@"C:\betastrands_dataset\ss_meta\{line_index_match}.*";
+                //var mpsa_files_wc = Path.Combine(program.data_root_folder,"ss_meta\{line_index_match}.*";
                 //var mpsa_files = Directory.GetFiles(Path.GetDirectoryName(mpsa_files_wc), Path.GetFileName(mpsa_files_wc));
 
-                var mpsa_files = format_list.Select(a => $@"C:\betastrands_dataset\ss_meta\{pdb_id_simple}{chain_id}.{a}").ToList();
+                var mpsa_files = format_list.Select(a => Path.Combine(program.data_root_folder, $@"ss_meta", $@"{pdb_id_simple}{chain_id}.{a}")).ToList();
 
                 foreach (var mpsa_file in mpsa_files)
                 {
-                    var reader = new mpsa_reader(mpsa_file, chain_master_atoms.Select(a => a.amino_acid).ToList());
+                    var reader = new info_mpsa_reader(mpsa_file, chain_master_atoms.Select(a => a.amino_acid).ToList());
 
 
                     for (var index = 0; index < chain_master_atoms.Count; index++)
                     {
                         var master_atom = chain_master_atoms[index];
 
-                        if (master_atom.mpsa_entries == null) master_atom.mpsa_entries = new List<(string format, mpsa_reader.mpsa_line_entry)>();
+                        if (master_atom.mpsa_entries == null) master_atom.mpsa_entries = new List<(string format, info_mpsa_reader.mpsa_line_entry)>();
 
 
                         var mpsa_matrix_line_entry = reader?.mpsa_matrix?.First /*OrDefault*/(a => a.index == index);
@@ -1195,11 +1222,11 @@ namespace dimorphics_dataset
 
         public static void load_dna_binding(string pdb_id, List<atom> pdb_model_atoms)
         {
-            var files = Directory.GetFiles(@"C:\betastrands_dataset\stackdppred_results\", $"{pdb_id}.txt", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"stackdppred_results"), $@"{pdb_id}.txt", SearchOption.AllDirectories);
 
             foreach (var file in files)
             {
-                var data = program.ReadAllLines(file).First();
+                var data = io.ReadAllLines(file).First();
                 var data2 = string.Join("",data.Where(a => !"{}'':,".Contains(a)).ToList()).Split().ToList();
 
                 var non_binding_prob = double.Parse(data2[data2.IndexOf("non-binding_prob") + 1]);
@@ -1225,7 +1252,7 @@ namespace dimorphics_dataset
 
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
-            //var lookup_sequence_table = program.ReadAllLines(@"C:\betastrands_dataset\betastrands_dataset_sequences.txt").ToList();
+            //var lookup_sequence_table = program.ReadAllLines(Path.Combine(program.data_root_folder,"betastrands_dataset_sequences.txt").ToList();
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
 
@@ -1240,14 +1267,14 @@ namespace dimorphics_dataset
 
                 //if (line_index_match < 0) throw new Exception();
 
-                var pssm_folders = Directory.GetDirectories($@"C:\betastrands_dataset\", "blast_pssm_*");
+                var pssm_folders = Directory.GetDirectories(Path.Combine(program.data_root_folder), "blast_pssm_*");
                 var pssm_database_names = pssm_folders.Select(a => a.Split(new char[] {'\\', '/'}, StringSplitOptions.RemoveEmptyEntries).Last()).ToList();
 
 
                 //var pssm_files = new string[]
                 //    {
-                //        $@"C:\betastrands_dataset\blast_pssm_swissprot_local\{line_index_match}.pssm",
-                //        $@"C:\betastrands_dataset\blast_pssm_nr_remote\{line_index_match}.pssm"
+                //        Path.Combine(program.data_root_folder,"blast_pssm_swissprot_local\{line_index_match}.pssm",
+                //        Path.Combine(program.data_root_folder,"blast_pssm_nr_remote\{line_index_match}.pssm"
                 //    };
 
                 var pssm_files = pssm_folders.Select(a => Path.Combine(a, $"{pdb_id_simple}{chain_id}.pssm")).ToArray();
@@ -1258,8 +1285,8 @@ namespace dimorphics_dataset
 
                     //if (File.Exists(pssm_file) && new FileInfo(pssm_file).Length > 0)
                     {
-                        var pssm_matrix_unnormalised = pssm.load_psi_blast_pssm(pssm_file);
-                        var pssm_matrix_normalised = pssm.normalise_pssm(pssm_matrix_unnormalised);
+                        var pssm_matrix_unnormalised = info_blast_pssm.load_psi_blast_pssm(pssm_file);
+                        var pssm_matrix_normalised = info_blast_pssm.normalise_pssm(pssm_matrix_unnormalised);
 
                         for (var index = 0; index < chain_master_atoms.Count; index++)
                         {
@@ -1270,14 +1297,14 @@ namespace dimorphics_dataset
                             if (amino_acid_pssm_unnormalised.Count != 20)
                             {
                                 //throw new Exception();
-                                amino_acid_pssm_unnormalised = new List<pssm.pssm_entry>();
-                                amino_acid_pssm_normalised = new List<pssm.pssm_entry>();
+                                amino_acid_pssm_unnormalised = new List<info_blast_pssm.pssm_entry>();
+                                amino_acid_pssm_normalised = new List<info_blast_pssm.pssm_entry>();
                             }
 
                             var master_atom = chain_master_atoms[index];
 
-                            if (master_atom.amino_acid_pssm_unnormalised == null) master_atom.amino_acid_pssm_unnormalised = new List<(string database, List<pssm.pssm_entry> pssm_entries)>();
-                            if (master_atom.amino_acid_pssm_normalised == null) master_atom.amino_acid_pssm_normalised = new List<(string database, List<pssm.pssm_entry> pssm_entries)>();
+                            if (master_atom.amino_acid_pssm_unnormalised == null) master_atom.amino_acid_pssm_unnormalised = new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>();
+                            if (master_atom.amino_acid_pssm_normalised == null) master_atom.amino_acid_pssm_normalised = new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>();
 
                             master_atom.amino_acid_pssm_unnormalised.Add((pssm_database_name, amino_acid_pssm_unnormalised));
                             master_atom.amino_acid_pssm_normalised.Add((pssm_database_name, amino_acid_pssm_normalised));
@@ -1300,8 +1327,7 @@ namespace dimorphics_dataset
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            var ring_folder = @"C:\betastrands_dataset\ring_pdb\pdb\";
-
+            var ring_folder = Path.Combine(program.data_root_folder, $@"ring_pdb", $@"pdb");
             // Note: careful from the added '_Repair' in the filename
 
             var chains = atoms.Select(a => a.chain_id).Distinct().ToList();
@@ -1309,18 +1335,19 @@ namespace dimorphics_dataset
             foreach (var chain in chains)
             {
                 {
-                    var ring_monomer_edge_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.edges");
+                    var ring_monomer_edge_filename = Path.Combine(ring_folder, $"{pdb_id}{chain}_Repair.pdb.edges");
 
                     if (!File.Exists(ring_monomer_edge_filename) || new FileInfo(ring_monomer_edge_filename).Length == 0)
                     {
                         var missing_edges_file = Path.Combine(ring_folder, "missing_edges.txt");
-                        var missing_edges_text = "Warning: Ring Edge File is missing or empty: " + ring_monomer_edge_filename;
+                        var missing_edges_text =
+                            $"Warning: Ring Edge File is missing or empty: {ring_monomer_edge_filename}";
 
-                        program.AppendAllLines(missing_edges_file, new string[] { missing_edges_text}, nameof(atom), nameof(load_ring));
-                        program.WriteLine(missing_edges_text);
+                        io.AppendAllLines(missing_edges_file, new string[] { missing_edges_text}, nameof(atom), nameof(load_ring));
+                        io.WriteLine(missing_edges_text);
                     }
 
-                    var ring_monomer_edges = ring.ring_edge.load(ring_monomer_edge_filename);
+                    var ring_monomer_edges = info_ring.ring_edge.load(ring_monomer_edge_filename);
 
                     foreach (var ring_monomer_edge in ring_monomer_edges)
                     {
@@ -1337,48 +1364,49 @@ namespace dimorphics_dataset
                             // ring_monomer_edge.NodeId2.amino_acid1 == a.amino_acid)
                         ).ToList();
 
-                        if (edge_atoms == null || edge_atoms.Count == 0)
-                        {
-                            Console.WriteLine();
-                        }
+                        //if (edge_atoms == null || edge_atoms.Count == 0)
+                        //{
+                        //    Console.WriteLine();
+                        //}
 
                         foreach (var a in edge_atoms)
                         {
-                            if (a.monomer_ring_edges == null) a.monomer_ring_edges = new List<ring.ring_edge>();
+                            if (a.monomer_ring_edges == null) a.monomer_ring_edges = new List<info_ring.ring_edge>();
                             a.monomer_ring_edges.Add(ring_monomer_edge);
                         }
                     }
                 }
 
                 {
-                    var ring_monomer_node_filename = Path.Combine(ring_folder, pdb_id + chain + "_Repair.pdb.nodes");
+                    var ring_monomer_node_filename = Path.Combine(ring_folder, $"{pdb_id}{chain}_Repair.pdb.nodes");
 
                     if (!File.Exists(ring_monomer_node_filename) || new FileInfo(ring_monomer_node_filename).Length == 0)
                     {
                         Console.WriteLine("Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename);
 
                         var missing_nodes_file = Path.Combine(ring_folder, "missing_nodes.txt");
-                        var missing_nodes_text = "Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename;
+                        var missing_nodes_text =
+                            $"Warning: Ring Node File is missing or empty: {ring_monomer_node_filename}";
 
-                        program.AppendAllLines(missing_nodes_file, new string[] { missing_nodes_text }, nameof(atom), nameof(load_ring));
-                        program.WriteLine(missing_nodes_text);
+                        io.AppendAllLines(missing_nodes_file, new string[] { missing_nodes_text }, nameof(atom), nameof(load_ring));
+                        io.WriteLine(missing_nodes_text);
 
                     }
 
-                    var ring_monomer_nodes = ring.ring_node.load(ring_monomer_node_filename);
+                    var ring_monomer_nodes = info_ring.ring_node.load(ring_monomer_node_filename);
 
                     foreach (var ring_monomer_node in ring_monomer_nodes)
                     {
                         var node_atoms = atoms.Where(a => ring_monomer_node.Chain == a.chain_id && ring_monomer_node.Position == a.residue_index && ring_monomer_node.Residue1 == a.amino_acid).ToList();
 
-                        if (node_atoms == null || node_atoms.Count == 0)
-                        {
-                            Console.WriteLine();
-                        }
+                        //if (node_atoms == null || node_atoms.Count == 0)
+                        //{
+                        //    Console.WriteLine();
+                        //}
 
                         foreach (var a in node_atoms)
                         {
-                            if (a.monomer_ring_nodes == null) a.monomer_ring_nodes = new List<ring.ring_node>();
+                            if (a.monomer_ring_nodes == null) a.monomer_ring_nodes = new List<info_ring.ring_node>();
                             a.monomer_ring_nodes.Add(ring_monomer_node);
                         }
                     }
@@ -1390,23 +1418,23 @@ namespace dimorphics_dataset
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            var multimer_dssp_list_file = $@"C:\betastrands_dataset\ss_dssp\{pdb_id}.dssp";
+            var multimer_dssp_list_file = Path.Combine(program.data_root_folder, $@"ss_dssp", $@"{pdb_id}.dssp");
 
-            var multimer_dssp_list = File.Exists(multimer_dssp_list_file) ? dssp.Load(multimer_dssp_list_file).ToList() : new List<dssp.dssp_record>();
+            var multimer_dssp_list = File.Exists(multimer_dssp_list_file) ? info_dssp.Load(multimer_dssp_list_file).ToList() : new List<info_dssp.dssp_record>();
 
             var chain_ids = atoms.Select(a => a.chain_id).Distinct().ToList();
 
 
             var monomer_dssp_list = chain_ids.SelectMany(chain_id =>
             {
-                var monomer_dssp_list_file = $@"C:\betastrands_dataset\ss_dssp\{pdb_id}{chain_id}.dssp";
+                var monomer_dssp_list_file = Path.Combine(program.data_root_folder, $@"ss_dssp", $@"{pdb_id}{chain_id}.dssp");
                 if (File.Exists(monomer_dssp_list_file))
                 {
-                    return dssp.Load(monomer_dssp_list_file).ToList();
+                    return info_dssp.Load(monomer_dssp_list_file).ToList();
                 }
                 else
                 {
-                    return new List<dssp.dssp_record>();
+                    return new List<info_dssp.dssp_record>();
                 }
             }).ToList();
 
@@ -1417,13 +1445,13 @@ namespace dimorphics_dataset
                 {
                     var multimer_dssp = multimer_dssp_list.FirstOrDefault(a => (a.Chain == atom.chain_id) && (a.PdbResidueSequenceIndex.Trim() == atom.residue_index.ToString().Trim()) && (a.iCode == atom.i_code));
 
-                    atom.multimer_dssp = multimer_dssp?.SecondaryStructure ?? dssp.dssp_record.dssp_default_secondary_structure;
+                    atom.multimer_dssp = multimer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
                     atom.multimer_dssp3 = secondary_structure_state_reduction(atom.multimer_dssp);
                 }
                 {
                     var monomer_dssp = monomer_dssp_list.FirstOrDefault(a => (a.Chain == atom.chain_id) && (a.PdbResidueSequenceIndex.Trim() == atom.residue_index.ToString().Trim()) && (a.iCode == atom.i_code));
 
-                    atom.monomer_dssp = monomer_dssp?.SecondaryStructure ?? dssp.dssp_record.dssp_default_secondary_structure;
+                    atom.monomer_dssp = monomer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
                     atom.monomer_dssp3 = secondary_structure_state_reduction(atom.monomer_dssp);
                 }
             }
@@ -1434,38 +1462,38 @@ namespace dimorphics_dataset
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            var stride_multimer_list_file = $@"C:\betastrands_dataset\ss_stride\{pdb_id}.stride";
+            var stride_multimer_list_file = Path.Combine(program.data_root_folder, $@"ss_stride", $@"{pdb_id}.stride");
 
-            var stride_multimer_list = File.Exists(stride_multimer_list_file) ? stride_file.Load(stride_multimer_list_file).Where(a => a.GetType() == typeof(stride_file.Stride_DetailedSecondaryStructureAssignments)).Select(a => (stride_file.Stride_DetailedSecondaryStructureAssignments) a).ToList() : new List<stride_file.Stride_DetailedSecondaryStructureAssignments>();
+            var stride_multimer_list = File.Exists(stride_multimer_list_file) ? info_stride.Load(stride_multimer_list_file).Where(a => a.GetType() == typeof(info_stride.Stride_DetailedSecondaryStructureAssignments)).Select(a => (info_stride.Stride_DetailedSecondaryStructureAssignments) a).ToList() : new List<info_stride.Stride_DetailedSecondaryStructureAssignments>();
 
             var chain_ids = atoms.Select(a => a.chain_id).Distinct().ToList();
 
             var stride_monomer_list = chain_ids.SelectMany(chain_id =>
             {
-                var stride_monomer_list_file = $@"C:\betastrands_dataset\ss_stride\{pdb_id}{chain_id}.stride";
+                var stride_monomer_list_file = Path.Combine(program.data_root_folder, $@"ss_stride", $@"{pdb_id}{chain_id}.stride");
 
                 if (File.Exists(stride_monomer_list_file))
                 {
-                    return stride_file.Load(stride_monomer_list_file);
+                    return info_stride.Load(stride_monomer_list_file);
                 }
                 else
                 {
-                    return new List<stride_file.Stride_Record>();
+                    return new List<info_stride.stride_record>();
                 }
-            }).Where(a => a.GetType() == typeof(stride_file.Stride_DetailedSecondaryStructureAssignments)).Select(a => (stride_file.Stride_DetailedSecondaryStructureAssignments) a).ToList();
+            }).Where(a => a.GetType() == typeof(info_stride.Stride_DetailedSecondaryStructureAssignments)).Select(a => (info_stride.Stride_DetailedSecondaryStructureAssignments) a).ToList();
 
             foreach (var atom in atoms)
             {
                 {
                     var multimer_stride = stride_multimer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString().Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString().Trim()));
 
-                    atom.multimer_stride = multimer_stride?.OneLetterSecondaryStructureCode?[0] ?? stride_file.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
+                    atom.multimer_stride = multimer_stride?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
                     atom.multimer_stride3 = secondary_structure_state_reduction(atom.multimer_stride);
                 }
                 {
                     var monomer_stride = stride_monomer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString().Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString().Trim()));
 
-                    atom.monomer_stride = monomer_stride?.OneLetterSecondaryStructureCode?[0] ?? stride_file.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
+                    atom.monomer_stride = monomer_stride?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
                     atom.monomer_stride3 = secondary_structure_state_reduction(atom.monomer_stride);
                 }
             }
@@ -1477,14 +1505,14 @@ namespace dimorphics_dataset
 
             //atoms.Select(a => a.PdbId).ToList();
 
-            var rsa_folder = @"C:\betastrands_dataset\sasa\";
+            var rsa_folder = Path.Combine(program.data_root_folder, $@"sasa");
 
             if (!Directory.Exists(rsa_folder)) return;
 
             var rsa_file_wildcard = $"{pdb_id}*.?-rsa-sasa";
 
             var rsa_files = Directory.GetFiles(rsa_folder, rsa_file_wildcard).ToList();
-            var rsa_list = solvent_access.load(rsa_files);
+            var rsa_list = info_solvent_access.load(rsa_files);
 
             foreach (var atom in atoms)
             {
@@ -1658,6 +1686,7 @@ namespace dimorphics_dataset
                 pdb_id = subsequence_data.pdb_id,
                 chain_id = subsequence_data.chain_id,
                 class_id = subsequence_data.class_id,
+                class_name = subsequence_data.class_name,
 
                 dimer_type = subsequence_data.dimer_type,
                 parallelism = subsequence_data.parallelism,
@@ -1686,10 +1715,10 @@ namespace dimorphics_dataset
             
             
             var nh_sequence_list = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.DSSP);
-            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.STRIDE);
-            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.STRIDE);
+            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.DSSP);
+            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.DSSP);
+            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.STRIDE);
+            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.STRIDE);
 
             result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
             result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
@@ -1713,6 +1742,7 @@ namespace dimorphics_dataset
                 pdb_id = subsequence_data.pdb_id,
                 chain_id = subsequence_data.chain_id,
                 class_id = subsequence_data.class_id,
+                class_name = subsequence_data.class_name,
 
                 dimer_type = subsequence_data.dimer_type,
                 parallelism = subsequence_data.parallelism,
@@ -1769,10 +1799,10 @@ namespace dimorphics_dataset
             result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
 
             var nh_sequence_list = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.DSSP);
-            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.STRIDE);
-            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.STRIDE);
+            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.DSSP);
+            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.DSSP);
+            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.STRIDE);
+            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.STRIDE);
 
             result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
             result.dssp_multimer_subsequence = (nh_dssp_multimer_list.Count > 0) ? nh_dssp_multimer_list.First().ss_sequence : null;
@@ -1791,6 +1821,7 @@ namespace dimorphics_dataset
                 pdb_id = subsequence_data.pdb_id,
                 chain_id = subsequence_data.chain_id,
                 class_id = subsequence_data.class_id,
+                class_name = subsequence_data.class_name,
 
                 dimer_type = subsequence_data.dimer_type,
                 parallelism = subsequence_data.parallelism,
@@ -1817,10 +1848,10 @@ namespace dimorphics_dataset
             };            
 
             var protein_sequence_list = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var protein_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.DSSP);
-            var protein_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.DSSP);
-            var protein_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.STRIDE);
-            var protein_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.STRIDE);
+            var protein_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.DSSP);
+            var protein_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.DSSP);
+            var protein_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.STRIDE);
+            var protein_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.STRIDE);
 
             result.aa_subsequence = (protein_sequence_list.Count > 0) ? protein_sequence_list.First().aa_sequence : null;
             result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
@@ -1829,7 +1860,7 @@ namespace dimorphics_dataset
             result.stride_monomer_subsequence = (protein_stride_monomer_list.Count > 0) ? protein_stride_monomer_list.First().ss_sequence : null;
             result.stride_multimer_subsequence = (protein_stride_multimer_list.Count > 0) ? protein_stride_multimer_list.First().ss_sequence : null;
 
-            var fx = foldx_caller.calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, subsequence_classification_data.protein_data_sources.protein_3d);
+            var fx = info_foldx.load_calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, protein_data_sources.protein_3d);
             result.foldx_energy_differences = fx;
 
             // todo: check fx isn't empty for neighbourhood / protein
@@ -1849,6 +1880,7 @@ namespace dimorphics_dataset
                 pdb_id = subsequence_data.pdb_id,
                 chain_id = subsequence_data.chain_id,
                 class_id = subsequence_data.class_id,
+                class_name = subsequence_data.class_name,
 
                 dimer_type = subsequence_data.dimer_type,
                 parallelism = subsequence_data.parallelism,
@@ -1892,10 +1924,10 @@ namespace dimorphics_dataset
             result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
 
             var nh_sequence_list        = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list   = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.DSSP);
-            var nh_dssp_monomer_list    = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, feature_calcs.ss_types.STRIDE);
-            var nh_stride_monomer_list  = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, feature_calcs.ss_types.STRIDE);
+            var nh_dssp_multimer_list   = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.DSSP);
+            var nh_dssp_monomer_list    = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.DSSP);
+            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.multimer, enum_ss_types.STRIDE);
+            var nh_stride_monomer_list  = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, structure_oligomisation.monomer, enum_ss_types.STRIDE);
 
             result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
             result.dssp_multimer_subsequence = (nh_dssp_multimer_list.Count > 0) ? nh_dssp_multimer_list.First().ss_sequence : null;
@@ -1903,7 +1935,7 @@ namespace dimorphics_dataset
             result.stride_multimer_subsequence = (nh_stride_multimer_list.Count > 0) ? nh_stride_multimer_list.First().ss_sequence : null;
             result.stride_monomer_subsequence = (nh_stride_monomer_list.Count > 0) ? nh_stride_monomer_list.First().ss_sequence : null;
 
-            var fx = foldx_caller.calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, subsequence_classification_data.protein_data_sources.neighbourhood_3d);
+            var fx = info_foldx.load_calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, protein_data_sources.neighbourhood_3d);
             result.foldx_energy_differences = fx;
 
             // todo: check fx isn't empty for neighbourhood / protein

@@ -1,7 +1,7 @@
 ﻿namespace dimorphics_dataset
 {
 
-    public class blast_pssm_options
+    public class info_blast_pssm_options
     {
         public bool make_unsplit_sequence = true;
         public bool make_split_sequence = true;

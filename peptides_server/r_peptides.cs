@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using dimorphics_dataset;
 using RDotNet;
 
-namespace dimorphics_dataset
+namespace peptides_server
 {
     public static class r_peptides
     {
@@ -43,12 +44,14 @@ namespace dimorphics_dataset
             rinit.Quiet = true;
             rinit.Interactive = false;
 
-            rinit.RHome = $@"C:\Program Files\R\R-3.4.4\";
+            //rinit.RHome = $@"C:\Program Files\R\R-3.4.4\";
+            rinit.RHome = $@"C:\Program Files\R\R-3.6.2\";
 
             //REngine.SetEnvironmentVariables();
-            
 
-            var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.4.4\bin\x64\R.dll", true, rinit);
+            //C:\Program Files\R\R-3.6.2
+            //var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.4.4\bin\x64\R.dll", true, rinit);
+            var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.6.2\bin\x64\R.dll", true, rinit);
 
             if (need_init)
             {
@@ -81,7 +84,7 @@ namespace dimorphics_dataset
                 r_peptides.id = id;
 
 //#if DEBUG
-                //if (Program.verbose_debug) Program.WriteLine($"{nameof(get_values)}(string seq);");
+                ////if (program.verbose_debug) Program.WriteLine($"{nameof(get_values)}(string seq);");
 //#endif
 
                 var engine = init_r();

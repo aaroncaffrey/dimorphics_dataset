@@ -6,69 +6,16 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public class dhc_dataset_maker
+    public class dataset_gen_dimorphic
     {
-        public enum substructure_type
+        public static List<protein_subsequence_info> run_dhc_dataset_maker(substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
         {
-                none,
-
-                dimorphic,
-                dimorphic_coil,
-                dimorphic_full_protein_sequence,
-
-                standard_strand,
-                standard_strand_coil,
-                standard_strand_full_protein_sequence,
-
-                standard_coil,
-        
-        }
-
-        public static List<subsequence_classification_data> run_dhc_dataset_maker(substructure_type strand_type, int class_id = 1, int min_subsequence_length = 2, bool use_dssp3 = true, bool limit_for_testing = false, int max_tasks = 2000) //-1)
-        {
-            //bool limit_for_testing = true;
-            //const int min_dhc_length_required = 3;
-
-            //var aaindex_db = aaindex.Load();
             var class_name_in_file = "";
             var include_host_coil = false;
             var full_protein_seq = false;
 
-
             switch (strand_type)
             {
-                case substructure_type.none:
-                    return null;
-
-                case substructure_type.standard_coil:
-                    var dimorphics_data1 = program.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv")
-                        .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
-                        {
-                            var x = a.Split(',');
-                            return (
-                                pdb_id: x[0].ToUpperInvariant(),
-                                dimer_type: x[1],
-                                class_name: x[2],
-                                symmetry_mode: x[3],
-                                parallelism: x[4],
-                                chain_number: int.Parse(x[5]) - 1,
-                                strand_seq: x[6],
-                                optional_res_index: x[7]
-                            );
-                        }).ToList();
-
-                    dimorphics_data1 = dimorphics_data1.Where(a => a.class_name == "Single").ToList();
-
-                    List<(string dimer_type, string pdb_id)> pdb_id_list = dimorphics_data1.Select(a => (dimer_type: a.dimer_type, pdb_id: a.pdb_id)).Distinct().ToList();
-
-                    if (limit_for_testing)
-                    {
-                        pdb_id_list = pdb_id_list.Take(2).ToList();
-                    }
-
-                    var x = coil_dataset_maker.run_coil_dataset_maker(class_id, pdb_id_list, min_subsequence_length, use_dssp3);
-                    return x;
-
                 case substructure_type.dimorphic:
                     class_name_in_file = "Single";
                     break;
@@ -97,135 +44,82 @@ namespace dimorphics_dataset
                     full_protein_seq = true;
                     break;
 
+                case substructure_type.standard_coil:
+                    throw new Exception();
+
                 default:
                     throw new Exception();
             }
 
-
-
-            var dimorphics_data_all = program.ReadAllLines(@"C:\betastrands_dataset\csv\distinct dimorphics list.csv").Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
-            {
-                var x = a.Split(',');
-                return (pdb_id: x[0].ToUpperInvariant(), dimer_type: x[1], class_name: x[2], symmetry_mode: x[3], parallelism: x[4], chain_number: int.Parse(x[5]) - 1, strand_seq: x[6], optional_res_index: x[7]);
-            }).ToList();
+            var dimorphics_data_all = program.get_dataset_pdb_id_list(null);
 
             var dimorphics_data = dimorphics_data_all.Where(a => a.class_name == class_name_in_file).ToList();
 
-            if (limit_for_testing)
-            {
-                var test_limit = 2;
-                dimorphics_data = dimorphics_data.Take(test_limit).ToList();
-            }
+            var get_dhc_ret = get_dhc_list(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_data);
 
-            return get_dhc(class_id, min_subsequence_length, use_dssp3, dimorphics_data, dimorphics_data_all, include_host_coil, full_protein_seq);
-
+            return get_dhc_ret;
         }
 
-        //dimorphics_data.ForEach(a=>Atom.run_dssp(a));
-
-        //return null;
-
-        //dimorphics_data = dimorphics_data.Take(10).ToList();
-        //dimorphics_data = dimorphics_data.Where(a => a[6].Length >= min_dimorphic_length_required).ToList();
-        //var dimorphics_ids = dimorphics_data.Select(a => a.First().ToUpperInvariant()).Distinct().OrderBy(a=>a).ToList();
-
-        //0   1   2   3   4   5   6   7   8   9
-        //Pdb Id  Dimer Type  Class Name  Symmetry Mode   Parallelism Chain   Sequence Res Index Pdb Seq Pdb Seq Len
-
-        //var dhc_features = new List<List<(string id, object value)>>();
-
-
-        //int cl;
-        //int ct;
-
-        //lock (program._console_lock)
-        //{
-        //    Console.WriteLine();
-        //    cl = Console.CursorLeft + 1;
-        //    ct = Console.CursorTop;
-        //    Console.WriteLine($"[{new string('.', dimorphics_data.Count)}]");
-        //    Console.WriteLine();
-        //}
-        //var console_lock = new object();
-
-        //Console.SetCursorPosition(0,ct+1);
-
-
-
-
-        public static List<subsequence_classification_data> get_dhc(int class_id, int min_subsequence_length, bool use_dssp3, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data_all, bool include_host_coil, bool full_protein_seq)
+        
+        public static List<protein_subsequence_info> get_dhc_list(int class_id, string class_name, bool use_dssp3, bool include_host_coil, bool full_protein_seq,
+            List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data)
         {
-            var tasks = new List<Task<subsequence_classification_data>>();
+            var tasks = new List<Task<protein_subsequence_info>>();
 
-            //if (max_tasks == 0)
-            //{
-            //    max_tasks = 2000; //Environment.ProcessorCount * 10;
-            //}
-            //else if (max_tasks < 0)
-            //{
-            //    max_tasks = 2000; //Math.Abs(max_tasks) * Environment.ProcessorCount * 10;
-            //}
-
-            var progress_lock = new object();
-            var progress = 0;
-            var progress_goal = dimorphics_data.Count;
-
-            foreach (var di in dimorphics_data)
+            for (var i = 0; i < dimorphics_data.Count; i++)
             {
-                //var dimorphics_interface = di;
+                var dimorphics_interface = dimorphics_data[i];
 
-                var dimorphics_interface = (di.pdb_id, di.dimer_type, di.class_name, di.symmetry_mode, di.parallelism, di.chain_number, di.strand_seq, di.optional_res_index);
-
-                //if (dimorphics_interface[6].Length < min_dhc_length_required) continue;
-
-                var task = Task.Run(() => { return get_dhc_item(class_id, use_dssp3, dimorphics_data_all, include_host_coil, full_protein_seq, dimorphics_interface); });
+                var task = Task.Run(() =>
+                {
+                    return get_dhc_item(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_interface);
+                });
 
                 tasks.Add(task);
-
-                //while (tasks.Count(a => !a.IsCompleted) >= max_tasks)
-                //{
-                //    Task.WaitAny(tasks.ToArray<Task>());
-                //}
             }
 
-
             Task.WaitAll(tasks.ToArray<Task>());
-            var subsequence_classification_data_list = new List<subsequence_classification_data>();
+            
+            var psi_list = tasks.Select(a => a.Result).ToList();
 
-            tasks.ForEach(a => subsequence_classification_data_list.Add(a.Result));
-
-            // check min sequence length requirement is met
-            subsequence_classification_data_list = subsequence_classification_data_list.Where(a => a.aa_subsequence.Length >= min_subsequence_length).ToList();
-
-            program.WriteLine();
-            return subsequence_classification_data_list;
+            return psi_list;
         }
 
-        private static subsequence_classification_data get_dhc_item(int class_id, bool use_dssp3, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data_all, bool include_host_coil, bool full_protein_seq, (string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index) dimorphics_interface)
+        public static /*subsequence_classification_data*/protein_subsequence_info get_dhc_item(
+            int class_id,
+            string class_name,
+            bool use_dssp3, 
+            bool include_host_coil,
+            bool full_protein_seq,
+            (string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index) dimorphics_interface
+            )
         {
-            var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, true, true, false, true, true, true).Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
+            var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new atom.load_atoms_pdb_options()
+            {
+                find_intramolecular = false,
+                find_intermolecular = false,
+                load_rsa_data = false,
+                load_dssp_data = true,
+                load_stride_data = true,
+                load_ring_data = false,
+                load_mpsa_sec_struct_predictions = false,
+                load_blast_pssms = false,
+                load_iup_data = false,
+                load_sable = false,
+                load_ala_scan = false,
+                load_dna_binding_vars = false,
+            }).Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
 
 
             var pdb_id = dimorphics_interface.pdb_id;
             var chain_number = dimorphics_interface.chain_number;
 
             var dimer_type = dimorphics_interface.dimer_type;
-            var class_name = dimorphics_interface.class_name;
+            var class_name2 = dimorphics_interface.class_name;
             var symmetry_mode = dimorphics_interface.symmetry_mode;
             var parallelism = dimorphics_interface.parallelism;
             var strand_seq = dimorphics_interface.strand_seq;
             var optional_res_index = dimorphics_interface.optional_res_index;
-
-            //Atom.load_dssp(pdb_id, pdb_atoms);
-            //Atom.load_stride(pdb_id, pdb_atoms);
-            //Atom.load_rsa(pdb_id, pdb_atoms);
-            //Atom.load_foldx_ala_scanning(pdb_atoms);
-
-            //const bool find_intermolecular = false;
-            //const bool find_intramolecular = true;
-
-            //if (find_intermolecular) Atom.find_intermolecular_contacts(pdb_id, pdb_atoms, (double)5);
-            //if (find_intramolecular) Atom.find_intramolecular_contacts(pdb_id, pdb_atoms, (double)5);
 
             var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_atoms);
@@ -258,21 +152,22 @@ namespace dimorphics_dataset
                 throw new Exception("Not correct position");
             }
 
-            var others = dimorphics_data_all.Where(a => /*a != di &&*/ a.pdb_id == dimorphics_interface.pdb_id && a.chain_number == dimorphics_interface.chain_number).ToList();
+            // get list of dimorphics with same pdbid and chain
+            /*var other_interfaces_in_chain = dimorphics_data_all.Where(a => / * a != di && * / a.pdb_id == dimorphics_interface.pdb_id && a.chain_number == dimorphics_interface.chain_number).ToList();
 
 
-            foreach (var o in others)
+            foreach (var other_interface in other_interfaces_in_chain)
             {
                 // here, set interface marker properties for atoms
 
-                var other_pdb_id = o.pdb_id;
-                var other_chain_number = o.chain_number;
-                var other_dimer_type = o.dimer_type;
-                var other_class_name = o.class_name;
-                var other_symmetry_mode = o.symmetry_mode;
-                var other_parallelism = o.parallelism;
-                var other_strand_seq = o.strand_seq;
-                var other_optional_res_index = o.optional_res_index;
+                var other_pdb_id = other_interface.pdb_id;
+                var other_chain_number = other_interface.chain_number;
+                var other_dimer_type = other_interface.dimer_type;
+                var other_class_name = other_interface.class_name;
+                var other_symmetry_mode = other_interface.symmetry_mode;
+                var other_parallelism = other_interface.parallelism;
+                var other_strand_seq = other_interface.strand_seq;
+                var other_optional_res_index = other_interface.optional_res_index;
 
                 var other_chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
                 var other_pdb_master_atoms = atom.select_amino_acid_master_atoms(other_pdb_id, pdb_atoms);
@@ -333,8 +228,10 @@ namespace dimorphics_dataset
                 }
 
                 //if (!string.IsNullOrWhiteSpace(dimorphic_dssp3)) Console.WriteLine(dimorphic_dssp3);
-            }
+            }*/
 
+            /*
+             //use this code to generate the spreadsheets for dssp/stride to ss prediction comparisons in q3 format:
 
             foreach (var g in pdb_atoms.GroupBy(a => (a.pdb_id, a.chain_id)))
             {
@@ -344,7 +241,7 @@ namespace dimorphics_dataset
 
                 atom.compare_dssp_to_mpsa(p, c, d);
             }
-
+            */
 
             //for (var i = strand_array_index; i < strand_array_index + strand_seq.Length; i++)
             //{
@@ -432,56 +329,47 @@ namespace dimorphics_dataset
 
             //if (shc_sequence.Length < min_strand_host_coil_length) continue;
 
-
-            var scd = new subsequence_classification_data
+            var psi = new protein_subsequence_info()
             {
+                class_id = class_id,
+                class_name = class_name,
+                pdb_id = pdb_id,
+                chain_id = chain_id,
                 dimer_type = dimer_type,
                 parallelism = parallelism,
                 symmetry_mode = symmetry_mode,
-                class_id = class_id,
-                //class_name = class_name,
-                pdb_id = pdb_id,
-                chain_id = chain_id,
                 res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                 aa_subsequence = shc_sequence,
-                dssp_multimer_subsequence = shc_dssp_multimer_sequence,
-                dssp_monomer_subsequence = shc_dssp_monomer_sequence,
-                stride_multimer_subsequence = shc_stride_multimer_sequence,
-                stride_monomer_subsequence = shc_stride_monomer_sequence,
-                pdb_chain_atoms = pdb_chain_atoms,
-                pdb_chain_master_atoms = pdb_chain_master_atoms,
-                subsequence_atoms = shc_subsequence_atoms,
-                subsequence_master_atoms = shc_subsequence_master_atoms,
             };
 
-            var fx = foldx_caller.calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, subsequence_classification_data.protein_data_sources.subsequence_3d);
-            scd.foldx_energy_differences = fx;
 
-            //subsequence_classification_data.calculate_classification_data(subsequence_data, subsequence_data.subsequence_master_atoms, source);
-
-
-            //lock (program._console_lock)
+            return psi;
+            //var scd = new subsequence_classification_data
             //{
-            //    //Console.WriteLine($"{dimorphic_seq},{subsequence_data.aa_subsequence},{subsequence_data.dssp_multimer_subsequence},{subsequence_data.dssp_monomer_subsequence},{dhc_stride_multimer_sequence},{dhc_stride_monomer_sequence}");
-            //
-            //    var cl2 = Console.CursorLeft;
-            //    var ct2 = Console.CursorTop;
-            //
-            //    Console.SetCursorPosition(cl, ct);
-            //    Console.Write("|");
-            //    ct = Console.CursorTop;
-            //    cl = Console.CursorLeft;
-            //    Console.SetCursorPosition(cl2, ct2);
-            //}
+            //    dimer_type = dimer_type,
+            //    parallelism = parallelism,
+            //    symmetry_mode = symmetry_mode,
+            //    class_id = class_id,
+            //    class_name = class_name,
 
-            //lock (progress_lock)
-            //{
-            //    progress++;
-            //}
+            //    pdb_id = pdb_id,
+            //    chain_id = chain_id,
+            //    res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
+            //    aa_subsequence = shc_sequence,
+            //    dssp_multimer_subsequence = shc_dssp_multimer_sequence,
+            //    dssp_monomer_subsequence = shc_dssp_monomer_sequence,
+            //    stride_multimer_subsequence = shc_stride_multimer_sequence,
+            //    stride_monomer_subsequence = shc_stride_monomer_sequence,
+            //    pdb_chain_atoms = pdb_chain_atoms,
+            //    pdb_chain_master_atoms = pdb_chain_master_atoms,
+            //    subsequence_atoms = shc_subsequence_atoms,
+            //    subsequence_master_atoms = shc_subsequence_master_atoms,
+            //};
 
-            //Console.WriteLine($@"{nameof(run_dhc_dataset_maker)} -> {progress} / {progress_goal} ( {(((double) progress / (double) progress_goal) * 100):00.00} % )");
+            //var fx = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, protein_data_sources.subsequence_3d);
+            //scd.foldx_energy_differences = fx;
 
-            return scd;
+            //return scd;
         }
     }
 }

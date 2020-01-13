@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace dimorphics_dataset
 {
 
-    public static class pssm
+    public static class info_blast_pssm
     {
 
         public static string run_psi_blast_get_pssm(string seq_filename, string pssm_filename, string blast_database, string database_folder, int num_iterations = 1, string evalue = "0.1", string inclusion_ethresh = "0.1", bool remote = true, bool run = false)
@@ -70,7 +70,7 @@ namespace dimorphics_dataset
             if (run)
             {
 
-                program.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"" + start.FileName + "\" " + start.Arguments);
+                io.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"" + start.FileName + "\" " + start.Arguments);
 
                 using (var process = Process.Start(start))
                 {
@@ -86,7 +86,7 @@ namespace dimorphics_dataset
                         if (!string.IsNullOrWhiteSpace(stdout))
                         {
                             stdout = ("\r\n" + stdout).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ");
-                            program.WriteLine(stdout);
+                            io.WriteLine(stdout);
                         }
                     }
 
@@ -97,7 +97,7 @@ namespace dimorphics_dataset
                         if (!string.IsNullOrWhiteSpace(stderr))
                         {
                             stderr = ("\r\n" + stderr).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ");
-                            program.WriteLine(stderr);
+                            io.WriteLine(stderr);
                         }
                     }
 
@@ -223,7 +223,7 @@ namespace dimorphics_dataset
                 return new List<pssm_entry>();
             }
 
-            var line_list = program.ReadAllLines(pssm_filename).Skip(2).ToList();
+            var line_list = io.ReadAllLines(pssm_filename).Skip(2).ToList();
             var pssm_end_index = line_list.IndexOf("");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 
@@ -266,7 +266,7 @@ namespace dimorphics_dataset
 
             if (normalise_pssm)
             {
-                pssm = dimorphics_dataset.pssm.normalise_pssm(pssm);
+                pssm = dimorphics_dataset.info_blast_pssm.normalise_pssm(pssm);
             }
 
             return pssm;
@@ -294,12 +294,7 @@ namespace dimorphics_dataset
         //    })
         //};
 
-        public enum pssm_value_types
-        {
-            standard,
-            distances,
-            intervals
-        }
+     
 
         public static double[] pssm_to_vector1(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_all = false)
         {

@@ -3,19 +3,27 @@ using System.IO;
 
 namespace dimorphics_dataset
 {
-    public static class ColumnValueExtensions
+
+    public static class column_value_extensions
     {
-        public static string ColumnValue(this string columnFormatLine, int startPosition, int endPosition, bool trim = true)
+        public static string column_value(this string column_format_line, int start_position, int end_position, bool trim = true)
         {
-            var r = columnFormatLine.Substring(startPosition - 1, (endPosition - startPosition) + 1);
-            if (trim) r = r.Trim();
-            return r;
+            var ret = column_format_line.Substring(start_position - 1, (end_position - start_position) + 1);
+
+            if (trim)
+            {
+                ret = ret.Trim();
+            }
+
+            return ret;
         }
     }
 
-    public class stride_file
+    public class info_stride
     {
-        public abstract class Stride_Record
+    
+
+        public abstract class stride_record
         {
             //1-3	Record code
             //4-5	Not used
@@ -29,19 +37,19 @@ namespace dimorphics_dataset
             public string NotUsed2;
             public string PdbCode;
 
-            protected Stride_Record(string columnFormatLine)
+            protected stride_record(string column_format_line)
             {
-                if (string.IsNullOrWhiteSpace(columnFormatLine)) return;
+                if (string.IsNullOrWhiteSpace(column_format_line)) return;
 
-                RecordCode = columnFormatLine.ColumnValue(1, 3);
-                NotUsed1 = columnFormatLine.ColumnValue(4, 5);
-                Data = columnFormatLine.ColumnValue(6, 73);
-                NotUsed2 = columnFormatLine.ColumnValue(74, 75);
-                PdbCode = columnFormatLine.ColumnValue(75, 79);
+                RecordCode = column_format_line.column_value(1, 3);
+                NotUsed1 = column_format_line.column_value(4, 5);
+                Data = column_format_line.column_value(6, 73);
+                NotUsed2 = column_format_line.column_value(74, 75);
+                PdbCode = column_format_line.column_value(75, 79);
             }
         }
 
-        public class Stride_Remark : Stride_Record
+        public class Stride_Remark : stride_record
         {
             //REM Remarks and blank   lines
 
@@ -51,7 +59,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_Header : Stride_Record
+        public class Stride_Header : stride_record
         {
             //HDR Header.  Protein name, date of file creation and PDB code
 
@@ -61,7 +69,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_Compound : Stride_Record
+        public class Stride_Compound : stride_record
         {
             //CMP Compound.Full name of the molecule and identifying information
 
@@ -71,7 +79,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_Receptor : Stride_Record
+        public class Stride_Receptor : stride_record
         {
             //SRC Species, organ, tissue, and mutant from which the molecule has been obtained
 
@@ -81,7 +89,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_StructureAuthors : Stride_Record
+        public class Stride_StructureAuthors : stride_record
         {
             //AUT Names of the structure authors
 
@@ -92,7 +100,7 @@ namespace dimorphics_dataset
 
         }
 
-        public class Stride_Chain : Stride_Record
+        public class Stride_Chain : stride_record
         {
             //CHN File name and PDB chain identifier*).
             // Format: File name beginning from position 6 followed by one space and one-letter chain    identifier
@@ -106,13 +114,13 @@ namespace dimorphics_dataset
 
             public Stride_Chain(string columnFormatLine) : base(columnFormatLine)
             {
-                FileName = columnFormatLine.ColumnValue(6, 75);
+                FileName = columnFormatLine.column_value(6, 75);
                 OneLetterChainIdentifier = FileName.Substring(FileName.LastIndexOf(' ') + 1);
                 FileName = FileName.Substring(0, FileName.LastIndexOf(' '));
             }
         }
 
-        public class Stride_AminoAcidSequence : Stride_Record
+        public class Stride_AminoAcidSequence : stride_record
         {
             //SEQ Amino acid sequence
             //
@@ -127,13 +135,13 @@ namespace dimorphics_dataset
 
             public Stride_AminoAcidSequence(string columnFormatLine) : base(columnFormatLine)
             {
-                FirstResiduePdbNumber = columnFormatLine.ColumnValue(6, 9);
-                Sequence = columnFormatLine.ColumnValue(11, 60);
-                LastResiduePdbNumber = columnFormatLine.ColumnValue(62, 65);
+                FirstResiduePdbNumber = columnFormatLine.column_value(6, 9);
+                Sequence = columnFormatLine.column_value(11, 60);
+                LastResiduePdbNumber = columnFormatLine.column_value(62, 65);
             }
         }
 
-        public class Stride_SecondaryStructure : Stride_Record
+        public class Stride_SecondaryStructure : stride_record
         {
 
             //STR Secondary   structure summary
@@ -145,11 +153,11 @@ namespace dimorphics_dataset
 
             public Stride_SecondaryStructure(string columnFormatLine) : base(columnFormatLine)
             {
-                SecondaryStructureAssignment = columnFormatLine.ColumnValue(11, 60);
+                SecondaryStructureAssignment = columnFormatLine.column_value(11, 60);
             }
         }
 
-        public class Stride_LocationOfSecondaryStructureElements : Stride_Record
+        public class Stride_LocationOfSecondaryStructureElements : stride_record
         {
             //LOC Location of secondary structure elements
             //
@@ -175,17 +183,17 @@ namespace dimorphics_dataset
 
             public Stride_LocationOfSecondaryStructureElements(string columnFormatLine) : base(columnFormatLine)
             {
-                ElementName = columnFormatLine.ColumnValue(6, 17);
-                FirstResidueName = columnFormatLine.ColumnValue(19, 21);
-                FirstResiduePdbNumber = columnFormatLine.ColumnValue(22, 27);
-                FirstResidueChainIdentifier = columnFormatLine.ColumnValue(28, 28);
-                LastResidueName = columnFormatLine.ColumnValue(36, 38);
-                LastResiduePdbNumber = columnFormatLine.ColumnValue(42, 45);
-                LastResidueChainIdentifier = columnFormatLine.ColumnValue(47, 47);
+                ElementName = columnFormatLine.column_value(6, 17);
+                FirstResidueName = columnFormatLine.column_value(19, 21);
+                FirstResiduePdbNumber = columnFormatLine.column_value(22, 27);
+                FirstResidueChainIdentifier = columnFormatLine.column_value(28, 28);
+                LastResidueName = columnFormatLine.column_value(36, 38);
+                LastResiduePdbNumber = columnFormatLine.column_value(42, 45);
+                LastResidueChainIdentifier = columnFormatLine.column_value(47, 47);
             }
         }
 
-        public class Stride_DetailedSecondaryStructureAssignments : Stride_Record
+        public class Stride_DetailedSecondaryStructureAssignments : stride_record
         {
             //ASG Detailed secondary structure assignment
             //
@@ -214,22 +222,22 @@ namespace dimorphics_dataset
 
             public Stride_DetailedSecondaryStructureAssignments(string columnFormatLine) : base(columnFormatLine)
             {
-                ResidueName = columnFormatLine.ColumnValue(6, 8);
-                ProteinChainIdentifier = columnFormatLine.ColumnValue(10, 10);
-                PdbResidueNumber = columnFormatLine.ColumnValue(12, 15);
-                OrdinalResidueNumber = columnFormatLine.ColumnValue(17, 20);
-                OneLetterSecondaryStructureCode = columnFormatLine.ColumnValue(25, 25);
-                FullSecondaryStructureName = columnFormatLine.ColumnValue(27, 39);
-                PhiAngle = columnFormatLine.ColumnValue(43, 49);
-                PsiAngle = columnFormatLine.ColumnValue(53, 59);
-                ResidueSolventAccessibleArea = columnFormatLine.ColumnValue(65, 69);
+                ResidueName = columnFormatLine.column_value(6, 8);
+                ProteinChainIdentifier = columnFormatLine.column_value(10, 10);
+                PdbResidueNumber = columnFormatLine.column_value(12, 15);
+                OrdinalResidueNumber = columnFormatLine.column_value(17, 20);
+                OneLetterSecondaryStructureCode = columnFormatLine.column_value(25, 25);
+                FullSecondaryStructureName = columnFormatLine.column_value(27, 39);
+                PhiAngle = columnFormatLine.column_value(43, 49);
+                PsiAngle = columnFormatLine.column_value(53, 59);
+                ResidueSolventAccessibleArea = columnFormatLine.column_value(65, 69);
 
                 if (string.IsNullOrWhiteSpace(OneLetterSecondaryStructureCode)) OneLetterSecondaryStructureCode = stride_default_secondary_structure.ToString();
             }
 
         }
 
-        public class Stride_LigandDonorReside : Stride_Record
+        public class Stride_LigandDonorReside : stride_record
         {
             // DNR LigandDonor residue
             //
@@ -264,23 +272,23 @@ namespace dimorphics_dataset
 
             public Stride_LigandDonorReside(string columnFormatLine) : base(columnFormatLine)
             {
-                LigandDonorResidueName = columnFormatLine.ColumnValue(6, 8);
-                ProteinChainIdentifier1 = columnFormatLine.ColumnValue(10, 10);
-                PdbResidueNumber1 = columnFormatLine.ColumnValue(12, 15);
-                OrdinalResidueNumber1 = columnFormatLine.ColumnValue(17, 20);
-                AcceptorResidueName = columnFormatLine.ColumnValue(26, 28);
-                ProteinChainIdentifier2 = columnFormatLine.ColumnValue(30, 30);
-                PdbResidueNumber2 = columnFormatLine.ColumnValue(32, 35);
-                OrdinalResidueNumber2 = columnFormatLine.ColumnValue(37, 40);
-                N__0Distance = columnFormatLine.ColumnValue(42, 45);
-                N__o_cAngle = columnFormatLine.ColumnValue(47, 52);
-                O__n_cAngle = columnFormatLine.ColumnValue(54, 59);
-                AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c = columnFormatLine.ColumnValue(61, 66);
-                AngleBetweenThePlanesOfAcceptorComplexAndN__o_c = columnFormatLine.ColumnValue(68, 73);
+                LigandDonorResidueName = columnFormatLine.column_value(6, 8);
+                ProteinChainIdentifier1 = columnFormatLine.column_value(10, 10);
+                PdbResidueNumber1 = columnFormatLine.column_value(12, 15);
+                OrdinalResidueNumber1 = columnFormatLine.column_value(17, 20);
+                AcceptorResidueName = columnFormatLine.column_value(26, 28);
+                ProteinChainIdentifier2 = columnFormatLine.column_value(30, 30);
+                PdbResidueNumber2 = columnFormatLine.column_value(32, 35);
+                OrdinalResidueNumber2 = columnFormatLine.column_value(37, 40);
+                N__0Distance = columnFormatLine.column_value(42, 45);
+                N__o_cAngle = columnFormatLine.column_value(47, 52);
+                O__n_cAngle = columnFormatLine.column_value(54, 59);
+                AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c = columnFormatLine.column_value(61, 66);
+                AngleBetweenThePlanesOfAcceptorComplexAndN__o_c = columnFormatLine.column_value(68, 73);
             }
         }
 
-        public class Stride_AcceptorResidue : Stride_Record
+        public class Stride_AcceptorResidue : stride_record
         {
             // ACC Acceptor residue
             //
@@ -315,35 +323,35 @@ namespace dimorphics_dataset
 
             public Stride_AcceptorResidue(string columnFormatLine) : base(columnFormatLine)
             {
-                AcceptorResidueName = columnFormatLine.ColumnValue(6, 8);
-                ProteinChainIdentifier1 = columnFormatLine.ColumnValue(10, 10);
-                PdbResidueNumber1 = columnFormatLine.ColumnValue(12, 15);
-                OrdinalResidueNumber1 = columnFormatLine.ColumnValue(17, 20);
-                LigandDonorResidueName = columnFormatLine.ColumnValue(26, 28);
-                ProteinChainIdentifier2 = columnFormatLine.ColumnValue(30, 30);
-                PdbResidueNumber2 = columnFormatLine.ColumnValue(32, 35);
-                OrdinalResidueNumber2 = columnFormatLine.ColumnValue(37, 40);
-                N__0Distance = columnFormatLine.ColumnValue(42, 45);
-                N__o_cAngle = columnFormatLine.ColumnValue(47, 52);
-                O__n_cAngle = columnFormatLine.ColumnValue(54, 59);
-                AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c = columnFormatLine.ColumnValue(61, 66);
-                AngleBetweenThePlanesOfAcceptorComplexAndN__o_c = columnFormatLine.ColumnValue(68, 73);
+                AcceptorResidueName = columnFormatLine.column_value(6, 8);
+                ProteinChainIdentifier1 = columnFormatLine.column_value(10, 10);
+                PdbResidueNumber1 = columnFormatLine.column_value(12, 15);
+                OrdinalResidueNumber1 = columnFormatLine.column_value(17, 20);
+                LigandDonorResidueName = columnFormatLine.column_value(26, 28);
+                ProteinChainIdentifier2 = columnFormatLine.column_value(30, 30);
+                PdbResidueNumber2 = columnFormatLine.column_value(32, 35);
+                OrdinalResidueNumber2 = columnFormatLine.column_value(37, 40);
+                N__0Distance = columnFormatLine.column_value(42, 45);
+                N__o_cAngle = columnFormatLine.column_value(47, 52);
+                O__n_cAngle = columnFormatLine.column_value(54, 59);
+                AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c = columnFormatLine.column_value(61, 66);
+                AngleBetweenThePlanesOfAcceptorComplexAndN__o_c = columnFormatLine.column_value(68, 73);
             }
         }
 
 
-        public static List<Stride_Record> Load(string strideFilename)
+        public static List<stride_record> Load(string strideFilename)
         {
-            var result = new List<Stride_Record>();
+            var result = new List<stride_record>();
 
-            var lines = program.ReadAllLines(strideFilename);
+            var lines = io.ReadAllLines(strideFilename);
 
             foreach (var columnFormatLine in lines)
             {
                 if (string.IsNullOrWhiteSpace(columnFormatLine) || columnFormatLine.Length <= 3) continue;
 
                 var recordCode = columnFormatLine.Substring(0, 3);
-                Stride_Record record = null;
+                stride_record record = null;
 
                 switch (recordCode)
                 {

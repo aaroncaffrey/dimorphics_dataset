@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class foldx_caller
+    public static class info_foldx
     {
-        public const string foldx_folder = @"C:\betastrands_dataset\foldx\";
-        public const string pdb_folder = @"C:\betastrands_dataset\foldx\pdb\";
+        public static string foldx_folder = Path.Combine(program.data_root_folder, $@"foldx");
+        public static string pdb_folder = Path.Combine(program.data_root_folder, $@"foldx", $@"pdb");
 
-
+         
 
         //public class energy_differences
         //{
@@ -40,10 +40,10 @@ namespace dimorphics_dataset
 
         private static object file_write_lock = new object();
 
-        public static energy_differences calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, subsequence_classification_data.protein_data_sources source)//int nh_first_res_id, int nh_last_res_id)
+        public static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, protein_data_sources source, bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
         {
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");
+            //if (program.verbose_debug) io.WriteLine($"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");
 #endif
 
             //var nh_first_res_id = res_ids.Min(a => a.residue_index);
@@ -55,8 +55,8 @@ namespace dimorphics_dataset
             // returns energy differences upon mutation of a neighbourhood
             // can be viewed as: difference over whole monomer, difference over fragment only, and also, repaired/unrepaired, but we only do repaired.
 
-            //var pdb_folder = @"c:\betastrands_dataset\pdb\";
-            //var foldx_folder = @"C:\betastrands_dataset\foldx\";
+            //var pdb_folder = Path.Combine(program.data_root_folder,"pdb\";
+            //var foldx_folder = Path.Combine(program.data_root_folder,"foldx\";
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id).Substring(0, 4);
 
             // make monomer from dimer
@@ -65,7 +65,7 @@ namespace dimorphics_dataset
             // repair
             var monomer_file_repair = foldx_repair_pdb(Path.GetFileNameWithoutExtension(monomer_file), run);
 
-            var repair_res_ids = program.ReadAllLines(monomer_file_repair).Where(a => a.StartsWith("ATOM")).Select(a => int.Parse(a.Substring(22, 4))).Distinct().OrderBy(a => a).ToList();
+            var repair_res_ids = io.ReadAllLines(monomer_file_repair).Where(a => a.StartsWith("ATOM")).Select(a => int.Parse(a.Substring(22, 4))).Distinct().OrderBy(a => a).ToList();
 
             // filter res ids to remove res ides which were in the original pdb structure file but removed by the foldx repair
             res_ids = res_ids.Where(a => repair_res_ids.Contains(a.residue_index)).ToList();
@@ -73,42 +73,28 @@ namespace dimorphics_dataset
             // calculate energy differences before/after mutation
 
             //result.foldx_ala_scanning_result_protein = foldx_caller.load_foldx_ala_scanning(monomer_file_repair, chain_id, null, run);
-            result.foldx_ala_scanning_result_subsequence = foldx_caller.load_foldx_ala_scanning(monomer_file_repair, chain_id, res_ids, run);
-            result.foldx_position_scanning_result_subsequence             = foldx_caller.load_foldx_position_scanning((monomer_file_repair, chain_id, res_ids), run);
-            result.foldx_buildmodel_position_scan_result_subsequence      = foldx_caller.load_foldx_buildmodel_position_scan((monomer_file_repair, chain_id, res_ids), run);
-            result.foldx_buildmodel_subsequence_mutant_result_subsequence = foldx_caller.load_foldx_buildmodel_subsequence_mutant((monomer_file_repair, chain_id, res_ids), run);
+            result.foldx_ala_scanning_result_subsequence = info_foldx.load_foldx_ala_scanning(monomer_file_repair, chain_id, res_ids, run);
+            result.foldx_position_scanning_result_subsequence             = info_foldx.load_foldx_position_scanning((monomer_file_repair, chain_id, res_ids), run);
+            result.foldx_buildmodel_position_scan_result_subsequence      = info_foldx.load_foldx_buildmodel_position_scan((monomer_file_repair, chain_id, res_ids), run);
+            result.foldx_buildmodel_subsequence_mutant_result_subsequence = info_foldx.load_foldx_buildmodel_subsequence_mutant((monomer_file_repair, chain_id, res_ids), run);
 
-            lock (file_write_lock)
+            if (write_bat)
             {
-                var fn1 = Path.Combine($@"{foldx_folder}", $"foldx_calc_ala_scanning_{source.ToString()}.bat.skip");
-                //Directory.CreateDirectory(Path.GetDirectoryName(fn1));
-                program.AppendAllLines(fn1, new[]
+                lock (file_write_lock)
                 {
-                    $@"if not exist ""{result.foldx_ala_scanning_result_subsequence.wait_filename}"" {result.foldx_ala_scanning_result_subsequence.cmd_line}"
-                }, nameof(foldx_caller), nameof(calc_energy_differences));
+                    var fn1 = Path.Combine($@"{foldx_folder}", $"foldx_calc_ala_scanning_{source.ToString()}.bat.skip");
+                    io.AppendAllLines(fn1, new[] {$@"if not exist ""{result.foldx_ala_scanning_result_subsequence.wait_filename}"" {result.foldx_ala_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                var fn2 = Path.Combine($@"{foldx_folder}", $"foldx_calc_position_scanning_{source.ToString()}.bat");
-                //Directory.CreateDirectory(Path.GetDirectoryName(fn2));
-                program.AppendAllLines(fn2, new[]
-                {
-                    $@"if not exist ""{result.foldx_position_scanning_result_subsequence.wait_filename}"" {result.foldx_position_scanning_result_subsequence.cmd_line}"
-                }, nameof(foldx_caller), nameof(calc_energy_differences));
+                    var fn2 = Path.Combine($@"{foldx_folder}", $"foldx_calc_position_scanning_{source.ToString()}.bat");
+                    io.AppendAllLines(fn2, new[] {$@"if not exist ""{result.foldx_position_scanning_result_subsequence.wait_filename}"" {result.foldx_position_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                var fn3 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat");
-                //Directory.CreateDirectory(Path.GetDirectoryName(fn3));
-                program.AppendAllLines(fn3, new[]
-                {
-                    $@"if not exist ""{result.foldx_buildmodel_position_scan_result_subsequence.wait_filename}"" {result.foldx_buildmodel_position_scan_result_subsequence.cmd_line}"
-                }, nameof(foldx_caller), nameof(calc_energy_differences));
+                    var fn3 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat");
+                    io.AppendAllLines(fn3, new[] {$@"if not exist ""{result.foldx_buildmodel_position_scan_result_subsequence.wait_filename}"" {result.foldx_buildmodel_position_scan_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                var fn4 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat");
-                //Directory.CreateDirectory(Path.GetDirectoryName(fn4));
-                program.AppendAllLines(fn4, new[]
-                {
-                    $@"if not exist ""{result.foldx_buildmodel_subsequence_mutant_result_subsequence.wait_filename}"" {result.foldx_buildmodel_subsequence_mutant_result_subsequence.cmd_line}"
-                }, nameof(foldx_caller), nameof(calc_energy_differences));
+                    var fn4 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat");
+                    io.AppendAllLines(fn4, new[] {$@"if not exist ""{result.foldx_buildmodel_subsequence_mutant_result_subsequence.wait_filename}"" {result.foldx_buildmodel_subsequence_mutant_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
+                }
             }
-        
 
             return result;
         }
@@ -250,7 +236,7 @@ namespace dimorphics_dataset
         public static string[] read_all_lines_until_success(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10)
         {
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"{nameof(read_all_lines_until_success)}(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10);");
+            //if (program.verbose_debug) io.WriteLine($"{nameof(read_all_lines_until_success)}(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10);");
 #endif
 
             var file_accessed = false;
@@ -270,7 +256,7 @@ namespace dimorphics_dataset
                     {
                         var f_len1 = new FileInfo(wait_file).Length;
 
-                        data = program.ReadAllLines(wait_file);
+                        data = io.ReadAllLines(wait_file);
 
                         var f_len2 = new FileInfo(wait_file).Length;
 
@@ -308,11 +294,15 @@ namespace dimorphics_dataset
             return data;
         }
 
-        public static (string cmd_line, string[] data) call_foldx(string pdb_file_id, string foldx_command, string foldx_args, string wait_filename, string lock_code_local, bool run, string pdb_folder = foldx_caller.pdb_folder)
+        public static (string cmd_line, string[] data) call_foldx(string pdb_file_id, string foldx_command, string foldx_args, string wait_filename, string lock_code_local, bool run, string pdb_folder = null)
         {
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($@"call_foldx(pdb_file_id={pdb_file_id}, foldx_command={foldx_command}, foldx_args={foldx_args}, wait_filename={wait_filename}, lock_code_local={lock_code_local}");
+            //if (program.verbose_debug) io.WriteLine($@"call_foldx(pdb_file_id={pdb_file_id}, foldx_command={foldx_command}, foldx_args={foldx_args}, wait_filename={wait_filename}, lock_code_local={lock_code_local}");
 #endif
+            if (string.IsNullOrWhiteSpace(pdb_folder))
+            {
+                pdb_folder = info_foldx.pdb_folder;
+            }
 
             var foldx_exe = $@"{foldx_folder}foldx.exe";
             var pdb_file = $"{pdb_folder}{Path.GetFileNameWithoutExtension(pdb_file_id)}.pdb";
@@ -411,7 +401,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? program.ReadAllLines(wait_filename) : new string[0];
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io.ReadAllLines(wait_filename) : new string[0];
                     }
                 }
             }
@@ -425,7 +415,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? program.ReadAllLines(wait_filename) : new string[0];
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io.ReadAllLines(wait_filename) : new string[0];
                     }
                 }
             }
@@ -439,11 +429,21 @@ namespace dimorphics_dataset
             return (cmd_line, data);
         }
 
-        public static string foldx_repair_pdb(string pdb_id, bool run, string pdb_folder = foldx_caller.pdb_folder, string repair_folder = @"C:\betastrands_dataset\foldx\pdb\")
+        public static string foldx_repair_pdb(string pdb_id, bool run, string pdb_folder = null, string repair_folder = null)
         {
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"foldx_repair_pdb(pdb_id = \"{pdb_id}\")");
+            //if (program.verbose_debug) io.WriteLine($"foldx_repair_pdb(pdb_id = \"{pdb_id}\")");
 #endif
+            if (string.IsNullOrWhiteSpace(pdb_folder))
+            {
+                pdb_folder = info_foldx.pdb_folder;
+            }
+
+            if (string.IsNullOrWhiteSpace(repair_folder))
+            {
+                repair_folder = Path.Combine(program.data_root_folder, "foldx", "pdb");
+            }
+
             var pdb_file =        Path.Combine($@"{pdb_folder}", $@"{Path.GetFileNameWithoutExtension(pdb_id)}.pdb");
             var pdb_file_repair = Path.Combine($@"{repair_folder}", $@"{Path.GetFileNameWithoutExtension(pdb_id)}_Repair.pdb");
 
@@ -467,7 +467,7 @@ namespace dimorphics_dataset
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"load_foldx_buildmodel_position_scan(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($"load_foldx_buildmodel_position_scan(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
 #endif
 
             if (res_ids == null || res_ids.Count == 0) return ("", "", null);
@@ -518,7 +518,7 @@ namespace dimorphics_dataset
             lock (file_write_lock)
             {
                 //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                program.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(foldx_caller), nameof(load_foldx_buildmodel_position_scan));
+                io.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx), nameof(load_foldx_buildmodel_position_scan));
             }
 
             var foldx_cmd = $"BuildModel";
@@ -618,7 +618,7 @@ namespace dimorphics_dataset
             if (res_ids == null || res_ids.Count == 0) return ("", "", null);
 
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"load_foldx_buildmodel_subsequence_mutant(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($"load_foldx_buildmodel_subsequence_mutant(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
 #endif
             // FoldX --command=BuildModel --pdb=BM.pdb --mutant-file=individual_list.txt
             // individual_list.txt = e.g. FA39L,FB39L; (res_aa, chain, res_num, mutant_aa)
@@ -649,7 +649,7 @@ namespace dimorphics_dataset
             lock (file_write_lock)
             {
                 //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                program.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(foldx_caller), nameof(load_foldx_buildmodel_subsequence_mutant));
+                io.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx), nameof(load_foldx_buildmodel_subsequence_mutant));
             }
 
 
@@ -835,7 +835,7 @@ namespace dimorphics_dataset
         {
             //    var (pdb_id, chain_id, res_ids) = interface_residues;
 #if DEBUG
-            //if (Program.verbose_debug) Program.WriteLine($"load_foldx_ala_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            ////if (program.verbose_debug) Program.WriteLine($"load_foldx_ala_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
 #endif
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
@@ -929,7 +929,7 @@ namespace dimorphics_dataset
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
 #if DEBUG
-            if (program.verbose_debug) program.WriteLine($"load_foldx_position_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($"load_foldx_position_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
 #endif
 
             if (res_ids == null || res_ids.Count == 0) return ("", "", null);

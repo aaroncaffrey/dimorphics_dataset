@@ -7,7 +7,7 @@ namespace dimorphics_dataset
 {
     public class sequence
     {
-        public class SequenceId
+        public class sequence_id
         {
             public string PdbId;
             public char ChainId;
@@ -15,21 +15,21 @@ namespace dimorphics_dataset
             public string Len;
             public string Description;
 
-            public SequenceId(string sequenceId)
+            public sequence_id(string sequence_id)
             {
-                if (String.IsNullOrWhiteSpace(sequenceId))
+                if (String.IsNullOrWhiteSpace(sequence_id))
                 {
                     return;
                 }
 
-                if (sequenceId != null && sequenceId.FirstOrDefault() == '>') sequenceId = sequenceId.Substring(1);
+                if (sequence_id != null && sequence_id.FirstOrDefault() == '>') sequence_id = sequence_id.Substring(1);
 
                 const string molMarker = "mol:";
                 const string lenMarker = "length:";
 
-                if (sequenceId.Contains(" " + molMarker) && sequenceId.Contains(" " + lenMarker))
+                if (sequence_id.Contains(" " + molMarker) && sequence_id.Contains(" " + lenMarker))
                 {
-                    var idStrings = sequenceId.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var idStrings = sequence_id.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                     var pdbId = idStrings[0][0] == '>' ? idStrings[0].Substring(1) : idStrings[0];
                     var chainId = "";
@@ -63,7 +63,7 @@ namespace dimorphics_dataset
                         pdbId = pdbId.Substring(0, pdbId.IndexOf('_'));
                     }
 
-                    var description = sequenceId.Substring(pdbId.Length + 1 + chainId.Length + 1 + mol.Length + 1 + len.Length + 1);
+                    var description = sequence_id.Substring(pdbId.Length + 1 + chainId.Length + 1 + mol.Length + 1 + len.Length + 1);
 
                     if (description.Length > 0 && description.IndexOf(' ') > -1)
                     {
@@ -75,7 +75,7 @@ namespace dimorphics_dataset
                 else
                 {
 
-                    var split = sequenceId.Split(new char[] { '_', '-', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    var split = sequence_id.Split(new char[] { '_', '-', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                     if (split.Length < 2) return;// Init("", ' ', "", "", "");
 
@@ -98,241 +98,21 @@ namespace dimorphics_dataset
                 Len = len;
                 Description = description;
             }
-
-            protected bool Equals(SequenceId other)
-            {
-                return string.Equals(PdbId, other.PdbId, StringComparison.InvariantCultureIgnoreCase) && string.Equals("" + ChainId, "" + other.ChainId, StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != this.GetType()) return false;
-                return Equals((SequenceId)obj);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return ((PdbId != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(PdbId) : 0) * 397) ^ (StringComparer.InvariantCultureIgnoreCase.GetHashCode(ChainId));
-                }
-            }
-
-            public static bool operator ==(SequenceId left, SequenceId right)
-            {
-                return Equals(left, right);
-            }
-
-            public static bool operator !=(SequenceId left, SequenceId right)
-            {
-                return !Equals(left, right);
-            }
         }
-        private string _Id;
+
+        private string _id;
+
         public string Id
         {
-            get { return _Id; }
+            get { return _id; }
             set
             {
-                _Id = value;
-                IdSplit = new SequenceId(this._Id);
+                _id = value;
+                IdSplit = new sequence_id(this._id);
             }
         }
-        public SequenceId IdSplit;
+        public sequence_id IdSplit;
         public string FullSequence;
-
-        public static string EscapeAminoAcidSequence(string sequence, char escape = 'X', bool allowX = false)
-        {
-            //return String.IsNullOrEmpty(sequence) ? sequence : sequence.All(Char.IsLetter) ? sequence : String.Join("", sequence.Select(b => Char.IsLetter(b) ? b : escape).ToList());
-
-            if (String.IsNullOrEmpty(sequence)) return "";
-
-            var escaped = new string(sequence.Select(a => Char.IsLetter(a) && (allowX || a != 'X') ? a : escape).ToArray());
-
-            return escaped;
-        }
-
-        public static string CleanAminoAcidSequence(string sequence, bool allowX = false)
-        {
-            //return String.IsNullOrEmpty(sequence) ? sequence : sequence.All(Char.IsLetter) ? sequence : String.Join("", sequence.Select(b => Char.IsLetter(b) ? b : escape).ToList());
-
-            if (String.IsNullOrEmpty(sequence)) return "";
-
-            var escaped = new string(sequence.Where(a => Char.IsLetter(a) && (a != 'X' || allowX)).ToArray());
-
-            return escaped;
-        }
-
-        public static string TrimSequence(string sequence)
-        {
-            return sequence.Trim(new char[] { '-', '_', 'X', ' ', '\r', '\n', '\t', '\0' });
-        }
-
-        public string GetTrimmedSequence()
-        {
-            return TrimSequence(FullSequence);
-        }
-
-        public string GetEscapedSequence(char escape = 'X', bool allowX = false) { return EscapeAminoAcidSequence(FullSequence, escape, allowX); }
-
-        public string GetCleanedSequence(bool allowX = false) { return CleanAminoAcidSequence(FullSequence, allowX); }
-
-        public static string WrapLines(string data, int lineLength = 80)
-        {
-            var result = new List<string>();
-            var offset = 0;
-            while (data.Length - offset > lineLength)
-            {
-                result.Add(data.Substring(0 + offset, lineLength));
-                offset += lineLength;
-            }
-            if (data.Length - offset > 0) result.Add(data.Substring(offset));
-            return String.Join(Environment.NewLine, result);
-        }
-        public string GetAsFasta()
-        {
-            var result = (!String.IsNullOrEmpty(Id) && Id[0] == '>') ? Id : ('>' + Id + Environment.NewLine) + WrapLines(FullSequence, 80) + Environment.NewLine;
-            return result;
-        }
-
-        //public (string Id, string FullSequence) GetAsTuple() { return (Id, FullSequence); }
-
-        //public static List<(string Id, string FullSequence)> GetAsTuple(List<sequence> sequenceList)
-        //{
-        //    var result = new List<(string Id, string FullSequence)>();
-
-        //    foreach (var s in sequenceList)
-        //    {
-        //        result.Add(s.GetAsTuple());
-        //    }
-
-        //    return result;
-        //}
-
-        public static string GetAsFasta(List<sequence> sequenceList)
-        {
-            var result = "";
-            foreach (var s in sequenceList) { result += s.GetAsFasta(); }
-            return result;
-        }
-
-        public static string GetAsPir(List<sequence> sequenceList)
-        {
-            var outputStr = new List<string>();
-
-            foreach (var seq in sequenceList)
-            {
-                outputStr.Add(">P1;query");
-                outputStr.Add("sequence:query::::::::");
-
-                var chainName = seq.IdSplit.ChainId;
-                var chainAminoAcids = seq.FullSequence;
-
-                var offset = 0;
-                while (chainAminoAcids.Length - offset > 80)
-                {
-                    outputStr.Add(chainAminoAcids.Substring(offset, 80));
-                    //chainAaStr = chainAaStr.Remove(0, 80);
-                    offset += 80;
-                }
-                if (chainAminoAcids.Length - offset > 0) outputStr.Add(chainAminoAcids.Substring(offset));
-                outputStr[outputStr.Count - 1] = outputStr[outputStr.Count - 1] + "*";
-
-            }
-
-            var result = String.Join(Environment.NewLine, outputStr) + Environment.NewLine;
-
-            return result;
-        }
-
-        public enum SequenceFormat
-        {
-            Fasta,
-            Pir
-        }
-
-        public static string GetFormattedSequence(sequence sequence, SequenceFormat sequenceFormat, string mergeMaster = null) { return GetFormattedSequence(new List<sequence>() { sequence }, sequenceFormat, mergeMaster); }
-
-        public static string GetFormattedSequence(List<sequence> sequenceList, SequenceFormat sequenceFormat, string mergeMaster = null)
-        {
-            var result = new List<string>();
-
-            if (sequenceFormat == SequenceFormat.Pir)
-            {
-                if (!String.IsNullOrWhiteSpace(mergeMaster))
-                {
-                    var id = sequenceList.FirstOrDefault(a => a.Id == mergeMaster);
-                    //result.Add(id.Item1.Replace(":", "_").Insert(1, "P1;"));
-                    //result.Add("sequence:" + id.Item1.Replace(">", "").Replace(":", "_") + "::::::::");
-                    result.Add(">P1;query");
-                    result.Add("sequence:query::::::::");
-                }
-            }
-
-            for (int index = 0; index < sequenceList.Count; index++)
-            {
-                var id = sequenceList[index];
-                if (sequenceFormat == SequenceFormat.Fasta)
-                {
-                    result.Add(id.Id);
-                }
-                else if (sequenceFormat == SequenceFormat.Pir)
-                {
-                    if (String.IsNullOrWhiteSpace(mergeMaster))
-                    {
-                        //result.Add(id.Item1.Replace(":", "_").Insert(1, "P1;"));
-                        //result.Add("sequence:" + id.Item1.Replace(">", "").Replace(":", "_") + "::::::::");
-                        result.Add(">P1;query");
-                        result.Add("sequence:query::::::::");
-                    }
-                }
-
-
-                var s = id.FullSequence;
-                while (s.Length > 80)
-                {
-                    result.Add(s.Substring(0, 80));
-                    s = s.Remove(0, 80);
-                }
-                if (s.Length > 0) result.Add(s);
-
-                if (sequenceFormat == SequenceFormat.Pir)
-                {
-                    if (String.IsNullOrWhiteSpace(mergeMaster) || index == sequenceList.Count - 1)
-                    {
-                        result[result.Count - 1] = result[result.Count - 1] + "*";
-                    }
-                    else
-                    {
-                        result[result.Count - 1] = result[result.Count - 1] + "/";
-                    }
-                }
-            }
-
-            return string.Join(Environment.NewLine, result) + Environment.NewLine;
-        }
-
-        public char this[int index]
-        {
-            get { return FullSequence[index]; }
-            set { FullSequence = FullSequence.Substring(0, index) + value + FullSequence.Substring(index + 1); }
-        }
-        public int Count()
-        {
-            return FullSequence.Length;
-        }
-
-        public bool SequenceEqual(sequence sequence)
-        {
-            return this.FullSequence == sequence.FullSequence;
-        }
-
-        public static bool SequenceEqual(sequence sequenceA, sequence sequenceB)
-        {
-            return sequenceA == sequenceB;
-        }
 
         public sequence(string id, string fullSequence)
         {
@@ -340,88 +120,18 @@ namespace dimorphics_dataset
             FullSequence = fullSequence;
         }
 
-        public sequence(string fullSequence)
-        {
-            var seq = sequence.LoadSequenceFile(new string[] { fullSequence });
-            if (seq.Count > 0)
-            {
-                this.FullSequence = seq[0].FullSequence;
-                this.Id = seq[0].FullSequence;
-            }
-        }
-
-
-        public static List<sequence> LoadSequenceFile(string sequenceFilename, string[] molNames = null)
-        {
-            if (String.IsNullOrWhiteSpace(sequenceFilename))
-            {
-                throw new ArgumentOutOfRangeException(nameof(sequenceFilename));
-            }
-
-            if (!File.Exists(sequenceFilename))
-            {
-                throw new FileNotFoundException(sequenceFilename);
-            }
-
-            var lines = program.ReadAllLines(sequenceFilename);
-
-            return LoadSequenceFile(lines, molNames);
-        }
-
-        public static List<sequence> LoadSequenceFile(string[] sequenceFileData, string[] molNames = null)
-        {
-            var sequenceList = new List<sequence>();
-
-            var id = "";
-            var seq = "";
-
-            foreach (var line in sequenceFileData)
-            {
-                if (String.IsNullOrEmpty(line)) continue;
-
-                if (line[0] == '>')
-                {
-                    if (!String.IsNullOrEmpty(id) || !String.IsNullOrEmpty(seq))
-                    {
-                        sequenceList.Add(new sequence(id, seq));
-                    }
-                    id = line;
-                    seq = "";
-                    continue;
-                }
-
-                seq += line;
-            }
-
-            if (!String.IsNullOrEmpty(id) || !String.IsNullOrEmpty(seq))
-            {
-                sequenceList.Add(new sequence(id, seq));
-            }
-
-            if (sequenceList != null && sequenceList.Count > 0 && molNames != null && molNames.Length > 0)
-            {
-                sequenceList = sequenceList.Where(a => molNames.Contains(a.IdSplit.Mol)).ToList();
-            }
-
-            return sequenceList;
-        }
-
         public static void Save(string outputFastaFile, List<sequence> sequenceList)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            //Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
-
-            program.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => a.Id + "\r\n" + a.FullSequence + "\r\n").ToList()), nameof(sequence), nameof(Save));
+            io.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => a.Id + "\r\n" + a.FullSequence + "\r\n").ToList()), nameof(sequence), nameof(Save));
         }
 
         public static void Save(string outputFastaFile, sequence sequence)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            //Directory.CreateDirectory(Path.GetDirectoryName(outputFastaFile));
-
-            program.WriteAllText(outputFastaFile, sequence.Id + "\r\n" + sequence.FullSequence + "\r\n", nameof(sequence), nameof(Save));
+            io.WriteAllText(outputFastaFile, sequence.Id + "\r\n" + sequence.FullSequence + "\r\n", nameof(sequence), nameof(Save));
         }
     }
 }

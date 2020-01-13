@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class iupred
+    public static class info_iupred
     {
         public static List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)> load(string pdb_id, char chain_id)
         {
        
-            //var seq_index_lookup_file = @"C:\betastrands_dataset\betastrands_dataset_sequences_limited.txt";
+            //var seq_index_lookup_file = Path.Combine(program.data_root_folder,"betastrands_dataset_sequences_limited.txt";
 
             //var seq_lookup_list = program.ReadAllLines(seq_index_lookup_file).ToList();
 
@@ -25,12 +25,12 @@ namespace dimorphics_dataset
 
             var iup_files = new List<(string type, string filename)>()
             {
-                ("long",$@"C:\betastrands_dataset\iupred2a\{pdb_id}{chain_id}.seq.long.iup"),
-                ("short",$@"C:\betastrands_dataset\iupred2a\{pdb_id}{chain_id}.seq.short.iup"),
-                ("glob",$@"C:\betastrands_dataset\iupred2a\{pdb_id}{chain_id}.seq.glob.iup"),
+                ("long", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.long.iup")),
+                ("short", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.short.iup")),
+                ("glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
             };
 
-            var iup_data = iup_files.SelectMany(a => program.ReadAllLines(a.filename).Where(b=>!b.StartsWith("#") && "0123456789".Contains(b.First())).Select((b,i) =>
+            var iup_data = iup_files.SelectMany(a => io.ReadAllLines(a.filename).Where(b=>!b.StartsWith("#") && "0123456789".Contains(b.First())).Select((b,i) =>
             {
 
                 var x= b.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);

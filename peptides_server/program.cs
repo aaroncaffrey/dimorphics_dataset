@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using dimorphics_dataset;
 
 namespace peptides_server
@@ -32,10 +33,10 @@ namespace peptides_server
             //Test();
             //return;
 
-            var id = int.Parse(args[0]);
-            var seq = args[1];
+            var call_count = int.Parse(args[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var sequence = args[1];
 
-            var x = r_peptides.get_values(seq,id);
+            var x = r_peptides.get_values(sequence, call_count);
 
             var y = new subsequence_classification_data.feature_info_container {feautre_info_list = x};
 

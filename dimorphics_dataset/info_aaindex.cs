@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class aaindex
+    public class info_aaindex
     {
-        public static readonly List<aaindex.aaindex_entry> aaindex_entries = aaindex.Load();
+        public static readonly List<info_aaindex.aaindex_entry> aaindex_entries = info_aaindex.Load();
 
         public class aaindex_entry
         {
@@ -111,10 +111,15 @@ namespace dimorphics_dataset
         }
         
 
-        public static List<aaindex_entry> Load(string aaindex1_file= @"C:\betastrands_dataset\aaindex\aaindex1.txt", bool remove_incomplete_entries = false)
+        public static List<aaindex_entry> Load(string aaindex1_file = null, bool remove_incomplete_entries = false)
         {
+            if (string.IsNullOrWhiteSpace(aaindex1_file))
+            {
+                aaindex1_file = Path.Combine(program.data_root_folder, $@"aaindex", $@"aaindex1.txt");
+            }
+
             var result = new List<aaindex_entry>();
-            var lines = program.ReadAllLines(aaindex1_file);
+            var lines = io.ReadAllLines(aaindex1_file);
             aaindex_entry entry=null;
             
             var i_amino_acid_order = "";

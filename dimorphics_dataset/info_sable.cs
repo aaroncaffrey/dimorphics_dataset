@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class sable
+    public static class info_sable
     {
-        //public static List<sable_item> sable_data = sable.load(@"c:\betastrands_dataset\sable\OUT_SABLE_RES.txt");
+        //public static List<sable_item> sable_data = sable.load(Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt");
 
 
         public class sable_item
@@ -26,9 +26,9 @@ namespace dimorphics_dataset
             public double entropy_value;
         }
 
-        public static List<sable_item> load(string filename)// = @"c:\betastrands_dataset\sable\OUT_SABLE_RES.txt")
+        public static List<sable_item> load(string filename)// = Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt")
         {
-            var lines = program.ReadAllLines(filename).ToList();
+            var lines = io.ReadAllLines(filename).ToList();
 
             var queries = new List<List<string>>();
 
