@@ -979,7 +979,7 @@ namespace dimorphics_dataset
                     var foldx_bm_ps_scanning_result = foldx_energy_differences?.foldx_buildmodel_position_scan_result_subsequence.data?.OrderBy(a => a.mutation_positions_data.residue_index).ToList() ?? new List<info_foldx.foldx_energy_terms_ps>();
 
                     //3 (4,4,4) (31,31,31)
-                    // todo: should 'distribute' not be true? (currently giving 1,3,1 and etc.)
+                    // todo: should 'distribute' not be true? (currently giving 1,3,1 and etc.).  NO IT SHOULD NOT. The middle is fine to be larger.
 
                     var foldx_bm_ps_scanning_result_split_grouped = feature_calcs.split_sequence(foldx_bm_ps_scanning_result.GroupBy(a => a.mutation_positions_data.residue_index).Select(a => a.ToList()).ToList());//, 3, 0, false);
 
@@ -1581,7 +1581,7 @@ namespace dimorphics_dataset
             aaindices_subsections.Add((nameof(intersection), info_aaindex.aaindex_entries.Where(a => intersection.Contains(a.H_Accession_Number)).ToList()));
 
             // Union of the values from papers
-            var union = (new string[][] {dna_binding, zernike, subnuclear, aggregation, ppi, affinity}).SelectMany(a => a).Distinct().ToList();
+            var union = (new string[][] { dna_binding, zernike, subnuclear, aggregation, ppi, affinity }).SelectMany(a => a).Distinct().ToList();
             aaindices_subsections.Add((nameof(union), info_aaindex.aaindex_entries.Where(a => union.Contains(a.H_Accession_Number)).ToList()));
 
             return aaindices_subsections;
@@ -2609,15 +2609,18 @@ namespace dimorphics_dataset
             return features;
         }
 
+
+
         public static List<feature_info> calculate_tortuosity_classification_data_template = null;
 
-        public static List<feature_info> calculate_tortuosity_classification_data(subsequence_classification_data scd, List<atom> subsequence_master_atoms, protein_data_sources source)
+        public static List<feature_info> calculate_tortuosity_classification_data(subsequence_classification_data scd, List<atom> subsequence_atoms, protein_data_sources source)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_tortuosity_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, protein_data_sources source);");
 #endif
 
-            if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
+
+            if (subsequence_atoms == null || subsequence_atoms.Count == 0)
             {
                 if (calculate_tortuosity_classification_data_template == null) throw new Exception();
 
@@ -2632,173 +2635,176 @@ namespace dimorphics_dataset
 
             var features = new List<feature_info>();
 
-            var complete_sequence = subsequence_master_atoms;
-            var split_sequence = feature_calcs.split_sequence(complete_sequence);//, 3, 0, false);
-            var sequences = new List<(string name, List<atom> sequence)>();
-            sequences.Add(($@"unsplit", complete_sequence));
-            sequences.AddRange(split_sequence.Select(a => ($@"split", a)).ToList());
-
-
-            //var pdb_unsplit_features = new List<feature_info>();
-
-
-            // todo: make tortuosity between amino acid groups instead of all amino acids
-
-            for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
+            for (var at_index = -1; at_index < feature_calcs.atom_types.Length; at_index++)
             {
-                var sq_all = sequences[sq_index];
-                var feats = new List<feature_info>();
+                var atom_type = at_index == -1 ? null : feature_calcs.atom_types[at_index];
 
-                foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
+                var subsequence_master_atoms = atom.select_amino_acid_master_atoms(null, subsequence_atoms, atom_type);
+
+                if (atom_type == null) atom_type = "CA_def";
+
+                var sequences = new List<(string name, List<atom> sequence)>();
+                sequences.Add(($@"unsplit", subsequence_master_atoms));
+                sequences.AddRange(feature_calcs.split_sequence(subsequence_master_atoms).Select(a => ($@"split", a)).ToList());
+
+                for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
                 {
-                    foreach (var alphabet_group in alphabet.groups)
+                    var sq_all = sequences[sq_index];
+                    var feats = new List<feature_info>();
+
+                    foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
                     {
-                        var sq = (name: sq_all.name, sequence: sq_all.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid)).ToList());
-
-                        var tortuosity1 = atom.measure_tortuosity1(sq.sequence);
-
-                        var tortuosity2 = atom.measure_tortuosity2(sq.sequence);
-
-
-                        // tortuosity 1
-
-                        var x0 = new feature_info()
+                        foreach (var alphabet_group in alphabet.groups)
                         {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1_{alphabet.name}",
-                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
-                            perspective = $@"default",
-                            feature_value = tortuosity1.tortuosity1
-                        };
-                        feats.Add(x0);
+                            var sq = (name: sq_all.name, sequence: sq_all.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid)).ToList());
 
-                        // tortuosity 2
-                        var tortuosity2_tortuosity_stat_values_encoded = descriptive_stats.encode(tortuosity2.tortuosity_stat_values);
-                        var x1 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity2_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-                        feats.AddRange(x1);
+                            var tortuosity1 = atom.measure_tortuosity1(sq.sequence);
 
-                        // tort 1 and tort 2
-
-                        var x2 = new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{alphabet.name}",
-                            member = $@"{sq_index}_{nameof(tortuosity1)}_{alphabet_group.group_name}",
-                            perspective = $@"default",
-                            feature_value = tortuosity1.tortuosity1
-                        };
-                        feats.Add(x2);
-
-                        var x3 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-                        feats.AddRange(x3);
-
-                        // displacement length (global)
-                        var x4 = new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_displacement_3d_global_{alphabet.name}",
-                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
-                            perspective = $@"default",
-                            feature_value = tortuosity1.displacement
-                        };
-                        feats.Add(x4);
-
-                        // curve length (global)
-                        var x5 = new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_peptide_length_3d_global_{alphabet.name}",
-                            member = $@"{sq_index}_default_{alphabet_group.group_name}",
-                            perspective = $@"default",
-                            feature_value = tortuosity1.distance_of_curve
-                        };
-                        feats.Add(x5);
-
-                        // average displacement length (local)
-                        var tortuosity2_displacements_encoded = descriptive_stats.encode(tortuosity2.displacement_stat_values);
-                        var x6 = tortuosity2_displacements_encoded.Select(a => new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_displacement_3d_local" + $@"_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-                        feats.AddRange(x6);
-
-                        // average curve length (local)
-                        var tortuosity2_curves_encoded = descriptive_stats.encode(tortuosity2.curve_stat_values);
-                        var x7 = tortuosity2_curves_encoded.Select(a => new feature_info()
-                        {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = $@"geometry",
-                            source = source.ToString(),
-                            @group = $@"geometry_{sq.name}_peptide_length_3d_local_{alphabet.name}",
-                            member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-                        feats.AddRange(x7);
-
-                        //if (sq.name.StartsWith("pdb_unsplit"))
-                        //{
-                        //    pdb_unsplit_features = feats;
-                        //}
-                        //
-                        //else if (sq.name.StartsWith("unsplit"))
-                        //{
-                        //    // todo: fix problem, pdb_unsplit_features is empty
-                        //
-                        //    var rel_feats = feats.Select((a, i) => new feature_info(a)
-                        //    {
-                        //        @group = a.@group.Replace($"geometry_{sq.name}", $"geometry_rel_{sq.name}"),
-                        //        feature_value = pdb_unsplit_features[i].feature_value != 0 ? a.feature_value / pdb_unsplit_features[i].feature_value : 0
-                        //    }).ToList();
-                        //
-                        //    feats.AddRange(rel_feats);
-                        //}
+                            var tortuosity2 = atom.measure_tortuosity2(sq.sequence);
 
 
+                            // tortuosity 1
+
+                            var x0 = new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_tortuosity1_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_default_{alphabet_group.group_name}",
+                                perspective = $@"default",
+                                feature_value = tortuosity1.tortuosity1
+                            };
+                            feats.Add(x0);
+
+                            // tortuosity 2
+                            var tortuosity2_tortuosity_stat_values_encoded =
+                                descriptive_stats.encode(tortuosity2.tortuosity_stat_values);
+                            var x1 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_tortuosity2_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
+                                perspective = a.perspective_id,
+                                feature_value = a.perspective_value
+                            }).ToList();
+                            feats.AddRange(x1);
+
+                            // tort 1 and tort 2
+
+                            var x2 = new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_{nameof(tortuosity1)}_{alphabet_group.group_name}",
+                                perspective = $@"default",
+                                feature_value = tortuosity1.tortuosity1
+                            };
+                            feats.Add(x2);
+
+                            var x3 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
+                                perspective = a.perspective_id,
+                                feature_value = a.perspective_value
+                            }).ToList();
+                            feats.AddRange(x3);
+
+                            // displacement length (global)
+                            var x4 = new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_displacement_3d_global_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_default_{alphabet_group.group_name}",
+                                perspective = $@"default",
+                                feature_value = tortuosity1.displacement
+                            };
+                            feats.Add(x4);
+
+                            // curve length (global)
+                            var x5 = new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_peptide_length_3d_global_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_default_{alphabet_group.group_name}",
+                                perspective = $@"default",
+                                feature_value = tortuosity1.distance_of_curve
+                            };
+                            feats.Add(x5);
+
+                            // average displacement length (local)
+                            var tortuosity2_displacements_encoded =
+                                descriptive_stats.encode(tortuosity2.displacement_stat_values);
+                            var x6 = tortuosity2_displacements_encoded.Select(a => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_displacement_3d_local_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
+                                perspective = a.perspective_id,
+                                feature_value = a.perspective_value
+                            }).ToList();
+                            feats.AddRange(x6);
+
+                            // average curve length (local)
+                            var tortuosity2_curves_encoded = descriptive_stats.encode(tortuosity2.curve_stat_values);
+                            var x7 = tortuosity2_curves_encoded.Select(a => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                dimension = 3,
+                                category = $@"geometry",
+                                source = source.ToString(),
+                                @group = $@"geometry_{sq.name}_peptide_length_3d_local_{atom_type}_{alphabet.name}",
+                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
+                                perspective = a.perspective_id,
+                                feature_value = a.perspective_value
+                            }).ToList();
+                            feats.AddRange(x7);
+
+                            //if (sq.name.StartsWith("pdb_unsplit"))
+                            //{
+                            //    pdb_unsplit_features = feats;
+                            //}
+                            //
+                            //else if (sq.name.StartsWith("unsplit"))
+                            //{
+                            //    // todo: fix problem, pdb_unsplit_features is empty
+                            //
+                            //    var rel_feats = feats.Select((a, i) => new feature_info(a)
+                            //    {
+                            //        @group = a.@group.Replace($"geometry_{sq.name}", $"geometry_rel_{sq.name}"),
+                            //        feature_value = pdb_unsplit_features[i].feature_value != 0 ? a.feature_value / pdb_unsplit_features[i].feature_value : 0
+                            //    }).ToList();
+                            //
+                            //    feats.AddRange(rel_feats);
+                            //}
+
+
+                        }
                     }
-                }
 
-                features.AddRange(feats);
+                    features.AddRange(feats);
+                }
             }
 
             if (calculate_tortuosity_classification_data_template == null)
@@ -2886,6 +2892,90 @@ namespace dimorphics_dataset
 
         }
 
+        public static List<feature_info> calculate_atom_distances_data_template;
+
+        public static List<feature_info> calculate_atom_distances_classification_data(subsequence_classification_data scd, List<atom> subsequence_atoms, protein_data_sources source)
+        {
+            // returns distance between unsplit/unsplit atom_type/atom_type alphabet_group/alphabet_group
+
+            if (subsequence_atoms == null || subsequence_atoms.Count == 0)
+            {
+                if (calculate_atom_distances_data_template == null) throw new Exception();
+
+                var template = calculate_atom_distances_data_template.Select(a => new feature_info(a)
+                {
+                    source = source.ToString(),
+                    feature_value = 0
+                }).ToList();
+
+                return template;
+            }
+            var features = new List<feature_info>();
+
+            // make average distance between different/same types of atoms
+            
+            // todo: alphabets & seq splits
+
+            var seqs = new List<(string name, List<atom> atoms)>();
+            seqs.Add(("unsplit", subsequence_atoms));
+            seqs.AddRange(feature_calcs.split_sequence(subsequence_atoms).Select(a => ("split", a)).ToList());
+
+            for (var i = 0; i < feature_calcs.atom_type_pairs.Length; i++)
+            {
+                var ap = feature_calcs.atom_type_pairs[i];
+
+                foreach (var sq in seqs)
+                {
+                    var atoms1 = ap.atom_type1 == "*" ? sq.atoms : sq.atoms.Where(a => a.atom_type == ap.atom_type1).ToList();
+                    var atoms2 = ap.atom_type2 == "*" ? sq.atoms : (ap.atom_type1 == ap.atom_type2 ? atoms1 : sq.atoms.Where(a => a.atom_type == ap.atom_type2).ToList());
+
+                    var distances = atoms1.SelectMany((a, k) =>
+                        atoms2.Where((b, j) => k < j).Select(b => (atom1: a, atom2: b, distance: atom.Distance3D(a, b)))
+                            .ToArray()).ToArray();
+
+                    foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
+                    {
+                        foreach (var alphabet_group1 in alphabet.groups)
+                        {
+                            foreach (var alphabet_group2 in alphabet.groups)
+                            {
+                                var dist = distances
+                                    .Where(a => alphabet_group1.group_amino_acids.Contains(a.atom1.amino_acid) &&
+                                                alphabet_group2.group_amino_acids.Contains(a.atom2.amino_acid))
+                                    .Select(a => a.distance).ToArray();
+
+                                var distances_ds = descriptive_stats.get_stat_values(dist, $@"{sq.name}_{ap.atom_type1}_{ap.atom_type2}_{alphabet.name}_{alphabet_group1.group_name}_{alphabet_group2.group_name}");
+                                var distances_ds_e = descriptive_stats.encode(distances_ds);
+
+                                var distances_ds_e_f = distances_ds_e.Select(a => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    dimension = 3,
+                                    source = source.ToString(),
+                                    category = $@"atom_distances",
+                                    @group = $@"atom_dist_{sq.name}_{ap.atom_type1}_{ap.atom_type2}_{alphabet.name}",
+                                    member = $@"{a.member_id}",
+                                    perspective = $@"{a.perspective_id}",
+                                    feature_value = a.perspective_value
+                                }).ToList();
+
+                                features.AddRange(distances_ds_e_f);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            if (calculate_atom_distances_data_template == null)
+            {
+                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                calculate_atom_distances_data_template = template;
+            }
+
+            return features;
+        }
+
 
         public static List<feature_info> calculate_intramolecular_classification_data_template = null;
         public static List<feature_info> calculate_intramolecular_classification_data(List<atom> subsequence_master_atoms, protein_data_sources source)
@@ -2931,7 +3021,7 @@ namespace dimorphics_dataset
                     category = "geometry",
 
                     source = source.ToString(),
-                    group = "geometry_" + nameof(intramolecular_contact_distance),
+                    group = $"geometry_{nameof(intramolecular_contact_distance)}",
                     member = a.member_id,
                     perspective = a.perspective_id,
                     feature_value = a.perspective_value
@@ -3030,6 +3120,7 @@ namespace dimorphics_dataset
         public static int total_sasa_classification_data = -1;
         public static int total_tortuosity_classification_data = -1;
         public static int total_intramolecular_classification_data = -1;
+        public static int total_atom_distance_classification_data = -1;
         public static int total_aa_aa_distances_classification_data = -1;
 
         public static int total_subsequence_3d_classification_data = -1;
@@ -3102,6 +3193,7 @@ namespace dimorphics_dataset
             public bool sasa_classification_data = false;
             public bool tortuosity_classification_data = false;
             public bool intramolecular_classification_data = false;
+            public bool atom_distance_classification_data = false;
             public bool aa_aa_distances = false;
 
             public feature_types_3d()
@@ -3117,6 +3209,7 @@ namespace dimorphics_dataset
                 sasa_classification_data = enable;
                 tortuosity_classification_data = enable;
                 intramolecular_classification_data = enable;
+                atom_distance_classification_data = enable;
                 aa_aa_distances = enable;
             }
 
@@ -3130,6 +3223,7 @@ namespace dimorphics_dataset
                     ( nameof(sasa_classification_data         ),  sasa_classification_data              ) ,
                     ( nameof(tortuosity_classification_data         ),  tortuosity_classification_data             ) ,
                     ( nameof(intramolecular_classification_data         ),  intramolecular_classification_data              ) ,
+                    ( nameof(atom_distance_classification_data         ),  atom_distance_classification_data              ) ,
                     ( nameof(aa_aa_distances         ),  aa_aa_distances               ) ,
                 };
 
@@ -3532,12 +3626,12 @@ namespace dimorphics_dataset
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\peptides_server")), Path.GetFileName(this_exe).Replace("dimorphics_dataset","peptides_server"));
-//#if DEBUG
-//            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Debug\netcoreapp3.1\peptides_server.exe";
-//#else
-//            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.exe";
-//#endif
+            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\peptides_server")), Path.GetFileName(this_exe).Replace("dimorphics_dataset", "peptides_server"));
+            //#if DEBUG
+            //            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Debug\netcoreapp3.1\peptides_server.exe";
+            //#else
+            //            var exe = @"C:\dimorphics_dataset\peptides_server\bin\x64\Release\netcoreapp3.1\peptides_server.exe";
+            //#endif
 
             //var psi = new ProcessStartInfo()
             //{
@@ -3802,7 +3896,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var tortuosity_classification_data = calculate_tortuosity_classification_data(scd, subsequence_master_atoms, source);
+                        var tortuosity_classification_data = calculate_tortuosity_classification_data(scd, scd.subsequence_atoms, source);
 
 
                         if (!check_headers(tortuosity_classification_data))
@@ -3852,6 +3946,34 @@ namespace dimorphics_dataset
                         }
 
                         return intramolecular_classification_data;
+                    });
+                    tasks.Add(task);
+                }
+
+                if (feature_types_3d.atom_distance_classification_data)
+                {
+                    var task = Task.Run(() =>
+                    {
+                        var atom_distance_classification_data = calculate_atom_distances_classification_data(scd, scd.subsequence_atoms, source);
+
+                        if (!check_headers(atom_distance_classification_data))
+                        {
+                            throw new Exception("duplicate headers");
+                        }
+
+                        if (max_features > 0)
+                        {
+                            atom_distance_classification_data = atom_distance_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        }
+
+                        if (check_num_features_consistency)
+                        {
+                            var total_atom_distance_classification_data = atom_distance_classification_data?.Count ?? -1;
+                            if (total_atom_distance_classification_data > -1 && subsequence_classification_data.total_atom_distance_classification_data > -1 && subsequence_classification_data.total_atom_distance_classification_data != total_atom_distance_classification_data) throw new Exception();
+                            if (total_atom_distance_classification_data > -1) subsequence_classification_data.total_atom_distance_classification_data = total_atom_distance_classification_data;
+                        }
+
+                        return atom_distance_classification_data;
                     });
                     tasks.Add(task);
                 }
@@ -4108,6 +4230,7 @@ namespace dimorphics_dataset
 
         public static List<feature_info> calculate_aa_or_ss_sequence_classification_data_aa_template = null;
         public static List<feature_info> calculate_aa_or_ss_sequence_classification_data_ss_template = null;
+        
 
         public static List<feature_info> calculate_aa_or_ss_sequence_classification_data(protein_data_sources source, string category_prefix, string group_prefix, string sequence, seq_type seq_type, pse_aac_options pse_aac_options)
         {
@@ -4646,7 +4769,7 @@ namespace dimorphics_dataset
 
             var tasks = new List<Task>();
 
-            if (feature_types.feature_types_subsequence_1d != null && feature_types.feature_types_subsequence_1d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_subsequence_1d != null && feature_types.feature_types_subsequence_1d.AsArray().Any(a => a.value))
             {
                 var task = Task.Run(() =>
                 {
@@ -4667,7 +4790,7 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types.feature_types_neighbourhood_1d != null && feature_types.feature_types_neighbourhood_1d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_neighbourhood_1d != null && feature_types.feature_types_neighbourhood_1d.AsArray().Any(a => a.value))
             {
                 var task = Task.Run(() =>
                 {
@@ -4698,7 +4821,7 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types.feature_types_protein_1d != null && feature_types.feature_types_protein_1d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_protein_1d != null && feature_types.feature_types_protein_1d.AsArray().Any(a => a.value))
             {
                 var task = Task.Run(() =>
                 {
@@ -4729,7 +4852,7 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types.feature_types_subsequence_3d != null && feature_types.feature_types_subsequence_3d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_subsequence_3d != null && feature_types.feature_types_subsequence_3d.AsArray().Any(a => a.value))
             {
                 var task = Task.Run(() =>
                 {
@@ -4752,9 +4875,9 @@ namespace dimorphics_dataset
 
             }
 
-            if (feature_types.feature_types_neighbourhood_3d != null && feature_types.feature_types_neighbourhood_3d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_neighbourhood_3d != null && feature_types.feature_types_neighbourhood_3d.AsArray().Any(a => a.value))
             {
-                
+
                 var task = Task.Run(() =>
                 {
                     if (scd.neighbourhood_3d == null)
@@ -4785,7 +4908,7 @@ namespace dimorphics_dataset
 
             }
 
-            if (feature_types.feature_types_protein_3d != null && feature_types.feature_types_protein_3d.AsArray().Any(a=>a.value))
+            if (feature_types.feature_types_protein_3d != null && feature_types.feature_types_protein_3d.AsArray().Any(a => a.value))
             {
                 var task = Task.Run(() =>
                 {
@@ -4793,7 +4916,7 @@ namespace dimorphics_dataset
                     {
                         scd.protein_3d = atom.get_intramolecular_protein_3d(scd);
                     }
-                    
+
                     if (scd.protein_3d.subsequence_atoms.Count == 0)
                     {
                         io.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data");

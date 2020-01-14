@@ -24,7 +24,7 @@ namespace peptides_server
                 lock (_key_lock)
                 {
                     _key++;
-                    return $"{id}_{_key}";
+                    return $@"{nameof(r_peptides)}_{id}_{_key}";
                 }
             }
         }
@@ -56,17 +56,16 @@ namespace peptides_server
             if (need_init)
             {
                 need_init = false;
+                
                 var r_init_cmds = $@"
-            #install.packages(""devtools"", repos=""http://cran.us.r-project.org"")
-            #install.packages(""devtools"")
-            #library(devtools)
-            #install_github(""dosorio/Peptides"")
-            #sink(""NULL"")
-            library(Peptides)
-            if (!exists(""AAdata"")) data(AAdata)
-            ";
+                    #install.packages(""devtools"")
+                    #library(devtools)
+                    #install_github(""https://github.com/dosorio/Peptides"")
+                    library(Peptides)
+                    if (!exists(""AAdata"")) data(AAdata)
+                ";
+                
                 r_init_cmds.Split(new char[] {'\r', '\n'}).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#")).ToList().ForEach(a => engine1.Evaluate(a));
-
             }
 
             return engine1;

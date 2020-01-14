@@ -1037,35 +1037,56 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<atom> select_amino_acid_master_atoms(string pdb_id, List<atom> atoms)
+        public static List<atom> select_amino_acid_master_atoms(string pdb_id, List<atom> atoms, string atom_type = null)
         {
+            // if null, default to CA or first available in N, C, O, CB.
+
             if (atoms == null || atoms.Count == 0) return atoms;
 
-            atoms = atoms.Where(a => pdb_id == null || string.Equals(pdb_id, a.pdb_id, StringComparison.InvariantCultureIgnoreCase)).Distinct().ToList();
-
-            atoms = atoms.OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code).ToList();
-
-            atoms = atoms.GroupBy(atom => (atom.pdb_id, atom.chain_id, atom.residue_index /*, atom.i_code*/)).Select(grouped_atoms =>
+            if (!string.IsNullOrWhiteSpace(pdb_id))
             {
-                var ca = grouped_atoms.FirstOrDefault(b => b.atom_type == "CA");
-                if (ca != null) return ca;
+                atoms = atoms.Where(a => /*pdb_id == null || */string.Equals(pdb_id, a.pdb_id, StringComparison.InvariantCultureIgnoreCase)).Distinct().ToList();
+            }
 
-                var n = grouped_atoms.FirstOrDefault(b => b.atom_type == "N");
-                if (n != null) return n;
+            var master_atoms = atoms.OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code)
+            //    .ToList();
+            //atoms = atoms
+                
+            .GroupBy(atom => (atom.pdb_id, atom.chain_id, atom.residue_index /*, atom.i_code*/))
+                .Select(grouped_atoms =>
+                {
+                    if (!string.IsNullOrWhiteSpace(atom_type))
+                    {
+                        var rq = grouped_atoms.FirstOrDefault(b => b.atom_type == atom_type);
+                        
+                        return rq; // return rq, even if null, as if does not exist, do not want replacement/substitute atom
+                    }
 
-                var c = grouped_atoms.FirstOrDefault(b => b.atom_type == "C");
-                if (c != null) return c;
+                    if (grouped_atoms.Count() == 1)
+                    {
+                        return grouped_atoms.First();
+                    }
 
-                var o = grouped_atoms.FirstOrDefault(b => b.atom_type == "O");
-                if (o != null) return o;
+                    var ca = grouped_atoms.FirstOrDefault(b => b.atom_type == "CA");
+                    if (ca != null) return ca;
 
-                var cb = grouped_atoms.FirstOrDefault(b => b.atom_type == "CB");
-                if (cb != null) return cb;
+                    var n = grouped_atoms.FirstOrDefault(b => b.atom_type == "N");
+                    if (n != null) return n;
 
-                return grouped_atoms.FirstOrDefault(atom => atom != null);
-            }).ToList();
+                    var c = grouped_atoms.FirstOrDefault(b => b.atom_type == "C");
+                    if (c != null) return c;
 
-            return atoms;
+                    var o = grouped_atoms.FirstOrDefault(b => b.atom_type == "O");
+                    if (o != null) return o;
+
+                    var cb = grouped_atoms.FirstOrDefault(b => b.atom_type == "CB");
+                    if (cb != null) return cb;
+
+                    return grouped_atoms.FirstOrDefault(atom => atom != null);
+                }).Where(a => a != null).ToList();
+       
+            
+            return master_atoms;
         }
 
         public static List<atom> select_amino_acid_master_atoms_ignore_chain(string pdb_id, List<atom> atoms)
@@ -1521,6 +1542,11 @@ namespace dimorphics_dataset
             }
         }
 
+        public static double Distance3D(atom atom1, atom atom2)
+        {
+            return Distance3D(atom1.X, atom1.Y, atom1.Z, atom2.X, atom2.Y, atom2.Z);
+        }
+
         public static double Distance3D(double x0, double y0, double z0, double x1, double y1, double z1)
         {
             return (double) Math.Sqrt((double) (((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0)) + ((z1 - z0) * (z1 - z0))));
@@ -1561,7 +1587,7 @@ namespace dimorphics_dataset
             if (atoms == null || atoms.Count <= 1) return (0, 0, 0);
 
 
-            atoms = select_amino_acid_master_atoms(null, atoms);
+            atoms = select_amino_acid_master_atoms(null, atoms); // note: atoms parameter should already be passed as master atoms
 
             var distance_of_curve = measure_atomic_curve_distance(atoms);
 

@@ -5,21 +5,27 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
     public static class program
     {
+        // todo: tortuosity for NH, Protein. tort for CA, CB, NH, other types of atoms.
+        // todo: average distance between AAs in interface, NH, Protein.
+        // todo: distance between different types of atoms...
+        // todo: protr
+
         public static string data_root_folder = $@"C:\betastrands_dataset\";
 
-        public class class_info
-        {
-            public int class_id;
-            public substructure_type substructure_type;
-            public int min_subsequence_length;
-            public string class_name;
-        }
+        //public class class_info
+        //{
+        //    public int class_id;
+        //    public substructure_type substructure_type;
+        //    public int min_subsequence_length;
+        //    public string class_name;
+        //}
 
         public static List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> get_dataset_pdb_id_list(string class_name_in_file = "Single")
         {
@@ -337,6 +343,29 @@ namespace dimorphics_dataset
 
             var pdb_id_list = get_dataset_pdb_id_list();
 
+            var atom_types = pdb_id_list.Select(a => a.pdb_id).Distinct().Select(a => atom.load_atoms_pdb(a,
+                new atom.load_atoms_pdb_options()
+                {
+                    load_rsa_data = false,
+                    load_dssp_data = false,
+                    load_iup_data = false,
+                    load_blast_pssms = false,
+                    find_intramolecular = false,
+                    load_ala_scan = false,
+                    select_first_icode = false,
+                    load_stride_data = false,
+                    load_sable = false,
+                    load_ring_data = false,
+                    load_mpsa_sec_struct_predictions = false,
+                    find_intermolecular = false,
+                    load_dna_binding_vars = false,
+                    first_model_only = false
+                })).SelectMany(a => a.SelectMany(b => b.pdb_model_chain_atoms.Select(c => c.atom_type).ToList()).ToList()).ToList();
+            var atom_types_count = atom_types.Distinct().Select(a => (type: a, count: atom_types.Count(b => b == a))).Select(a=> (type:a.type, count:a.count, pct: (double)a.count / (double)atom_types.Count))
+                .OrderByDescending(a => a.Item2).ToList();
+            
+            atom_types_count.ForEach(a=> io.WriteLine($"{a.type} {a.count} {a.pct:0.00}"));
+
             pdb_id_list = pdb_id_list.Take(3).ToList();
 
             // 1. find subsequence details from analysis of pdb files
@@ -367,6 +396,7 @@ namespace dimorphics_dataset
 
             psi_list = psi_list.Where(a => a.aa_subsequence.Length >= min_subsequence_length).ToList();
 
+            
             // 2. load available data sources
             io.WriteLine($@"{class_id} {class_name}: 2. Loading available data...", nameof(program), nameof(Main));
             
