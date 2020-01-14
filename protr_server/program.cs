@@ -6,7 +6,6 @@ namespace protr_server
 {
     public static class program
     {
-
         public static void Test()
         {
             var x = r_protr.get_values("AAAALLLLYYYYYY", 1);
@@ -28,12 +27,12 @@ namespace protr_server
 
         public static void Main(string[] args)
         {
-            // tested and working with R 3.4.4
-
-            //Test();
-            //return;
-
+#if DEBUG
+            args = new string[] {"0", "AAA"};
+#endif
+            
             var call_count = int.Parse(args[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
+            
             var sequence = args[1];
 
             var x = r_protr.get_values(sequence, call_count);
@@ -43,8 +42,6 @@ namespace protr_server
             var z = subsequence_classification_data.feature_info_container.serialise_json(y);
 
             Console.Write(z);
-
-            //Console.ReadLine();
         }
     }
 }

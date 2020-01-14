@@ -106,7 +106,8 @@ namespace peptides_server
                     }
 
 
-                    var aaComp_result = aaComp(engine, seq); // OAAC
+                    //var aaComp_result = aaComp(engine, seq); // OAAC
+
                     //var aaDescriptors_result = aaDescriptors(seq); // variable length feature
 
                     //var lengthpep_result = lengthpep(seq);
