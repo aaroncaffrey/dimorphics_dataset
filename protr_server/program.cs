@@ -28,7 +28,7 @@ namespace protr_server
         public static void Main(string[] args)
         {
 #if DEBUG
-            args = new string[] {"0", "AAA"};
+            args = new string[] {"0", "AAAA"};
 #endif
             
             var call_count = int.Parse(args[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
