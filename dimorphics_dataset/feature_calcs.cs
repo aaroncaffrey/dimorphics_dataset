@@ -299,7 +299,7 @@ namespace dimorphics_dataset
         }
 
         public static
-            List<(int alphabet_id, string alphabet_name, named_double[][] motifs, named_double[][] motifs_binary, named_double[] oaac, named_double[] oaac_binary, named_double[] average_seq_positions, named_double[][] dipeptides, named_double[][] dipeptides_binary, named_double[] average_dipeptide_distance)> feature_pse_aac(string seq, seq_type seq_type, pse_aac_options pse_aac_options, bool sqrt, bool as_dist)
+            List<(int alphabet_id, string alphabet_name, named_double[][] motifs, named_double[][] motifs_binary, named_double[] oaac, named_double[] oaac_binary, named_double[] average_seq_positions, named_double[][] dipeptides, named_double[][] dipeptides_binary, named_double[] average_dipeptide_distance)> feature_pse_aac(string seq, enum_seq_type seq_type, pse_aac_options pse_aac_options, bool sqrt, bool as_dist)
         {
             // number of distinct amino acids in sequence
             // number of continuous group amino acids
@@ -310,7 +310,7 @@ namespace dimorphics_dataset
             // 3. Amino Acid Order Distance (What is the average distance between A and B?)
             // 4. Amino Acid Average Position (What is the average % position of each amino acid within the sequence)?
             // 5. motifs of length 1, 2 or 3
-            var alphabets = seq_type == seq_type.amino_acid_sequence ? aa_alphabets : ss_alphabets;
+            var alphabets = seq_type == enum_seq_type.amino_acid_sequence ? aa_alphabets : ss_alphabets;
 
             //var seq_split = split_sequence(seq);
 

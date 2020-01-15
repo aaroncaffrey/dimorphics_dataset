@@ -296,7 +296,7 @@ namespace dimorphics_dataset
 
      
 
-        public static double[] pssm_to_vector1(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_all = false)
+        public static double[] pssm_to_vector1(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_all = false)
         {
             var x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Select(a => a.score).ToArray();
 
@@ -306,11 +306,11 @@ namespace dimorphics_dataset
             //var sum = scores.Sum();
             //var average = scores.Average();
 
-            if (pssm_value_type == pssm_value_types.distances)
+            if (pssm_value_type == enum_pssm_value_type.distances)
             {
                 x = distances(x, normalise_all);
             }
-            else if (pssm_value_type == pssm_value_types.intervals)
+            else if (pssm_value_type == enum_pssm_value_type.intervals)
             {
                 x = intervals(x, normalise_all);
             }
@@ -318,7 +318,7 @@ namespace dimorphics_dataset
             return x; //(scores, sum, average);
         }
 
-        public static List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm_to_vector20col(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm_to_vector20col(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
@@ -342,11 +342,11 @@ namespace dimorphics_dataset
                     if (x == null || x.Length == 0) x = new[] { 0d };
 
 
-                    if (pssm_value_type == pssm_value_types.distances)
+                    if (pssm_value_type == enum_pssm_value_type.distances)
                     {
                         x = distances(x, normalise_col);
                     }
-                    else if (pssm_value_type == pssm_value_types.intervals)
+                    else if (pssm_value_type == enum_pssm_value_type.intervals)
                     {
                         x = intervals(x, normalise_col);
                     }
@@ -372,7 +372,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm_to_vector20col_DT(List<pssm_entry> pssm, int max_lag, pssm_value_types pssm_value_type, bool normalise_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm_to_vector20col_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
@@ -435,11 +435,11 @@ namespace dimorphics_dataset
 
                             if (x == null || x.Length == 0) x = new[] {0d};
 
-                            if (pssm_value_type == pssm_value_types.distances)
+                            if (pssm_value_type == enum_pssm_value_type.distances)
                             {
                                 x = distances(x, normalise_col);
                             }
-                            else if (pssm_value_type == pssm_value_types.intervals)
+                            else if (pssm_value_type == enum_pssm_value_type.intervals)
                             {
                                 x = intervals(x, normalise_col);
                             }
@@ -475,7 +475,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm_to_vector20row(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_row = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm_to_vector20row(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row = false, bool normalise_all = false)
         {
             // join all rows with the same amino acid, calculate average
             // note: it doesn't make sense to have DT for 20row
@@ -498,11 +498,11 @@ namespace dimorphics_dataset
                     if (normalise_row) x = normalise_array(x);
                     if (x == null || x.Length == 0) x = new[] { 0d };
 
-                    if (pssm_value_type == pssm_value_types.distances)
+                    if (pssm_value_type == enum_pssm_value_type.distances)
                     {
                         x = distances(x, normalise_row);
                     }
-                    else if (pssm_value_type == pssm_value_types.intervals)
+                    else if (pssm_value_type == enum_pssm_value_type.intervals)
                     {
                         x = intervals(x, normalise_row);
                     }
@@ -529,7 +529,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
@@ -555,11 +555,11 @@ namespace dimorphics_dataset
                         if (x == null || x.Length == 0) x = new[] { 0d };
 
 
-                        if (pssm_value_type == pssm_value_types.distances)
+                        if (pssm_value_type == enum_pssm_value_type.distances)
                         {
                             x = distances(x, normalise_row_col);
                         }
-                        else if (pssm_value_type == pssm_value_types.intervals)
+                        else if (pssm_value_type == enum_pssm_value_type.intervals)
                         {
                             x = intervals(x, normalise_row_col);
                         }
@@ -585,7 +585,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<pssm_entry> pssm, int max_lag, pssm_value_types pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
@@ -636,11 +636,11 @@ namespace dimorphics_dataset
 
                                 if (x == null || x.Length == 0) x = new[] {0d};
 
-                                if (pssm_value_type == pssm_value_types.distances)
+                                if (pssm_value_type == enum_pssm_value_type.distances)
                                 {
                                     x = distances(x, normalise_row_col);
                                 }
-                                else if (pssm_value_type == pssm_value_types.intervals)
+                                else if (pssm_value_type == enum_pssm_value_type.intervals)
                                 {
                                     x = intervals(x, normalise_row_col);
                                 }
@@ -676,7 +676,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<pssm_entry> pssm, pssm_value_types pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
@@ -704,11 +704,11 @@ namespace dimorphics_dataset
                         if (x == null || x.Length == 0) x = new[] {0d};
 
 
-                        if (pssm_value_type == pssm_value_types.distances)
+                        if (pssm_value_type == enum_pssm_value_type.distances)
                         {
                             x = distances(x, normalise_row_col);
                         }
-                        else if (pssm_value_type == pssm_value_types.intervals)
+                        else if (pssm_value_type == enum_pssm_value_type.intervals)
                         {
                             x = intervals(x, normalise_row_col);
                         }
@@ -735,7 +735,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<pssm_entry> pssm, int max_lag, pssm_value_types pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        public static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
@@ -782,11 +782,11 @@ namespace dimorphics_dataset
                                 if (x == null || x.Length == 0) x = new[] {0d};
 
 
-                                if (pssm_value_type == pssm_value_types.distances)
+                                if (pssm_value_type == enum_pssm_value_type.distances)
                                 {
                                     x = distances(x, normalise_row_col);
                                 }
-                                else if (pssm_value_type == pssm_value_types.intervals)
+                                else if (pssm_value_type == enum_pssm_value_type.intervals)
                                 {
                                     x = intervals(x, normalise_row_col);
                                 }

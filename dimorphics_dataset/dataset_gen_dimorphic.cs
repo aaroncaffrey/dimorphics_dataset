@@ -8,7 +8,7 @@ namespace dimorphics_dataset
 {
     public class dataset_gen_dimorphic
     {
-        public static List<protein_subsequence_info> run_dhc_dataset_maker(substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
+        public static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
         {
             var class_name_in_file = "";
             var include_host_coil = false;
@@ -16,35 +16,35 @@ namespace dimorphics_dataset
 
             switch (strand_type)
             {
-                case substructure_type.dimorphic:
+                case enum_substructure_type.dimorphic:
                     class_name_in_file = "Single";
                     break;
 
-                case substructure_type.dimorphic_coil:
+                case enum_substructure_type.dimorphic_coil:
                     class_name_in_file = "Single";
                     include_host_coil = true;
                     break;
 
-                case substructure_type.standard_strand:
+                case enum_substructure_type.standard_strand:
                     class_name_in_file = "Multiple";
                     break;
 
-                case substructure_type.standard_strand_coil:
+                case enum_substructure_type.standard_strand_coil:
                     class_name_in_file = "Multiple";
                     include_host_coil = true;
                     break;
 
-                case substructure_type.dimorphic_full_protein_sequence:
+                case enum_substructure_type.dimorphic_full_protein_sequence:
                     class_name_in_file = "Single";
                     full_protein_seq = true;
                     break;
 
-                case substructure_type.standard_strand_full_protein_sequence:
+                case enum_substructure_type.standard_strand_full_protein_sequence:
                     class_name_in_file = "Multiple";
                     full_protein_seq = true;
                     break;
 
-                case substructure_type.standard_coil:
+                case enum_substructure_type.standard_coil:
                     throw new Exception();
 
                 default:
@@ -366,7 +366,7 @@ namespace dimorphics_dataset
             //    subsequence_master_atoms = shc_subsequence_master_atoms,
             //};
 
-            //var fx = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, protein_data_sources.subsequence_3d);
+            //var fx = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, enum_protein_data_source.subsequence_3d);
             //scd.foldx_energy_differences = fx;
 
             //return scd;

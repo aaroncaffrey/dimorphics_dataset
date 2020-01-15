@@ -1254,7 +1254,7 @@ namespace dimorphics_dataset
                     average_dipeptide_distance = true,
                 };
 
-                var ps = subsequence_classification_data.protein_data_sources.neighbourhood_1d;
+                var ps = subsequence_classification_data.enum_protein_data_source.neighbourhood_1d;
                 var category_prefix = new string('S', i);
                 var group_prefix = new string('S', i);
                 var aa_subsequence = new string('S', i);

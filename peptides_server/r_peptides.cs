@@ -9,9 +9,6 @@ namespace peptides_server
     public static class r_peptides
     {
         public static readonly object engine_lock = new object();
-
-        //public static REngine engine = null;//init_r();
-
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
 
@@ -28,11 +25,6 @@ namespace peptides_server
                 }
             }
         }
-
-        //public r_peptides()
-        //{
-        //    engine = init_r();
-        //}
 
         private static bool need_init = true;
 
@@ -71,31 +63,23 @@ namespace peptides_server
             return engine1;
         }
 
-        public static List<subsequence_classification_data.feature_info> calculate_r_peptides_classification_data_template = null;
-
+        public static List<subsequence_classification_data.feature_info> template_get_values = null;
 
         public static object get_values_lock = new object();
 
-        public static List<subsequence_classification_data.feature_info> get_values(string seq, int id) //List<(string name, double value)>
+        public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
             lock (get_values_lock)
             {
                 r_peptides.id = id;
 
-//#if DEBUG
-                ////if (program.verbose_debug) Program.WriteLine($"{nameof(get_values)}(string seq);");
-//#endif
-
                 var engine = init_r();
                 {
-
-
-
-                    if (string.IsNullOrWhiteSpace(seq))
+                    if (string.IsNullOrWhiteSpace(sequence))
                     {
-                        if (calculate_r_peptides_classification_data_template != null)
+                        if (template_get_values != null)
                         {
-                            var template = calculate_r_peptides_classification_data_template.Select(a => new subsequence_classification_data.feature_info(a) {source = "", feature_value = 0}).ToList();
+                            var template = template_get_values.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
 
                             return template;
                         }
@@ -105,65 +89,46 @@ namespace peptides_server
                         }
                     }
 
-
-                    //var aaComp_result = aaComp(engine, seq); // OAAC
-
-                    //var aaDescriptors_result = aaDescriptors(seq); // variable length feature
-
-                    //var lengthpep_result = lengthpep(seq);
-
-                    var aIndex_result = aIndex(engine, seq);
-
                     var lag_start = 1;
                     var lag_end = 1;
-
                     var ph_start = 0;
                     var ph_end = 14;
 
-                    var autoCorrelation_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCorrelation(engine, seq, c, b, true))).ToList()).ToList();
-                    var autoCovariance_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCovariance(engine, seq, c, b, true))).ToList()).ToList();
+                    //var aaComp_result = aaComp(engine, seq); // OAAC
+                    //var aaDescriptors_result = aaDescriptors(seq); // variable length feature
+                    //var lengthpep_result = lengthpep(seq);
 
-                    var blosumIndices_result = blosumIndices(engine, seq);
+                    var aIndex_result = aIndex(engine, sequence);
+                    var autoCorrelation_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCorrelation(engine, sequence, c, b, true))).ToList()).ToList();
+                    var autoCovariance_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCovariance(engine, sequence, c, b, true))).ToList()).ToList();
+                    var blosumIndices_result = blosumIndices(engine, sequence);
                     blosumIndices_result.Add((-1, "Average", blosumIndices_result.Average(a => a.value)));
-
-                    var boman_result = boman(engine, seq);
-                    var charge_result_list = pKscales.SelectMany(a => Enumerable.Range(ph_start, (ph_end - ph_start) + 1).Select(b => (ph: b, scale: a, value: charge(engine, seq, b, a))).ToList()).ToList();
+                    var boman_result = boman(engine, sequence);
+                    var charge_result_list = pKscales.SelectMany(a => Enumerable.Range(ph_start, (ph_end - ph_start) + 1).Select(b => (ph: b, scale: a, value: charge(engine, sequence, b, a))).ToList()).ToList();
                     charge_result_list.AddRange(charge_result_list.GroupBy(a => a.scale).Select(a => (ph: -1, scale: $"{a.Key}_average", value: a.Select(b => b.value).Average())).ToList());
-
-                    var crossCovariance_result_list = autoCorrelation_properties.SelectMany(a => autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop1: a, prop2: b, lag: c, value: crossCovariance(engine, seq, c, a, b, true))).ToList()).ToList()).ToList();
-
-                    var crucianiProperties_result = crucianiProperties(engine, seq); //3
-                    var fasgaiVectors_result = fasgaiVectors(engine, seq); //6
-                    var hmoment_result = hmoment(engine, seq);
-
-                    var hydrophobicity_result_list = hydrophobicity_scales.Select(a => (scale: a, value: hydrophobicity(engine, seq, a))).ToList();
-
-
-                    var instaIndex_result = instaIndex(engine, seq);
-                    var kideraFactors_result = kideraFactors(engine, seq); //10
-
-                    List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)> membpos_result = membpos(engine, seq);
+                    var crossCovariance_result_list = autoCorrelation_properties.SelectMany(a => autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop1: a, prop2: b, lag: c, value: crossCovariance(engine, sequence, c, a, b, true))).ToList()).ToList()).ToList();
+                    var crucianiProperties_result = crucianiProperties(engine, sequence); //3
+                    var fasgaiVectors_result = fasgaiVectors(engine, sequence); //6
+                    var hmoment_result = hmoment(engine, sequence);
+                    var hydrophobicity_result_list = hydrophobicity_scales.Select(a => (scale: a, value: hydrophobicity(engine, sequence, a))).ToList();
+                    var instaIndex_result = instaIndex(engine, sequence);
+                    var kideraFactors_result = kideraFactors(engine, sequence); //10
+                    List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)> membpos_result = membpos(engine, sequence);
                     membpos_result.Add((row: -1, Pwp: "", H: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.H), uH: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.uH), MembPosValue: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.MembPosValue), MembPos: ""));
-
-
-                    var mswhimScores_result = mswhimScores(engine, seq); //3
-                    var mw_result = mw(engine, seq);
-                    var pI_result = pI(engine, seq);
-                    var protFP_result = protFP(engine, seq); //8
-                    var stScales_result = stScales(engine, seq); //8
-                    var tScales_result = tScales(engine, seq); //5
-                    var vhseScales_result = vhseScales(engine, seq); //8
-                    var zScales_result = zScales(engine, seq); //5
-
+                    var mswhimScores_result = mswhimScores(engine, sequence); //3
+                    var mw_result = mw(engine, sequence);
+                    var pI_result = pI(engine, sequence);
+                    var protFP_result = protFP(engine, sequence); //8
+                    var stScales_result = stScales(engine, sequence); //8
+                    var tScales_result = tScales(engine, sequence); //5
+                    var vhseScales_result = vhseScales(engine, sequence); //8
+                    var zScales_result = zScales(engine, sequence); //5
 
                     var features = new List<subsequence_classification_data.feature_info>();
 
-                    var source = "";
-                    var alpha_name = "Overall";
-
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -175,7 +140,7 @@ namespace peptides_server
 
                     autoCorrelation_result_list.ForEach(autoCorrelation_result => features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -187,7 +152,7 @@ namespace peptides_server
 
                     autoCovariance_result_list.ForEach(autoCovariance_result => features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -199,7 +164,7 @@ namespace peptides_server
 
                     features.AddRange(blosumIndices_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -211,7 +176,7 @@ namespace peptides_server
 
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -223,7 +188,7 @@ namespace peptides_server
 
                     charge_result_list.ForEach(charge_result => features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -235,7 +200,7 @@ namespace peptides_server
 
                     crossCovariance_result_list.ForEach(crossCovariance_result => features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -247,7 +212,7 @@ namespace peptides_server
 
                     features.AddRange(crucianiProperties_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -259,7 +224,7 @@ namespace peptides_server
 
                     features.AddRange(fasgaiVectors_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -271,7 +236,7 @@ namespace peptides_server
 
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -283,7 +248,7 @@ namespace peptides_server
 
                     hydrophobicity_result_list.ForEach(hydrophobicity_result => features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -295,7 +260,7 @@ namespace peptides_server
 
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -307,7 +272,7 @@ namespace peptides_server
 
                     features.AddRange(kideraFactors_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -332,7 +297,7 @@ namespace peptides_server
 
                     features.AddRange(mswhimScores_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -344,7 +309,7 @@ namespace peptides_server
 
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -356,7 +321,7 @@ namespace peptides_server
 
                     features.Add(new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -368,7 +333,7 @@ namespace peptides_server
 
                     features.AddRange(protFP_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -380,7 +345,7 @@ namespace peptides_server
 
                     features.AddRange(stScales_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -392,7 +357,7 @@ namespace peptides_server
 
                     features.AddRange(tScales_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -404,7 +369,7 @@ namespace peptides_server
 
                     features.AddRange(vhseScales_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -416,7 +381,7 @@ namespace peptides_server
 
                     features.AddRange(zScales_result.Select(a => new subsequence_classification_data.feature_info()
                     {
-                        alphabet = alpha_name,
+                        alphabet = alphabet_name,
                         dimension = 1,
                         category = $"{nameof(r_peptides)}",
                         source = source,
@@ -427,11 +392,8 @@ namespace peptides_server
                     }).ToList());
 
 
-
-
                     //Console.WriteLine($"{nameof(aaComp_result)} = {string.Join(",", aaComp_result)}");
                     //Console.WriteLine($"{nameof(aaDescriptors_result)} = {string.Join(",", aaDescriptors_result)}");
-
                     //Console.WriteLine($"{nameof(aIndex_result)} = {string.Join(",", aIndex_result)}");
                     //Console.WriteLine($"{nameof(autoCorrelation_result)} = {string.Join(",", autoCorrelation_result)}");
                     //Console.WriteLine($"{nameof(autoCovariance_result)} = {string.Join(",", autoCovariance_result)}");
@@ -457,13 +419,11 @@ namespace peptides_server
                     //Console.WriteLine($"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
                     //Console.WriteLine("");
 
-                    if (calculate_r_peptides_classification_data_template == null)
+                    if (template_get_values == null)
                     {
-                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) {source = "", feature_value = 0}).ToList();
-                        calculate_r_peptides_classification_data_template = template;
+                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = "", source = "", feature_value = 0}).ToList();
+                        template_get_values = template;
                     }
-
-
 
                     return features;
                 }

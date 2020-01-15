@@ -40,7 +40,7 @@ namespace dimorphics_dataset
 
         private static object file_write_lock = new object();
 
-        public static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, protein_data_sources source, bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
+        public static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, enum_protein_data_source source, bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");

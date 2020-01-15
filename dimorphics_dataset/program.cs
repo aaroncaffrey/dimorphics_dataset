@@ -131,7 +131,7 @@ namespace dimorphics_dataset
                 protein_3d = null
             };
 
-            scd.foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, protein_data_sources.subsequence_3d);
+            scd.foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, enum_protein_data_source.subsequence_3d);
 
             if (feature_types.feature_types_neighbourhood_1d != null &&
                 feature_types.feature_types_neighbourhood_1d.AsArray().Any(a => a.value))
@@ -272,7 +272,8 @@ namespace dimorphics_dataset
                     sable_classification_data = do_2d_interface,
                     dna_binding_prediction_data = false, //must be false - protein level only
                     blast_pssm_subsequence_classification_data = do_2d_interface,
-                    r_peptides = do_2d_interface
+                    r_peptides = do_2d_interface,
+                    r_protr = do_2d_interface,
                 },
                 feature_types_neighbourhood_1d = !do_2d_nh ? null : new subsequence_classification_data.feature_types_1d()
                 {
@@ -285,6 +286,7 @@ namespace dimorphics_dataset
                     dna_binding_prediction_data = false, //must be false - protein level only
                     blast_pssm_subsequence_classification_data = do_2d_nh,
                     r_peptides = do_2d_nh,
+                    r_protr = do_2d_nh,
                 },
                 feature_types_protein_1d = !do_2d_protein ? null : new subsequence_classification_data.feature_types_1d()
                 {
@@ -297,6 +299,7 @@ namespace dimorphics_dataset
                     dna_binding_prediction_data = do_2d_protein,
                     blast_pssm_subsequence_classification_data = do_2d_protein,
                     r_peptides = do_2d_protein,
+                    r_protr = do_2d_protein,
                 },
                 feature_types_subsequence_3d = !do_3d_interface ? null : new subsequence_classification_data.feature_types_3d()
                 {
@@ -307,6 +310,7 @@ namespace dimorphics_dataset
                     tortuosity_classification_data = do_3d_interface,
                     ring_classification_data = do_3d_interface,
                     pse_ssc_dssp_classification_data = do_3d_interface,
+                    atom_distance_classification_data = do_3d_interface,
                 },
                 feature_types_neighbourhood_3d = !do_3d_nh ? null : new subsequence_classification_data.feature_types_3d()
                 {
@@ -317,6 +321,7 @@ namespace dimorphics_dataset
                     tortuosity_classification_data = do_3d_nh,
                     ring_classification_data = do_3d_nh,
                     pse_ssc_dssp_classification_data = do_3d_nh,
+                    atom_distance_classification_data =  do_3d_nh,
                 },
                 feature_types_protein_3d = !do_3d_protein ? null : new subsequence_classification_data.feature_types_3d()
                 {
@@ -327,6 +332,7 @@ namespace dimorphics_dataset
                     tortuosity_classification_data = do_3d_protein,
                     ring_classification_data = do_3d_protein,
                     pse_ssc_dssp_classification_data = do_3d_protein,
+                    atom_distance_classification_data = do_3d_protein,
                 }
             };
 

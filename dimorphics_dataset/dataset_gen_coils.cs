@@ -124,7 +124,7 @@ namespace dimorphics_dataset
                                 //    subsequence_atoms = coil_subsequence_atoms,
                                 //    subsequence_master_atoms = coil_subsequence_master_atoms,
                                 //};
-                                //var fx = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, protein_data_sources.subsequence_3d);
+                                //var fx = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, enum_protein_data_source.subsequence_3d);
                                 //scd.foldx_energy_differences = fx;
                                 //
                                 //pdb_chain_coils.Add(scd);

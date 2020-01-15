@@ -66,37 +66,30 @@ namespace protr_server
                     library(protr)
                 ";
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#")).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
         }
 
-        public static List<subsequence_classification_data.feature_info> calculate_r_protr_classification_data_template = null;
+        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
 
 
-        public static object get_values_lock = new object();
+        private static object get_values_lock = new object();
 
-        public static List<subsequence_classification_data.feature_info> get_values(string seq, int id) //List<(string name, double value)>
+        public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
             lock (get_values_lock)
             {
                 r_protr.id = id;
 
-                //#if DEBUG
-                ////if (program.verbose_debug) Program.WriteLine($"{nameof(get_values)}(string seq);");
-                //#endif
-
                 var engine = init_r();
                 {
-
-
-
-                    if (string.IsNullOrWhiteSpace(seq))
+                    if (string.IsNullOrWhiteSpace(sequence))
                     {
-                        if (calculate_r_protr_classification_data_template != null)
+                        if (_template_get_values != null)
                         {
-                            var template = calculate_r_protr_classification_data_template.Select(a => new subsequence_classification_data.feature_info(a) { source = "", feature_value = 0 }).ToList();
+                            var template = _template_get_values.Select(a => new subsequence_classification_data.feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
 
                             return template;
                         }
@@ -106,48 +99,41 @@ namespace protr_server
                         }
                     }
 
-                    var ret_extractAPAAC = extractAPAAC(engine, seq);
-                    var ret_extractBLOSUM = extractBLOSUM(engine, seq);
-                    var ret_extractCTDC = extractCTDC(engine, seq);
-                    var ret_extractCTDD = extractCTDD(engine, seq);
-                    var ret_extractCTDT = extractCTDT(engine, seq);
-                    var ret_extractCTriad = extractCTriad(engine, seq);
-                    var ret_extractCTriadClass = extractCTriadClass(engine, seq);
-                    var ret_extractDC = extractDC(engine, seq);
-                    var ret_extractDescScales = extractDescScales(engine, seq);
-                    var ret_extractFAScales = extractFAScales(engine, seq);
-                    var ret_extractGeary = extractGeary(engine, seq);
-                    var ret_extractMDSScales = extractMDSScales(engine, seq);
-                    var ret_extractMoran = extractMoran(engine, seq);
-                    var ret_extractMoreauBroto = extractMoreauBroto(engine, seq);
-                    var ret_extractPAAC = extractPAAC(engine, seq);
-                    var ret_extractProtFP = extractProtFP(engine, seq);
-                    var ret_extractProtFPGap = extractProtFPGap(engine, seq);
-                    var ret_extractQSO = extractQSO(engine, seq);
-                    var ret_extractSOCN = extractSOCN(engine, seq);
-                    var ret_extractScales = extractScales(engine, seq);
-                    var ret_extractScalesGap = extractScalesGap(engine, seq);
-                    var ret_extractTC = extractTC(engine, seq);
-
-
-
-
-
-
-
+                    var ret_extractAPAAC = extractAPAAC(engine, sequence);
+                    var ret_extractBLOSUM = extractBLOSUM(engine, sequence);
+                    var ret_extractCTDC = extractCTDC(engine, sequence);
+                    var ret_extractCTDD = extractCTDD(engine, sequence);
+                    var ret_extractCTDT = extractCTDT(engine, sequence);
+                    var ret_extractCTriad = extractCTriad(engine, sequence);
+                    var ret_extractCTriadClass = extractCTriadClass(engine, sequence);
+                    var ret_extractDC = extractDC(engine, sequence);
+                    var ret_extractDescScales = extractDescScales(engine, sequence);
+                    var ret_extractFAScales = extractFAScales(engine, sequence);
+                    var ret_extractGeary = extractGeary(engine, sequence);
+                    var ret_extractMDSScales = extractMDSScales(engine, sequence);
+                    var ret_extractMoran = extractMoran(engine, sequence);
+                    var ret_extractMoreauBroto = extractMoreauBroto(engine, sequence);
+                    var ret_extractPAAC = extractPAAC(engine, sequence);
+                    var ret_extractProtFP = extractProtFP(engine, sequence);
+                    var ret_extractProtFPGap = extractProtFPGap(engine, sequence);
+                    var ret_extractQSO = extractQSO(engine, sequence);
+                    var ret_extractSOCN = extractSOCN(engine, sequence);
+                    var ret_extractScales = extractScales(engine, sequence);
+                    var ret_extractScalesGap = extractScalesGap(engine, sequence);
+                    var ret_extractTC = extractTC(engine, sequence);
 
 
                     var features = new List<subsequence_classification_data.feature_info>();
-                    var source = "";
-                    var alpha_name = "Overall";
 
 
 
 
-                    if (calculate_r_protr_classification_data_template == null)
+
+
+                    if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) { source = "", feature_value = 0 }).ToList();
-                        calculate_r_protr_classification_data_template = template;
+                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
+                        _template_get_values = template;
                     }
 
                     return features;
@@ -156,16 +142,17 @@ namespace protr_server
         }
 
 
-        public static List<(string name, int lambda, double value)> template_extractAPAAC = null;
+        private static List<(string name, int lambda, double value)> template_extractAPAAC = null;
+
         public static List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
         {
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lambda_first), lambda_first.ToString()),
-                (nameof(lambda_last), lambda_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lambda_last), lambda_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -207,7 +194,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, string submat, int k, int lag, double value)> template_extractBLOSUM = null;
+        private static List<(string name, string submat, int k, int lag, double value)> template_extractBLOSUM = null;
 
         public static List<(string name, string submat, int k, int lag, double value)> extractBLOSUM(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -215,9 +202,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -276,7 +263,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, double value)> template_extractCTDC = null;
+        private static List<(string name, double value)> template_extractCTDC = null;
 
         public static List<(string name, double value)> extractCTDC(REngine engine, string x)
         {
@@ -284,7 +271,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -323,14 +310,14 @@ namespace protr_server
         }
 
 
-        public static List<(string name, double value)> temlate_extractCTDD = null;
+        private static List<(string name, double value)> temlate_extractCTDD = null;
         public static List<(string name, double value)> extractCTDD(REngine engine, string x)
         {
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -371,7 +358,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, double value)> temlate_extractCTDT = null;
+        private static List<(string name, double value)> temlate_extractCTDT = null;
 
         public static List<(string name, double value)> extractCTDT(REngine engine, string x)
         {
@@ -379,7 +366,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -417,7 +404,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, double value)> temlate_extractCTriad = null;
+        private static List<(string name, double value)> temlate_extractCTriad = null;
 
         public static List<(string name, double value)> extractCTriad(REngine engine, string x)
         {
@@ -425,7 +412,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -463,7 +450,7 @@ namespace protr_server
             }
         }
 
-        public static List<(string name, double value)> temlate_extractCTriadClass = null;
+        private static List<(string name, double value)> temlate_extractCTriadClass = null;
 
 
         public static List<(string name, double value)> extractCTriadClass(REngine engine, string x)
@@ -472,7 +459,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -513,7 +500,7 @@ namespace protr_server
             }
         }
 
-        public static List<(string name, double value)> temlate_extractDC = null;
+        private static List<(string name, double value)> temlate_extractDC = null;
 
         public static List<(string name, double value)> extractDC(REngine engine, string x)
         {
@@ -521,7 +508,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -560,7 +547,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> template_extractDescScales = null;
+        private static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> template_extractDescScales = null;
 
         public static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> extractDescScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -568,9 +555,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -653,7 +640,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> template_extractFAScales = null;
+        private static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> template_extractFAScales = null;
 
         public static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> extractFAScales(REngine engine, string x, int lag_first = 1, int lag_last = 2, int factors_first = 5, int factors_last = 5)
         {
@@ -661,11 +648,11 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
-                (nameof(factors_first), factors_first.ToString()),
-                (nameof(factors_last), factors_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
+                (nameof(factors_first), factors_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(factors_last), factors_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -748,7 +735,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int nlag, double value)> template_extractGeary = null;
+        private static List<(string name, int nlag, double value)> _template_extractGeary = null;
 
         public static List<(string name, int nlag, double value)> extractGeary(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
@@ -756,9 +743,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(nlag_first), nlag_first.ToString()),
-                (nameof(nlag_last), nlag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -790,13 +777,13 @@ namespace protr_server
                         (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
-                if (template_extractGeary == null && (list != null && list.Count > 0))
+                if (_template_extractGeary == null && (list != null && list.Count > 0))
                 {
-                    template_extractGeary = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
+                    _template_extractGeary = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
                 }
-                else if (template_extractGeary != null && (list == null || list.Count == 0))
+                else if (_template_extractGeary != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractGeary;
+                    list = _template_extractGeary;
                 }
 
                 return list;
@@ -804,7 +791,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> template_extractMDSScales = null;
+        private static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> _template_extractMDSScales = null;
 
         public static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> extractMDSScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -812,9 +799,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -861,13 +848,13 @@ namespace protr_server
                     }
                 }
 
-                if (template_extractMDSScales == null && (list != null && list.Count > 0))
+                if (_template_extractMDSScales == null && (list != null && list.Count > 0))
                 {
-                    template_extractMDSScales = list.Select(a => (name: a.name, k: a.k, lag:a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b=> 0d).ToArray(), value: 0d)).ToList();
+                    _template_extractMDSScales = list.Select(a => (name: a.name, k: a.k, lag:a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b=> 0d).ToArray(), value: 0d)).ToList();
                 }
-                else if (template_extractMDSScales != null && (list == null || list.Count == 0))
+                else if (_template_extractMDSScales != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractMDSScales;
+                    list = _template_extractMDSScales;
                 }
 
                 return list;
@@ -875,7 +862,7 @@ namespace protr_server
         }
 
 
-        public static List<(string name, int nlag, double value)> template_extractMoran = null;
+        private static List<(string name, int nlag, double value)> _template_extractMoran = null;
 
         public static List<(string name, int nlag, double value)> extractMoran(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
@@ -883,9 +870,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(nlag_first), nlag_first.ToString()),
-                (nameof(nlag_last), nlag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -919,13 +906,13 @@ namespace protr_server
                         (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
-                if (template_extractMoran == null && (list != null && list.Count > 0))
+                if (_template_extractMoran == null && (list != null && list.Count > 0))
                 {
-                    template_extractMoran = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
+                    _template_extractMoran = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
                 }
-                else if (template_extractMoran != null && (list == null || list.Count == 0))
+                else if (_template_extractMoran != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractMoran;
+                    list = _template_extractMoran;
                 }
 
                 return list;
@@ -934,7 +921,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int nlag, double value)> template_extractMoreauBroto = null;
+        private static List<(string name, int nlag, double value)> _template_extractMoreauBroto = null;
 
         public static List<(string name, int nlag, double value)> extractMoreauBroto(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
@@ -942,9 +929,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(nlag_first), nlag_first.ToString()),
-                (nameof(nlag_last), nlag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -979,13 +966,13 @@ namespace protr_server
                         (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
-                if (template_extractMoreauBroto == null && (list != null && list.Count > 0))
+                if (_template_extractMoreauBroto == null && (list != null && list.Count > 0))
                 {
-                    template_extractMoreauBroto = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
+                    _template_extractMoreauBroto = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
                 }
-                else if (template_extractMoreauBroto != null && (list == null || list.Count == 0))
+                else if (_template_extractMoreauBroto != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractMoreauBroto;
+                    list = _template_extractMoreauBroto;
                 }
 
                 return list;
@@ -994,7 +981,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int lambda, double w, double value)> template_extractPAAC = null;
+        private static List<(string name, int lambda, double w, double value)> _template_extractPAAC = null;
 
         public static List<(string name, int lambda, double w, double value)> extractPAAC(REngine engine, string x, int lambda_first = 1, int lamda_last = 2, double w = 0.5)
         {
@@ -1002,10 +989,10 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lambda_first), lambda_first.ToString()),
-                (nameof(lamda_last), lamda_last.ToString()),
-                (nameof(w), w.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lamda_last), lamda_last.ToString(CultureInfo.InvariantCulture)),
+                (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1036,13 +1023,13 @@ namespace protr_server
                     list.AddRange(names.Select((a, i) => (name: a, lambda: lambda, w: w, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
-                if (template_extractPAAC == null && (list != null && list.Count > 0))
+                if (_template_extractPAAC == null && (list != null && list.Count > 0))
                 {
-                    template_extractPAAC = list.Select(a => (name: a.name, lambda:a.lambda, w:a.w, value: 0d)).ToList();
+                    _template_extractPAAC = list.Select(a => (name: a.name, lambda:a.lambda, w:a.w, value: 0d)).ToList();
                 }
-                else if (template_extractPAAC != null && (list == null || list.Count == 0))
+                else if (_template_extractPAAC != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractPAAC;
+                    list = _template_extractPAAC;
                 }
 
                 return list;
@@ -1057,7 +1044,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1072,7 +1059,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1087,7 +1074,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1098,7 +1085,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> template_extractProtFP = null;
+        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFP = null;
 
         public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFP(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -1106,9 +1093,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1165,13 +1152,13 @@ namespace protr_server
                 }
 
 
-                if (template_extractProtFP == null && (list != null && list.Count > 0))
+                if (_template_extractProtFP == null && (list != null && list.Count > 0))
                 {
-                    template_extractProtFP = list.Select(a => (name: a.name, lag: a.lag, pc:a.pc, pca_list:a.pca_list.Select(b=>(row_name:b.row_name, col_name:b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractProtFP = list.Select(a => (name: a.name, lag: a.lag, pc:a.pc, pca_list:a.pca_list.Select(b=>(row_name:b.row_name, col_name:b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
-                else if (template_extractProtFP != null && (list == null || list.Count == 0))
+                else if (_template_extractProtFP != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractProtFP;
+                    list = _template_extractProtFP;
                 }
 
                 return list;
@@ -1180,7 +1167,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> template_extractProtFPGap = null;
+        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFPGap = null;
 
         public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFPGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -1188,9 +1175,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1246,13 +1233,13 @@ namespace protr_server
                     }
                 }
 
-                if (template_extractProtFPGap == null && (list != null && list.Count > 0))
+                if (_template_extractProtFPGap == null && (list != null && list.Count > 0))
                 {
-                    template_extractProtFPGap = list.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractProtFPGap = list.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
-                else if (template_extractProtFPGap != null && (list == null || list.Count == 0))
+                else if (_template_extractProtFPGap != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractProtFPGap;
+                    list = _template_extractProtFPGap;
                 }
 
                 return list;
@@ -1261,7 +1248,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int nlag, double w, double value)> template_extractQSO = null;
+        private static List<(string name, int nlag, double w, double value)> _template_extractQSO = null;
 
         public static List<(string name, int nlag, double w, double value)> extractQSO(REngine engine, string x, int nlag_first = 1, int nlag_last = 2, double w = 0.1)
         {
@@ -1269,10 +1256,10 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(nlag_first), nlag_first.ToString()),
-                (nameof(nlag_last), nlag_last.ToString()),
-                (nameof(w), w.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
+                (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1298,13 +1285,13 @@ namespace protr_server
                 }
 
 
-                if (template_extractQSO == null && (list != null && list.Count > 0))
+                if (_template_extractQSO == null && (list != null && list.Count > 0))
                 {
-                    template_extractQSO = list.Select(a => (name: a.name, nlag: a.nlag, w:a.w, value: 0d)).ToList();
+                    _template_extractQSO = list.Select(a => (name: a.name, nlag: a.nlag, w:a.w, value: 0d)).ToList();
                 }
-                else if (template_extractQSO != null && (list == null || list.Count == 0))
+                else if (_template_extractQSO != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractQSO;
+                    list = _template_extractQSO;
                 }
 
                 return list;
@@ -1313,7 +1300,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int nlag, double value)> template_extractSOCN = null;
+        private static List<(string name, int nlag, double value)> _template_extractSOCN = null;
 
         public static List<(string name, int nlag, double value)> extractSOCN(REngine engine, string x, int nlag_first = 1, int nlag_last = 2)
         {
@@ -1321,9 +1308,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(nlag_first), nlag_first.ToString()),
-                (nameof(nlag_last), nlag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1348,13 +1335,13 @@ namespace protr_server
                     list.AddRange(names.Select((a, i) => (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
-                if (template_extractSOCN == null && (list != null && list.Count > 0))
+                if (_template_extractSOCN == null && (list != null && list.Count > 0))
                 {
-                    template_extractSOCN = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
+                    _template_extractSOCN = list.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
                 }
-                else if (template_extractSOCN != null && (list == null || list.Count == 0))
+                else if (_template_extractSOCN != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractSOCN;
+                    list = _template_extractSOCN;
                 }
 
                 return list;
@@ -1365,7 +1352,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> template_extractScales = null;
+        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScales = null;
 
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -1373,9 +1360,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1436,13 +1423,13 @@ namespace protr_server
                     }
                 }
 
-                if (template_extractScales == null && (list != null && list.Count > 0))
+                if (_template_extractScales == null && (list != null && list.Count > 0))
                 {
-                    template_extractScales = list.Select(a => (name: a.name, pc:a.pc,lag:a.lag,pca_list:a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractScales = list.Select(a => (name: a.name, pc:a.pc,lag:a.lag,pca_list:a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
-                else if (template_extractScales != null && (list == null || list.Count == 0))
+                else if (_template_extractScales != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractScales;
+                    list = _template_extractScales;
                 }
 
                 return list;
@@ -1451,7 +1438,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> template_extractScalesGap = null;
+        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScalesGap = null;
 
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScalesGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
@@ -1459,9 +1446,9 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
-                (nameof(lag_first), lag_first.ToString()),
-                (nameof(lag_last), lag_last.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
+                (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
@@ -1522,13 +1509,13 @@ namespace protr_server
                     }
                 }
 
-                if (template_extractScalesGap == null && (list != null && list.Count > 0))
+                if (_template_extractScalesGap == null && (list != null && list.Count > 0))
                 {
-                    template_extractScalesGap = list.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractScalesGap = list.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
-                else if (template_extractScalesGap != null && (list == null || list.Count == 0))
+                else if (_template_extractScalesGap != null && (list == null || list.Count == 0))
                 {
-                    list = template_extractScalesGap;
+                    list = _template_extractScalesGap;
                 }
 
 
@@ -1539,7 +1526,7 @@ namespace protr_server
 
 
 
-        public static List<(string name, double value)> template_extractTC = null;
+        private static List<(string name, double value)> template_extractTC = null;
 
         public static List<(string name, double value)> extractTC(REngine engine, string x)
         {
@@ -1547,7 +1534,7 @@ namespace protr_server
             var args = new List<(string key, string value)>()
             {
                 (nameof(engine), engine.ToString()),
-                (nameof(x), x.ToString()),
+                (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif

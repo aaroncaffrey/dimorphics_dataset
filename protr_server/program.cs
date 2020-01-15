@@ -1,26 +1,40 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using dimorphics_dataset;
 
 namespace protr_server
 {
     public static class program
     {
+        private static Random random = new Random();
+        public static string random_peptide(int length)
+        {
+            const string chars = "ACDEFGHIKLMNPQRSTVWY";
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
         public static void Test()
         {
-            var x = r_protr.get_values("AAAALLLLYYYYYY", 1);
-
-            foreach (var a in x)
+            for (var length = 3; length <= 10; length++)
             {
-                Console.WriteLine(a);
+                var peptide = random_peptide(length);
+
+                var x = r_protr.get_values(0, "", "", peptide);
+
+                foreach (var a in x)
+                {
+                    Console.WriteLine(a);
+                }
+
+
+                var y = new subsequence_classification_data.feature_info_container {feautre_info_list = x};
+
+                var s = subsequence_classification_data.feature_info_container.serialise_json(y);
+
+                var d = subsequence_classification_data.feature_info_container.deserialise(s);
+
             }
-
-
-            var y = new subsequence_classification_data.feature_info_container { feautre_info_list = x };
-
-            var s = subsequence_classification_data.feature_info_container.serialise_json(y);
-
-            var d = subsequence_classification_data.feature_info_container.deserialise(s);
 
             Console.ReadKey();
         }
@@ -28,14 +42,16 @@ namespace protr_server
         public static void Main(string[] args)
         {
 #if DEBUG
-            args = new string[] {"0", "AAAA"};
+            //Test();
 #endif
-            
-            var call_count = int.Parse(args[0], NumberStyles.Integer, CultureInfo.InvariantCulture);
-            
-            var sequence = args[1];
+            var arg_index = 0;
 
-            var x = r_protr.get_values(sequence, call_count);
+            var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var alphabet_name = args[arg_index++];
+            var source_name = args[arg_index++];
+            var sequence = args[arg_index++];
+
+            var x = r_protr.get_values(call_count, source_name, alphabet_name, sequence);
 
             var y = new subsequence_classification_data.feature_info_container {feautre_info_list = x};
 
