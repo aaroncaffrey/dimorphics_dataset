@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Net;
+using System.Reflection;
 using dimorphics_dataset;
 using RDotNet;
 
@@ -11,13 +12,11 @@ namespace protr_server
     public static class r_protr
     {
         public static readonly object engine_lock = new object();
-
-        //public static REngine engine = null;//init_r();
-
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
-
-        private static int id;
+        private static int _id;
+        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
+        private static readonly object _get_values_lock = new object();
 
         public static string Key
         {
@@ -26,34 +25,20 @@ namespace protr_server
                 lock (_key_lock)
                 {
                     _key++;
-                    return $"{nameof(r_protr)}_{id}_{_key}";
+                    return $"{nameof(r_protr)}_{_id}_{_key}";
                 }
             }
         }
-
-        //public r_peptides()
-        //{
-        //    engine = init_r();
-        //}
 
         private static bool need_init = true;
 
         public static REngine init_r()
         {
-
             StartupParameter rinit = new StartupParameter();
-
             rinit.Quiet = true;
             rinit.Interactive = false;
-
-            //rinit.RHome = $@"C:\Program Files\R\R-3.4.4\";
             rinit.RHome = $@"C:\Program Files\R\R-3.6.2\";
-
-            //REngine.SetEnvironmentVariables();
-
-            //C:\Program Files\R\R-3.6.2
-            //var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.4.4\bin\x64\R.dll", true, rinit);
-            var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.6.2\bin\x64\R.dll", true, rinit);
+            var engine1 = REngine.GetInstance(Path.Combine(rinit.RHome, $@"bin\x64\R.dll"), true, rinit);
 
             if (need_init)
             {
@@ -72,16 +57,11 @@ namespace protr_server
             return engine1;
         }
 
-        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
-
-
-        private static object get_values_lock = new object();
-
         public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
-            lock (get_values_lock)
+            lock (_get_values_lock)
             {
-                r_protr.id = id;
+                r_protr._id = id;
 
                 var engine = init_r();
                 {
@@ -120,15 +100,290 @@ namespace protr_server
                     var ret_extractSOCN = extractSOCN(engine, sequence);
                     var ret_extractScales = extractScales(engine, sequence);
                     var ret_extractScalesGap = extractScalesGap(engine, sequence);
-                    var ret_extractTC = extractTC(engine, sequence);
+                    //var ret_extractTC                                     =  extractTC(engine, sequence); // 800 features
 
 
                     var features = new List<subsequence_classification_data.feature_info>();
 
 
 
+                    var ret_extractAPAAC_f = ret_extractAPAAC.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractAPAAC)}_{a.lambda}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
 
+                    var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractBLOSUM)}_{a.submat}_{a.k}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
 
+                    var ret_extractCTDC_f = ret_extractCTDC.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractCTDC)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractCTDD_f = ret_extractCTDD.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractCTDD)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractCTDT_f = ret_extractCTDT.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractCTDT)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractCTriad_f = ret_extractCTriad.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractCTriad)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractCTriadClass)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractDC_f = ret_extractDC.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractDC)}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractDescScales_f = ret_extractDescScales.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractDescScales)}_{a.propmat}_{a.pc}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractFAScales_f = ret_extractFAScales.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractFAScales)}_{a.factors}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractGeary_f = ret_extractGeary.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractGeary)}_{a.nlag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractMDSScales_f = ret_extractMDSScales.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractMDSScales)}_{a.k}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractMoran_f = ret_extractMoran.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractMoran)}_{a.nlag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractMoreauBroto)}_{a.nlag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractPAAC_f = ret_extractPAAC.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractPAAC)}_{a.lambda}_{a.w}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractProtFP_f = ret_extractProtFP.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractProtFP)}_{a.pc}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractProtFPGap)}_{a.pc}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractQSO_f = ret_extractQSO.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractQSO)}_{a.nlag}_{a.w}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractSOCN_f = ret_extractSOCN.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractSOCN)}_{a.nlag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractScales_f = ret_extractScales.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractScales)}_{a.pc}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    var ret_extractScalesGap_f = ret_extractScalesGap.Select(a => new subsequence_classification_data.feature_info()
+                    {
+                        alphabet = alphabet_name,
+                        dimension = 1,
+                        category = $@"{nameof(r_protr)}",
+                        source = source,
+                        @group = $@"{nameof(extractScalesGap)}_{a.pc}_{a.lag}_{alphabet_name}",
+                        member = $@"{a.name}",
+                        perspective = $@"default",
+                        feature_value = a.value
+                    }).ToList();
+
+                    // todo: replace '.'s in names
+
+                    features.AddRange(ret_extractAPAAC_f);
+                    features.AddRange(ret_extractBLOSUM_f);
+                    features.AddRange(ret_extractCTDC_f);
+                    features.AddRange(ret_extractCTDD_f);
+                    features.AddRange(ret_extractCTDT_f);
+                    features.AddRange(ret_extractCTriad_f);
+                    features.AddRange(ret_extractCTriadClass_f);
+                    features.AddRange(ret_extractDC_f);
+                    features.AddRange(ret_extractDescScales_f);
+                    features.AddRange(ret_extractFAScales_f);
+                    features.AddRange(ret_extractGeary_f);
+                    features.AddRange(ret_extractMDSScales_f);
+                    features.AddRange(ret_extractMoran_f);
+                    features.AddRange(ret_extractMoreauBroto_f);
+                    features.AddRange(ret_extractPAAC_f);
+                    features.AddRange(ret_extractProtFP_f);
+                    features.AddRange(ret_extractProtFPGap_f);
+                    features.AddRange(ret_extractQSO_f);
+                    features.AddRange(ret_extractSOCN_f);
+                    features.AddRange(ret_extractScales_f);
+                    features.AddRange(ret_extractScalesGap_f);
+
+                    //features.ForEach(a=>Console.WriteLine(a.ToString()));
 
                     if (_template_get_values == null)
                     {
@@ -246,7 +501,7 @@ namespace protr_server
 
                             if (names.Length != values.Length) throw new Exception();
 
-                            list.AddRange(names.Select((a, i) => (name:a, submat: submat, k: k, lag: lag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
+                            list.AddRange(names.Select((a, i) => (name: a, submat: submat, k: k, lag: lag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                         }
                     }
                 }
@@ -646,7 +901,7 @@ namespace protr_server
 
                 if (template_extractDescScales == null && (list != null && list.Count > 0))
                 {
-                    template_extractDescScales = list.Select(a => (name: a.name, propmat: a.propmat, pc:a.pc, lag:a.lag,pca:a.pca.Select(b=>(b.row_name,b.col_name,0d)).ToList(), value: 0d)).ToList();
+                    template_extractDescScales = list.Select(a => (name: a.name, propmat: a.propmat, pc: a.pc, lag: a.lag, pca: a.pca.Select(b => (b.row_name, b.col_name, 0d)).ToList(), value: 0d)).ToList();
                 }
                 else if (template_extractDescScales != null && (list == null || list.Count == 0))
                 {
@@ -742,7 +997,7 @@ namespace protr_server
 
                 if (template_extractFAScales == null && (list != null && list.Count > 0))
                 {
-                    template_extractFAScales = list.Select(a => (name: a.name, factors: a.factors, lag: a.lag, factors_list:a.factors_list.Select(b=>(row_name:b.row_name,col_name:b.col_name,value:0d)).ToList(), chi_sq:0d, p_value:0d, value: 0d)).ToList();
+                    template_extractFAScales = list.Select(a => (name: a.name, factors: a.factors, lag: a.lag, factors_list: a.factors_list.Select(b => (row_name: b.row_name, col_name: b.col_name, value: 0d)).ToList(), chi_sq: 0d, p_value: 0d, value: 0d)).ToList();
                 }
                 else if (template_extractFAScales != null && (list == null || list.Count == 0))
                 {
@@ -874,7 +1129,7 @@ namespace protr_server
 
                 if (_template_extractMDSScales == null && (list != null && list.Count > 0))
                 {
-                    _template_extractMDSScales = list.Select(a => (name: a.name, k: a.k, lag:a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b=> 0d).ToArray(), value: 0d)).ToList();
+                    _template_extractMDSScales = list.Select(a => (name: a.name, k: a.k, lag: a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b => 0d).ToArray(), value: 0d)).ToList();
                 }
                 else if (_template_extractMDSScales != null && (list == null || list.Count == 0))
                 {
@@ -1055,7 +1310,7 @@ namespace protr_server
 
                 if (_template_extractPAAC == null && (list != null && list.Count > 0))
                 {
-                    _template_extractPAAC = list.Select(a => (name: a.name, lambda:a.lambda, w:a.w, value: 0d)).ToList();
+                    _template_extractPAAC = list.Select(a => (name: a.name, lambda: a.lambda, w: a.w, value: 0d)).ToList();
                 }
                 else if (_template_extractPAAC != null && (list == null || list.Count == 0))
                 {
@@ -1192,7 +1447,7 @@ namespace protr_server
 
                 if (_template_extractProtFP == null && (list != null && list.Count > 0))
                 {
-                    _template_extractProtFP = list.Select(a => (name: a.name, lag: a.lag, pc:a.pc, pca_list:a.pca_list.Select(b=>(row_name:b.row_name, col_name:b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractProtFP = list.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
                 else if (_template_extractProtFP != null && (list == null || list.Count == 0))
                 {
@@ -1327,7 +1582,7 @@ namespace protr_server
 
                 if (_template_extractQSO == null && (list != null && list.Count > 0))
                 {
-                    _template_extractQSO = list.Select(a => (name: a.name, nlag: a.nlag, w:a.w, value: 0d)).ToList();
+                    _template_extractQSO = list.Select(a => (name: a.name, nlag: a.nlag, w: a.w, value: 0d)).ToList();
                 }
                 else if (_template_extractQSO != null && (list == null || list.Count == 0))
                 {
@@ -1467,7 +1722,7 @@ namespace protr_server
 
                 if (_template_extractScales == null && (list != null && list.Count > 0))
                 {
-                    _template_extractScales = list.Select(a => (name: a.name, pc:a.pc,lag:a.lag,pca_list:a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                    _template_extractScales = list.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
                 else if (_template_extractScales != null && (list == null || list.Count == 0))
                 {

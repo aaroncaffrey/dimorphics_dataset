@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using dimorphics_dataset;
 using RDotNet;
@@ -12,8 +13,9 @@ namespace peptides_server
         public static readonly object engine_lock = new object();
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
-
-        private static int id;
+        private static int _id;
+        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
+        private static readonly object _get_values_lock = new object();
 
         public static string Key
         {
@@ -22,7 +24,7 @@ namespace peptides_server
                 lock (_key_lock)
                 {
                     _key++;
-                    return $@"{nameof(r_peptides)}_{id}_{_key}";
+                    return $@"{nameof(r_peptides)}_{_id}_{_key}";
                 }
             }
         }
@@ -31,20 +33,12 @@ namespace peptides_server
 
         public static REngine init_r()
         {
-
             StartupParameter rinit = new StartupParameter();
 
             rinit.Quiet = true;
             rinit.Interactive = false;
-
-            //rinit.RHome = $@"C:\Program Files\R\R-3.4.4\";
             rinit.RHome = $@"C:\Program Files\R\R-3.6.2\";
-
-            //REngine.SetEnvironmentVariables();
-
-            //C:\Program Files\R\R-3.6.2
-            //var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.4.4\bin\x64\R.dll", true, rinit);
-            var engine1 = REngine.GetInstance(@"C:\Program Files\R\R-3.6.2\bin\x64\R.dll", true, rinit);
+            var engine1 = REngine.GetInstance(Path.Combine(rinit.RHome, $@"bin\x64\R.dll"), true, rinit);
 
             if (need_init)
             {
@@ -64,15 +58,11 @@ namespace peptides_server
             return engine1;
         }
 
-        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
-
-        private static object _get_values_lock = new object();
-
         public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
             lock (_get_values_lock)
             {
-                r_peptides.id = id;
+                r_peptides._id = id;
 
                 var engine = init_r();
                 {

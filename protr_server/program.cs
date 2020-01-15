@@ -20,11 +20,12 @@ namespace protr_server
             {
                 var peptide = random_peptide(length);
 
-                var x = r_protr.get_values(0, "", "", peptide);
+                var x = r_protr.get_values(0, "datasource", "Overall", peptide);
 
+                Console.WriteLine("input size: " + length + ", output size: " + x.Count);
                 foreach (var a in x)
                 {
-                    Console.WriteLine(a);
+                    //Console.WriteLine(a);
                 }
 
 

@@ -1282,7 +1282,7 @@ namespace dimorphics_dataset
             return features;
         }
 
-        private static List<feature_info> calculate_sequence_geometry_classification_data_template = null;
+        private static List<feature_info> _calculate_sequence_geometry_classification_data_template = null;
         public static List<feature_info> calculate_sequence_geometry_classification_data(subsequence_classification_data scd, List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
@@ -1293,9 +1293,9 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (calculate_sequence_geometry_classification_data_template == null) throw new Exception();
+                if (_calculate_sequence_geometry_classification_data_template == null) throw new Exception();
 
-                var template = calculate_sequence_geometry_classification_data_template.Select(a => new feature_info(a)
+                var template = _calculate_sequence_geometry_classification_data_template.Select(a => new feature_info(a)
                 {
                     source = source.ToString(),
                     feature_value = 0
@@ -1505,9 +1505,9 @@ namespace dimorphics_dataset
 
             }
 
-            if (calculate_sequence_geometry_classification_data_template == null)
+            if (_calculate_sequence_geometry_classification_data_template == null)
             {
-                calculate_sequence_geometry_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                _calculate_sequence_geometry_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
 
 
