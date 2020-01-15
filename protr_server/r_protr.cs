@@ -17,7 +17,7 @@ namespace protr_server
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
 
-        public static int id;
+        private static int id;
 
         public static string Key
         {
@@ -146,10 +146,12 @@ namespace protr_server
 
         public static List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_last), lambda_last.ToString(CultureInfo.InvariantCulture)),
@@ -198,10 +200,12 @@ namespace protr_server
 
         public static List<(string name, string submat, int k, int lag, double value)> extractBLOSUM(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -267,10 +271,12 @@ namespace protr_server
 
         public static List<(string name, double value)> extractCTDC(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -313,10 +319,12 @@ namespace protr_server
         private static List<(string name, double value)> temlate_extractCTDD = null;
         public static List<(string name, double value)> extractCTDD(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -362,10 +370,12 @@ namespace protr_server
 
         public static List<(string name, double value)> extractCTDT(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -408,10 +418,12 @@ namespace protr_server
 
         public static List<(string name, double value)> extractCTriad(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -455,10 +467,12 @@ namespace protr_server
 
         public static List<(string name, double value)> extractCTriadClass(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -504,10 +518,12 @@ namespace protr_server
 
         public static List<(string name, double value)> extractDC(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -551,10 +567,12 @@ namespace protr_server
 
         public static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> extractDescScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -644,10 +662,12 @@ namespace protr_server
 
         public static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> extractFAScales(REngine engine, string x, int lag_first = 1, int lag_last = 2, int factors_first = 5, int factors_last = 5)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -739,10 +759,12 @@ namespace protr_server
 
         public static List<(string name, int nlag, double value)> extractGeary(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
@@ -795,10 +817,12 @@ namespace protr_server
 
         public static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> extractMDSScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -866,10 +890,12 @@ namespace protr_server
 
         public static List<(string name, int nlag, double value)> extractMoran(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
@@ -925,10 +951,12 @@ namespace protr_server
 
         public static List<(string name, int nlag, double value)> extractMoreauBroto(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
@@ -985,10 +1013,12 @@ namespace protr_server
 
         public static List<(string name, int lambda, double w, double value)> extractPAAC(REngine engine, string x, int lambda_first = 1, int lamda_last = 2, double w = 0.5)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lamda_last), lamda_last.ToString(CultureInfo.InvariantCulture)),
@@ -1040,10 +1070,12 @@ namespace protr_server
 
         public static void extractPSSM(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -1055,10 +1087,12 @@ namespace protr_server
 
         public static void extractPSSMAcc(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -1070,10 +1104,12 @@ namespace protr_server
 
         public static void extractPSSMFeature(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
@@ -1089,10 +1125,12 @@ namespace protr_server
 
         public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFP(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1171,10 +1209,11 @@ namespace protr_server
 
         public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFPGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1252,10 +1291,11 @@ namespace protr_server
 
         public static List<(string name, int nlag, double w, double value)> extractQSO(REngine engine, string x, int nlag_first = 1, int nlag_last = 2, double w = 0.1)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1304,10 +1344,11 @@ namespace protr_server
 
         public static List<(string name, int nlag, double value)> extractSOCN(REngine engine, string x, int nlag_first = 1, int nlag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1356,10 +1397,11 @@ namespace protr_server
 
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1442,10 +1484,11 @@ namespace protr_server
 
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScalesGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
@@ -1530,10 +1573,11 @@ namespace protr_server
 
         public static List<(string name, double value)> extractTC(REngine engine, string x)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine.ToString()),
+                (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
             Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");

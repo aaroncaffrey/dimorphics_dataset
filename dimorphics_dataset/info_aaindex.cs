@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class info_aaindex
+    public static class info_aaindex
     {
-        public static readonly List<info_aaindex.aaindex_entry> aaindex_entries = info_aaindex.Load();
+        public static readonly List<info_aaindex.info_aaindex_entry> aaindex_entries = info_aaindex.Load();
 
-        public class aaindex_entry
+        public class info_aaindex_entry
         {
-            public string H_Accession_Number;
-            public string D_Data_Description;
-            public string R_PMID;
-            public string A_Authors;
-            public string T_Title_Of_Article;
-            public string J_Journal_Reference;
-            public List<(string entry_name,double similarity_score)> C_Accession_numbers_of_similar_entries=new List<(string, double)>();
-            public List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data=new List<(char, double)>();
-            public List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data_Normalised=new List<(char, double)>();
+            internal string H_Accession_Number;
+            internal string D_Data_Description;
+            internal string R_PMID;
+            internal string A_Authors;
+            internal string T_Title_Of_Article;
+            internal string J_Journal_Reference;
+            internal List<(string entry_name,double similarity_score)> C_Accession_numbers_of_similar_entries=new List<(string, double)>();
+            internal List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data=new List<(char, double)>();
+            internal List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data_Normalised=new List<(char, double)>();
         }
 
         //public static List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)> sequence_aaindex_all(string sequence)//, List<aaindex_entry> aaindex_entries = null)
@@ -111,16 +112,16 @@ namespace dimorphics_dataset
         }
         
 
-        public static List<aaindex_entry> Load(string aaindex1_file = null, bool remove_incomplete_entries = false)
+        public static List<info_aaindex_entry> Load(string aaindex1_file = null, bool remove_incomplete_entries = false)
         {
             if (string.IsNullOrWhiteSpace(aaindex1_file))
             {
                 aaindex1_file = Path.Combine(program.data_root_folder, $@"aaindex", $@"aaindex1.txt");
             }
 
-            var result = new List<aaindex_entry>();
-            var lines = io.ReadAllLines(aaindex1_file);
-            aaindex_entry entry=null;
+            var result = new List<info_aaindex_entry>();
+            var lines = io_proxy.ReadAllLines(aaindex1_file);
+            info_aaindex_entry entry=null;
             
             var i_amino_acid_order = "";
             var lastcode = "";
@@ -135,7 +136,7 @@ namespace dimorphics_dataset
                 if (code == "//" || entry == null || lines_index == 0)
                 {
                     if (lines_index >= lines.Length - 2) break;
-                    entry = new aaindex_entry();
+                    entry = new info_aaindex_entry();
                     result.Add(entry);
                     i_amino_acid_order = "";
                     if (code == "//")
@@ -186,7 +187,7 @@ namespace dimorphics_dataset
                         var c = line_data.Split(new char[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
                         while (c.Count > 0)
                         {
-                            entry.C_Accession_numbers_of_similar_entries.Add((c[0], double.Parse(c[1])));
+                            entry.C_Accession_numbers_of_similar_entries.Add((c[0], double.Parse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture)));
                             c = c.Skip(2).ToList();
                         }
 
@@ -243,7 +244,7 @@ namespace dimorphics_dataset
                 var x = result.SelectMany(a => a.I_Amino_Acid_Index_Data_Normalised).GroupBy(a => a.amino_acid).Select(a => (amino_acid:a.Key, index_value:a.Select(b=>b.index_value).Average())).ToList();
 
                 var aaindex_overall_average_str = "aaindex_overall_average";
-                var aaindex_overall_average = new aaindex_entry()
+                var aaindex_overall_average = new info_aaindex_entry()
                 {
                     A_Authors = aaindex_overall_average_str,
                     H_Accession_Number = aaindex_overall_average_str,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -7,26 +8,26 @@ namespace dimorphics_dataset
 {
     public class info_mpsa_reader
     {
-        public string filename = null;
-        public string format = null;
-        public List<char> ss_column_headers = null;
-        public List<mpsa_line_entry> mpsa_matrix = null;
+        internal string filename = null;
+        internal string format = null;
+        internal List<char> ss_column_headers = null;
+        internal List<mpsa_line_entry> mpsa_matrix = null;
 
-        public List<(char ss, double prob_value, double dist_value)> ss_overall_average = null;
-        public List<List<(char ss, double prob_value, double dist_value)>> split_ss_overall_average = null;
+        internal List<(char ss, double prob_value, double dist_value)> ss_overall_average = null;
+        internal List<List<(char ss, double prob_value, double dist_value)>> split_ss_overall_average = null;
 
-        public List<(char ss, int alphabet_id, string alphabet_name, string alphabet_group, double prob_value, double dist_value)> ss_probabilities_per_aa = null;
-        public List<List<(char ss, int alphabet_id, string alphabet_name, string alphabet_group, double prob_value, double dist_value)>> split_ss_probabilities_per_aa = null;
+        internal List<(char ss, int alphabet_id, string alphabet_name, string alphabet_group, double prob_value, double dist_value)> ss_probabilities_per_aa = null;
+        internal List<List<(char ss, int alphabet_id, string alphabet_name, string alphabet_group, double prob_value, double dist_value)>> split_ss_probabilities_per_aa = null;
 
 
         public class mpsa_line_entry
         {
-            public info_mpsa_reader reader = null;
-            public int index = -1;
-            public char amino_acid = ' ';
-            public char predicted_ss_code = ' ';
-            public List<char> ss_column_headers = new List<char>() { 'H','E','C','T'};
-            public List<(char ss, char amino_acid, double value)> line_prob_values = null;
+            internal info_mpsa_reader reader = null;
+            internal int index = -1;
+            internal char amino_acid = ' ';
+            internal char predicted_ss_code = ' ';
+            internal List<char> ss_column_headers = new List<char>() { 'H','E','C','T'};
+            internal List<(char ss, char amino_acid, double value)> line_prob_values = null;
 
             public mpsa_line_entry()
             {
@@ -116,6 +117,11 @@ namespace dimorphics_dataset
 
         public info_mpsa_reader(info_mpsa_reader mpsa_reader, List<int> indexes)
         {
+            if (mpsa_reader == null)
+            {
+                throw new ArgumentNullException(nameof(mpsa_reader));
+            }
+
             this.filename = mpsa_reader.filename;
             this.format = mpsa_reader.format;
             this.ss_column_headers = mpsa_reader.ss_column_headers.ToList();
@@ -143,7 +149,7 @@ namespace dimorphics_dataset
                 var lines = a.ToList();
 
                 var line_prob_values = lines
-                    .SelectMany(b => b.line_prob_values.Where(c=>"HEC".Contains(c.ss)))
+                    .SelectMany(b => b.line_prob_values.Where(c=>"HEC".Contains(c.ss, StringComparison.InvariantCulture)))
                     .GroupBy(b => b.ss)
                     .Select(b => (ss: b.Key, amino_acid: b.First().amino_acid, value: b.Select(c => c.value).Average())).ToList();
 
@@ -238,7 +244,7 @@ namespace dimorphics_dataset
                     amino_acid = amino_acids[index],
                     index = index,
                     line_prob_values = matrix_column_headers.Select(a => (a, amino_acids[index], 0d)).ToList(),
-                    predicted_ss_code = ' '
+                    predicted_ss_code = ' ',
                 });
             }
 
@@ -259,7 +265,7 @@ namespace dimorphics_dataset
             {
                 var matrix_column_headers = info_mpsa_reader.secondary_structure_codes.First(a => a.format == this.format).ss_codes.ToList();
                 this.ss_column_headers = matrix_column_headers;
-                this.mpsa_matrix = mpsa_matrix_fake(format, matrix_column_headers, amino_acids);
+                this.mpsa_matrix = mpsa_matrix_fake(format, matrix_column_headers, amino_acids ?? null);
             }
             else
             {
@@ -276,7 +282,7 @@ namespace dimorphics_dataset
                 if (this.mpsa_matrix == null || this.mpsa_matrix.Count == 0)
                 {
                     //throw new Exception();
-                    this.mpsa_matrix = mpsa_matrix_fake(format, data.matrix_colum_headers, amino_acids);
+                    this.mpsa_matrix = mpsa_matrix_fake(format, data.matrix_colum_headers, amino_acids ?? null);
                 }
 
                 if (amino_acids != null && mpsa_matrix != null && this.mpsa_matrix.Count != amino_acids.Count) throw new Exception();
@@ -292,15 +298,15 @@ namespace dimorphics_dataset
 
             var ss_codes = "HEC";//"HECT";
 
-            var seq_length = (double)mpsa_matrix.Count(b => ss_codes.Contains(b.predicted_ss_code));
+            var seq_length = (double)mpsa_matrix.Count(b => ss_codes.Contains(b.predicted_ss_code, StringComparison.InvariantCulture));
 
             var all_probability_data  // each AA in sequence has 3 or 4 lines
-                = ss_column_headers.Where(a => ss_codes.Contains(a)).SelectMany(ss =>
+                = ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture)).SelectMany(ss =>
                     (mpsa_matrix == null || mpsa_matrix.Count == 0) ? new List<(char ss, char amino_acid, double value)>() :
                         mpsa_matrix.Select(b => (ss, b.amino_acid, b.line_prob_values.First(c => c.ss == ss).value)).ToList()).ToList();
 
             // 4 SS
-            var all_distribution_average = ss_column_headers.Where(a => ss_codes.Contains(a))
+            var all_distribution_average = ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture))
                 .Select(ss => (mpsa_matrix == null || mpsa_matrix.Count == 0) ?
                 (ss:ss, average:0d) :
                 (ss:ss, average:feature_calcs.transform_value((double)mpsa_matrix.Count(a => a.predicted_ss_code == ss), seq_length, sqrt, as_dist))).ToList();
@@ -312,7 +318,7 @@ namespace dimorphics_dataset
             var all_probabilities_average = all_probability_data_grouped.Select(a => (ss:a.Key, average:a.Select(b => b.value).DefaultIfEmpty(0).Average())).ToList();
 
 
-            List<(char ss, double, double)> ss_overall_average = ss_column_headers.Where(a => ss_codes.Contains(a)).Select(ss => (ss, all_probabilities_average.FirstOrDefault(a => a.ss==ss).average, all_distribution_average.FirstOrDefault(a => a.ss==ss).average)).ToList();
+            List<(char ss, double, double)> ss_overall_average = ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture)).Select(ss => (ss, all_probabilities_average.FirstOrDefault(a => a.ss==ss).average, all_distribution_average.FirstOrDefault(a => a.ss==ss).average)).ToList();
 
             // 4 SS x 20 AA+ all other alphabets
             //var all_distribution_per_aa = new List<(char ss, int alphabet_id, string alphabet_group, double value)>();
@@ -324,17 +330,17 @@ namespace dimorphics_dataset
             {
                 foreach (var group in alphabet.groups)
                 {
-                    var dist = ss_column_headers.Where(a => ss_codes.Contains(a)).Select(ss => (mpsa_matrix == null || mpsa_matrix.Count == 0) ?
+                    var dist = ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture)).Select(ss => (mpsa_matrix == null || mpsa_matrix.Count == 0) ?
                         (ss, alphabet.id, group, average: 0d) :
                         (ss, alphabet.id, group, average: feature_calcs.transform_value(
-                            value: (double)mpsa_matrix.Count(a => group.group_amino_acids.Contains(a.amino_acid) && a.predicted_ss_code == ss),
+                            value: (double)mpsa_matrix.Count(a => group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture) && a.predicted_ss_code == ss),
                             length: (double)seq_length, sqrt, as_dist))).ToList();
 
                     //this.all_distribution_per_aa.AddRange(x);
             
-                    var prob = all_probability_data_grouped.Select(a => (ss:a.Key, alphabet.id, alphabet.name, group, average: a.Where(b => group.group_amino_acids.Contains(b.amino_acid)).Select(b => b.value).DefaultIfEmpty(0).Average())).ToList();
+                    var prob = all_probability_data_grouped.Select(a => (ss:a.Key, alphabet.id, alphabet.name, group, average: a.Where(b => group.group_amino_acids.Contains(b.amino_acid, StringComparison.InvariantCulture)).Select(b => b.value).DefaultIfEmpty(0).Average())).ToList();
                    // this.all_probabilities_per_aa.AddRange(xx);
-                    ss_probabilities_per_aa.AddRange(ss_column_headers.Where(a => ss_codes.Contains(a)).Select(ss=>(ss,alphabet.id,alphabet.name, group.group_amino_acids, prob.FirstOrDefault(a => a.ss == ss).average, dist.FirstOrDefault(a => a.ss == ss).average)).ToList());
+                    ss_probabilities_per_aa.AddRange(ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture)).Select(ss=>(ss,alphabet.id,alphabet.name, group.group_amino_acids, prob.FirstOrDefault(a => a.ss == ss).average, dist.FirstOrDefault(a => a.ss == ss).average)).ToList());
                     //Console.WriteLine();
                 }
             }
@@ -344,7 +350,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<(int id, string format, string ss_codes)> secondary_structure_codes = new List<(int id, string format, string ss_codes)>()
+        internal static List<(int id, string format, string ss_codes)> secondary_structure_codes = new List<(int id, string format, string ss_codes)>()
         {
             (00, "dpm", "HETCF"), // extra: T F
             (01, "dsc", "HEC"), // non-standard format
@@ -363,6 +369,11 @@ namespace dimorphics_dataset
 
         public static void mpsa_normalise_matrix_all(List<info_mpsa_reader> matrices)
         {
+            if (matrices == null)
+            {
+                throw new ArgumentNullException(nameof(matrices));
+            }
+
             var all_values = matrices.SelectMany(a => a.mpsa_matrix.SelectMany(b => b.line_prob_values.Select(c => c.value).ToList()).ToList()).ToList();
             var all_min = all_values.Min();
             var all_max = all_values.Max();
@@ -457,15 +468,15 @@ namespace dimorphics_dataset
 
             if (File.Exists(filename) && new FileInfo(filename).Length > 0)
             {
-                lines = io.ReadAllLines(filename).ToList();
+                lines = io_proxy.ReadAllLines(filename).ToList();
             }
             
 
             if (format.Equals("preda",StringComparison.InvariantCultureIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith("HEADER  |- Residue -|  Pred  Rel      NAli   Asn"));
+                var start_marker = lines.FindIndex(a => a.StartsWith("HEADER  |- Residue -|  Pred  Rel      NAli   Asn", StringComparison.InvariantCulture));
                 lines = lines.Skip(start_marker + 1).ToList();
-                lines = lines.Where(a => a.StartsWith("PRED")).ToList();
+                lines = lines.Where(a => a.StartsWith("PRED", StringComparison.InvariantCulture)).ToList();
 
                 var check_matrix_colum_headers = "HEC".ToList();
 
@@ -483,7 +494,7 @@ namespace dimorphics_dataset
                     //var index = int.Parse(s[1]);
                     var amino_acid = s[3].ToUpperInvariant()[0];
                     var predicted_ss_code = s[4].ToUpperInvariant()[0];
-                    var reliability = double.Parse(s[5]);
+                    var reliability = double.Parse(s[5], NumberStyles.Float, CultureInfo.InvariantCulture);
 
                     if (reliability < 0.445d) reliability = 0.445d;
 
@@ -591,7 +602,7 @@ namespace dimorphics_dataset
 
             if (format.Equals("dsc",StringComparison.InvariantCultureIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith("NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C"));
+                var start_marker = lines.FindIndex(a => a.StartsWith("NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C", StringComparison.InvariantCulture));
                 lines = lines.Skip(start_marker + 1).ToList();
                 lines = lines.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
 
@@ -613,9 +624,9 @@ namespace dimorphics_dataset
                     //var index = int.Parse(s[0]);
                     var amino_acid = s[1].ToUpperInvariant()[0];
                     var predicted_ss_code = s[2][0];
-                    var prob_h = double.Parse(s[3]);
-                    var prob_e = double.Parse(s[4]);
-                    var prob_c = double.Parse(s[5]);
+                    var prob_h = double.Parse(s[3], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_e = double.Parse(s[4], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_c = double.Parse(s[5], NumberStyles.Float, CultureInfo.InvariantCulture);
 
                   
                     var prob_adjust_range = new double[] { prob_h, prob_e, prob_c }.Min();
@@ -659,10 +670,10 @@ namespace dimorphics_dataset
 
             if (format.Equals("phd",StringComparison.InvariantCultureIgnoreCase))
             {
-                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith("*") && !a.StartsWith("END")).ToList();
+                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith("*", StringComparison.InvariantCulture) && !a.StartsWith("END", StringComparison.InvariantCulture)).ToList();
                 lines = lines.Select(a => a.Substring(9)).ToList();
 
-                var titles = lines.Select(a => a.Substring(0, 4).Replace("-", "").Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+                var titles = lines.Select(a => a.Substring(0, 4).Replace("-", "", StringComparison.InvariantCulture).Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
                 var merged_lines = new List<(string title, string line, int len)>();
                 foreach (var t in titles)
                 {
@@ -671,14 +682,14 @@ namespace dimorphics_dataset
 
                 foreach (var line in lines)
                 {
-                    var line_title = line.Substring(0, 4).Replace("-", "").Trim().ToUpperInvariant();
+                    var line_title = line.Substring(0, 4).Replace("-", "", StringComparison.InvariantCulture).Trim().ToUpperInvariant();
                     if (string.IsNullOrWhiteSpace(line_title)) continue;
 
-                    var line_data = line.Substring(5).Replace("|", "");
+                    var line_data = line.Substring(5).Replace("|", "", StringComparison.InvariantCulture);
 
                     if (line_title == "PHD")
                     {
-                        line_data = line_data.Replace(" ", "C").Replace("L", "C");
+                        line_data = line_data.Replace(" ", "C", StringComparison.InvariantCulture).Replace("L", "C", StringComparison.InvariantCulture);
                     }
 
                     var title_index = merged_lines.FindIndex(a => a.title == line_title);
@@ -714,10 +725,10 @@ namespace dimorphics_dataset
                         predicted_ss_code = 'C';
                     }
 
-                    var reliability = double.Parse("" + rel_line[index]);
-                    var prob_h = double.Parse("" + prob_h_line[index]);
-                    var prob_e = double.Parse("" + prob_e_line[index]);
-                    var prob_c = double.Parse("" + prob_l_line[index]);
+                    var reliability = double.Parse("" + rel_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_h = double.Parse("" + prob_h_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_e = double.Parse("" + prob_e_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_c = double.Parse("" + prob_l_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
 
                     var prob_adjust_range = new double[] {prob_h, prob_e, prob_c}.Min();
 
@@ -762,9 +773,9 @@ namespace dimorphics_dataset
                 return (matrix_colum_headers, parsed_matrix1);
             }
 
-            var psipred_marker = lines.FindIndex(a=> a.StartsWith("# PSIPRED VFORMAT"));//# PSIPRED VFORMAT (PSIPRED V4.0)
+            var psipred_marker = lines.FindIndex(a=> a.StartsWith("# PSIPRED VFORMAT", StringComparison.InvariantCulture));//# PSIPRED VFORMAT (PSIPRED V4.0)
 
-            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith("MPSA code :"));
+            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith("MPSA code :", StringComparison.InvariantCulture));
 
             var matrix_start = mpsa_code_marker + 3; // +2 or +3 ?
 
@@ -779,8 +790,8 @@ namespace dimorphics_dataset
             if (mpsa_code_marker > -1)
             {
                 var matrix_size_and_fields = lines[matrix_start - 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                matrix_rows = int.Parse(matrix_size_and_fields.First());
-                matrix_columns = int.Parse(matrix_size_and_fields.Skip(1).First());
+                matrix_rows = int.Parse(matrix_size_and_fields.First(), NumberStyles.Integer, CultureInfo.InvariantCulture);
+                matrix_columns = int.Parse(matrix_size_and_fields.Skip(1).First(), NumberStyles.Integer, CultureInfo.InvariantCulture);
                 var check_matrix_colum_headers1 = matrix_size_and_fields.Skip(2).First().Select(a => a).ToList();
                 if (!matrix_colum_headers.SequenceEqual(check_matrix_colum_headers1)) throw new Exception();
             }
@@ -813,7 +824,7 @@ namespace dimorphics_dataset
                 if (mpsa_code_marker>-1) s = s.Skip(1).Take(matrix_columns).ToList();
                 else if (psipred_marker > -1) s = s.Skip(3).Take(matrix_columns).ToList();
 
-                var values = s.Select((a, i) => (ss: matrix_colum_headers[i], amino_acid:amino_acid, value: double.Parse(a))).ToList();
+                var values = s.Select((a, i) => (ss: matrix_colum_headers[i], amino_acid:amino_acid, value: double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture))).ToList();
                 values = values.Where(a => a.ss != 'F').ToList();
                 
                 var h_exists = matrix_colum_headers.Contains('H');

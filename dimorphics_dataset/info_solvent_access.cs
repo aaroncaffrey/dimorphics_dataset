@@ -8,30 +8,30 @@ namespace dimorphics_dataset
 {
     public class info_solvent_access
     {
-        public string pdb_id;
-        public char algo;
-
-        public char amino_acid;
-        public char chain_id;
-        public int res_num;
-
-        public int array_index;
-
-        public double all_atoms_abs;
-        public double all_atoms_rel; 
-
-        public double total_side_abs;
-        public double total_side_rel;
-
-        public double main_chain_abs;
-        public double main_chain_rel;
-
-
-        public double non_polar_abs;
-        public double non_polar_rel;
-
-        public double all_polar_abs;
-        public double all_polar_rel;
+        internal string pdb_id;
+        internal char algo;
+        
+        internal char amino_acid;
+        internal char chain_id;
+        internal int res_num;
+        
+        internal int array_index;
+        
+        internal double all_atoms_abs;
+        internal double all_atoms_rel; 
+        
+        internal double total_side_abs;
+        internal double total_side_rel;
+        
+        internal double main_chain_abs;
+        internal double main_chain_rel;
+        
+        
+        internal double non_polar_abs;
+        internal double non_polar_rel;
+        
+        internal double all_polar_abs;
+        internal double all_polar_rel;
 
 
         public static double try_parse_double(string value, double default_value = 0)
@@ -49,6 +49,11 @@ namespace dimorphics_dataset
 
         public static List<info_solvent_access> load(List<string> files)
         {
+            if (files == null)
+            {
+                throw new ArgumentNullException(nameof(files));
+            }
+
             var rsa_list = new List<info_solvent_access>();
 
             foreach (var file in files)
@@ -57,9 +62,9 @@ namespace dimorphics_dataset
 
                 var algo = Path.GetExtension(file)[1];
 
-                var lines = io.ReadAllLines(file).ToList();
+                var lines = io_proxy.ReadAllLines(file).ToList();
 
-                lines = lines.Where(a => a.StartsWith("RES ")).ToList();
+                lines = lines.Where(a => a.StartsWith("RES ", StringComparison.InvariantCulture)).ToList();
 
 
                 var array_index = 0;

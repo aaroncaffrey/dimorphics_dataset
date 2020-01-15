@@ -9,11 +9,11 @@ namespace dimorphics_dataset
     {
         public class sequence_id
         {
-            public string PdbId;
-            public char ChainId;
-            public string Mol;
-            public string Len;
-            public string Description;
+            internal string pdb_id;
+            internal char chain_id;
+            internal string mol;
+            internal string len;
+            internal string description;
 
             public sequence_id(string sequence_id)
             {
@@ -27,7 +27,7 @@ namespace dimorphics_dataset
                 const string molMarker = "mol:";
                 const string lenMarker = "length:";
 
-                if (sequence_id.Contains(" " + molMarker) && sequence_id.Contains(" " + lenMarker))
+                if (sequence_id.Contains($" {molMarker}", StringComparison.InvariantCulture) && sequence_id.Contains($" {lenMarker}", StringComparison.InvariantCulture))
                 {
                     var idStrings = sequence_id.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -45,29 +45,29 @@ namespace dimorphics_dataset
 
                         if (String.IsNullOrWhiteSpace(mol) && token.Length >= molMarker.Length && token.Substring(0, molMarker.Length) == molMarker)
                         {
-                            mol = token.Replace(molMarker, "");
+                            mol = token.Replace(molMarker, "", StringComparison.InvariantCulture);
                             continue;
                         }
 
                         if (String.IsNullOrWhiteSpace(len) && token.Length >= lenMarker.Length && token.Substring(0, lenMarker.Length) == lenMarker)
                         {
-                            len = token.Replace(lenMarker, "");
+                            len = token.Replace(lenMarker, "", StringComparison.InvariantCulture);
                             continue;
                         }
 
                     }
 
-                    if (pdbId != null && pdbId.Contains("_")) //(mol == "protein")
+                    if (pdbId != null && pdbId.Contains("_", StringComparison.InvariantCulture)) //(mol == "protein")
                     {
-                        chainId = pdbId.Substring(pdbId.IndexOf('_') + 1);
-                        pdbId = pdbId.Substring(0, pdbId.IndexOf('_'));
+                        chainId = pdbId.Substring(pdbId.IndexOf('_', StringComparison.InvariantCulture) + 1);
+                        pdbId = pdbId.Substring(0, pdbId.IndexOf('_', StringComparison.InvariantCulture));
                     }
 
                     var description = sequence_id.Substring(pdbId.Length + 1 + chainId.Length + 1 + mol.Length + 1 + len.Length + 1);
 
-                    if (description.Length > 0 && description.IndexOf(' ') > -1)
+                    if (description.Length > 0 && description.IndexOf(' ', StringComparison.InvariantCulture) > -1)
                     {
-                        description = description.Substring(description.IndexOf(' ') + 1);
+                        description = description.Substring(description.IndexOf(' ', StringComparison.InvariantCulture) + 1);
                     }
 
                     Init(pdbId.ToUpperInvariant(), chainId/*.ToUpperInvariant()*/[0], mol, len, description);
@@ -90,48 +90,53 @@ namespace dimorphics_dataset
 
             }
 
-            public void Init(string pdbId, char chainId, string mol, string len, string description)
+            public void Init(string pdb_id, char chain_id, string mol, string len, string description)
             {
-                ChainId = chainId;
-                PdbId = pdbId;
-                Mol = mol;
-                Len = len;
-                Description = description;
+                this.pdb_id = pdb_id;
+                this.chain_id = chain_id;
+                this.mol = mol;
+                this.len = len;
+                this.description = description;
             }
         }
 
         private string _id;
 
-        public string Id
+        public string id
         {
             get { return _id; }
             set
             {
                 _id = value;
-                IdSplit = new sequence_id(this._id);
+                id_split = new sequence_id(this._id);
             }
         }
-        public sequence_id IdSplit;
-        public string FullSequence;
+        internal sequence_id id_split;
+        internal string full_sequence;
 
-        public sequence(string id, string fullSequence)
+        public sequence(string id, string full_sequence)
         {
-            Id = id;
-            FullSequence = fullSequence;
+            this.id = id;
+            this.full_sequence = full_sequence;
         }
 
         public static void Save(string outputFastaFile, List<sequence> sequenceList)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            io.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => a.Id + "\r\n" + a.FullSequence + "\r\n").ToList()), nameof(sequence), nameof(Save));
+            io_proxy.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => $"{a.id}\r\n{a.full_sequence}\r\n").ToList()), nameof(sequence), nameof(Save));
         }
 
         public static void Save(string outputFastaFile, sequence sequence)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            io.WriteAllText(outputFastaFile, sequence.Id + "\r\n" + sequence.FullSequence + "\r\n", nameof(sequence), nameof(Save));
+            if (sequence == null)
+            {
+                throw new ArgumentNullException(nameof(sequence));
+            }
+
+            io_proxy.WriteAllText(outputFastaFile, $"{sequence.id}\r\n{sequence.full_sequence}\r\n", nameof(sequence), nameof(Save));
         }
     }
 }

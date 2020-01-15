@@ -48,7 +48,7 @@ namespace dimorphics_dataset
         }
 
         [Flags]
-        public enum enum_get_dssp_and_mpsa_subsequences_param
+        public enum enum_get_dssp_and_mpsa_subsequences_params
         {
             none = 0b_0000_0000_0000,
 

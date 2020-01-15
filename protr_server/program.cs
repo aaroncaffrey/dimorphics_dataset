@@ -44,6 +44,11 @@ namespace protr_server
 #if DEBUG
             //Test();
 #endif
+            if (args == null || args.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
+
             var arg_index = 0;
 
             var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, CultureInfo.InvariantCulture);

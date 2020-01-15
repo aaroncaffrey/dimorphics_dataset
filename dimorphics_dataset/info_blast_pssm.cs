@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,14 +34,15 @@ namespace dimorphics_dataset
 
             var num_threads = Environment.ProcessorCount;
 
-            var psiblast_args = new List<string>();
-
-
-            psiblast_args.Add($@"-query ""{seq_filename}""");
-            psiblast_args.Add($@"-db {(remote ? blast_database : Path.Combine(database_folder, blast_database))}");
-            psiblast_args.Add($@"-evalue={evalue}");
-            psiblast_args.Add($@"-inclusion_ethresh={inclusion_ethresh}");
-            psiblast_args.Add($@"-out_ascii_pssm=""{pssm_filename}""");
+            var psiblast_args = new List<string>
+            {
+                $@"-query ""{seq_filename}""",
+                $@"-db {(remote ? blast_database : Path.Combine(database_folder, blast_database))}",
+                $@"-evalue={evalue}",
+                $@"-inclusion_ethresh={inclusion_ethresh}",
+                $@"-out_ascii_pssm=""{pssm_filename}"""
+            };
+            
 
             if (remote)
             {
@@ -70,56 +72,55 @@ namespace dimorphics_dataset
             if (run)
             {
 
-                io.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"" + start.FileName + "\" " + start.Arguments);
+                io_proxy.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"{start.FileName}\" {start.Arguments}");
 
-                using (var process = Process.Start(start))
+                using var process = Process.Start(start);
+
+                if (process == null)
                 {
-                    if (process == null)
-                    {
-                        throw new Exception($"{nameof(run_psi_blast_get_pssm)}: {nameof(process)} is null");
-                    }
-
-
-                    using (var reader = process.StandardOutput)
-                    {
-                        var stdout = reader.ReadToEnd();
-                        if (!string.IsNullOrWhiteSpace(stdout))
-                        {
-                            stdout = ("\r\n" + stdout).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ");
-                            io.WriteLine(stdout);
-                        }
-                    }
-
-                    using (var reader = process.StandardError)
-                    {
-                        var stderr = reader.ReadToEnd();
-
-                        if (!string.IsNullOrWhiteSpace(stderr))
-                        {
-                            stderr = ("\r\n" + stderr).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ");
-                            io.WriteLine(stderr);
-                        }
-                    }
-
-                    process.WaitForExit();
+                    throw new Exception($"{nameof(run_psi_blast_get_pssm)}: {nameof(process)} is null");
                 }
+
+
+                using (var reader = process.StandardOutput)
+                {
+                    var stdout = reader.ReadToEnd();
+                    if (!string.IsNullOrWhiteSpace(stdout))
+                    {
+                        stdout = ("\r\n" + stdout).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
+                        io_proxy.WriteLine(stdout);
+                    }
+                }
+
+                using (var reader = process.StandardError)
+                {
+                    var stderr = reader.ReadToEnd();
+
+                    if (!string.IsNullOrWhiteSpace(stderr))
+                    {
+                        stderr = ("\r\n" + stderr).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
+                        io_proxy.WriteLine(stderr);
+                    }
+                }
+
+                process.WaitForExit();
             }
 
-            return start.FileName + " " + start.Arguments;
+            return $"{start.FileName} {start.Arguments}";
 
         }
 
         public class pssm_entry
         {
-            public int query_sequence_aa_pos;
+            internal int query_sequence_aa_pos;
 
-            public char query_sequence_aa;
+            internal char query_sequence_aa;
 
             //public int PositionAaPos;
-            public char position_aa;
-            public double score;
-            public int matrix_row_index;
-            public int matrix_column_index;
+            internal char position_aa;
+            internal double score;
+            internal int matrix_row_index;
+            internal int matrix_column_index;
 
             public pssm_entry()
             {
@@ -128,6 +129,11 @@ namespace dimorphics_dataset
 
             public pssm_entry(pssm_entry pssm_entry)
             {
+                if (pssm_entry == null)
+                {
+                    throw new ArgumentNullException(nameof(pssm_entry));
+                }
+
                 this.matrix_column_index = pssm_entry.matrix_column_index;
                 this.matrix_row_index = pssm_entry.matrix_row_index;
                 this.position_aa = pssm_entry.position_aa;
@@ -139,7 +145,10 @@ namespace dimorphics_dataset
 
         public static List<pssm_entry> normalise_pssm(List<pssm_entry> pssm)
         {
-            if (pssm == null || pssm.Count == 0) return new List<pssm_entry>();
+            if (pssm == null || pssm.Count == 0)
+            {
+                return new List<pssm_entry>();
+            }
 
             pssm = pssm.Select(a => new pssm_entry(a)).ToList();
 
@@ -157,7 +166,7 @@ namespace dimorphics_dataset
         }
         public static double[] normalise_array(double[] pssm)
         {
-            if (pssm == null || pssm.Length == 0) return new double[0];
+            if (pssm == null || pssm.Length == 0) return Array.Empty<double>();
 
             pssm = pssm.ToArray();
 
@@ -176,7 +185,7 @@ namespace dimorphics_dataset
 
         public static double[] normalise_array(double[] pssm, double min_score, double max_score)
         {
-            if (pssm == null || pssm.Length == 0) return new double[0];
+            if (pssm == null || pssm.Length == 0) return Array.Empty<double>();
 
             pssm = pssm.ToArray();
 
@@ -192,6 +201,11 @@ namespace dimorphics_dataset
         public static double[] intervals(double[] pssm, bool normalise = false)
         {
             // note: data always input in the same meaningful order - so considered pre-ordered
+
+            if (pssm == null || pssm.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(pssm));
+            }
 
             var x = new double[pssm.Length - 1];
 
@@ -223,7 +237,7 @@ namespace dimorphics_dataset
                 return new List<pssm_entry>();
             }
 
-            var line_list = io.ReadAllLines(pssm_filename).Skip(2).ToList();
+            var line_list = io_proxy.ReadAllLines(pssm_filename).Skip(2).ToList();
             var pssm_end_index = line_list.IndexOf("");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 
@@ -248,7 +262,7 @@ namespace dimorphics_dataset
 
                     var col_aa_provided = line_list_split[0][col][0];
                     var row_aa_provided = line_list_split[row][1][0];
-                    var row_index_provided = int.Parse(line_list_split[row][0]);
+                    var row_index_provided = int.Parse(line_list_split[row][0], NumberStyles.Integer, CultureInfo.InvariantCulture);
 
                     var e = new pssm_entry()
                     {
@@ -334,7 +348,7 @@ namespace dimorphics_dataset
 
                 foreach (var c1 in alphabet_groups)
                 {
-                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa)).Select(a => a.score).ToArray();
+                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
 
                     if (x == null || x.Length == 0) x = new[] { 0d };
 
@@ -404,7 +418,7 @@ namespace dimorphics_dataset
 
                             if (pssm != null && pssm.Count > 0)
                             {
-                                var col_pssm = pssm.Where(a => r1.group_amino_acids.Contains(a.position_aa)).ToList();
+                                var col_pssm = pssm.Where(a => r1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture)).ToList();
                                 // z = list of column 
 
                                 //for (var r1_index = 0; r1_index < alphabet_groups.Count; r1_index++)
@@ -417,8 +431,8 @@ namespace dimorphics_dataset
 
                                     if (r2_index < r1_index) continue;
 
-                                    var r1_match = col_pssm.Where(a => r1.group_amino_acids.Contains(a.query_sequence_aa)).ToList();
-                                    var r2_match = col_pssm.Where(a => r2.group_amino_acids.Contains(a.query_sequence_aa)).ToList();
+                                    var r1_match = col_pssm.Where(a => r1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
+                                    var r2_match = col_pssm.Where(a => r2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
                                     var join = r1_match.Union(r2_match).ToList();
                                     var z = @join.Where(a => @join.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)
@@ -493,7 +507,7 @@ namespace dimorphics_dataset
 
                 foreach (var c1 in alphabet_groups)
                 {
-                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.query_sequence_aa)).Select(a => a.score).ToArray();
+                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
                     if (x == null || x.Length == 0) x = new[] { 0d };
                     if (normalise_row) x = normalise_array(x);
                     if (x == null || x.Length == 0) x = new[] { 0d };
@@ -548,7 +562,7 @@ namespace dimorphics_dataset
                         var c2 = alphabet.groups[c2_index];
                         if (c2_index < c1_index) continue;
 
-                        double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa) && c2.group_amino_acids.Contains(a.query_sequence_aa)) || (c2.group_amino_acids.Contains(a.position_aa) && c1.group_amino_acids.Contains(a.query_sequence_aa))).Select(a => a.score).ToArray();
+                        double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture))).Select(a => a.score).ToArray();
                         if (x == null || x.Length == 0) x = new[] { 0d };
                         if (normalise_row_col) x = normalise_array(x);
 
@@ -621,7 +635,7 @@ namespace dimorphics_dataset
 
                                 if (pssm != null && pssm.Count > 0)
                                 {
-                                    var z = pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa) && c2.group_amino_acids.Contains(a.query_sequence_aa)) || (c2.group_amino_acids.Contains(a.position_aa) && c1.group_amino_acids.Contains(a.query_sequence_aa))).ToList();
+                                    var z = pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture))).ToList();
                                     z = z.OrderBy(a => a.matrix_row_index).ToList();
                                     z = z.Where(a => z.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)
@@ -697,7 +711,7 @@ namespace dimorphics_dataset
                         //if (c2_index > c1_index) continue;
                         
                         var c2 = alphabet.groups[c2_index];
-                        double[] x = (pssm == null || pssm.Count == 0) ? new[] {0d} : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa) && c2.group_amino_acids.Contains(a.query_sequence_aa)).Select(a => a.score).ToArray();
+                        double[] x = (pssm == null || pssm.Count == 0) ? new[] {0d} : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
                         if (x == null || x.Length == 0) x = new[] {0d};
                         if (normalise_row_col) x = normalise_array(x);
 
@@ -765,7 +779,7 @@ namespace dimorphics_dataset
 
                                 if (pssm != null && pssm.Count > 0)
                                 {
-                                    var z = pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa) && c2.group_amino_acids.Contains(a.query_sequence_aa)).ToList();
+                                    var z = pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
                                     z = z.OrderBy(a => a.matrix_row_index).ToList();
                                     z = z.Where(a => z.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)

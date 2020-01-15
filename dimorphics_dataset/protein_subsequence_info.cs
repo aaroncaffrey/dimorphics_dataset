@@ -4,16 +4,16 @@ namespace dimorphics_dataset
 {
     public class protein_subsequence_info
     {
-        public int class_id;
-        public string class_name;
+        internal int class_id;
+        internal string class_name;
         
-        public string dimer_type;
-        public string parallelism;
-        public string symmetry_mode;
-
-        public string pdb_id;
-        public char chain_id = ' ';
-        public List<(int res_id, char i_code, char amino_acid)> res_ids = new List<(int res_id, char i_code, char amino_acid)>();
-        public string aa_subsequence;
+        internal string dimer_type;
+        internal string parallelism;
+        internal string symmetry_mode;
+        
+        internal string pdb_id;
+        internal char chain_id = ' ';
+        internal List<(int res_id, char i_code, char amino_acid)> res_ids = new List<(int res_id, char i_code, char amino_acid)>();
+        internal string aa_subsequence;
     }
 }

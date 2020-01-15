@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace dimorphics_dataset
@@ -8,6 +10,11 @@ namespace dimorphics_dataset
     {
         public static string column_value(this string column_format_line, int start_position, int end_position, bool trim = true)
         {
+            if (string.IsNullOrWhiteSpace(column_format_line))
+            {
+                throw new ArgumentNullException(nameof(column_format_line));
+            }
+
             var ret = column_format_line.Substring(start_position - 1, (end_position - start_position) + 1);
 
             if (trim)
@@ -19,7 +26,7 @@ namespace dimorphics_dataset
         }
     }
 
-    public class info_stride
+    public static class info_stride
     {
     
 
@@ -31,11 +38,11 @@ namespace dimorphics_dataset
             //74-75	Not used
             //75-79	Four letter PDB code (if available)
 
-            public string RecordCode;
-            public string NotUsed1;
-            public string Data;
-            public string NotUsed2;
-            public string PdbCode;
+            internal string RecordCode;
+            internal string NotUsed1;
+            internal string Data;
+            internal string NotUsed2;
+            internal string PdbCode;
 
             protected stride_record(string column_format_line)
             {
@@ -109,8 +116,8 @@ namespace dimorphics_dataset
             // 1234567890123456789012345678901234567890123456789012345678901234567890123456789
             // CHN  /webclu/data/stride/pdb/pdb1a12.ent C                                 1A12
 
-            public string FileName;
-            public string OneLetterChainIdentifier;
+            internal string FileName;
+            internal string OneLetterChainIdentifier;
 
             public Stride_Chain(string columnFormatLine) : base(columnFormatLine)
             {
@@ -129,9 +136,9 @@ namespace dimorphics_dataset
             // 11-60 Sequence
             // 62-65 Last residue PDB number
 
-            public string FirstResiduePdbNumber;
-            public string Sequence;
-            public string LastResiduePdbNumber;
+            internal string FirstResiduePdbNumber;
+            internal string Sequence;
+            internal string LastResiduePdbNumber;
 
             public Stride_AminoAcidSequence(string columnFormatLine) : base(columnFormatLine)
             {
@@ -149,7 +156,7 @@ namespace dimorphics_dataset
             //Format:
             // 11-60 Secondary structure assignment**
 
-            public string SecondaryStructureAssignment;
+            internal string SecondaryStructureAssignment;
 
             public Stride_SecondaryStructure(string columnFormatLine) : base(columnFormatLine)
             {
@@ -173,13 +180,13 @@ namespace dimorphics_dataset
             // 0        1         2         3         4         5         6         7
             // 1234567890123456789012345678901234567890123456789012345678901234567890123456789
             // LOC  GammaInv     LEU   117 C      GLU    119 C                            1A12
-            public string ElementName;
-            public string FirstResidueName;
-            public string FirstResiduePdbNumber;
-            public string FirstResidueChainIdentifier;
-            public string LastResidueName;
-            public string LastResiduePdbNumber;
-            public string LastResidueChainIdentifier;
+            internal string ElementName;
+            internal string FirstResidueName;
+            internal string FirstResiduePdbNumber;
+            internal string FirstResidueChainIdentifier;
+            internal string LastResidueName;
+            internal string LastResiduePdbNumber;
+            internal string LastResidueChainIdentifier;
 
             public Stride_LocationOfSecondaryStructureElements(string columnFormatLine) : base(columnFormatLine)
             {
@@ -208,17 +215,17 @@ namespace dimorphics_dataset
             // 53-59 Psi angle
             // 65-69 Residue solvent accessible area
 
-            public const char stride_default_secondary_structure = 'C';
-
-            public string ResidueName;
-            public string ProteinChainIdentifier;
-            public string PdbResidueNumber;
-            public string OrdinalResidueNumber;
-            public string OneLetterSecondaryStructureCode;
-            public string FullSecondaryStructureName;
-            public string PhiAngle;
-            public string PsiAngle;
-            public string ResidueSolventAccessibleArea;
+            internal const char stride_default_secondary_structure = 'C';
+            
+            internal string ResidueName;
+            internal string ProteinChainIdentifier;
+            internal string PdbResidueNumber;
+            internal string OrdinalResidueNumber;
+            internal string OneLetterSecondaryStructureCode;
+            internal string FullSecondaryStructureName;
+            internal string PhiAngle;
+            internal string PsiAngle;
+            internal string ResidueSolventAccessibleArea;
 
             public Stride_DetailedSecondaryStructureAssignments(string columnFormatLine) : base(columnFormatLine)
             {
@@ -232,7 +239,7 @@ namespace dimorphics_dataset
                 PsiAngle = columnFormatLine.column_value(53, 59);
                 ResidueSolventAccessibleArea = columnFormatLine.column_value(65, 69);
 
-                if (string.IsNullOrWhiteSpace(OneLetterSecondaryStructureCode)) OneLetterSecondaryStructureCode = stride_default_secondary_structure.ToString();
+                if (string.IsNullOrWhiteSpace(OneLetterSecondaryStructureCode)) OneLetterSecondaryStructureCode = stride_default_secondary_structure.ToString(CultureInfo.InvariantCulture);
             }
 
         }
@@ -256,19 +263,19 @@ namespace dimorphics_dataset
             //61-66 Angle between the planes of ligand_donor complex and O__N_C
             //68-73 Angle between the planes of acceptor complex and N__O_C
 
-            public string LigandDonorResidueName;
-            public string ProteinChainIdentifier1;
-            public string PdbResidueNumber1;
-            public string OrdinalResidueNumber1;
-            public string AcceptorResidueName;
-            public string ProteinChainIdentifier2;
-            public string PdbResidueNumber2;
-            public string OrdinalResidueNumber2;
-            public string N__0Distance;
-            public string N__o_cAngle;
-            public string O__n_cAngle;
-            public string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
-            public string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
+            internal string LigandDonorResidueName;
+            internal string ProteinChainIdentifier1;
+            internal string PdbResidueNumber1;
+            internal string OrdinalResidueNumber1;
+            internal string AcceptorResidueName;
+            internal string ProteinChainIdentifier2;
+            internal string PdbResidueNumber2;
+            internal string OrdinalResidueNumber2;
+            internal string N__0Distance;
+            internal string N__o_cAngle;
+            internal string O__n_cAngle;
+            internal string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
+            internal string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
 
             public Stride_LigandDonorReside(string columnFormatLine) : base(columnFormatLine)
             {
@@ -307,19 +314,19 @@ namespace dimorphics_dataset
             //61-66 Angle between the planes of ligand_donor complex and O..N-C
             //68-73 angle between the planes of acceptor complex and N..O=C
 
-            public string AcceptorResidueName;
-            public string ProteinChainIdentifier1;
-            public string PdbResidueNumber1;
-            public string OrdinalResidueNumber1;
-            public string LigandDonorResidueName;
-            public string ProteinChainIdentifier2;
-            public string PdbResidueNumber2;
-            public string OrdinalResidueNumber2;
-            public string N__0Distance;
-            public string N__o_cAngle;
-            public string O__n_cAngle;
-            public string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
-            public string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
+            internal string AcceptorResidueName;
+            internal string ProteinChainIdentifier1;
+            internal string PdbResidueNumber1;
+            internal string OrdinalResidueNumber1;
+            internal string LigandDonorResidueName;
+            internal string ProteinChainIdentifier2;
+            internal string PdbResidueNumber2;
+            internal string OrdinalResidueNumber2;
+            internal string N__0Distance;
+            internal string N__o_cAngle;
+            internal string O__n_cAngle;
+            internal string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
+            internal string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
 
             public Stride_AcceptorResidue(string columnFormatLine) : base(columnFormatLine)
             {
@@ -344,7 +351,7 @@ namespace dimorphics_dataset
         {
             var result = new List<stride_record>();
 
-            var lines = io.ReadAllLines(strideFilename);
+            var lines = io_proxy.ReadAllLines(strideFilename);
 
             foreach (var columnFormatLine in lines)
             {

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public class dataset_gen_dimorphic
+    public static class dataset_gen_dimorphic
     {
         public static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
         {
@@ -64,6 +65,12 @@ namespace dimorphics_dataset
         public static List<protein_subsequence_info> get_dhc_list(int class_id, string class_name, bool use_dssp3, bool include_host_coil, bool full_protein_seq,
             List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data)
         {
+
+            if (dimorphics_data == null)
+            {
+                throw new ArgumentNullException(nameof(dimorphics_data));
+            }
+
             var tasks = new List<Task<protein_subsequence_info>>();
 
             for (var i = 0; i < dimorphics_data.Count; i++)
@@ -138,7 +145,7 @@ namespace dimorphics_dataset
 
             if (!string.IsNullOrWhiteSpace(optional_res_index))
             {
-                strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index));
+                strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture));
 
                 if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
                 {

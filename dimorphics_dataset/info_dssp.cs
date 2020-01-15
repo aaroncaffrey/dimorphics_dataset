@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 
@@ -8,39 +9,44 @@ namespace dimorphics_dataset
     {
         public class dssp_record
         {
-            public const char dssp_default_secondary_structure = 'C';
-
-            public string SequentualResidueNumber;
-            public string PdbResidueSequenceIndex;
-            public char iCode = ' ';
-            public char Chain;
-            public char AminoAcid;
-            public char SecondaryStructure = dssp_default_secondary_structure;
-            public char TurnsHelix3;
-            public char TurnsHelix4;
-            public char TurnsHelix5;
-            public char GeometricalBend;
-            public char Chirality;
-            public string BetaBridgeLabel2;
-            public string BridgePartner1;
-            public string BridgePartner2;
-            public char BetaSheetLabel;
-            public string Acc;
-            public string N_H___O1;
-            public string O___H_N1;
-            public string N_H___O2;
-            public string O___H_N2;
-            public string Tco;
-            public string Kappa;
-            public string Alpha;
-            public string PHI;
-            public string PSI;
-            public string X_CA;
-            public string Y_CA;
-            public string Z_CA;
+            internal const char dssp_default_secondary_structure = 'C';
+            
+            internal string SequentualResidueNumber;
+            internal string PdbResidueSequenceIndex;
+            internal char iCode = ' ';
+            internal char Chain;
+            internal char AminoAcid;
+            internal char SecondaryStructure = dssp_default_secondary_structure;
+            internal char TurnsHelix3;
+            internal char TurnsHelix4;
+            internal char TurnsHelix5;
+            internal char GeometricalBend;
+            internal char Chirality;
+            internal string BetaBridgeLabel2;
+            internal string BridgePartner1;
+            internal string BridgePartner2;
+            internal char BetaSheetLabel;
+            internal string Acc;
+            internal string N_H___O1;
+            internal string O___H_N1;
+            internal string N_H___O2;
+            internal string O___H_N2;
+            internal string Tco;
+            internal string Kappa;
+            internal string Alpha;
+            internal string PHI;
+            internal string PSI;
+            internal string X_CA;
+            internal string Y_CA;
+            internal string Z_CA;
 
             public dssp_record(string line)
             {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    throw new ArgumentNullException(nameof(line));
+                }
+
                 SequentualResidueNumber = (1 > 0 && 5 > 0 && line.Length >= 1) ? line.Substring(1 - 1, (line.Length >= 5 ? ((5 - 1) + 1) : line.Length - (1 - 1))).Trim() : "";
                 PdbResidueSequenceIndex = (6 > 0 && 10 > 0 && line.Length >= 6) ? line.Substring(6 - 1, (line.Length >= 10 ? ((10 - 6) + 1) : line.Length - (6 - 1))).Trim() : "";
                 iCode = (11 > 0 && 11 > 0 && line.Length >= 11) ? line.Substring(11 - 1, (line.Length >= 11 ? ((11 - 11) + 1) : line.Length - (11 - 1)))[0] : ' ';
@@ -79,7 +85,7 @@ namespace dimorphics_dataset
         {
             const string SsDataMarker1 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA ";
             const string SsDataMarker2 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA            CHAIN";
-            var lines = io.ReadAllLines(file);
+            var lines = io_proxy.ReadAllLines(file);
             
             var dssp_record_list = new List<dssp_record>();
 

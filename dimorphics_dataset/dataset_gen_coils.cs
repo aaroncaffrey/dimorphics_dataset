@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public class dataset_gen_coils
+    public static class dataset_gen_coils
     {
         public static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int class_id, string class_name, bool use_dssp3 = true)
         {

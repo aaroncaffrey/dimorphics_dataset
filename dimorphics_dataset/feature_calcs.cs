@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public class feature_calcs
+    public static class feature_calcs
     {
         public static double transform_value(double value, double length, bool sqrt, bool as_dist)
         {
@@ -27,7 +27,7 @@ namespace dimorphics_dataset
             return value;
         }
 
-        public static string[] atom_types = new string[]
+        internal static string[] atom_types = new string[]
         {
             "CA", "N", "C", "O", "CB", "CG", "H", "HA", "HB2", "HB3", "CD", "CD1", "CG2", "CD2", "HG2", "HG3",
             "CG1", "CZ", "HD2", "OE1", "OD1", "HB", "HG21", "HG22", "HG23", "CE", "HE2", "HG", "HD3", "CE1", "HD11",
@@ -37,10 +37,10 @@ namespace dimorphics_dataset
             "NE1", "CE3", "CZ2", "CZ3", "CH2", "OXT", "H1", "HH2", "H2", "H3"
         }.Distinct().ToArray();
 
-        public static (string atom_type1, string atom_type2)[] atom_type_pairs = atom_types.Union(new[] { "*" }).SelectMany((a, i) => atom_types.Union(new[] { "*" }).Where((b, j) => i <= j).Select(b => (atom_type1: a, atom_type2: b)).ToArray()).Distinct().ToArray();
+        internal static (string atom_type1, string atom_type2)[] atom_type_pairs = atom_types.Union(new[] { "*" }).SelectMany((a, i) => atom_types.Union(new[] { "*" }).Where((b, j) => i <= j).Select(b => (atom_type1: a, atom_type2: b)).ToArray()).Distinct().ToArray();
 
 
-        public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
+        internal static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
         {
             //(-1, "Overall",new List<string>(){
             //    "ARNDCQEGHILKMFPSTWYV"
@@ -126,18 +126,18 @@ namespace dimorphics_dataset
             })
         };
 
-        public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_foldx =
+        internal static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_foldx =
             aa_alphabets.Select(a =>
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).ToList());
+                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
             }).ToList();
 
-        public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_inc_overall = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>(aa_alphabets)
+        internal static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_inc_overall = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>(aa_alphabets)
         {
             (-1, "Overall",new List<(string group_name, string group_amino_acids)>(){
                 ("Overall_ARNDCQEGHILKMFPSTWYV","ARNDCQEGHILKMFPSTWYV")
@@ -145,18 +145,18 @@ namespace dimorphics_dataset
         };
 
 
-        public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_inc_overall_foldx =
+        internal static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> aa_alphabets_inc_overall_foldx =
             aa_alphabets_inc_overall.Select(a =>
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1)).Select(a => a.foldx_aa_code1).ToList());
+                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).Select(a => a.foldx_aa_code1).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
             }).ToList();
 
-        public static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> ss_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
+        internal static readonly List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)> ss_alphabets = new List<(int id, string name, List<(string group_name, string group_amino_acids)> groups)>()
         {
             (0, "SS_HEC"/*T*/,new List<(string group_name, string group_amino_acids)>(){
                 ("Helix_H","H"),
@@ -187,8 +187,8 @@ namespace dimorphics_dataset
 
         public class named_double
         {
-            public string name;
-            public double value;
+            internal string name;
+            internal double value;
         }
 
         public static string[] split_sequence(string seq, int sections = 3, int divisible = 0, bool distribute = false)

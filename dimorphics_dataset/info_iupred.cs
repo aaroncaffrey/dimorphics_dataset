@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -30,12 +31,12 @@ namespace dimorphics_dataset
                 ("glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
             };
 
-            var iup_data = iup_files.SelectMany(a => io.ReadAllLines(a.filename).Where(b=>!b.StartsWith("#") && "0123456789".Contains(b.First())).Select((b,i) =>
+            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename).Where(b=>!b.StartsWith("#", StringComparison.InvariantCulture) && "0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
             {
 
                 var x= b.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
 
-                var y = (type:a.type, line_index:i, data_index:int.Parse(x[0]), amino_acid:x[1][0], score: double.Parse(x[2]), anchor2:double.Parse(x[3]));
+                var y = (type:a.type, line_index:i, data_index:int.Parse(x[0], NumberStyles.Integer, CultureInfo.InvariantCulture), amino_acid:x[1][0], score: double.Parse(x[2], NumberStyles.Float, CultureInfo.InvariantCulture), anchor2:double.Parse(x[3], NumberStyles.Float, CultureInfo.InvariantCulture));
 
                 return y;
 

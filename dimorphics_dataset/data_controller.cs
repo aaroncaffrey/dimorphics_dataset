@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public class data_controller
+    public static class data_controller
     {
         //public static List<subsequence_classification_data> extract_features_list
         //      (
@@ -217,7 +217,7 @@ namespace dimorphics_dataset
         public static List<string> get_row_comments(int row_index, (instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
         {
             var row_comments = new List<string>();
-            row_comments.Add(row_index.ToString());
+            row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
             row_comments.Add($"{(row_encoded.instance_meta_data.protein_pdb_id)}");
             row_comments.Add($"{(row_encoded.instance_meta_data.protein_chain_id)}");
             row_comments.Add($"{(row_encoded.instance_meta_data.protein_dimer_type)}");
@@ -229,7 +229,7 @@ namespace dimorphics_dataset
             row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq)}");
             row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq.Length)}");
             row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq)}");
-            row_comments.Add($"{(string.Join(" ", row_encoded.instance_meta_data.subsequence_res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && a.i_code != ' ' ? a.i_code.ToString() : "")}").ToList()))}");
+            row_comments.Add($"{(string.Join(" ", row_encoded.instance_meta_data.subsequence_res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && a.i_code != ' ' ? a.i_code.ToString(CultureInfo.InvariantCulture) : "")}").ToList()))}");
             row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_monomer)}");
             row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_multimer)}");
             row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_monomer)}");

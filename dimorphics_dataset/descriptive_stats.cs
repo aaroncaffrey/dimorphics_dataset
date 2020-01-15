@@ -8,73 +8,73 @@ namespace dimorphics_dataset
 
     public class descriptive_stats
     {
-        public string member_id_name;
-        public uint count;
-        public uint count_zero_values;
-        public uint count_non_zero_values;
-        public uint count_distinct_values;
-        public double sum;
-        public double mean_arithmetic;
-        //public double mean_geometric;
-        //public double mean_harmonic;
-        public double min;
-        public double max;
-        public double range;
-        public double mid_range;
-        public double variance;
-        public double dev_standard;
-        public double skewness;
-        public double kurtosis;
-        public double interquartile_range;
-        public double median_q1;
-        public double median_q2;
-        public double median_q3;
-        public double sum_of_error;
-        public double sum_of_error_square;
-        public double mode;
-        public double mad_mean_arithmetic;
-        //public double mad_mean_harmonic;
-        //public double mad_mean_geometric;
-        public double mad_median_q1;
-        public double mad_median_q2;
-        public double mad_median_q3;
-        public double mad_mode;
-        public double mad_mid_range;
-
-        public descriptive_stats interquartile_range_descriptive_stats;
-        public descriptive_stats intervals_descriptive_stats;
+        internal string member_id_name;
+        internal uint count;
+        internal uint count_zero_values;
+        internal uint count_non_zero_values;
+        internal uint count_distinct_values;
+        internal double sum;
+        internal double mean_arithmetic;
+        //internal double mean_geometric;
+        //internal double mean_harmonic;
+        internal double min;
+        internal double max;
+        internal double range;
+        internal double mid_range;
+        internal double variance;
+        internal double dev_standard;
+        internal double skewness;
+        internal double kurtosis;
+        internal double interquartile_range;
+        internal double median_q1;
+        internal double median_q2;
+        internal double median_q3;
+        internal double sum_of_error;
+        internal double sum_of_error_square;
+        internal double mode;
+        internal double mad_mean_arithmetic;
+        //internal double mad_mean_harmonic;
+        //internal double mad_mean_geometric;
+        internal double mad_median_q1;
+        internal double mad_median_q2;
+        internal double mad_median_q3;
+        internal double mad_mode;
+        internal double mad_mid_range;
+        
+        internal descriptive_stats interquartile_range_descriptive_stats;
+        internal descriptive_stats intervals_descriptive_stats;
 
         public class descriptive_stats_encoding_options
         {
-            public string options_name = "";
-
-            public bool count = false;
-            public bool count_zero_values = false;
-            public bool count_non_zero_values = false;
-            public bool count_distinct_values = false;
-            public bool sum = false;
-            public bool mean_arithmetic = false;
-            public bool min = false;
-            public bool max = false;
-            public bool range = false;
-            public bool mid_range = false;
-            public bool variance = false;
-            public bool dev_standard = false;
-            public bool skewness = false;
-            public bool kurtosis = false;
-            public bool interquartile_range = false;
-            public bool median_q1 = false;
-            public bool median_q2 = false;
-            public bool median_q3 = false;
-            public bool sum_of_error = false;
-            public bool sum_of_error_square = false;
-            public bool mode = false;
-            public bool mad_mean_arithmetic = false;
-            public bool mad_median_q1 = false;
-            public bool mad_median_q2 = false;
-            public bool mad_median_q3 = false;
-            public bool mad_mode = false;
-            public bool mad_mid_range = false;
+            internal string options_name = "";
+            
+            internal bool count = false;
+            internal bool count_zero_values = false;
+            internal bool count_non_zero_values = false;
+            internal bool count_distinct_values = false;
+            internal bool sum = false;
+            internal bool mean_arithmetic = false;
+            internal bool min = false;
+            internal bool max = false;
+            internal bool range = false;
+            internal bool mid_range = false;
+            internal bool variance = false;
+            internal bool dev_standard = false;
+            internal bool skewness = false;
+            internal bool kurtosis = false;
+            internal bool interquartile_range = false;
+            internal bool median_q1 = false;
+            internal bool median_q2 = false;
+            internal bool median_q3 = false;
+            internal bool sum_of_error = false;
+            internal bool sum_of_error_square = false;
+            internal bool mode = false;
+            internal bool mad_mean_arithmetic = false;
+            internal bool mad_median_q1 = false;
+            internal bool mad_median_q2 = false;
+            internal bool mad_median_q3 = false;
+            internal bool mad_mode = false;
+            internal bool mad_mid_range = false;
 
             public descriptive_stats_encoding_options(string name, bool enable = false)
             {
@@ -213,12 +213,12 @@ namespace dimorphics_dataset
             {
                 if (calc_interquartile_range_stats)
                 {
-                    this.interquartile_range_descriptive_stats = new descriptive_stats(new double[0], $"{this.member_id_name}_{nameof(this.interquartile_range_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
+                    this.interquartile_range_descriptive_stats = new descriptive_stats(Array.Empty<double>(), $"{this.member_id_name}_{nameof(this.interquartile_range_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
                 }
 
                 if (calc_interval_stats)
                 {
-                    this.intervals_descriptive_stats = new descriptive_stats(new double[0], $"{this.member_id_name}_{nameof(this.intervals_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
+                    this.intervals_descriptive_stats = new descriptive_stats(Array.Empty<double>(), $"{this.member_id_name}_{nameof(this.intervals_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
                 }
 
                 return;
@@ -470,7 +470,10 @@ namespace dimorphics_dataset
 
         public static double mad(double[] values, double? centre)
         {
-            if (values.Length == 0) return 0;
+            if (values == null || values.Length == 0)
+            {
+                return 0;
+            }
 
             if (centre == null) centre = values.Average();
 
@@ -481,8 +484,20 @@ namespace dimorphics_dataset
 
         public static double percentile(double[] sorted_data, double p)
         {
-            if (sorted_data.Length == 0) return 0;
-            if (sorted_data.Length == 1) return sorted_data[0];
+            if (sorted_data == null)
+            {
+                return 0; //throw new ArgumentNullException(nameof(sorted_data));
+            }
+
+            if (sorted_data.Length == 0)
+            {
+                return 0;
+            }
+
+            if (sorted_data.Length == 1)
+            {
+                return sorted_data[0];
+            }
 
             // algo derived from Aczel pg 15 bottom
             if (p >= (double)100.0)

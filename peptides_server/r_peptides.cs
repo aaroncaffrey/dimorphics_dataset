@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using dimorphics_dataset;
 using RDotNet;
@@ -12,7 +13,7 @@ namespace peptides_server
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
 
-        public static int id;
+        private static int id;
 
         public static string Key
         {
@@ -57,19 +58,19 @@ namespace peptides_server
                     if (!exists(""AAdata"")) data(AAdata)
                 ";
                 
-                r_init_cmds.Split(new char[] {'\r', '\n'}).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#")).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] {'\r', '\n'}).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
         }
 
-        public static List<subsequence_classification_data.feature_info> template_get_values = null;
+        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
 
-        public static object get_values_lock = new object();
+        private static object _get_values_lock = new object();
 
         public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
-            lock (get_values_lock)
+            lock (_get_values_lock)
             {
                 r_peptides.id = id;
 
@@ -77,9 +78,9 @@ namespace peptides_server
                 {
                     if (string.IsNullOrWhiteSpace(sequence))
                     {
-                        if (template_get_values != null)
+                        if (_template_get_values != null)
                         {
-                            var template = template_get_values.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
+                            var template = _template_get_values.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
 
                             return template;
                         }
@@ -419,10 +420,10 @@ namespace peptides_server
                     //Console.WriteLine($"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
                     //Console.WriteLine("");
 
-                    if (template_get_values == null)
+                    if (_template_get_values == null)
                     {
                         var template = features.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = "", source = "", feature_value = 0}).ToList();
-                        template_get_values = template;
+                        _template_get_values = template;
                     }
 
                     return features;
@@ -454,6 +455,8 @@ namespace peptides_server
         public static List<(int row, string rowname, double count, double value)> aaComp(REngine engine, string seq)
         {
             // https://rdrr.io/cran/Peptides/man/aaComp.html
+
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
 
             lock (engine_lock)
             {
@@ -522,6 +525,8 @@ namespace peptides_server
         /// <returns>a matrix with 66 amino acid descriptors for each aminoacid in a protein sequence.</returns>
         public static List<(int row, string rowname, int col, string colname, double value)> aaDescriptors(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(aaDescriptors);
@@ -570,6 +575,8 @@ namespace peptides_server
         /// <returns>The computed aliphatic index for a given amino-acids sequence</returns>
         public static double aIndex(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(aIndex);
@@ -589,7 +596,7 @@ namespace peptides_server
             }
         }
 
-        public static string[] autoCorrelation_properties = new string[]
+        internal static string[] autoCorrelation_properties = new string[]
             {
 //"$BLOSUM",
 "$BLOSUM$BLOSUM1",
@@ -738,6 +745,8 @@ namespace peptides_server
         /// <returns>The computed auto-correlation index for a given amino-acids sequence</returns>
         public static double autoCorrelation(REngine engine, string seq, int lag, string property, bool center = true)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (!autoCorrelation_properties.Contains(property)) throw new Exception();
@@ -749,7 +758,7 @@ namespace peptides_server
                 var v = $"{f}_v{k}";
 
                 var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString().ToUpperInvariant()})");
+                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
                 var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
@@ -773,6 +782,8 @@ namespace peptides_server
         /// <returns>The computed auto-covariance index for a given amino-acids sequence</returns>
         public static double autoCovariance(REngine engine, string seq, int lag, string property, bool center = true)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (!autoCorrelation_properties.Contains(property)) throw new Exception();
@@ -784,7 +795,7 @@ namespace peptides_server
                 var v = $"{f}_v{k}";
 
                 var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString().ToUpperInvariant()})");
+                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
                 var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
@@ -805,6 +816,8 @@ namespace peptides_server
         /// <returns>The computed average of BLOSUM indices of all the amino acids in the corresponding peptide sequence.</returns>
         public static List<(int index, string name, double value)> blosumIndices(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(blosumIndices);
@@ -843,6 +856,8 @@ namespace peptides_server
         /// <returns>The computed potential protein-protein interaction for a given amino-acids sequence</returns>
         public static double boman(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(boman);
@@ -861,7 +876,7 @@ namespace peptides_server
             }
         }
 
-        public static string[] pKscales = new string[]
+        internal static string[] pKscales = new string[]
         {
             "Bjellqvist", "Dawson", "EMBOSS", "Lehninger", "Murray", "Rodwell", "Sillero", "Solomon", "Stryer"
         };
@@ -896,6 +911,8 @@ namespace peptides_server
         /// <returns></returns>
         public static double charge(REngine engine, string seq, double pH = 7, string pKscale = "Lehninger")
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq) ||  string.IsNullOrWhiteSpace(pKscale)) return default;
+
             lock (engine_lock)
             {
                 if (!pKscales.Contains(pKscale)) throw new Exception();
@@ -928,6 +945,8 @@ namespace peptides_server
         /// <returns>The computed cross-covariance index for a given amino-acids sequence</returns>
         public static double crossCovariance(REngine engine, string seq, int lag, string property1, string property2, bool center = true)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq) || string.IsNullOrWhiteSpace(property1) || string.IsNullOrWhiteSpace(property2)) return default;
+
             lock (engine_lock)
             {
                 if (!autoCorrelation_properties.Contains(property1)) throw new Exception();
@@ -941,7 +960,7 @@ namespace peptides_server
                 var v = $"{f}_v{k}";
 
                 var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property1 = AAdata{property1}, property2 = AAdata{property2}, center = {center.ToString().ToUpperInvariant()})");
+                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property1 = AAdata{property1}, property2 = AAdata{property2}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
                 var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
@@ -967,6 +986,8 @@ namespace peptides_server
         /// </returns>
         public static List<(int index, string name, string description, double value)> crucianiProperties(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(crucianiProperties);
@@ -1025,6 +1046,9 @@ namespace peptides_server
 
         public static List<(int index, string name, string description, double value)> fasgaiVectors(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
+
             lock (engine_lock)
             {
                 var f = nameof(fasgaiVectors);
@@ -1076,6 +1100,8 @@ namespace peptides_server
         /// <returns>The computed maximal hydrophobic moment (uH) for a given amino-acids sequence</returns>
         public static double hmoment(REngine engine, string seq, int angle = 100, int window = 11)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (string.IsNullOrWhiteSpace(seq)) return 0;
@@ -1096,7 +1122,7 @@ namespace peptides_server
         }
 
 
-        public static string[] hydrophobicity_scales = new string[]
+        internal static string[] hydrophobicity_scales = new string[]
         {
             "Aboderin", "AbrahamLeo", "Argos", "BlackMould", "BullBreese", "Casari", "Chothia", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg", "Engelman", "Fasman", "Fauchere", "Goldsack", "Guy", "HoppWoods", "Janin", "Jones", "Juretic", "Kidera", "Kuhn", "KyteDoolittle", "Levitt", "Manavalan", "Miyazawa", "Parker", "Ponnuswamy", "Prabhakaran", "Rao", "Rose", "Roseman", "Sweet", "Tanford", "Welling", "Wilson", "Wolfenden", "Zimmerman", "interfaceScale_pH8", "interfaceScale_pH2", "octanolScale_pH8", "octanolScale_pH2", "oiScale_pH8", "oiScale_pH2"
         };
@@ -1158,6 +1184,8 @@ namespace peptides_server
         /// <returns>The computed GRAVY index for a given amino-acid sequence</returns>
         public static double hydrophobicity(REngine engine, string seq, string scale = "KyteDoolittle")
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (!hydrophobicity_scales.Contains(scale)) throw new Exception();
@@ -1190,6 +1218,8 @@ namespace peptides_server
         /// <returns>The computed instability index for a given amino-acids sequence</returns>
         public static double instaIndex(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(instaIndex);
@@ -1234,6 +1264,8 @@ namespace peptides_server
         /// </returns>
         public static List<(int index, string name, string description, double value)> kideraFactors(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(kideraFactors);
@@ -1286,6 +1318,8 @@ namespace peptides_server
         /// <returns></returns>
         public static double lengthpep(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(lengthpep);
@@ -1321,6 +1355,8 @@ namespace peptides_server
         /// <returns>A data frame for each sequence given with the calculated class for each window of eleven amino-acids</returns>
         public static List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)> membpos(REngine engine, string seq, int angle = 100)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (string.IsNullOrWhiteSpace(seq)) return new List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)>();
@@ -1377,6 +1413,8 @@ namespace peptides_server
         /// <returns>The computed average of MS-WHIM scores of all the amino acids in the corresponding peptide sequence.</returns>
         public static List<(int index, string name, double value)> mswhimScores(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(mswhimScores);
@@ -1423,6 +1461,8 @@ namespace peptides_server
         /// <returns></returns>
         public static double mw(REngine engine, string seq, bool monoisotopic = false)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
 
@@ -1431,7 +1471,7 @@ namespace peptides_server
                 var k = Key;
                 var v = $"{f}_v{k}";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(monoisotopic)} = {monoisotopic.ToString().ToUpperInvariant()})";
+                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(monoisotopic)} = {monoisotopic.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})";
                 var evaluate = engine.Evaluate(eval_cmd);
                 var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
@@ -1457,6 +1497,8 @@ namespace peptides_server
         /// <returns></returns>
         public static double pI(REngine engine, string seq, string pKscale = "EMBOSS")
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 if (!pKscales.Contains(pKscale)) throw new Exception();
@@ -1488,6 +1530,8 @@ namespace peptides_server
         /// <returns>The computed average of protFP descriptors of all the amino acids in the corresponding peptide sequence.</returns>
         public static List<(int index, string name, double value)> protFP(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(protFP);
@@ -1530,6 +1574,8 @@ namespace peptides_server
         /// <returns>The computed average of ST-scales of all the amino acids in the corresponding peptide sequence.</returns>
         public static List<(int index, string name, double value)> stScales(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(stScales);
@@ -1572,6 +1618,8 @@ namespace peptides_server
         /// <returns>The computed average of T-scales of all the amino acids in the corresponding peptide sequence.</returns>
         public static List<(int index, string name, double value)> tScales(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(tScales);
@@ -1619,6 +1667,8 @@ namespace peptides_server
         /// </returns>
         public static List<(int index, string name, string description, double value)> vhseScales(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(vhseScales);
@@ -1677,6 +1727,8 @@ namespace peptides_server
         /// </returns>
         public static List<(int index, string name, string description, double value)> zScales(REngine engine, string seq)
         {
+            if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
+
             lock (engine_lock)
             {
                 var f = nameof(zScales);
