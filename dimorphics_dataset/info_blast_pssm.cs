@@ -72,7 +72,7 @@ namespace dimorphics_dataset
             if (run)
             {
 
-                io_proxy.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"{start.FileName}\" {start.Arguments}");
+                io_proxy.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"{start.FileName}\" {start.Arguments}", nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
 
                 using var process = Process.Start(start);
 
@@ -88,7 +88,7 @@ namespace dimorphics_dataset
                     if (!string.IsNullOrWhiteSpace(stdout))
                     {
                         stdout = ("\r\n" + stdout).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
-                        io_proxy.WriteLine(stdout);
+                        io_proxy.WriteLine(stdout, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
                     }
                 }
 
@@ -99,7 +99,7 @@ namespace dimorphics_dataset
                     if (!string.IsNullOrWhiteSpace(stderr))
                     {
                         stderr = ("\r\n" + stderr).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
-                        io_proxy.WriteLine(stderr);
+                        io_proxy.WriteLine(stderr, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
                     }
                 }
 
@@ -237,7 +237,7 @@ namespace dimorphics_dataset
                 return new List<pssm_entry>();
             }
 
-            var line_list = io_proxy.ReadAllLines(pssm_filename).Skip(2).ToList();
+            var line_list = io_proxy.ReadAllLines(pssm_filename, nameof(info_blast_pssm), nameof(load_psi_blast_pssm)).Skip(2).ToList();
             var pssm_end_index = line_list.IndexOf("");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 

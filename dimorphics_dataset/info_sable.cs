@@ -29,7 +29,7 @@ namespace dimorphics_dataset
 
         public static List<info_sable_item> load(string filename)// = Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt")
         {
-            var lines = io_proxy.ReadAllLines(filename).ToList();
+            var lines = io_proxy.ReadAllLines(filename, nameof(info_sable), nameof(load)).ToList();
 
             var queries = new List<List<string>>();
 

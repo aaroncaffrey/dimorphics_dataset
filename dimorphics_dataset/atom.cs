@@ -161,7 +161,7 @@ namespace dimorphics_dataset
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
             pdb_id = pdb_id.ToUpperInvariant();
 
-            var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb", nameof(atom), nameof(extract_split_pdb_chains)).ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL", StringComparison.InvariantCulture));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ", StringComparison.InvariantCulture)).ToList();
@@ -204,7 +204,7 @@ namespace dimorphics_dataset
             var pdb_out_folder = $@"{drive_letter}:\betastrands_dataset\pdb_split\";
 
             pdb_id = pdb_id.ToUpperInvariant();
-            var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb").ToList();
+            var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb", nameof(atom), nameof(extract_split_pdb_chains_res_ids)).ToList();
             var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL", StringComparison.InvariantCulture));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith("ATOM ",StringComparison.InvariantCulture) && a[21] == chain_id && int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture) >= first_res_id && int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture) <= last_res_id).ToList();
@@ -248,14 +248,14 @@ namespace dimorphics_dataset
             {
                 if (process == null) return;
 
-                io_proxy.WriteLine(start.FileName + " " + start.Arguments);
+                io_proxy.WriteLine($"{start.FileName} {start.Arguments}", nameof(atom), nameof(run_dssp));
                 using (var reader = process.StandardOutput)
                 {
                     var result = reader.ReadToEnd(); // Here is the result of StdOut(for example: print "test")
-                    if (!string.IsNullOrWhiteSpace(result)) io_proxy.WriteLine(result);
+                    if (!string.IsNullOrWhiteSpace(result)) io_proxy.WriteLine(result, nameof(atom), nameof(run_dssp));
 
                     var stderr = process.StandardError.ReadToEnd(); // Here are the exceptions from our Python script
-                    if (!string.IsNullOrWhiteSpace(stderr)) io_proxy.WriteLine(stderr);
+                    if (!string.IsNullOrWhiteSpace(stderr)) io_proxy.WriteLine(stderr, nameof(atom), nameof(run_dssp));
                     return;
                 }
             }
@@ -347,7 +347,7 @@ namespace dimorphics_dataset
             var pdb_id_simple = pdb_id.Substring(0, 4);
             var result = new List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)>();
             var pdb_filename = Path.Combine(pdb_folder, $@"{pdb_id}.pdb");
-            var pdb_lines = io_proxy.ReadAllLines(pdb_filename).ToList();
+            var pdb_lines = io_proxy.ReadAllLines(pdb_filename, nameof(atom), nameof(load_atoms_pdb)).ToList();
             var pdb_model_array_index = -1;
 
 
@@ -536,7 +536,7 @@ namespace dimorphics_dataset
 
                     if (!File.Exists(uniprot_file) || new FileInfo(uniprot_file).Length == 0) continue;
 
-                    var uniprot_sequence = string.Join("", io_proxy.ReadAllLines(uniprot_file).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">", StringComparison.InvariantCulture)).ToList());
+                    var uniprot_sequence = string.Join("", io_proxy.ReadAllLines(uniprot_file, nameof(atom), nameof(load_atoms_pdb)).Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">", StringComparison.InvariantCulture)).ToList());
 
                     c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
                 }
@@ -1189,7 +1189,7 @@ namespace dimorphics_dataset
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
 
-            var lookup_sequence_table = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences.txt")).ToList();
+            var lookup_sequence_table = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences.txt"), nameof(atom), nameof(load_mpsa_sec_struct_predictions)).ToList();
 
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
@@ -1271,7 +1271,7 @@ namespace dimorphics_dataset
 
             foreach (var file in files)
             {
-                var data = io_proxy.ReadAllLines(file).First();
+                var data = io_proxy.ReadAllLines(file, nameof(atom), nameof(load_dna_binding)).First();
                 var data2 = string.Join("",data.Where(a => !"{}'':,".Contains(a,StringComparison.InvariantCulture)).ToList()).Split().ToList();
 
                 var non_binding_prob = double.Parse(data2[data2.IndexOf("non-binding_prob") + 1], NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -1389,7 +1389,7 @@ namespace dimorphics_dataset
                             $"Warning: Ring Edge File is missing or empty: {ring_monomer_edge_filename}";
 
                         io_proxy.AppendAllLines(missing_edges_file, new string[] { missing_edges_text}, nameof(atom), nameof(load_ring));
-                        io_proxy.WriteLine(missing_edges_text);
+                        io_proxy.WriteLine(missing_edges_text, nameof(atom), nameof(load_ring));
                     }
 
                     var ring_monomer_edges = info_ring.info_ring_edge.load(ring_monomer_edge_filename);
@@ -1434,7 +1434,7 @@ namespace dimorphics_dataset
                             $"Warning: Ring Node File is missing or empty: {ring_monomer_node_filename}";
 
                         io_proxy.AppendAllLines(missing_nodes_file, new string[] { missing_nodes_text }, nameof(atom), nameof(load_ring));
-                        io_proxy.WriteLine(missing_nodes_text);
+                        io_proxy.WriteLine(missing_nodes_text, nameof(atom), nameof(load_ring));
 
                     }
 

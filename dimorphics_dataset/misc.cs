@@ -236,7 +236,7 @@ namespace dimorphics_dataset
         public static void fill_missing_chains()
         {
 
-            var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv");
+            var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv", nameof(misc), nameof(fill_missing_chains));
 
             var lines_header = lines_all.First();
 
@@ -410,7 +410,7 @@ namespace dimorphics_dataset
         public static List<string> get_pdb_sequences(bool limited_to_dimorphics_and_standard = true)
         {
 
-            var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"))
+            var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), nameof(misc), nameof(get_pdb_sequences))
                 .Skip(1).Where(a => !String.IsNullOrWhiteSpace(a.Replace(",", "", StringComparison.InvariantCulture))).Select((a, i) =>
                 {
                     var x = a.Split(',');
@@ -532,8 +532,8 @@ namespace dimorphics_dataset
             // 1. if 'output_fasta_files' is true, outputs the fasta sequences in individual files
             // 2. makes a list of command lines to run blast, skipping any pssm files which already exist (& can also run blast if 'run' set to true)
 
-            var txt_sequences = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"));
-            var txt_sequences_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences_limited.txt"));
+            var txt_sequences = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"), nameof(misc), nameof(get_pssms));
+            var txt_sequences_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences_limited.txt"), nameof(misc), nameof(get_pssms));
 
             //var excluded = txt_sequences.Except(txt_sequences_limited).ToList();
             //var included = txt_sequences.Except(excluded).ToList();
@@ -611,7 +611,7 @@ namespace dimorphics_dataset
 
                         var pssm_copy_file = Path.Combine(pssm_blast_output_folder, $@"{index1}.pssm");
 
-                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith("PSI Gapped", StringComparison.InvariantCulture)))
+                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file, nameof(misc), nameof(get_pssms)).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith("PSI Gapped", StringComparison.InvariantCulture)))
                         {
                             skipped_pssm_exists++;
                             continue;
@@ -653,7 +653,7 @@ namespace dimorphics_dataset
 
         public static void load_pssms()
         {
-            var txt_sequences = io_proxy.ReadAllLines(@"c:\bioinf\betastrands_dataset_sequences.txt");
+            var txt_sequences = io_proxy.ReadAllLines(@"c:\bioinf\betastrands_dataset_sequences.txt", nameof(misc), nameof(load_pssms));
 
 
 
@@ -718,7 +718,7 @@ namespace dimorphics_dataset
             //var pdb_id_list = dimorphics_data.Select(a => a.pdb_id.Trim().ToUpperInvariant()).Distinct().ToList();
 
 
-            var sifts_lookup = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"sifts", $@"pdb_chain_uniprot.csv")).Skip(2).Select(a =>
+            var sifts_lookup = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"sifts", $@"pdb_chain_uniprot.csv"), nameof(misc), nameof(get_uniprot_sequences)).Skip(2).Select(a =>
             {
 
                 var x = a.Split(',');
@@ -776,7 +776,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"missing_foldx_calc_buildmodel_position_scan.bat");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_position_scan.bat");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
 
 
             var cmd_list_parsed = cmd_list.Select(a =>
@@ -796,12 +796,12 @@ namespace dimorphics_dataset
 
 
 
-                var mutant_data = io_proxy.ReadAllLines(mutant_file).Where(b => !String.IsNullOrWhiteSpace(b)).Select(b => b.Trim()).ToList();
+                var mutant_data = io_proxy.ReadAllLines(mutant_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(b => !String.IsNullOrWhiteSpace(b)).Select(b => b.Trim()).ToList();
 
 
-                var dif_fxout_data = (!File.Exists(dif_fxout_file) || new FileInfo(dif_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(dif_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
-                var average_fxout_data = (!File.Exists(average_fxout_file) || new FileInfo(average_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(average_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
-                var raw_fxout_data = (!File.Exists(raw_fxout_file) || new FileInfo(raw_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(raw_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var dif_fxout_data = (!File.Exists(dif_fxout_file) || new FileInfo(dif_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(dif_fxout_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var average_fxout_data = (!File.Exists(average_fxout_file) || new FileInfo(average_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(average_fxout_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var raw_fxout_data = (!File.Exists(raw_fxout_file) || new FileInfo(raw_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(raw_fxout_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
 
 
                 return (dif_fxout_file, dif_fxout_data, average_fxout_file, average_fxout_data, raw_fxout_file, raw_fxout_data, mutant_file, mutant_data, a);
@@ -850,7 +850,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"missing_foldx_calc_buildmodel_subsequence_mutant.bat");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_subsequence_mutant.bat");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
 
 
 
@@ -871,12 +871,12 @@ namespace dimorphics_dataset
 
 
 
-                var mutant_data = io_proxy.ReadAllLines(mutant_file).Where(b => !String.IsNullOrWhiteSpace(b)).Select(b => b.Trim()).ToList();
+                var mutant_data = io_proxy.ReadAllLines(mutant_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(b => !String.IsNullOrWhiteSpace(b)).Select(b => b.Trim()).ToList();
 
 
-                var dif_fxout_data = (!File.Exists(dif_fxout_file) || new FileInfo(dif_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(dif_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
-                var average_fxout_data = (!File.Exists(average_fxout_file) || new FileInfo(average_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(average_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
-                var raw_fxout_data = (!File.Exists(raw_fxout_file) || new FileInfo(raw_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(raw_fxout_file).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var dif_fxout_data = (!File.Exists(dif_fxout_file) || new FileInfo(dif_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(dif_fxout_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var average_fxout_data = (!File.Exists(average_fxout_file) || new FileInfo(average_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(average_fxout_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
+                var raw_fxout_data = (!File.Exists(raw_fxout_file) || new FileInfo(raw_fxout_file).Length == 0) ? new List<string>() : io_proxy.ReadAllLines(raw_fxout_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Skip(9).Where(b => !String.IsNullOrWhiteSpace(b)).ToList();
 
 
                 return (dif_fxout_file, dif_fxout_data, average_fxout_file, average_fxout_data, raw_fxout_file, raw_fxout_data, mutant_file, mutant_data, a);
@@ -922,7 +922,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx",$@"bat", $@"missing_foldx_calc_ala_scanning.bat.skip");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_ala_scanning.bat.skip");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file).Where(a => a.Contains("--pdb=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_ala_scanning_files_are_complete)).Where(a => a.Contains("--pdb=", StringComparison.InvariantCulture)).ToList();
 
             var cmd_list_parsed = cmd_list.Select(a =>
             {
@@ -934,10 +934,10 @@ namespace dimorphics_dataset
 
                 var ala_file = Path.Combine(ala_scan_folder, $"{id}_AS.fxout");
 
-                var pdb_res = io_proxy.ReadAllLines(pdb_file).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(c =>
+                var pdb_res = io_proxy.ReadAllLines(pdb_file, nameof(misc), nameof(check_ala_scanning_files_are_complete)).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(c =>
                     c.Substring(17, 3) + " " + Int32.Parse(c.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
 
-                var ala_res = io_proxy.ReadAllLines(ala_file).Where(c => !String.IsNullOrWhiteSpace(c))
+                var ala_res = io_proxy.ReadAllLines(ala_file, nameof(misc), nameof(check_ala_scanning_files_are_complete)).Where(c => !String.IsNullOrWhiteSpace(c))
                     .Select(c => c.Substring(0, c.IndexOf(" to ", StringComparison.InvariantCulture)).Trim()).ToList();
 
                 ala_res = ala_res.Select(b => b.Replace("H1S", "HIS", StringComparison.InvariantCulture)).ToList();
@@ -989,7 +989,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_position_scanning.bat");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_position_scanning.bat");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file).Where(a => a.Contains("--positions=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Where(a => a.Contains("--positions=", StringComparison.InvariantCulture)).ToList();
 
             var cmd_list_parsed = cmd_list.Select(a =>
             {
@@ -1043,7 +1043,7 @@ namespace dimorphics_dataset
 
                 var x_res = x.Select(a => Int32.Parse(String.Join("", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
 
-                var scanning_data = File.Exists(c.file) && new FileInfo(c.file).Length > 0 ? io_proxy.ReadAllLines(c.file).Select(a =>
+                var scanning_data = File.Exists(c.file) && new FileInfo(c.file).Length > 0 ? io_proxy.ReadAllLines(c.file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Select(a =>
                 {
                     var z = a.Split();
                     z[0] = info_foldx.foldx_residues_aa_mutable.First(d => d.foldx_aa_code3 == z[0].Substring(0, 3)).standard_aa_code1 + z[0].Substring(3);
@@ -1109,8 +1109,8 @@ namespace dimorphics_dataset
 
             List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> diff = pdbs.Select(a =>
             {
-                var o = io_proxy.ReadAllLines(a.pdb_original).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
-                var r = io_proxy.ReadAllLines(a.pdb_repair).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var o = io_proxy.ReadAllLines(a.pdb_original, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var r = io_proxy.ReadAllLines(a.pdb_repair, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
                 var i = o.Intersect(r).ToList();
                 var e1 = o.Except(r).ToList();
                 var e2 = r.Except(o).ToList();
@@ -1128,8 +1128,8 @@ namespace dimorphics_dataset
         public static void get_limited_ids()
         {
 
-            var seqs_all = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"));
-            var seqs_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences_limited.txt"));
+            var seqs_all = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"), nameof(misc), nameof(get_limited_ids));
+            var seqs_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences_limited.txt"), nameof(misc), nameof(get_limited_ids));
 
             var ids = seqs_all.Select((a, i) => seqs_limited.Contains(a) ? i : -1).Distinct().Where(a => a != -1).ToList();
 

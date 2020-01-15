@@ -12,11 +12,6 @@ namespace dimorphics_dataset
 {
     public static class program
     {
-        // todo: tortuosity for NH, Protein. tort for CA, CB, NH, other types of atoms.
-        // todo: average distance between AAs in interface, NH, Protein.
-        // todo: distance between different types of atoms...
-        // todo: protr
-
         internal static string data_root_folder = $@"C:\betastrands_dataset\";
 
         //public class class_info
@@ -31,7 +26,7 @@ namespace dimorphics_dataset
         {
             //List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)>
 
-            var dimorphics_data1 = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"))
+            var dimorphics_data1 = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), nameof(program), nameof(get_dataset_pdb_id_list))
                 .Skip(1)
                 .Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", "", StringComparison.InvariantCulture)))
                 .Select((a, i) =>
@@ -192,22 +187,27 @@ namespace dimorphics_dataset
             Task.WaitAll(tasks.ToArray<Task>());
         }
 
-        public static void Main(string[] args)
+        public static void close_notifications()
         {
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                io_proxy.WriteLine($@"Console.CancelKeyPress", nameof(program), nameof(Main));
+                io_proxy.WriteLine($@"Console.CancelKeyPress", nameof(program), nameof(close_notifications));
             };
             AssemblyLoadContext.Default.Unloading += context =>
             {
-                io_proxy.WriteLine($@"AssemblyLoadContext.Default.Unloading", nameof(program), nameof(Main));
+                io_proxy.WriteLine($@"AssemblyLoadContext.Default.Unloading", nameof(program), nameof(close_notifications));
             };
             AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
             {
-                io_proxy.WriteLine($@"AppDomain.CurrentDomain.ProcessExit", nameof(program), nameof(Main));
+                io_proxy.WriteLine($@"AppDomain.CurrentDomain.ProcessExit", nameof(program), nameof(close_notifications));
             };
+        }
 
-            args = new string[] { "2i", "true", "+1", "dimorphic_coil", "3", "100", $@"e:\dataset\test\" };
+        public static void Main(string[] args)
+        {
+            close_notifications();
+
+            args = new string[] { "2n", "true", "+1", "dimorphic_coil", "3", "100", $@"e:\dataset\test\" };
 
             io_proxy.WriteLine(string.Join(" ", args), nameof(program), nameof(Main));
             // dimorphics_dataset.exe  [2i,2n,2p,3i,3n,3p] [use_dssp3=true|false] [class_id=-1|+1] [class_name] [min_subseq_len=3] [max_features=100] [output_folder]
@@ -361,6 +361,7 @@ namespace dimorphics_dataset
 
             var pdb_id_list = get_dataset_pdb_id_list();
 
+            /*
             var atom_types = pdb_id_list.Select(a => a.pdb_id).Distinct().Select(a => atom.load_atoms_pdb(a,
                 new atom.load_atoms_pdb_options()
                 {
@@ -383,11 +384,12 @@ namespace dimorphics_dataset
                 .OrderByDescending(a => a.count).ToList();
             
             atom_types_count.ForEach(a=> io_proxy.WriteLine($"{a.type} {a.count} {a.pct:0.00}"));
+            */
 
-            pdb_id_list = pdb_id_list.Take(3).ToList();
+            pdb_id_list = pdb_id_list.Take(1).ToList();
 
             // 1. find subsequence details from analysis of pdb files
-            io_proxy.WriteLine($@"{class_id} {class_name}: Loading pdb info...", nameof(program), nameof(Main));
+            io_proxy.WriteLine($@"{class_id} {class_name}: 1. Loading pdb info from {pdb_id_list.Count} files...", nameof(program), nameof(Main));
 
             var tasks1 = new List<Task<List<protein_subsequence_info>>>();
 
@@ -416,7 +418,7 @@ namespace dimorphics_dataset
 
             
             // 2. load available data sources
-            io_proxy.WriteLine($@"{class_id} {class_name}: 2. Loading available data...", nameof(program), nameof(Main));
+            io_proxy.WriteLine($@"{class_id} {class_name}: 2. Loading available data for {psi_list.Count} items...", nameof(program), nameof(Main));
             
             var tasks2 = new List<Task<subsequence_classification_data>>();
 
@@ -439,7 +441,7 @@ namespace dimorphics_dataset
 
 
             // 3. encode the data as svm classification features
-            io_proxy.WriteLine($@"{class_id} {class_name}: 3. Encoding data...", nameof(program), nameof(Main));
+            io_proxy.WriteLine($@"{class_id} {class_name}: 3. Encoding data for {class_data_list.Count} items...", nameof(program), nameof(Main));
 
             var tasks3 =
                 new List<Task<(instance_meta_data instance_meta_data,
@@ -464,7 +466,7 @@ namespace dimorphics_dataset
 
 
             // 4. Save to file
-            io_proxy.WriteLine($@"{class_id} {class_name}: 4. Saving encoded data to file...", nameof(program), nameof(Main));
+            io_proxy.WriteLine($@"{class_id} {class_name}: 4. Saving encoded data to file for {data_encoded_list.Count} items...", nameof(program), nameof(Main));
 
             // get header row indexes in csv format
             var row_feature_header_csv = string.Join(",", Enumerable.Range(0, data_encoded_list.First().feature_info.Count));
@@ -520,7 +522,7 @@ namespace dimorphics_dataset
 
             sw1.Stop();
 
-            io_proxy.WriteLine($@"{class_id} {class_name}: Finished: ({sw1.Elapsed:dd\\:hh\\:mm\\:ss})", nameof(program), nameof(Main));
+            io_proxy.WriteLine($@"{class_id} {class_name}: Finished: ({sw1.Elapsed:dd\:hh\:mm\:ss})", nameof(program), nameof(Main));
         }
     }
 }

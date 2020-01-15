@@ -3260,7 +3260,7 @@ namespace dimorphics_dataset
             var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.AsParallel().AsOrdered().Select(a =>
                 (header: a, count: header_list_str_dupe_check.Count(b => b == a))).Where(a => a.count > 1).OrderByDescending(a => a.count).ToList();
 
-            header_list_str_dupe_check_distinct_count.ForEach(a => io_proxy.WriteLine("Duplicate header: " + a.header + " (" + a.count + ")"));
+            header_list_str_dupe_check_distinct_count.ForEach(a => io_proxy.WriteLine($"Duplicate header: {a.header} ({a.count})", nameof(subsequence_classification_data), nameof(check_headers)));
 
             return false;
         }
@@ -3309,7 +3309,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            pse_aac_sequence_classification_data = pse_aac_sequence_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            pse_aac_sequence_classification_data = pse_aac_sequence_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3339,7 +3339,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            sable_sequence_classification_data = sable_sequence_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            sable_sequence_classification_data = sable_sequence_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
 
@@ -3351,7 +3351,8 @@ namespace dimorphics_dataset
                         }
 
                         return sable_sequence_classification_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
                 if (feature_types_1d.mpsa_classification_data_subsequence)
@@ -3367,7 +3368,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            mpsa_classification_data = mpsa_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            mpsa_classification_data = mpsa_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
 
@@ -3380,7 +3381,8 @@ namespace dimorphics_dataset
                         }
 
                         return mpsa_classification_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
                 if (feature_types_1d.blast_pssm_subsequence_classification_data)
@@ -3399,7 +3401,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            blast_pssm_subsequence_classification_data = blast_pssm_subsequence_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            blast_pssm_subsequence_classification_data = blast_pssm_subsequence_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3410,7 +3412,8 @@ namespace dimorphics_dataset
                         }
 
                         return blast_pssm_subsequence_classification_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
                 if (feature_types_1d.aa_index_classification_data)
@@ -3428,7 +3431,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            aa_index_classification_data = aa_index_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            aa_index_classification_data = aa_index_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3439,7 +3442,8 @@ namespace dimorphics_dataset
                         }
 
                         return aa_index_classification_data;
-                    }); tasks.Add(task);
+                    }); 
+                    tasks.Add(task);
                 }
 
                 if (feature_types_1d.sequence_geometry_classification_data)
@@ -3457,7 +3461,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            sequence_geometry_classification_data = sequence_geometry_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            sequence_geometry_classification_data = sequence_geometry_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3468,7 +3472,8 @@ namespace dimorphics_dataset
                         }
 
                         return sequence_geometry_classification_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
                 if (feature_types_1d.intrinsically_unordered_data)
@@ -3486,7 +3491,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            intrinsically_unordered_data = intrinsically_unordered_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            intrinsically_unordered_data = intrinsically_unordered_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3497,7 +3502,8 @@ namespace dimorphics_dataset
                         }
 
                         return intrinsically_unordered_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
 
@@ -3516,7 +3522,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            dna_binding_prediction_data = dna_binding_prediction_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            dna_binding_prediction_data = dna_binding_prediction_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (dna_binding_prediction_data != null && dna_binding_prediction_data.Count > 0)
@@ -3530,7 +3536,8 @@ namespace dimorphics_dataset
                         }
 
                         return dna_binding_prediction_data;
-                    }); tasks.Add(task);
+                    });
+                    tasks.Add(task);
                 }
 
 
@@ -3563,7 +3570,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            r_peptides_data = r_peptides_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            r_peptides_data = r_peptides_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3592,13 +3599,7 @@ namespace dimorphics_dataset
                         var r_protr_data = protr_data(seq, alphabet_name, source); //r_protr.get_values(seq);
 
                         //try { pep.Dispose(); } catch (Exception) { } finally { }
-
-                        r_protr_data.ForEach(a =>
-                        {
-                            a.source = source.ToString();
-                            a.alphabet = "Overall";
-                        });
-
+                        
 
                         if (!check_headers(r_protr_data))
                         {
@@ -3609,7 +3610,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            r_protr_data = r_protr_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            r_protr_data = r_protr_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3920,7 +3921,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            pse_ssc_dssp_classification_data = pse_ssc_dssp_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            pse_ssc_dssp_classification_data = pse_ssc_dssp_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -3949,7 +3950,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            foldx_classification_data = foldx_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            foldx_classification_data = foldx_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
 
@@ -3995,7 +3996,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            ring_classification_data = ring_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            ring_classification_data = ring_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4024,7 +4025,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            sasa_classification_data = sasa_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            sasa_classification_data = sasa_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4055,7 +4056,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            tortuosity_classification_data = tortuosity_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            tortuosity_classification_data = tortuosity_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4084,7 +4085,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            intramolecular_classification_data = intramolecular_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            intramolecular_classification_data = intramolecular_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4112,7 +4113,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            atom_distance_classification_data = atom_distance_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            atom_distance_classification_data = atom_distance_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4140,7 +4141,7 @@ namespace dimorphics_dataset
 
                         if (max_features > 0)
                         {
-                            aa_aa_distances_classification_data = aa_aa_distances_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                            aa_aa_distances_classification_data = aa_aa_distances_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                         }
 
                         if (check_num_features_consistency)
@@ -4947,7 +4948,7 @@ namespace dimorphics_dataset
 
                     if (max_features > 0)
                     {
-                        subsequence_1d_classification_data = subsequence_1d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        subsequence_1d_classification_data = subsequence_1d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)
@@ -4971,14 +4972,14 @@ namespace dimorphics_dataset
 
                     if (scd.neighbourhood_1d.subsequence_atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d neighbourhood data");
+                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
                     neighbourhood_1d_classification_data = calculate_classification_data_1d(scd.neighbourhood_1d, scd.neighbourhood_1d.subsequence_master_atoms, enum_protein_data_source.neighbourhood_1d, max_features, feature_types.feature_types_neighbourhood_1d);
 
                     if (max_features > 0)
                     {
-                        neighbourhood_1d_classification_data = neighbourhood_1d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        neighbourhood_1d_classification_data = neighbourhood_1d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)
@@ -5002,14 +5003,14 @@ namespace dimorphics_dataset
 
                     if (scd.protein_1d.subsequence_atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d protein data");
+                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
                     protein_1d_classification_data = calculate_classification_data_1d(scd.protein_1d, scd.protein_1d.subsequence_master_atoms, enum_protein_data_source.protein_1d, max_features, feature_types.feature_types_protein_1d);
 
                     if (max_features > 0)
                     {
-                        protein_1d_classification_data = protein_1d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        protein_1d_classification_data = protein_1d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)
@@ -5031,7 +5032,7 @@ namespace dimorphics_dataset
 
                     if (max_features > 0)
                     {
-                        subsequence_3d_classification_data = subsequence_3d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        subsequence_3d_classification_data = subsequence_3d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)
@@ -5057,14 +5058,14 @@ namespace dimorphics_dataset
 
                     if (scd.neighbourhood_3d.subsequence_atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d neighbourhood data");
+                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
                     neighbourhood_3d_classification_data = calculate_classification_data_3d(scd.neighbourhood_3d, scd.neighbourhood_3d.subsequence_master_atoms, enum_protein_data_source.neighbourhood_3d, max_features, feature_types.feature_types_neighbourhood_3d);
 
                     if (max_features > 0)
                     {
-                        neighbourhood_3d_classification_data = neighbourhood_3d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        neighbourhood_3d_classification_data = neighbourhood_3d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)
@@ -5089,14 +5090,14 @@ namespace dimorphics_dataset
 
                     if (scd.protein_3d.subsequence_atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data");
+                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
                     protein_3d_classification_data = calculate_classification_data_3d(scd.protein_3d, scd.protein_3d.subsequence_master_atoms, enum_protein_data_source.protein_3d, max_features, feature_types.feature_types_protein_3d);
 
                     if (max_features > 0)
                     {
-                        protein_3d_classification_data = protein_3d_classification_data.GroupBy(a => (a.source, a.alphabet, a.category, a.dimension, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
+                        protein_3d_classification_data = protein_3d_classification_data.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Where(a => a.Count() <= max_features).SelectMany(a => a).ToList();
                     }
 
                     if (check_num_features_consistency)

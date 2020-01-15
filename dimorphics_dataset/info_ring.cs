@@ -34,7 +34,7 @@ namespace dimorphics_dataset
             {
                 var result = new List<info_ring_edge>();
 
-                var data = io_proxy.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a=>a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
+                var data = io_proxy.ReadAllLines(filename, nameof(info_ring_edge), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a=>a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
 
                 foreach (var d in data)
                 {
@@ -118,7 +118,7 @@ namespace dimorphics_dataset
             {
                 var result = new List<info_ring_node>();
 
-                var data = io_proxy.ReadAllLines(filename).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
+                var data = io_proxy.ReadAllLines(filename, nameof(info_ring_node), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => b == "-999.9" ? "0" : b).ToList()).ToList();
 
                 foreach (var d in data)
                 {

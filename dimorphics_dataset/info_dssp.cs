@@ -85,7 +85,7 @@ namespace dimorphics_dataset
         {
             const string SsDataMarker1 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA ";
             const string SsDataMarker2 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA            CHAIN";
-            var lines = io_proxy.ReadAllLines(file);
+            var lines = io_proxy.ReadAllLines(file, nameof(info_dssp), nameof(Load));
             
             var dssp_record_list = new List<dssp_record>();
 

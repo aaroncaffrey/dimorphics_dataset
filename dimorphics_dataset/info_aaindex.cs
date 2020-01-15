@@ -120,7 +120,7 @@ namespace dimorphics_dataset
             }
 
             var result = new List<info_aaindex_entry>();
-            var lines = io_proxy.ReadAllLines(aaindex1_file);
+            var lines = io_proxy.ReadAllLines(aaindex1_file, nameof(info_aaindex), nameof(Load));
             info_aaindex_entry entry=null;
             
             var i_amino_acid_order = "";

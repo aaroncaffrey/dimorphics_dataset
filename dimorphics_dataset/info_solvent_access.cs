@@ -62,7 +62,7 @@ namespace dimorphics_dataset
 
                 var algo = Path.GetExtension(file)[1];
 
-                var lines = io_proxy.ReadAllLines(file).ToList();
+                var lines = io_proxy.ReadAllLines(file, nameof(info_solvent_access), nameof(load)).ToList();
 
                 lines = lines.Where(a => a.StartsWith("RES ", StringComparison.InvariantCulture)).ToList();
 

@@ -9,11 +9,16 @@ namespace dimorphics_dataset
 {
     public static class io_proxy
     {
-        public static void WriteLine(string text = "", string module = "", string func = "")
+        private static readonly object _console_lock = new object();
+
+        public static void WriteLine(string text = "", string module_name = "", string function_name = "")
         {
             try
             {
-                Console.WriteLine($@"{DateTime.Now:G} {module}.{func} -> {text}");
+                lock (_console_lock)
+                {
+                    Console.WriteLine($@"{DateTime.Now:G} {module_name}.{function_name} -> {text}");
+                }
             }
             catch (Exception)
             {
@@ -37,8 +42,10 @@ namespace dimorphics_dataset
             }
         }
 
-        public static string[] ReadAllLines(string filename)
+        public static string[] ReadAllLines(string filename, string module_name="", string function_name="")
         {
+            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(ReadAllLines));
+
             while (true)
             {
                 try
@@ -49,15 +56,15 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString());
+                    WriteLine(e.ToString(), nameof(io_proxy), nameof(ReadAllLines));
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }
         }
 
-        public static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
+        public static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
-            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllLines)} ( {filename} )");
+            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllLines));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -76,9 +83,9 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name, string function_name)
+        public static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
-            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllLines)} ( {filename} )");
+            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllLines));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -97,9 +104,9 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void AppendAllText(string filename, string text, string module_name, string function_name)
+        public static void AppendAllText(string filename, string text, string module_name="", string function_name="")
         {
-            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(AppendAllText)} ( {filename} )");
+            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllText));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -118,9 +125,9 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void WriteAllText(string filename, string text, string module_name, string function_name)
+        public static void WriteAllText(string filename, string text, string module_name="", string function_name="")
         {
-            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(WriteAllText)} ( {filename} )");
+            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllText));
 
             CreateDirectory(filename);//, module_name, function_name);
 

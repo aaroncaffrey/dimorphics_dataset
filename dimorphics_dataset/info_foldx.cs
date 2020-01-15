@@ -65,7 +65,7 @@ namespace dimorphics_dataset
             // repair
             var monomer_file_repair = foldx_repair_pdb(Path.GetFileNameWithoutExtension(monomer_file), run);
 
-            var repair_res_ids = io_proxy.ReadAllLines(monomer_file_repair).Where(a => a.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(a => int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().OrderBy(a => a).ToList();
+            var repair_res_ids = io_proxy.ReadAllLines(monomer_file_repair, nameof(info_foldx), nameof(load_calc_energy_differences)).Where(a => a.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(a => int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().OrderBy(a => a).ToList();
 
             // filter res ids to remove res ides which were in the original pdb structure file but removed by the foldx repair
             res_ids = res_ids.Where(a => repair_res_ids.Contains(a.residue_index)).ToList();
@@ -256,7 +256,7 @@ namespace dimorphics_dataset
                     {
                         var f_len1 = new FileInfo(wait_file).Length;
 
-                        data = io_proxy.ReadAllLines(wait_file);
+                        data = io_proxy.ReadAllLines(wait_file, nameof(info_foldx), nameof(read_all_lines_until_success));
 
                         var f_len2 = new FileInfo(wait_file).Length;
 
@@ -345,7 +345,7 @@ namespace dimorphics_dataset
 
             if (string.IsNullOrWhiteSpace(foldx_args))
             {
-                throw new ArgumentNullException(nameof(foldx_args));
+                //throw new ArgumentNullException(nameof(foldx_args));
             }
 
             var foldx_args2 = foldx_args;
@@ -406,7 +406,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io_proxy.ReadAllLines(wait_filename) : Array.Empty<string>();
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io_proxy.ReadAllLines(wait_filename, nameof(info_foldx), nameof(call_foldx)) : Array.Empty<string>();
                     }
                 }
             }
@@ -420,7 +420,7 @@ namespace dimorphics_dataset
                     }
                     else
                     {
-                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io_proxy.ReadAllLines(wait_filename) : Array.Empty<string>();
+                        data = File.Exists(wait_filename) && new FileInfo(wait_filename).Length > 0 ? io_proxy.ReadAllLines(wait_filename, nameof(info_foldx), nameof(call_foldx)) : Array.Empty<string>();
                     }
                 }
             }

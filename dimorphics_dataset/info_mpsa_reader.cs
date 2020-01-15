@@ -468,7 +468,7 @@ namespace dimorphics_dataset
 
             if (File.Exists(filename) && new FileInfo(filename).Length > 0)
             {
-                lines = io_proxy.ReadAllLines(filename).ToList();
+                lines = io_proxy.ReadAllLines(filename, nameof(info_mpsa_reader), nameof(read_mpsa_file)).ToList();
             }
             
 
