@@ -161,12 +161,12 @@ namespace dimorphics_dataset
         //    return ret;
         //}
 
-        public static List<string> get_feature_headers_lines_csv((instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
+        public static List<string> get_feature_headers_lines_csv((instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
-            var header_list = row_encoded.feature_info.Select(a => new subsequence_classification_data.feature_info(a) { feature_value = 0 }).ToList();
+            var header_list = row_encoded.feature_info.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
 
             List<string> headers = new List<string>();
-            headers.Add($@"fid,{nameof(subsequence_classification_data.feature_info.alphabet)},{nameof(subsequence_classification_data.feature_info.dimension)},{nameof(subsequence_classification_data.feature_info.category)},{nameof(subsequence_classification_data.feature_info.source)},{nameof(subsequence_classification_data.feature_info.@group)},{nameof(subsequence_classification_data.feature_info.member)},{nameof(subsequence_classification_data.feature_info.perspective)}");
+            headers.Add($@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}");
             headers.AddRange(header_list.Select((a, fid) => $"{fid},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
             
             return headers;
@@ -188,7 +188,7 @@ namespace dimorphics_dataset
 
 
 
-        public static List<string> get_row_comments_headers((instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
+        public static List<string> get_row_comments_headers((instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
             var comment_headers = new List<string>() // headers starting with '#' are excluded from copying to classification statistics
             {
@@ -214,7 +214,7 @@ namespace dimorphics_dataset
             return comment_headers;
         }
 
-        public static List<string> get_row_comments(int row_index, (instance_meta_data instance_meta_data, List<subsequence_classification_data.feature_info> feature_info) row_encoded)
+        public static List<string> get_row_comments(int row_index, (instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
             var row_comments = new List<string>();
             row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));

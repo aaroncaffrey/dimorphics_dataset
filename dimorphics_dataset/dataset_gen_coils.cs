@@ -18,17 +18,17 @@ namespace dimorphics_dataset
                 pdb_id:pdb_id,
                 new atom.load_atoms_pdb_options()
                 { 
-                    find_intramolecular=false, 
-                    find_intermolecular=false,
-                    load_rsa_data=false,
-                    load_dssp_data=true,
-                    load_stride_data=false,
-                    load_ring_data=false,
-                    load_mpsa_sec_struct_predictions=false,
-                    load_blast_pssms=false,
-                    load_iup_data=false,
+                    find_3d_intramolecular=false, 
+                    find_3d_intermolecular=false,
+                    load_2d_rsa_data=false,
+                    load_3d_dssp_data=true,
+                    load_3d_stride_data=false,
+                    load_3d_ring_data=false,
+                    load_2d_mpsa_sec_struct_predictions=false,
+                    load_2d_blast_pssms=false,
+                    load_2d_iup_data=false,
                     load_sable=false,
-                    load_ala_scan=false,
+                    load_3d_foldx_ala_scan=false,
                     load_dna_binding_vars=false,
                 }
                 )
@@ -141,7 +141,9 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            Task.WaitAll(tasks.ToArray<Task>());
+            //Task.WaitAll(tasks.ToArray<Task>());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(dataset_gen_coils), nameof(find_coils));
+
 
             var pdb_coils = tasks.SelectMany(a => a.Result).ToList();
 

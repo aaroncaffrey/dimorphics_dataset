@@ -221,6 +221,10 @@ namespace dimorphics_dataset
 
         public static double[] distances(double[] pssm, bool normalise = false)
         {
+            //var x = pssm.SelectMany((a, i) => pssm.Where((b, j) => i < j).Select((b, j) => Math.Abs(a - b)).ToArray()).ToArray();
+            
+            // return the distances between the values
+
             var x = pssm.SelectMany((a, i) => pssm.Where((b, j) => i < j).Select((b, j) => Math.Abs(a - b)).ToArray()).ToArray();
 
             if (normalise) x = normalise_array(x);
@@ -482,7 +486,9 @@ namespace dimorphics_dataset
                 }
             }
 
-            Task.WaitAll(tasks.ToArray<Task>());
+            //Task.WaitAll(tasks.ToArray<Task>());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector20col_DT));
+
 
             tasks.ForEach(a=>result.Add(a.Result));
 
@@ -683,7 +689,9 @@ namespace dimorphics_dataset
                 }
             }
 
-            Task.WaitAll(tasks.ToArray<Task>());
+            //Task.WaitAll(tasks.ToArray<Task>());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector210_DT));
+
 
             tasks.ForEach(a=>result.Add(a.Result));
 
@@ -828,7 +836,8 @@ namespace dimorphics_dataset
                 }
             }
 
-            Task.WaitAll(tasks.ToArray<Task>());
+            //Task.WaitAll(tasks.ToArray<Task>());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector400_DT));
 
             tasks.ForEach(a=>result.Add(a.Result));
 

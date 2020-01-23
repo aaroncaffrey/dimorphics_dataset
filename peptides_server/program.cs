@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using dimorphics_dataset;
 
@@ -29,11 +30,11 @@ namespace peptides_server
                 }
 
 
-                var y = new subsequence_classification_data.feature_info_container { feautre_info_list = x };
+                var y = new feature_info_container { feautre_info_list = x };
 
-                var s = subsequence_classification_data.feature_info_container.serialise_json(y);
+                var s = feature_info_container.serialise_json(y);
 
-                var d = subsequence_classification_data.feature_info_container.deserialise(s);
+                var d = feature_info_container.deserialise(s);
 
             }
 
@@ -59,9 +60,9 @@ namespace peptides_server
 
             var x = r_peptides.get_values(call_count, source_name, alphabet_name, sequence);
 
-            var y = new subsequence_classification_data.feature_info_container {feautre_info_list = x};
+            var y = new feature_info_container {feautre_info_list = x};
 
-            var z = subsequence_classification_data.feature_info_container.serialise_json(y);
+            var z = feature_info_container.serialise_json(y);
 
             Console.Write(z);
 

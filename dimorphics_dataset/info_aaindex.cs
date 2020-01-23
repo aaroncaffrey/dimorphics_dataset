@@ -59,7 +59,7 @@ namespace dimorphics_dataset
         //                var result2 = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
         //                foreach (var alphabet_sequence in alphabet_sequences)
         //                {
-        //                    var name = $"{a.H_Accession_Number}_{alphabet.name}_{group}";
+        //                    var name = $"{a.H_Accession_Number}_{alphabet.name}_{group.name}";
 
         //                    if (string.IsNullOrWhiteSpace(alphabet_sequence))
         //                    {

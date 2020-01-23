@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
@@ -11,13 +13,24 @@ namespace dimorphics_dataset
     {
         private static readonly object _console_lock = new object();
 
-        public static void WriteLine(string text = "", string module_name = "", string function_name = "")
+        public static void WriteLine(string text = "", string module_name = "", string function_name = "", bool use_lock = false)
         {
             try
             {
-                lock (_console_lock)
+                var pid = Process.GetCurrentProcess().Id;
+                var thread_id = Thread.CurrentThread.ManagedThreadId;
+                var task_id = Task.CurrentId ?? 0;
+
+                if (use_lock)
                 {
-                    Console.WriteLine($@"{DateTime.Now:G} {module_name}.{function_name} -> {text}");
+                    lock (_console_lock)
+                    {
+                        Console.WriteLine($@"{pid:000000}.{thread_id:000000}.{task_id:000000} {DateTime.Now:G} {module_name}.{function_name} -> {text}");
+                    }
+                }
+                else
+                {
+                        Console.WriteLine($@"{pid:000000}.{thread_id:000000}.{task_id:000000} {DateTime.Now:G} {module_name}.{function_name} -> {text}");
                 }
             }
             catch (Exception)

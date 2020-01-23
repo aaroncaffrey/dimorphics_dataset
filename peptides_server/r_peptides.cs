@@ -14,7 +14,7 @@ namespace peptides_server
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
         private static int _id;
-        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
+        private static List<feature_info> _template_get_values = null;
         private static readonly object _get_values_lock = new object();
 
         public static string Key
@@ -58,7 +58,7 @@ namespace peptides_server
             return engine1;
         }
 
-        public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
+        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
             lock (_get_values_lock)
             {
@@ -70,7 +70,7 @@ namespace peptides_server
                     {
                         if (_template_get_values != null)
                         {
-                            var template = _template_get_values.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
+                            var template = _template_get_values.Select(a => new feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
 
                             return template;
                         }
@@ -115,9 +115,9 @@ namespace peptides_server
                     var vhseScales_result = vhseScales(engine, sequence); //8
                     var zScales_result = zScales(engine, sequence); //5
 
-                    var features = new List<subsequence_classification_data.feature_info>();
+                    var features = new List<feature_info>();
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -129,7 +129,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(aIndex_result)
                     });
 
-                    autoCorrelation_result_list.ForEach(autoCorrelation_result => features.Add(new subsequence_classification_data.feature_info()
+                    autoCorrelation_result_list.ForEach(autoCorrelation_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -141,7 +141,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(autoCorrelation_result.value)
                     }));
 
-                    autoCovariance_result_list.ForEach(autoCovariance_result => features.Add(new subsequence_classification_data.feature_info()
+                    autoCovariance_result_list.ForEach(autoCovariance_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -153,7 +153,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(autoCovariance_result.value)
                     }));
 
-                    features.AddRange(blosumIndices_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(blosumIndices_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -165,7 +165,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -177,7 +177,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(boman_result)
                     });
 
-                    charge_result_list.ForEach(charge_result => features.Add(new subsequence_classification_data.feature_info()
+                    charge_result_list.ForEach(charge_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -189,7 +189,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(charge_result.value)
                     }));
 
-                    crossCovariance_result_list.ForEach(crossCovariance_result => features.Add(new subsequence_classification_data.feature_info()
+                    crossCovariance_result_list.ForEach(crossCovariance_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -201,7 +201,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(crossCovariance_result.value)
                     }));
 
-                    features.AddRange(crucianiProperties_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(crucianiProperties_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -213,7 +213,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.AddRange(fasgaiVectors_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(fasgaiVectors_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -225,7 +225,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -237,7 +237,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(hmoment_result)
                     });
 
-                    hydrophobicity_result_list.ForEach(hydrophobicity_result => features.Add(new subsequence_classification_data.feature_info()
+                    hydrophobicity_result_list.ForEach(hydrophobicity_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -249,7 +249,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(hydrophobicity_result.value)
                     }));
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -261,7 +261,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(instaIndex_result)
                     });
 
-                    features.AddRange(kideraFactors_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(kideraFactors_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -274,7 +274,7 @@ namespace peptides_server
                     }).ToList());
 
 
-                    //features.AddRange(membpos_result_av.Select(a => new subsequence_classification_data.feature_info()
+                    //features.AddRange(membpos_result_av.Select(a => new feature_info()
                     //{
                     //    alphabet = alpha_name,
                     //    dimension = 1,
@@ -286,7 +286,7 @@ namespace peptides_server
                     //    feature_value = descriptive_stats.fix_double(a.value)
                     //}).ToList());
 
-                    features.AddRange(mswhimScores_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(mswhimScores_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -298,7 +298,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -310,7 +310,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(mw_result)
                     });
 
-                    features.Add(new subsequence_classification_data.feature_info()
+                    features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -322,7 +322,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(pI_result)
                     });
 
-                    features.AddRange(protFP_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(protFP_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -334,7 +334,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.AddRange(stScales_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(stScales_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -346,7 +346,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.AddRange(tScales_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(tScales_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -358,7 +358,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.AddRange(vhseScales_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(vhseScales_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -370,7 +370,7 @@ namespace peptides_server
                         feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList());
 
-                    features.AddRange(zScales_result.Select(a => new subsequence_classification_data.feature_info()
+                    features.AddRange(zScales_result.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -412,7 +412,7 @@ namespace peptides_server
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) {alphabet = "", source = "", feature_value = 0}).ToList();
+                        var template = features.Select(a => new feature_info(a) {alphabet = "", source = "", feature_value = 0}).ToList();
                         _template_get_values = template;
                     }
 

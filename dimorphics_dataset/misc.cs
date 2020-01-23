@@ -53,17 +53,17 @@ namespace dimorphics_dataset
         {
             var pdb = atom.load_atoms_pdb(pdb_id, new atom.load_atoms_pdb_options()
             {
-                find_intramolecular = false,
-                find_intermolecular = false,
-                load_rsa_data = false,
-                load_dssp_data = true,
-                load_stride_data = true,
-                load_ring_data = false,
-                load_mpsa_sec_struct_predictions = false,
-                load_blast_pssms = false,
-                load_iup_data = false,
+                find_3d_intramolecular = false,
+                find_3d_intermolecular = false,
+                load_2d_rsa_data = false,
+                load_3d_dssp_data = true,
+                load_3d_stride_data = true,
+                load_3d_ring_data = false,
+                load_2d_mpsa_sec_struct_predictions = false,
+                load_2d_blast_pssms = false,
+                load_2d_iup_data = false,
                 load_sable = false,
-                load_ala_scan = false,
+                load_3d_foldx_ala_scan = false,
                 load_dna_binding_vars = false,
             });
 
@@ -354,7 +354,8 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            Task.WaitAll(tasks.ToArray());
+            //Task.WaitAll(tasks.ToArray());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(misc), nameof(fill_missing_chains));
 
             var result = lines.Select(a => String.Join(",", new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
             result.Insert(0, lines_header + "," + "chain_id");
@@ -403,7 +404,8 @@ namespace dimorphics_dataset
                 }
             }
 
-            Task.WaitAll(tasks.ToArray());
+            //Task.WaitAll(tasks.ToArray());
+            program.wait_tasks(tasks.ToArray<Task>(), nameof(misc), nameof(repair_all_extracted_pdbs));
 
         }
 
@@ -455,17 +457,17 @@ namespace dimorphics_dataset
                 var chains = atom.load_atoms_pdb(pdb_id,
                     new atom.load_atoms_pdb_options()
                     {
-                        find_intramolecular = true,
-                        find_intermolecular = false,
-                        load_rsa_data = true,
-                        load_dssp_data = true,
-                        load_stride_data = true,
-                        load_ring_data = true,
-                        load_mpsa_sec_struct_predictions = true,
-                        load_blast_pssms = true,
-                        load_iup_data = true,
+                        find_3d_intramolecular = true,
+                        find_3d_intermolecular = false,
+                        load_2d_rsa_data = true,
+                        load_3d_dssp_data = true,
+                        load_3d_stride_data = true,
+                        load_3d_ring_data = true,
+                        load_2d_mpsa_sec_struct_predictions = true,
+                        load_2d_blast_pssms = true,
+                        load_2d_iup_data = true,
                         load_sable = true,
-                        load_ala_scan = true,
+                        load_3d_foldx_ala_scan = true,
                         load_dna_binding_vars = true,
                     }, pdb_folder);
 

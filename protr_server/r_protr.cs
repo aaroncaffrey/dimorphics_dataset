@@ -15,7 +15,7 @@ namespace protr_server
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
         private static int _id;
-        private static List<subsequence_classification_data.feature_info> _template_get_values = null;
+        private static List<feature_info> _template_get_values = null;
         private static readonly object _get_values_lock = new object();
 
         public static string Key
@@ -57,7 +57,7 @@ namespace protr_server
             return engine1;
         }
 
-        public static List<subsequence_classification_data.feature_info> get_values(int id, string source, string alphabet_name, string sequence)
+        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
             lock (_get_values_lock)
             {
@@ -69,7 +69,7 @@ namespace protr_server
                     {
                         if (_template_get_values != null)
                         {
-                            var template = _template_get_values.Select(a => new subsequence_classification_data.feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
+                            var template = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
 
                             return template;
                         }
@@ -103,9 +103,9 @@ namespace protr_server
                     //var ret_extractTC =  extractTC(engine, sequence); // 800 features
 
 
-                    var features = new List<subsequence_classification_data.feature_info>();
+                    var features = new List<feature_info>();
                     
-                    var ret_extractAPAAC_f = ret_extractAPAAC.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractAPAAC_f = ret_extractAPAAC.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -117,7 +117,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -129,7 +129,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractCTDC_f = ret_extractCTDC.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractCTDC_f = ret_extractCTDC.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -141,7 +141,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractCTDD_f = ret_extractCTDD.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractCTDD_f = ret_extractCTDD.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -153,7 +153,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractCTDT_f = ret_extractCTDT.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractCTDT_f = ret_extractCTDT.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -165,7 +165,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractCTriad_f = ret_extractCTriad.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractCTriad_f = ret_extractCTriad.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -177,7 +177,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -189,7 +189,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractDC_f = ret_extractDC.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractDC_f = ret_extractDC.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -201,7 +201,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractDescScales_f = ret_extractDescScales.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractDescScales_f = ret_extractDescScales.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -213,7 +213,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractFAScales_f = ret_extractFAScales.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractFAScales_f = ret_extractFAScales.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -225,7 +225,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractGeary_f = ret_extractGeary.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractGeary_f = ret_extractGeary.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -237,7 +237,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractMDSScales_f = ret_extractMDSScales.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractMDSScales_f = ret_extractMDSScales.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -249,7 +249,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractMoran_f = ret_extractMoran.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractMoran_f = ret_extractMoran.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -261,7 +261,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -273,7 +273,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractPAAC_f = ret_extractPAAC.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractPAAC_f = ret_extractPAAC.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -285,7 +285,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractProtFP_f = ret_extractProtFP.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractProtFP_f = ret_extractProtFP.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -297,7 +297,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -309,7 +309,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractQSO_f = ret_extractQSO.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractQSO_f = ret_extractQSO.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -321,7 +321,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractSOCN_f = ret_extractSOCN.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractSOCN_f = ret_extractSOCN.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -333,7 +333,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractScales_f = ret_extractScales.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractScales_f = ret_extractScales.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -345,7 +345,7 @@ namespace protr_server
                         feature_value = a.value
                     }).ToList();
 
-                    var ret_extractScalesGap_f = ret_extractScalesGap.Select(a => new subsequence_classification_data.feature_info()
+                    var ret_extractScalesGap_f = ret_extractScalesGap.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
                         dimension = 1,
@@ -385,7 +385,7 @@ namespace protr_server
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new subsequence_classification_data.feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
+                        var template = features.Select(a => new feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
                         _template_get_values = template;
                     }
 

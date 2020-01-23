@@ -7,16 +7,17 @@
         internal bool make_split_sequence = true;
         
         internal bool make_standard_encoding = true;
-        internal bool make_distance_transform = false;
+        internal bool make_distance_transform = true; // false
         
         internal bool normalise_none = false;
         internal bool normalise_whole_pssm = true;
-        internal bool normalise_subsequence = false;
-        internal bool normalise_encoded_parts = false;
-        internal bool normalise_encoded_vector = false;
-        
+        internal bool normalise_subsequence = true;// false
+        internal bool normalise_encoded_parts = true;// false
+        internal bool normalise_encoded_vector = true;// false
+
         internal bool encode_standard_vector = true;
-        internal bool encoded_interval_vector = false;
+        internal bool encode_distance_vector = true; // false
+        internal bool encode_interval_vector = true; // false
 
         // separate groups with the following statistics:
         internal bool encode_min = false;
@@ -59,7 +60,8 @@
             normalise_encoded_vector = value;
 
             encode_standard_vector = value;
-            encoded_interval_vector = value;
+            encode_distance_vector = value;
+            encode_interval_vector = value;
 
 
             encode_min = value;
