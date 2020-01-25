@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -14,6 +15,7 @@ namespace dimorphics_dataset
     {
         // todo: uniprot composition feature
         // not_todo: alpha/beta protein percentage feature (already included by dssp/stride feature)
+
 
         // subsequence properties
         internal int class_id;
@@ -54,6 +56,13 @@ namespace dimorphics_dataset
         internal subsequence_classification_data protein_1d = null;
         internal subsequence_classification_data protein_3d = null;
 
+        //private static string _template_source_pdb = $@"1AJYA.pdb";
+
+        private static string _template_source_aa_seq = $@"ALY";
+        private static string _template_source_ss_seq = $@"HEC";
+        private static List<atom> _template_source_atoms = _template_source_aa_seq.Select((a,i) =>
+            new atom("XXXX",'A',i,' ',a,0,0,0,"CA",'C',i,i,i)
+        ).ToList();
 
         private static List<feature_info> _calculate_sable_classification_data_template = null;
 
@@ -219,7 +228,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_sable_classification_data_template == null) throw new Exception();
+                if (_calculate_sable_classification_data_template == null)
+                {
+                    _calculate_sable_classification_data_template = calculate_sable_sequence_classification_data(_template_source_atoms, source);
+                    _calculate_sable_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                }
+                
+                if (_calculate_sable_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_sable_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -314,7 +332,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_mpsa_classification_data_template == null) throw new Exception();
+                if (_calculate_mpsa_classification_data_template == null)
+                {
+                    _calculate_mpsa_classification_data_template = calculate_mpsa_classification_data(_template_source_atoms, source);
+                    _calculate_mpsa_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                }
+                
+                if (_calculate_mpsa_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_mpsa_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -574,12 +601,21 @@ namespace dimorphics_dataset
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_ring_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
-
+            
             var features = new List<feature_info>();
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_ring_classification_data_template == null) throw new Exception();
+                if (_calculate_ring_classification_data_template == null)
+                {
+                    _calculate_ring_classification_data_template = calculate_ring_classification_data(_template_source_atoms, source);
+                    _calculate_ring_classification_data_template.ForEach(a => { a.source = "";a.feature_value=0;});
+                }
+
+                if (_calculate_ring_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_ring_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -807,7 +843,16 @@ namespace dimorphics_dataset
             {
                 if (source == enum_protein_data_source.subsequence_3d)
                 {
-                    if (_calculate_foldx_classification_data_subsequence_3d_template == null) throw new Exception();
+                    if (_calculate_foldx_classification_data_subsequence_3d_template == null)
+                    {
+                        _calculate_foldx_classification_data_subsequence_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_subsequence_3d_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                    }
+                    
+                    if (_calculate_foldx_classification_data_subsequence_3d_template == null)
+                    {
+                        throw new Exception();
+                    }
 
                     var template = _calculate_foldx_classification_data_subsequence_3d_template.Select(a => new feature_info(a)
                     {
@@ -819,7 +864,16 @@ namespace dimorphics_dataset
                 }
                 else if (source == enum_protein_data_source.neighbourhood_3d)
                 {
-                    if (_calculate_foldx_classification_data_neighbourhood_3d_template == null) throw new Exception();
+                    if (_calculate_foldx_classification_data_neighbourhood_3d_template == null)
+                    {
+                        _calculate_foldx_classification_data_neighbourhood_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_neighbourhood_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    }
+
+                    if (_calculate_foldx_classification_data_neighbourhood_3d_template == null)
+                    {
+                        throw new Exception();
+                    }
 
                     var template = _calculate_foldx_classification_data_neighbourhood_3d_template.Select(a => new feature_info(a)
                     {
@@ -831,7 +885,16 @@ namespace dimorphics_dataset
                 }
                 else if (source == enum_protein_data_source.protein_3d)
                 {
-                    if (_calculate_foldx_classification_data_protein_3d_template == null) throw new Exception();
+                    if (_calculate_foldx_classification_data_protein_3d_template == null)
+                    {
+                        _calculate_foldx_classification_data_protein_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_protein_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    }
+
+                    if (_calculate_foldx_classification_data_protein_3d_template == null)
+                    {
+                        throw new Exception();
+                    }
 
                     var template = _calculate_foldx_classification_data_protein_3d_template.Select(a => new feature_info(a)
                     {
@@ -1367,7 +1430,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_sequence_geometry_classification_data_template == null) throw new Exception();
+                if (_calculate_sequence_geometry_classification_data_template == null)
+                {
+                    _calculate_sequence_geometry_classification_data_template=calculate_sequence_geometry_classification_data(scd, _template_source_atoms, source);
+                    _calculate_sequence_geometry_classification_data_template.ForEach(a => { a.source = "";a.feature_value=0;});
+                }
+
+                if (_calculate_sequence_geometry_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_sequence_geometry_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -1674,7 +1746,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_aa_index_classification_data_template == null) throw new Exception();
+                if (_calculate_aa_index_classification_data_template == null)
+                {
+                    _calculate_aa_index_classification_data_template = calculate_aa_index_classification_data(_template_source_atoms, source);
+                    _calculate_aa_index_classification_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
+
+                if (_calculate_aa_index_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_aa_index_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -1795,7 +1876,16 @@ namespace dimorphics_dataset
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
 
-                if (_calculate_dna_binding_prediction_data_template == null) throw new Exception();
+                if (_calculate_dna_binding_prediction_data_template == null)
+                {
+                    _calculate_dna_binding_prediction_data_template=calculate_chain_dna_binding_prediction_data(_template_source_atoms, source);
+                    _calculate_dna_binding_prediction_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
+
+                if (_calculate_dna_binding_prediction_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_dna_binding_prediction_data_template.Select(a => new feature_info(a)
                 {
@@ -1870,7 +1960,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_intrinsically_unordered_data_template == null) throw new Exception();
+                if (_calculate_intrinsically_unordered_data_template == null)
+                {
+                    _calculate_intrinsically_unordered_data_template= calculate_intrinsically_unordered_data(_template_source_atoms,source);
+                    _calculate_intrinsically_unordered_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
+
+                if (_calculate_intrinsically_unordered_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_intrinsically_unordered_data_template.Select(a => new feature_info(a)
                 {
@@ -2027,7 +2126,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_blast_pssm_classification_data_template == null) throw new Exception();
+                if (_calculate_blast_pssm_classification_data_template == null)
+                {
+                    _calculate_blast_pssm_classification_data_template = calculate_blast_pssm_classification_data(blast_pssm_options, _template_source_atoms, source);
+                    _calculate_blast_pssm_classification_data_template.ForEach(a => { a.source = "";a.feature_value=0;});
+                }
+
+                if (_calculate_blast_pssm_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_blast_pssm_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -2532,7 +2640,16 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
-                if (_calculate_sasa_classification_data_template == null) throw new Exception();
+                if (_calculate_sasa_classification_data_template == null)
+                {
+                    _calculate_sasa_classification_data_template=calculate_sasa_classification_data(_template_source_atoms, source);
+                    _calculate_sasa_classification_data_template.ForEach(a => { a.source = "";a.feature_value=0;});
+                }
+                
+                if (_calculate_sasa_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_sasa_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -2685,7 +2802,16 @@ namespace dimorphics_dataset
 
             if (subsequence_atoms == null || subsequence_atoms.Count == 0)
             {
-                if (_calculate_tortuosity_classification_data_template == null) throw new Exception();
+                if (_calculate_tortuosity_classification_data_template == null)
+                {
+                    _calculate_tortuosity_classification_data_template= calculate_tortuosity_classification_data(_template_source_atoms, source);
+                    _calculate_tortuosity_classification_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
+
+                if (_calculate_tortuosity_classification_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_tortuosity_classification_data_template.Select(a => new feature_info(a)
                 {
@@ -3025,7 +3151,16 @@ namespace dimorphics_dataset
 
             if (protein_areas == null || protein_areas.Count == 0 || protein_areas.All(a => a.atoms.Count == 0))
             {
-                if (_calculate_atom_distances_data_template == null) throw new Exception();
+                if (_calculate_atom_distances_data_template == null)
+                {
+                    _calculate_atom_distances_data_template = calculate_atom_distances_classification_data(_template_source_atoms, _template_source_atoms, _template_source_atoms);
+                    _calculate_atom_distances_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
+
+                if (_calculate_atom_distances_data_template == null)
+                {
+                    throw new Exception();
+                }
 
                 var template = _calculate_atom_distances_data_template.Select(a => new feature_info(a)
                 {
@@ -3041,7 +3176,7 @@ namespace dimorphics_dataset
             var bb = new string[] { "N", "CA", "C", "O" };
 
             var atom_types = bb.Union(new[] { "all" }).ToList();
-            
+
 
 
             var dist_ranges = new[] { (min: 0.0d, max: 0.0d), (min: 0.0d, max: 5.0d)/*, (min: 0.0d, max: 8.0d)*/ };
@@ -3116,9 +3251,9 @@ namespace dimorphics_dataset
 
                     var r2 = atom_types_pairs./*AsParallel().*/SelectMany(atom_type_pair =>
                     {
-                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (atom_type_pair.atom_type1 == "all" ? protein_area1_sequence_filtered.atoms :  protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
-                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (atom_type_pair.atom_type2 == "all" ? protein_area2_sequence_filtered.atoms :  protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
-                       
+                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (atom_type_pair.atom_type1 == "all" ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
+                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (atom_type_pair.atom_type2 == "all" ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
+
 
                         var ret = new List<feature_info>();
                         double[] distances = null;
@@ -3190,64 +3325,64 @@ namespace dimorphics_dataset
 
                         //foreach (var dist_range in dist_ranges)
                         //{
-                            var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
-                            var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
+                        var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
+                        var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
 
-                            //io_proxy.WriteLine($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
-                            
-                            var dist_filt = (atom_type_pair.min_dist==0&& atom_type_pair.max_dist==0)? distances : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).ToArray() ?? null);
-                            var distances_ds = descriptive_stats.get_stat_values(dist_filt, $@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}");
-                            var distances_ds_e = descriptive_stats.encode(distances_ds);
+                        //io_proxy.WriteLine($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
 
-                            // area, alphabet, alphabet group 1&2, atom type1&2
-                            var distances_ds_e_f = distances_ds_e.Select(a => new feature_info()
-                            {
-                                alphabet = alphabet_group_pair.name,
-                                dimension = 3,
-                                source = area_pairs.name1,
-                                category = $@"atom_distances",
-                                @group = $@"atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                                member = $@"{a.member_id}",
-                                perspective = $@"{a.perspective_id}",
-                                feature_value = a.perspective_value
-                            }).ToList();
+                        var dist_filt = (atom_type_pair.min_dist == 0 && atom_type_pair.max_dist == 0) ? distances : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).ToArray() ?? null);
+                        var distances_ds = descriptive_stats.get_stat_values(dist_filt, $@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}");
+                        var distances_ds_e = descriptive_stats.encode(distances_ds);
 
-
-                            var counts_ds_e_f = new feature_info()
-                            {
-                                alphabet = alphabet_group_pair.name,
-                                dimension = 3,
-                                source = area_pairs.name1,
-                                category = $@"atom_counts",
-                                @group = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                                member = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                                perspective = $@"countm",
-                                feature_value = dist_filt?.Length ?? 0d
-                            };
+                        // area, alphabet, alphabet group 1&2, atom type1&2
+                        var distances_ds_e_f = distances_ds_e.Select(a => new feature_info()
+                        {
+                            alphabet = alphabet_group_pair.name,
+                            dimension = 3,
+                            source = area_pairs.name1,
+                            category = $@"atom_distances",
+                            @group = $@"atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            member = $@"{a.member_id}",
+                            perspective = $@"{a.perspective_id}",
+                            feature_value = a.perspective_value
+                        }).ToList();
 
 
-                            var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
-                            var density_ds_e_f = new feature_info()
-                            {
-                                alphabet = alphabet_group_pair.name,
-                                dimension = 3,
-                                source = area_pairs.name1,
-                                category = $@"atom_density",
-                                @group = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                                member = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                                perspective = $@"density",
-                                feature_value = density
-                            };
+                        var counts_ds_e_f = new feature_info()
+                        {
+                            alphabet = alphabet_group_pair.name,
+                            dimension = 3,
+                            source = area_pairs.name1,
+                            category = $@"atom_counts",
+                            @group = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            member = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            perspective = $@"countm",
+                            feature_value = dist_filt?.Length ?? 0d
+                        };
+
+
+                        var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
+                        var density_ds_e_f = new feature_info()
+                        {
+                            alphabet = alphabet_group_pair.name,
+                            dimension = 3,
+                            source = area_pairs.name1,
+                            category = $@"atom_density",
+                            @group = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            member = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            perspective = $@"density",
+                            feature_value = density
+                        };
 
 
 
-                            ret.Add(counts_ds_e_f);
-                            ret.Add(density_ds_e_f);
-                            ret.AddRange(distances_ds_e_f);
+                        ret.Add(counts_ds_e_f);
+                        ret.Add(density_ds_e_f);
+                        ret.AddRange(distances_ds_e_f);
 
 
                         //}
-                        
+
                         lock (_done_lock)
                         {
                             done++;
@@ -3801,12 +3936,21 @@ namespace dimorphics_dataset
         {
             if (sequence == null || sequence.Length == 0)
             {
-                if (_peptides_data_template == null) throw new Exception();
+                if (_peptides_data_template == null)
+                {
+                    _peptides_data_template = call_r_peptides(_template_source_aa_seq, alphabet_name, source);
+                    _peptides_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
 
-                var template = _peptides_data_template.ToList();
+                if (_peptides_data_template == null)
+                {
+                    throw new Exception();
+                }
 
+                
+                var template = _peptides_data_template.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0 }).ToList();
+                
                 return template;
-
             }
 
             lock (_peptides_cache_lock)
@@ -3814,9 +3958,9 @@ namespace dimorphics_dataset
                 var cache_index = _peptides_cache.FindIndex(a => a.sequence == sequence);
                 if (cache_index > -1)
                 {
-                    var cached_item = _peptides_cache[cache_index].features.Select(a => new feature_info(a){ alphabet = alphabet_name, source = source.ToString()}).ToList();
+                    var cached_item = _peptides_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
 
-                    
+
                     if (cached_item != null && cached_item.Count > 0)
                     {
                         return cached_item;
@@ -3910,12 +4054,20 @@ namespace dimorphics_dataset
         {
             if (sequence == null || sequence.Length == 0)
             {
-                if (_protr_data_template == null) throw new Exception();
+                if (_protr_data_template == null)
+                {
+                    _protr_data_template = call_r_protr_data(_template_source_aa_seq, alphabet_name, source);
+                    _protr_data_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                }
 
-                var template = _protr_data_template.ToList();
+                if (_protr_data_template == null)
+                {
+                    throw new Exception();
+                }
+
+                var template = _protr_data_template.Select(a=> new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0}).ToList();
 
                 return template;
-
             }
 
             lock (_protr_cache_lock)
@@ -3923,7 +4075,7 @@ namespace dimorphics_dataset
                 var cache_index = _protr_cache.FindIndex(a => a.sequence == sequence);
                 if (cache_index > -1)
                 {
-                    var cached_item = _protr_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString()}).ToList();
+                    var cached_item = _protr_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
 
                     if (cached_item != null && cached_item.Count > 0)
                     {
@@ -4543,7 +4695,16 @@ namespace dimorphics_dataset
             {
                 if (seq_type == enum_seq_type.amino_acid_sequence)
                 {
-                    if (_calculate_aa_or_ss_sequence_classification_data_aa_template == null) throw new Exception();
+                    if (_calculate_aa_or_ss_sequence_classification_data_aa_template == null)
+                    {
+                        _calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, category_prefix, group_prefix, _template_source_aa_seq, seq_type, pse_aac_options);
+                        _calculate_aa_or_ss_sequence_classification_data_aa_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    }
+
+                    if (_calculate_aa_or_ss_sequence_classification_data_aa_template == null)
+                    {
+                        throw new Exception();
+                    }
 
                     var template = _calculate_aa_or_ss_sequence_classification_data_aa_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
 
@@ -4552,7 +4713,16 @@ namespace dimorphics_dataset
 
                 else if (seq_type == enum_seq_type.secondary_structure_sequence)
                 {
-                    if (_calculate_aa_or_ss_sequence_classification_data_ss_template == null) throw new Exception();
+                    if (_calculate_aa_or_ss_sequence_classification_data_ss_template == null)
+                    {
+                        _calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, category_prefix, group_prefix, _template_source_ss_seq, seq_type, pse_aac_options);
+                        _calculate_aa_or_ss_sequence_classification_data_ss_template.ForEach(a => { a.source = ""; a.feature_value=0;});
+                    }
+
+                    if (_calculate_aa_or_ss_sequence_classification_data_ss_template == null)
+                    {
+                        throw new Exception();
+                    }
 
                     var template = _calculate_aa_or_ss_sequence_classification_data_ss_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
 

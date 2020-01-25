@@ -356,7 +356,7 @@ namespace dimorphics_dataset
             for (var ext_alphabet_index = 0; ext_alphabet_index < alphabets.Count; ext_alphabet_index++)
             {
                 var alphabet_index = ext_alphabet_index;
-
+                
                 var a_task = Task.Run(() =>
                 {
                     var result = new List<(int alphabet_id, string alphabet_name, (string name, double value)[][] motifs, (string name, double value)[][] motifs_binary, (string name, double value)[] oaac, (string name, double value)[] oaac_binary, (string name, double value)[] average_seq_positions, (string name, double value)[][] dipeptides, (string name, double value)[][] dipeptides_binary, (string name, double value)[] average_dipeptide_distance)>();
@@ -369,11 +369,11 @@ namespace dimorphics_dataset
 
 
 
+                    
 
 
 
-
-                    (string name, double value)[][] motifs = null;
+                        (string name, double value)[][] motifs = null;
                     if (pse_aac_options.motifs || pse_aac_options.motifs_binary)
                     {
 

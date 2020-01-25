@@ -334,6 +334,23 @@ namespace dimorphics_dataset
             this.Z = double.Parse(pdb_atom_line.Substring(47 - 1, (54 - 47) + 1), NumberStyles.Float, CultureInfo.InvariantCulture);
         }
 
+        public atom(string pdb_id, char chain_id, int residue_index, char i_code, char amino_acid, int array_index, int model_index, int serial_index, string atom_type, char element, double X, double Y, double Z)
+        {
+            this.pdb_id = pdb_id;
+            this.chain_id = chain_id;
+            this.residue_index = residue_index;
+            this.i_code = i_code;
+            this.amino_acid = amino_acid;
+            this.array_index = array_index;
+            this.model_index = model_index;
+            this.serial_index = serial_index;
+            this.atom_type = atom_type;
+            this.element = element;
+            this.X = X;
+            this.Y = Y;
+            this.Z = Z;
+        }
+
         //public static bool use_ram_disk = true;
         //public const string pdb_folder = /*$@"{(use_ram_disk?"r":"c")}*/ Path.Combine(program.data_root_folder,"pdb\";
 
