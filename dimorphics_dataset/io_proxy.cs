@@ -25,12 +25,12 @@ namespace dimorphics_dataset
                 {
                     lock (_console_lock)
                     {
-                        Console.WriteLine($@"{pid:000000}.{thread_id:000000}.{task_id:000000} {DateTime.Now:G} {module_name}.{function_name} -> {text}");
+                        Console.WriteLine($@"{DateTime.Now:G} {pid:000000}.{thread_id:000000}.{task_id:000000} {module_name}.{function_name} -> {text}");
                     }
                 }
                 else
                 {
-                        Console.WriteLine($@"{pid:000000}.{thread_id:000000}.{task_id:000000} {DateTime.Now:G} {module_name}.{function_name} -> {text}");
+                    Console.WriteLine($@"{DateTime.Now:G} {pid:000000}.{thread_id:000000}.{task_id:000000} {module_name}.{function_name} -> {text}");
                 }
             }
             catch (Exception)

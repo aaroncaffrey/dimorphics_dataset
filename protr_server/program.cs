@@ -7,6 +7,7 @@ namespace protr_server
 {
     public static class program
     {
+#if DEBUG
         private static Random random = new Random();
         public static string random_peptide(int length)
         {
@@ -22,10 +23,10 @@ namespace protr_server
 
                 var x = r_protr.get_values(0, "datasource", "Overall", peptide);
 
-                Console.WriteLine("input size: " + length + ", output size: " + x.Count);
+                io_proxy.WriteLine("input size: " + length + ", output size: " + x.Count);
                 foreach (var a in x)
                 {
-                    //Console.WriteLine(a);
+                    //io_proxy.WriteLine(a.ToString());
                 }
 
 
@@ -39,6 +40,7 @@ namespace protr_server
 
             Console.ReadKey();
         }
+#endif
 
         public static void Main(string[] args)
         {

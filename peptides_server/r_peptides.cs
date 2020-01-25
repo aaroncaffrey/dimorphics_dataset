@@ -383,32 +383,32 @@ namespace peptides_server
                     }).ToList());
 
 
-                    //Console.WriteLine($"{nameof(aaComp_result)} = {string.Join(",", aaComp_result)}");
-                    //Console.WriteLine($"{nameof(aaDescriptors_result)} = {string.Join(",", aaDescriptors_result)}");
-                    //Console.WriteLine($"{nameof(aIndex_result)} = {string.Join(",", aIndex_result)}");
-                    //Console.WriteLine($"{nameof(autoCorrelation_result)} = {string.Join(",", autoCorrelation_result)}");
-                    //Console.WriteLine($"{nameof(autoCovariance_result)} = {string.Join(",", autoCovariance_result)}");
-                    //Console.WriteLine($"{nameof(blosumIndices_result)} = {string.Join(",", blosumIndices_result)}");
-                    //Console.WriteLine($"{nameof(boman_result)} = {string.Join(",", boman_result)}");
-                    //Console.WriteLine($"{nameof(charge_result)} = {string.Join(",", charge_result)}");
-                    //Console.WriteLine($"{nameof(crossCovariance_result)} = {string.Join(",", crossCovariance_result)}");
-                    //Console.WriteLine($"{nameof(crucianiProperties_result)} = {string.Join(",", crucianiProperties_result)}");
-                    //Console.WriteLine($"{nameof(fasgaiVectors_result)} = {string.Join(",", fasgaiVectors_result)}");
-                    //Console.WriteLine($"{nameof(hmoment_result)} = {string.Join(",", hmoment_result)}");
-                    //Console.WriteLine($"{nameof(hydrophobicity_result)} = {string.Join(",", hydrophobicity_result)}");
-                    //Console.WriteLine($"{nameof(instaIndex_result)} = {string.Join(",", instaIndex_result)}");
-                    //Console.WriteLine($"{nameof(kideraFactors_result)} = {string.Join(",", kideraFactors_result)}");
-                    //Console.WriteLine($"{nameof(lengthpep_result)} = {string.Join(",", lengthpep_result)}");
-                    //Console.WriteLine($"{nameof(membpos_result)} = {string.Join(",", membpos_result)}");
-                    //Console.WriteLine($"{nameof(mswhimScores_result)} = {string.Join(",", mswhimScores_result)}");
-                    //Console.WriteLine($"{nameof(mw_result)} = {string.Join(",", mw_result)}");
-                    //Console.WriteLine($"{nameof(pI_result)} = {string.Join(",", pI_result)}");
-                    //Console.WriteLine($"{nameof(protFP_result)} = {string.Join(",", protFP_result)}");
-                    //Console.WriteLine($"{nameof(stScales_result)} = {string.Join(",", stScales_result)}");
-                    //Console.WriteLine($"{nameof(tScales_result)} = {string.Join(",", tScales_result)}");
-                    //Console.WriteLine($"{nameof(vhseScales_result)} = {string.Join(",", vhseScales_result)}");
-                    //Console.WriteLine($"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
-                    //Console.WriteLine("");
+                    //io_proxy.WriteLine($"{nameof(aaComp_result)} = {string.Join(",", aaComp_result)}");
+                    //io_proxy.WriteLine($"{nameof(aaDescriptors_result)} = {string.Join(",", aaDescriptors_result)}");
+                    //io_proxy.WriteLine($"{nameof(aIndex_result)} = {string.Join(",", aIndex_result)}");
+                    //io_proxy.WriteLine($"{nameof(autoCorrelation_result)} = {string.Join(",", autoCorrelation_result)}");
+                    //io_proxy.WriteLine($"{nameof(autoCovariance_result)} = {string.Join(",", autoCovariance_result)}");
+                    //io_proxy.WriteLine($"{nameof(blosumIndices_result)} = {string.Join(",", blosumIndices_result)}");
+                    //io_proxy.WriteLine($"{nameof(boman_result)} = {string.Join(",", boman_result)}");
+                    //io_proxy.WriteLine($"{nameof(charge_result)} = {string.Join(",", charge_result)}");
+                    //io_proxy.WriteLine($"{nameof(crossCovariance_result)} = {string.Join(",", crossCovariance_result)}");
+                    //io_proxy.WriteLine($"{nameof(crucianiProperties_result)} = {string.Join(",", crucianiProperties_result)}");
+                    //io_proxy.WriteLine($"{nameof(fasgaiVectors_result)} = {string.Join(",", fasgaiVectors_result)}");
+                    //io_proxy.WriteLine($"{nameof(hmoment_result)} = {string.Join(",", hmoment_result)}");
+                    //io_proxy.WriteLine($"{nameof(hydrophobicity_result)} = {string.Join(",", hydrophobicity_result)}");
+                    //io_proxy.WriteLine($"{nameof(instaIndex_result)} = {string.Join(",", instaIndex_result)}");
+                    //io_proxy.WriteLine($"{nameof(kideraFactors_result)} = {string.Join(",", kideraFactors_result)}");
+                    //io_proxy.WriteLine($"{nameof(lengthpep_result)} = {string.Join(",", lengthpep_result)}");
+                    //io_proxy.WriteLine($"{nameof(membpos_result)} = {string.Join(",", membpos_result)}");
+                    //io_proxy.WriteLine($"{nameof(mswhimScores_result)} = {string.Join(",", mswhimScores_result)}");
+                    //io_proxy.WriteLine($"{nameof(mw_result)} = {string.Join(",", mw_result)}");
+                    //io_proxy.WriteLine($"{nameof(pI_result)} = {string.Join(",", pI_result)}");
+                    //io_proxy.WriteLine($"{nameof(protFP_result)} = {string.Join(",", protFP_result)}");
+                    //io_proxy.WriteLine($"{nameof(stScales_result)} = {string.Join(",", stScales_result)}");
+                    //io_proxy.WriteLine($"{nameof(tScales_result)} = {string.Join(",", tScales_result)}");
+                    //io_proxy.WriteLine($"{nameof(vhseScales_result)} = {string.Join(",", vhseScales_result)}");
+                    //io_proxy.WriteLine($"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
+                    //io_proxy.WriteLine("");
 
                     if (_template_get_values == null)
                     {

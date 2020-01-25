@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -221,9 +222,15 @@ namespace dimorphics_dataset
         public static string get_param(string name, List<string> args)
         {
             var ix = args.FindIndex(a => string.Equals(a, $"-{name}", StringComparison.InvariantCultureIgnoreCase));
+            
             if (ix == -1) return null;
-            if (ix == args.Count - 1) return "";
-            var value = args[ix + 1];
+
+            var value = (ix == args.Count - 1) ? "" : args[ix + 1];
+
+            if (ix < args.Count - 1) args.RemoveAt(ix + 1);
+            
+            args.RemoveAt(ix);
+            
             return value;
         }
 
@@ -233,17 +240,22 @@ namespace dimorphics_dataset
             if (args == null || args.Length == 0)
             {
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
-                Console.WriteLine($@"");
-                Console.WriteLine($@"{nameof(dimorphics_dataset)} usage:");
-                Console.WriteLine($@"");
-                Console.WriteLine($@"  {exe} -area=[2i,2n,2p,3i,3n,3p] -use_dssp3=[true|false] -class_id=[-1|+1] -class_name=[class_name] -min_sequence_length=[3] -max_features=[100] -output_folder=[path]");
-                Console.WriteLine($@"");
-                Console.WriteLine($@"{nameof(dimorphics_dataset)} examples:");
-                Console.WriteLine($@"");
-                Console.WriteLine($@"  {exe} -area=2i -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\2i\dimorphic_coil\");
-                Console.WriteLine($@"  {exe} -area=2i -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\2i\standard_coil\");
-                Console.WriteLine($@"");
-                Console.WriteLine($@"");
+                io_proxy.WriteLine($@"");
+                io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} usage:");
+                io_proxy.WriteLine($@"");
+                io_proxy.WriteLine($@"  {exe} -area=[2i,2n,2p,3i,3n,3p] -use_dssp3=[true|false] -class_id=[-1|+1] -class_name=[class_name] -min_sequence_length=[3] -max_features=[100] -output_folder=[path] [-first_index=[i] -last_index=[j]]");
+                io_proxy.WriteLine($@"");
+                io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} examples:");
+                io_proxy.WriteLine($@"");
+
+                foreach (var a in new [] {"2i", "2n", "2p", "3i", "3n", "3p"})
+                {
+                    io_proxy.WriteLine($@"{a[0]}d {(a[1]=='i'?"interface subsequence":"")}{(a[1]=='n'?"neighbourhood":"")}{(a[1]=='p'?"protien":"")} area:");
+                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\dimorphic_coil\");
+                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\standard_coil\");
+                    io_proxy.WriteLine($@"");
+                }
+
                 Environment.Exit(0);
                 //return default;
                 //throw new Exception($@"No {nameof(args)} specified.");
@@ -266,8 +278,13 @@ namespace dimorphics_dataset
                 int.TryParse(get_param("first_index", args_list), NumberStyles.Integer, CultureInfo.InvariantCulture, out var tp_first_index) ? tp_first_index : (int?)null,
                 int.TryParse(get_param("last_index", args_list), NumberStyles.Integer, CultureInfo.InvariantCulture, out var tp_last_index) ? tp_last_index : (int?)null
             );
-
             
+            if (args_list.Any())
+            {
+                io_proxy.WriteLine($@"Args unknown: {string.Join(" ", args_list)}", nameof(program), nameof(get_params));
+
+                Environment.Exit(0);
+            }
 
             if (x.area == null || x.area.Any(a => string.IsNullOrWhiteSpace(a))) throw new ArgumentNullException(nameof(x.area));
             if (x.area.Except(new string[] { "2i", "2n", "2p", "3i", "3n", "3p" }).Any()) throw new ArgumentOutOfRangeException(nameof(x.area));
@@ -278,7 +295,17 @@ namespace dimorphics_dataset
             if (x.max_features == null) throw new ArgumentNullException(nameof(x.max_features));
             if (string.IsNullOrWhiteSpace(x.output_folder)) throw new ArgumentNullException(nameof(x.output_folder));
 
-            var ret = (area:x.area, use_dssp3:x.use_dssp3.Value, class_id:x.class_id.Value, class_name:x.class_name, min_sequence_length:x.min_sequence_length.Value, max_features:x.max_features.Value, output_folder:x.output_folder, first_index:x.first_index, last_index:x.last_index ?? x.first_index);
+            var ret = (
+                area:x.area, 
+                use_dssp3:x.use_dssp3.Value, 
+                class_id:x.class_id.Value,
+                class_name:x.class_name,
+                min_sequence_length:x.min_sequence_length.Value,
+                max_features:x.max_features.Value, 
+                output_folder:x.output_folder,
+                first_index:x.first_index, 
+                last_index:x.last_index ?? x.first_index
+                           );
 
             if (x.first_index == null && x.last_index == null)
             {
@@ -334,7 +361,7 @@ namespace dimorphics_dataset
 
         //var atd = at.Select(a=>a.atom_type).Distinct().ToList();
         //var atc = atd.Select(a => (atom_type:a, count:at.Count(b => b.atom_type == a), files:at.Where(b=>b.atom_type==a).Select(b=>b.pdb_id).Distinct().Count())).OrderByDescending(a=>a.count).ToList();
-        //atc.ForEach(a=>Console.WriteLine($@"{a.atom_type},{a.count},{((double)a.count / (double)atd.Count)},{a.files},{((double)a.files / (double)pdbs.Count)}"));
+        //atc.ForEach(a=>io_proxy.WriteLine($@"{a.atom_type},{a.count},{((double)a.count / (double)atd.Count)},{a.files},{((double)a.files / (double)pdbs.Count)}"));
         //return;
         //foreach (var pdb in pdbs)
         //{
@@ -379,7 +406,7 @@ namespace dimorphics_dataset
         //        }
         //    }
 
-        //    Console.WriteLine();
+        //    io_proxy.WriteLine();
         //}
         //}
 
@@ -408,20 +435,23 @@ namespace dimorphics_dataset
 
             for (var index = 0; index < psi_list.Count; index++)
             {
+                var _index = index;
+
                 if (cmd_params.first_index != null && cmd_params.first_index > -1)
                 {
-                    if (index < cmd_params.first_index) continue;
+                    if (_index < cmd_params.first_index) continue;
                 }
 
                 if (cmd_params.last_index != null && cmd_params.last_index > -1)
                 {
-                    if (index > cmd_params.last_index) continue;
+                    if (_index > cmd_params.last_index) continue;
                 }
 
-                
+                var fns = get_output_filenames(cmd_params, _index);
+                if (File.Exists(fns.fn_headers) && File.Exists(fns.fn_features) && File.Exists(fns.fn_comments)) continue;
+
                 if (cmd_params.first_index == null && cmd_params.last_index == null)
                 {
-                    var _index = index;
                     var task = Task.Run(() =>
                     {
                         while (true)
@@ -455,10 +485,8 @@ namespace dimorphics_dataset
                 
                 
 
-                var fns = get_output_filenames(cmd_params, index);
-                if (File.Exists(fns.fn_headers) && File.Exists(fns.fn_features) && File.Exists(fns.fn_comments)) continue;
-
-                var psi_list2 = new List<protein_subsequence_info>() { psi_list[index] };
+               
+                var psi_list2 = new List<protein_subsequence_info>() { psi_list[_index] };
 
                 // 2. load available data sources
                 var class_data_list = part2(cmd_params, psi_list2, feature_types);
@@ -467,19 +495,122 @@ namespace dimorphics_dataset
                 var data_encoded_list = part3(cmd_params, class_data_list, feature_types);
 
                 // 4. Save to file
-                part4(cmd_params, data_encoded_list, index);
+                part4(cmd_params, data_encoded_list, _index);
             }
 
             wait_tasks(tasks.ToArray<Task>(), nameof(program), nameof(Main));
 
-            sw1.Stop();
-
             if (cmd_params.first_index == null && cmd_params.last_index == null)
             {
+                part5(psi_list, cmd_params);
+
+                part6(psi_list, cmd_params);
+            }
+
+            sw1.Stop();
+            
+            if (cmd_params.first_index == null && cmd_params.last_index == null)
+            {
+
                 io_proxy.WriteLine(
                     $@"{cmd_params.class_id} {cmd_params.class_name}: Finished: ({sw1.Elapsed:dd\:hh\:mm\:ss\.fff})",
                     nameof(program), nameof(Main));
             }
+        }
+
+        private static void part6(List<protein_subsequence_info> psi_list,
+          (string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string
+              output_folder, int? first_index, int? last_index) cmd_params)
+        {
+            var files = psi_list.AsParallel().AsOrdered().Select((a, i) =>
+            {
+                var b = get_output_filenames(cmd_params, i);
+                return (fn_headers: b.fn_headers, fn_features: b.fn_features, fn_comments: b.fn_comments);
+            }).ToList();
+
+            var text_header = io_proxy.ReadAllLines(files.First().fn_headers, nameof(program), nameof(part6));
+            var text_features = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_features, nameof(program), nameof(part6)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
+            var text_comments = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_comments, nameof(program), nameof(part6)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
+
+            var invalid_features = text_features
+                .SelectMany(a =>
+                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || b == "∞" || b == "+∞" || b == "-∞" || b == "NaN") ? i : -1)
+                        .Where(a => a != -1).ToList()).Distinct().OrderBy(a => a).ToList();
+
+            if (invalid_features.Count > 0)
+            {
+                io_proxy.WriteLine($@"Invalid feature ids: " + string.Join(", ", invalid_features), nameof(program), nameof(part6));
+
+                foreach (var i in invalid_features)
+                {
+                    var invalid_feature_header =
+                        text_header.FirstOrDefault(a => a.StartsWith($"{i},", StringComparison.InvariantCulture));
+                    io_proxy.WriteLine($@"{i}: {invalid_feature_header}");
+                }
+            }
+            else
+            {
+                io_proxy.WriteLine($@"No invalid feature ids.", nameof(program), nameof(part6));
+            }
+
+            var fns = get_output_filenames(cmd_params, null);
+            io_proxy.WriteAllLines(fns.fn_headers, text_header);
+            io_proxy.WriteAllLines(fns.fn_features, text_features);
+            io_proxy.WriteAllLines(fns.fn_comments, text_comments);
+        }
+
+        private static void part5(List<protein_subsequence_info> psi_list,
+            (string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string
+                output_folder, int? first_index, int? last_index) cmd_params)
+        {
+            var file_hashes = psi_list.AsParallel().AsOrdered().Select((a, i) =>
+            {
+                var b = get_output_filenames(cmd_params, i);
+                return (fn_headers: file_sha_256(b.fn_headers), fn_features: file_sha_256(b.fn_features), fn_comments: file_sha_256(b.fn_comments));
+            }).ToList();
+
+            var file_hashes_headers = file_hashes.Select(a => a.fn_headers).ToList();
+            var file_hashes_features = file_hashes.Select(a => a.fn_features).ToList();
+            var file_hashes_comments = file_hashes.Select(a => a.fn_comments).ToList();
+
+            var file_hashes_headers_cnt = file_hashes_headers.Distinct()
+                .Select(a => (hash: a, count: file_hashes_headers.Count(b => a == b)))
+                .OrderByDescending(a => a.count).ToList();
+
+            var file_hashes_features_cnt = file_hashes_features.Distinct()
+                .Select(a => (hash: a, count: file_hashes_features.Count(b => a == b)))
+                .OrderByDescending(a => a.count).ToList();
+
+            var file_hashes_comments_cnt = file_hashes_comments.Distinct()
+                .Select(a => (hash: a, count: file_hashes_comments.Count(b => a == b)))
+                .OrderByDescending(a => a.count).ToList();
+
+            if (file_hashes_headers_cnt.Count != 1)
+            {
+                io_proxy.WriteLine("Hashes for headers:");
+                file_hashes_headers_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
+            }
+
+            if (file_hashes_features_cnt.Count != psi_list.Count)
+            {
+                io_proxy.WriteLine("Hashes for features:");
+                file_hashes_features_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
+            }
+
+            if (file_hashes_comments_cnt.Count != psi_list.Count)
+            {
+                io_proxy.WriteLine("Hashes for comments:");
+                file_hashes_comments_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
+            }
+        }
+
+        private static string file_sha_256(string filename)
+        {
+            using var stream = new BufferedStream(File.OpenRead(filename), 1024 * 1024 * 4);
+            using var sha256 = new SHA256Managed();
+            var hash_bytes = sha256.ComputeHash(stream);
+            var hash_str = BitConverter.ToString(hash_bytes);//.Replace("-", String.Empty);
+            return hash_str;
         }
 
         private static feature_types feature_types_params(
@@ -606,12 +737,12 @@ namespace dimorphics_dataset
             return fn_input;
         }
 
-        private static (string fn_headers, string fn_comments, string fn_features) get_output_filenames((string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string output_folder, int? first_index, int? last_index) cmd_params, int tag)
+        private static (string fn_headers, string fn_comments, string fn_features) get_output_filenames((string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string output_folder, int? first_index, int? last_index) cmd_params, int? tag)
         {
             
-            var fn_headers = Path.Combine(cmd_params.output_folder, $"h__({cmd_params.class_name})_{tag}.csv");
-            var fn_comments = Path.Combine(cmd_params.output_folder, $"c__({cmd_params.class_name})_{tag}.csv");
-            var fn_features = Path.Combine(cmd_params.output_folder, $"f__({cmd_params.class_name})_{tag}.csv");
+            var fn_headers = Path.Combine(cmd_params.output_folder, $"h__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
+            var fn_comments = Path.Combine(cmd_params.output_folder, $"c__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
+            var fn_features = Path.Combine(cmd_params.output_folder, $"f__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
 
             return (fn_headers, fn_comments, fn_features);
         }

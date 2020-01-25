@@ -20,7 +20,7 @@ namespace dimorphics_dataset
             //if (index == -1)
 
             //{
-            //    Console.WriteLine("Warning: iupred2a data missing");
+            //    io_proxy.WriteLine("Warning: iupred2a data missing");
             //    return new List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)>();
             //}
 

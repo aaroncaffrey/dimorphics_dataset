@@ -8,7 +8,7 @@ namespace peptides_server
 {
     public static class program
     {
-
+#if DEBUG
         private static Random random = new Random();
         public static string random_peptide(int length)
         {
@@ -26,7 +26,7 @@ namespace peptides_server
 
                 foreach (var a in x)
                 {
-                    Console.WriteLine(a);
+                    io_proxy.WriteLine(a.ToString());
                 }
 
 
@@ -40,6 +40,7 @@ namespace peptides_server
 
             Console.ReadKey();
         }
+#endif
 
         public static void Main(string[] args)
         {

@@ -341,12 +341,12 @@ namespace dimorphics_dataset
                     var prob = all_probability_data_grouped.Select(a => (ss:a.Key, alphabet.id, alphabet.name, group, average: a.Where(b => group.group_amino_acids.Contains(b.amino_acid, StringComparison.InvariantCulture)).Select(b => b.value).DefaultIfEmpty(0).Average())).ToList();
                    // this.all_probabilities_per_aa.AddRange(xx);
                     ss_probabilities_per_aa.AddRange(ss_column_headers.Where(a => ss_codes.Contains(a, StringComparison.InvariantCulture)).Select(ss=>(ss,alphabet.id,alphabet.name, group.group_amino_acids, prob.FirstOrDefault(a => a.ss == ss).average, dist.FirstOrDefault(a => a.ss == ss).average)).ToList());
-                    //Console.WriteLine();
+                    //io_proxy.WriteLine();
                 }
             }
 
             return (ss_overall_average, ss_probabilities_per_aa);
-            //Console.WriteLine();
+            //io_proxy.WriteLine();
         }
 
 
@@ -458,7 +458,7 @@ namespace dimorphics_dataset
 
             if (!mpsa_extensions_supported.Contains(format, StringComparer.InvariantCultureIgnoreCase))
             {
-                Console.WriteLine("File format not supported: " + filename);
+                io_proxy.WriteLine("File format not supported: " + filename);
                 return (null, null);
             }
 

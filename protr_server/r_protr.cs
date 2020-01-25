@@ -114,7 +114,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{a.lambda}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(a => new feature_info()
@@ -126,7 +126,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{a.submat}_{a.k}_{a.lag}_{alphabet_name}".Replace(".","_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractCTDC_f = ret_extractCTDC.Select(a => new feature_info()
@@ -138,7 +138,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractCTDD_f = ret_extractCTDD.Select(a => new feature_info()
@@ -150,7 +150,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractCTDT_f = ret_extractCTDT.Select(a => new feature_info()
@@ -162,7 +162,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractCTriad_f = ret_extractCTriad.Select(a => new feature_info()
@@ -174,7 +174,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(a => new feature_info()
@@ -186,7 +186,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractDC_f = ret_extractDC.Select(a => new feature_info()
@@ -198,7 +198,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractDescScales_f = ret_extractDescScales.Select(a => new feature_info()
@@ -210,7 +210,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{a.propmat}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractFAScales_f = ret_extractFAScales.Select(a => new feature_info()
@@ -222,7 +222,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{a.factors}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractGeary_f = ret_extractGeary.Select(a => new feature_info()
@@ -234,7 +234,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractMDSScales_f = ret_extractMDSScales.Select(a => new feature_info()
@@ -246,7 +246,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{a.k}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractMoran_f = ret_extractMoran.Select(a => new feature_info()
@@ -258,7 +258,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(a => new feature_info()
@@ -270,7 +270,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractPAAC_f = ret_extractPAAC.Select(a => new feature_info()
@@ -282,7 +282,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{a.lambda}_{a.w}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractProtFP_f = ret_extractProtFP.Select(a => new feature_info()
@@ -294,7 +294,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(a => new feature_info()
@@ -306,7 +306,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractQSO_f = ret_extractQSO.Select(a => new feature_info()
@@ -318,7 +318,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{a.nlag}_{a.w}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractSOCN_f = ret_extractSOCN.Select(a => new feature_info()
@@ -330,7 +330,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractScales_f = ret_extractScales.Select(a => new feature_info()
@@ -342,7 +342,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     var ret_extractScalesGap_f = ret_extractScalesGap.Select(a => new feature_info()
@@ -354,7 +354,7 @@ namespace protr_server
                         @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = a.value
+                        feature_value = descriptive_stats.fix_double(a.value)
                     }).ToList();
 
                     // todo: replace '.'s in names
@@ -381,7 +381,7 @@ namespace protr_server
                     features.AddRange(ret_extractScales_f);
                     features.AddRange(ret_extractScalesGap_f);
 
-                    //features.ForEach(a=>//Console.WriteLine(a.ToString()));
+                    //features.ForEach(a=>//io_proxy.WriteLine(a.ToString()));
 
                     if (_template_get_values == null)
                     {
@@ -409,7 +409,7 @@ namespace protr_server
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_last), lambda_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -463,7 +463,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -532,7 +532,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -580,7 +580,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -631,7 +631,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -679,7 +679,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -728,7 +728,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -779,7 +779,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -830,7 +830,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -927,7 +927,7 @@ namespace protr_server
                 (nameof(factors_first), factors_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(factors_last), factors_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1022,7 +1022,7 @@ namespace protr_server
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1080,7 +1080,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1153,7 +1153,7 @@ namespace protr_server
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1214,7 +1214,7 @@ namespace protr_server
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1277,7 +1277,7 @@ namespace protr_server
                 (nameof(lamda_last), lamda_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1331,7 +1331,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1348,7 +1348,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1365,7 +1365,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1388,7 +1388,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1471,7 +1471,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1554,7 +1554,7 @@ namespace protr_server
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1606,7 +1606,7 @@ namespace protr_server
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1659,7 +1659,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1746,7 +1746,7 @@ namespace protr_server
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1833,7 +1833,7 @@ namespace protr_server
                 (nameof(engine), engine?.ToString() ?? ""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //Console.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
 #endif
             lock (engine_lock)
             {

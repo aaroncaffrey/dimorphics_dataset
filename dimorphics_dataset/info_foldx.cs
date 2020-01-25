@@ -284,7 +284,7 @@ namespace dimorphics_dataset
                 {
                     //lock (program._console_lock)
                     //{
-                        Console.WriteLine(e.Message);
+                        io_proxy.WriteLine(e.Message);
                     //}
 
                     Task.Delay(delay_ms).Wait();
@@ -365,7 +365,7 @@ namespace dimorphics_dataset
 
                     //lock (program._console_lock)
                     //{
-                        Console.WriteLine($"{nameof(call_foldx)}: run: \"{start.FileName}\" {start.Arguments}");
+                        io_proxy.WriteLine($"{nameof(call_foldx)}: run: \"{start.FileName}\" {start.Arguments}");
                     //}
 
                     using (var process = Process.Start(start))
@@ -381,7 +381,7 @@ namespace dimorphics_dataset
                             {
                                 //lock (program._console_lock)
                                 //{
-                                    Console.WriteLine($"{nameof(stdout)}: {stdout}");
+                                    io_proxy.WriteLine($"{nameof(stdout)}: {stdout}");
                                 //}
                             }
 
@@ -392,7 +392,7 @@ namespace dimorphics_dataset
                             {
                                 //lock (program._console_lock)
                                 //{
-                                    Console.WriteLine($"{nameof(call_foldx)}: {stderr}");
+                                    io_proxy.WriteLine($"{nameof(call_foldx)}: {stderr}");
                                 //}
                             }
                         }

@@ -148,7 +148,7 @@ namespace dimorphics_dataset
                             // note: chain id will still be wrong
 
 
-                            //Console.WriteLine();
+                            //io_proxy.WriteLine();
                         }
 
                         // algorithm 2 to deal with missing termins on one chain
@@ -289,7 +289,7 @@ namespace dimorphics_dataset
                 var line = lines[i];
 
 
-                Console.WriteLine((string) line.pdb_id);
+                io_proxy.WriteLine((string) line.pdb_id);
 
                 var task = Task.Run(() =>
                 {
@@ -322,7 +322,7 @@ namespace dimorphics_dataset
                             var colour_lookup = lookup.Where(a => a.chain_number == 0).ToList();
 
                             if (colour_lookup.Count > 1)
-                                Console.WriteLine();
+                                io_proxy.WriteLine();
 
                             line.res_id = colour_lookup.First().residue_index.ToString(CultureInfo.InvariantCulture);
                             line.chain_id = colour_lookup.First().chain_id.ToString(CultureInfo.InvariantCulture);
@@ -333,7 +333,7 @@ namespace dimorphics_dataset
                             var colour_lookup = lookup.Where(a => a.chain_number == 1).ToList();
 
                             if (colour_lookup.Count > 1)
-                                Console.WriteLine();
+                                io_proxy.WriteLine();
 
                             line.res_id = colour_lookup.First().residue_index.ToString(CultureInfo.InvariantCulture);
                             line.chain_id = colour_lookup.First().chain_id.ToString(CultureInfo.InvariantCulture);
@@ -342,7 +342,7 @@ namespace dimorphics_dataset
                         else
                         {
                             errors++;
-                            Console.WriteLine("errors: " + errors + ", fix: " + fix);
+                            io_proxy.WriteLine("errors: " + errors + ", fix: " + fix);
                             //throw new Exception();
                             fix = true;
                         }
@@ -365,7 +365,7 @@ namespace dimorphics_dataset
             //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
             io_proxy.WriteAllLines(fn, result, nameof(program), nameof(fill_missing_chains));
-            Console.WriteLine("finished.");
+            io_proxy.WriteLine("finished.");
             //Console.ReadLine();
 
         }
@@ -375,7 +375,7 @@ namespace dimorphics_dataset
 
             foreach (var p in pdbs)
             {
-                Console.WriteLine("Extracting " + p);
+                io_proxy.WriteLine("Extracting " + p);
                 atom.extract_split_pdb_chains(p, null);
             }
         }
@@ -392,7 +392,7 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
-                    Console.WriteLine("Repairing " + p);
+                    io_proxy.WriteLine("Repairing " + p);
                     info_foldx.foldx_repair_pdb(Path.GetFileNameWithoutExtension(p), run, Path.GetDirectoryName(p) + @"\");
                 });
 
@@ -451,7 +451,7 @@ namespace dimorphics_dataset
 
                 //if (!pdb_id_list.Contains(pdb_id_code)) continue;
 
-                Console.WriteLine("Extracting sequence from " + pdb_id);
+                io_proxy.WriteLine("Extracting sequence from " + pdb_id);
 
 
                 var chains = atom.load_atoms_pdb(pdb_id,
@@ -563,7 +563,7 @@ namespace dimorphics_dataset
 
                     if (File.Exists(fasta_file) && new FileInfo(fasta_file).Length > 0) continue;
 
-                    Console.WriteLine($"Saving fasta {index}");
+                    io_proxy.WriteLine($"Saving fasta {index}");
                     var t_seq = txt_sequences[index];
                     var seq = new sequence($">seq_{index}", t_seq);
                     sequence.Save(fasta_file, seq);
@@ -602,7 +602,7 @@ namespace dimorphics_dataset
                             skipped_not_limited++;
                             continue;
                         }
-                        //Console.WriteLine($"Querying psi blast with sequence {index1}");
+                        //io_proxy.WriteLine($"Querying psi blast with sequence {index1}");
 
                         var dna_str = $@"python3 predict.py {index1} {txt_sequences[index1]}";
                         if (!dna_pred.Contains(dna_str)) dna_pred.Add(dna_str);
@@ -650,7 +650,7 @@ namespace dimorphics_dataset
             //Directory.CreateDirectory(Path.GetDirectoryName(dna_pred_batch_filename));
             io_proxy.WriteAllLines(dna_pred_batch_filename, dna_pred, nameof(program), nameof(get_pssms));
 
-            Console.WriteLine($@"{blast_db}_{num_iterations}_{(remote ? "remote" : "local")}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}");
+            io_proxy.WriteLine($@"{blast_db}_{num_iterations}_{(remote ? "remote" : "local")}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}");
         }
 
         public static void load_pssms()
@@ -663,14 +663,14 @@ namespace dimorphics_dataset
             {
                 var index1 = index;
 
-                Console.WriteLine($"Loading pssm {index1}");
+                io_proxy.WriteLine($"Loading pssm {index1}");
 
 
                 var pssm_matrix = info_blast_pssm.load_psi_blast_pssm($@"c:\bs_pssm\{index1}.pssm");
 
                 pssm_matrix = info_blast_pssm.normalise_pssm(pssm_matrix);
 
-                Console.WriteLine($"Loaded pssm {index1}");
+                io_proxy.WriteLine($"Loaded pssm {index1}");
 
             }
 
@@ -689,7 +689,7 @@ namespace dimorphics_dataset
             var header = String.Join("", fasta.Where(b => b.StartsWith(">", StringComparison.InvariantCulture)).ToList());
             var sequence = String.Join("", fasta.Where(b => !b.StartsWith(">", StringComparison.InvariantCulture)).ToList());
 
-            //Console.WriteLine(sequence);
+            //io_proxy.WriteLine(sequence);
             return (header, sequence);
         }
 
@@ -747,7 +747,7 @@ namespace dimorphics_dataset
 
             foreach (var a in files)
             {
-                Console.WriteLine(a);
+                io_proxy.WriteLine(a);
 
                 var file = Path.GetFileNameWithoutExtension(a).ToUpperInvariant();
                 var pdb = file.Substring(0, 4);
@@ -789,7 +789,7 @@ namespace dimorphics_dataset
                 var mutant_file = s.First(b => b.StartsWith("--mutant-file=", StringComparison.InvariantCulture)).Split('=').Last();
                 if (!File.Exists(mutant_file) || new FileInfo(mutant_file).Length == 0)
                 {
-                    Console.WriteLine($"missing mutant file: {mutant_file}");
+                    io_proxy.WriteLine($"missing mutant file: {mutant_file}");
                 }
 
                 var dif_fxout_file = s[3].Replace("\"", "", StringComparison.InvariantCulture);
@@ -816,13 +816,13 @@ namespace dimorphics_dataset
             foreach (var m in missing)
             {
                 var total_missing = m.mutant_data.Count - m.dif_fxout_data.Count;
-                Console.WriteLine($"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
+                io_proxy.WriteLine($"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
             }
 
 
 
-            Console.WriteLine($"total missing: {missing.Count}");
-            Console.WriteLine($"total not missing: {not_missing.Count}");
+            io_proxy.WriteLine($"total missing: {missing.Count}");
+            io_proxy.WriteLine($"total not missing: {not_missing.Count}");
 
 
 
@@ -841,7 +841,7 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_buildmodel_position_scan_files_are_complete));
 
 
-            Console.WriteLine();
+            io_proxy.WriteLine();
 
         }
 
@@ -864,7 +864,7 @@ namespace dimorphics_dataset
                 var mutant_file = s.First(b => b.StartsWith("--mutant-file=", StringComparison.InvariantCulture)).Split('=').Last();
                 if (!File.Exists(mutant_file) || new FileInfo(mutant_file).Length == 0)
                 {
-                    Console.WriteLine($"missing mutant file: {mutant_file}");
+                    io_proxy.WriteLine($"missing mutant file: {mutant_file}");
                 }
 
                 var dif_fxout_file = s[3].Replace("\"", "", StringComparison.InvariantCulture);
@@ -891,13 +891,13 @@ namespace dimorphics_dataset
             foreach (var m in missing)
             {
                 var total_missing = m.mutant_data.Count - m.dif_fxout_data.Count;
-                Console.WriteLine($"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
+                io_proxy.WriteLine($"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
             }
 
 
 
-            Console.WriteLine($"total missing: {missing.Count}");
-            Console.WriteLine($"total not missing: {not_missing.Count}");
+            io_proxy.WriteLine($"total missing: {missing.Count}");
+            io_proxy.WriteLine($"total not missing: {not_missing.Count}");
 
 
             var missing_list = missing.Select(a => a.a).ToList();
@@ -912,7 +912,7 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_buildmodel_subseq_mutant_files_are_complete));
 
 
-            Console.WriteLine();
+            io_proxy.WriteLine();
 
         }
 
@@ -958,10 +958,10 @@ namespace dimorphics_dataset
 
             var missing = cmd_list_parsed.Where(a => a.missing1.Count > 0 || a.extra.Count > 0).ToList();
 
-            Console.WriteLine("missed: " + missing.Count);
+            io_proxy.WriteLine("missed: " + missing.Count);
             foreach (var m in missing)
             {
-                Console.WriteLine($@"{m.id}, extra: {String.Join("|", m.extra)}, missing: {String.Join("|", m.missing1)}");
+                io_proxy.WriteLine($@"{m.id}, extra: {String.Join("|", m.extra)}, missing: {String.Join("|", m.missing1)}");
             }
 
 
@@ -974,7 +974,7 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_ala_scanning_files_are_complete));
             io_proxy.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_ala_scanning_files_are_complete));
 
-            Console.WriteLine();
+            io_proxy.WriteLine();
         }
 
         public static void check_foldx_position_scan_files_are_completed()
@@ -1064,11 +1064,11 @@ namespace dimorphics_dataset
 
                     incomplete_files.Add(file);
 
-                    Console.WriteLine();
-                    Console.WriteLine("File: " + file);
-                    Console.WriteLine();
-                    Console.WriteLine("Missing " + missing1.Count + ": " + String.Join(", ", missing1));
-                    Console.WriteLine();
+                    io_proxy.WriteLine();
+                    io_proxy.WriteLine("File: " + file);
+                    io_proxy.WriteLine();
+                    io_proxy.WriteLine("Missing " + missing1.Count + ": " + String.Join(", ", missing1));
+                    io_proxy.WriteLine();
                 }
                 else
                 {
@@ -1078,8 +1078,8 @@ namespace dimorphics_dataset
 
             }
 
-            Console.WriteLine("incomplete_file_count: " + incomplete_files.Count);
-            Console.WriteLine("complete_file_count: " + complete_files.Count);
+            io_proxy.WriteLine("incomplete_file_count: " + incomplete_files.Count);
+            io_proxy.WriteLine("complete_file_count: " + complete_files.Count);
 
             //program.WriteAllLines(Path.Combine(program.data_root_folder,"foldx\ps_incomplete_files.txt", incomplete_files);
 
@@ -1094,7 +1094,7 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(cmd_list_file_missing, missing_list, nameof(program), nameof(check_foldx_position_scan_files_are_completed));
             io_proxy.WriteAllLines(cmd_list_file_missing_del, missing_list_del, nameof(program), nameof(check_foldx_position_scan_files_are_completed));
 
-            Console.WriteLine();
+            io_proxy.WriteLine();
         }
 
         public static List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> compare_repaired_pdb_to_pdb()
@@ -1196,7 +1196,7 @@ namespace dimorphics_dataset
 
         //    program.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
 
-        //    Console.WriteLine("Finished.");
+        //    io_proxy.WriteLine("Finished.");
         //    Console.ReadLine();
         //}
 
@@ -1265,7 +1265,7 @@ namespace dimorphics_dataset
                 //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, "dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
                 var pse_aac_sequence_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, group_prefix, aa_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, 100);
 
-                Console.WriteLine(pse_aac_sequence_classification_data.Count);
+                io_proxy.WriteLine(pse_aac_sequence_classification_data.Count);
             }
 
             return;*/
@@ -1276,7 +1276,7 @@ namespace dimorphics_dataset
             //    {
             //        var inp = new string('A', i);
             //        var x = feature_calcs.split_sequence(inp,3,0,b==1);
-            //        Console.WriteLine(inp + ": " + string.Join(", ", x));
+            //        io_proxy.WriteLine(inp + ": " + string.Join(", ", x));
             //    }
             //}
             //return;
@@ -1286,7 +1286,7 @@ namespace dimorphics_dataset
 
             //return;
             //r_peptides.init_r();
-            //Console.WriteLine(r_peptides.get_values("AAAAAAAAAALLLLLLL"));
+            //io_proxy.WriteLine(r_peptides.get_values("AAAAAAAAAALLLLLLL"));
             //for (var i = 0; i < 100; i++) Console.ReadLine();
 
             //return;
@@ -1309,7 +1309,7 @@ namespace dimorphics_dataset
             //        get_pssms(blast_db, blast_db_folder, remote, run);
             //    }
             //}
-            //Console.WriteLine("Finished");
+            //io_proxy.WriteLine("Finished");
             //Console.ReadLine();
             //return;
 
@@ -1323,7 +1323,7 @@ namespace dimorphics_dataset
             //{
             //    var a = new string("ALGYALGY".ToCharArray(),0, i);
             //    var pepValues = r_peptides.get_values(a);
-            //    Console.WriteLine($"!!! length {i}: sequence {a}: features: {pepValues.Count}");
+            //    io_proxy.WriteLine($"!!! length {i}: sequence {a}: features: {pepValues.Count}");
             //}
 
             //Console.ReadKey();
@@ -1361,7 +1361,7 @@ namespace dimorphics_dataset
             //////var i_types1 = ring_edges.Select(a => a.Interaction.subtype_node1).Distinct().ToList();
             //////var i_types2 = ring_edges.Select(a => a.Interaction.subtype_node2).Distinct().ToList();
 
-            //Console.WriteLine(string.Join("\r\n", ix));
+            //io_proxy.WriteLine(string.Join("\r\n", ix));
 
             //SC MC
 
@@ -1393,11 +1393,11 @@ namespace dimorphics_dataset
             // pdb sequences test
             //get_pdb_sequences(limited_to_dimorphics_and_standard: false);
             //get_pdb_sequences(limited_to_dimorphics_and_standard: true);
-            //Console.WriteLine("Finished");
+            //io_proxy.WriteLine("Finished");
             //Console.ReadLine();
 
             //var fghx = feature_calcs.feature_pse_aac("CCCCCCCCCCCCCEEEEEEEEHHHHHHT", feature_calcs.seq_type.secondary_structure_sequence, new feature_calcs.pse_aac_options(), false, true);
-            //Console.WriteLine();
+            //io_proxy.WriteLine();
             //get_pdb_sequences();
             //return;
             //var xxx = feature_calcs.feature_pse_aac("AAA", false, false);
@@ -1506,11 +1506,11 @@ namespace dimorphics_dataset
 
         //lock (program._console_lock)
         //{
-        //    Console.WriteLine();
+        //    io_proxy.WriteLine();
         //    cl = Console.CursorLeft + 1;
         //    ct = Console.CursorTop;
-        //    Console.WriteLine($"[{new string('.', dimorphics_data.Count)}]");
-        //    Console.WriteLine();
+        //    io_proxy.WriteLine($"[{new string('.', dimorphics_data.Count)}]");
+        //    io_proxy.WriteLine();
         //}
         //var console_lock = new object();
 

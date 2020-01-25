@@ -28,8 +28,8 @@ namespace dimorphics_dataset
         //    var output_folder = $@"F:\dataset\{dataset_name}\";
 
 
-        //    Console.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-        //    Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+        //    io_proxy.WriteLine($"{class_info.class_name}: Started: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+        //    io_proxy.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
 
         //    var all_output_data = new List<string>();
         //    var comment_rows = new List<string>();
@@ -83,10 +83,10 @@ namespace dimorphics_dataset
         //    var header_data = headers.First();
 
 
-        //    Console.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
-        //    Console.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
-        //    Console.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
-        //    Console.WriteLine();
+        //    io_proxy.WriteLine($"{class_info.class_name}: ({ts2.Days}d {ts2.Hours}h {ts2.Minutes}m {ts2.Seconds}s)");
+        //    io_proxy.WriteLine($"{class_info.class_name}: {DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}");
+        //    io_proxy.WriteLine($"{class_info.class_name}: Finished: encoding and saving class #{class_info.class_id} {class_info.class_name}");
+        //    io_proxy.WriteLine();
 
 
         //    return data_list;

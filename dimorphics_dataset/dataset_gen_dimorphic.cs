@@ -235,7 +235,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                //if (!string.IsNullOrWhiteSpace(dimorphic_dssp3)) Console.WriteLine(dimorphic_dssp3);
+                //if (!string.IsNullOrWhiteSpace(dimorphic_dssp3)) io_proxy.WriteLine(dimorphic_dssp3);
             }*/
 
             /*

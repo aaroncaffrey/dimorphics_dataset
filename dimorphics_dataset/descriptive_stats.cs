@@ -428,19 +428,19 @@ namespace dimorphics_dataset
 
             if (double.IsPositiveInfinity(value) || value >= c_double_max || value >= double.MaxValue)
             {
-                if (output) Console.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is positive infinity.");
+                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is positive infinity.");
 
                 value = c_double_max;
             }
             else if (double.IsNegativeInfinity(value) || value <= c_double_min || value <= double.MinValue)
             {
-                if (output) Console.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is negative infinity.");
+                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is negative infinity.");
 
                 value = c_double_min;
             }
             else if (double.IsNaN(value))
             {
-                if (output) Console.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is not a number.");
+                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is not a number.");
 
                 value = double_zero;
             }

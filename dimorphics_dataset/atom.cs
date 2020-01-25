@@ -929,7 +929,7 @@ namespace dimorphics_dataset
 
                         //if (atoms_standard_strand.Count > 0)
                         //{
-                        //    Console.WriteLine("");
+                        //    io_proxy.WriteLine("");
                         //}
                     }
 
@@ -1376,7 +1376,7 @@ namespace dimorphics_dataset
                     if (string.Equals(db, "uniref90", StringComparison.InvariantCultureIgnoreCase)) atom.chain_dna_binding_prob_uniref90 = binding_prob;
                 }
 
-                //Console.WriteLine();
+                //io_proxy.WriteLine();
 
             }
         }
@@ -1501,7 +1501,7 @@ namespace dimorphics_dataset
 
                         //if (edge_atoms == null || edge_atoms.Count == 0)
                         //{
-                        //    Console.WriteLine();
+                        //    io_proxy.WriteLine();
                         //}
 
                         foreach (var a in edge_atoms)
@@ -1517,7 +1517,7 @@ namespace dimorphics_dataset
 
                     if (!File.Exists(ring_monomer_node_filename) || new FileInfo(ring_monomer_node_filename).Length == 0)
                     {
-                        Console.WriteLine("Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename);
+                        io_proxy.WriteLine("Warning: Ring Node File is missing or empty: " + ring_monomer_node_filename);
 
                         var missing_nodes_file = Path.Combine(ring_folder, "missing_nodes.txt");
                         var missing_nodes_text =
@@ -1536,7 +1536,7 @@ namespace dimorphics_dataset
 
                         //if (node_atoms == null || node_atoms.Count == 0)
                         //{
-                        //    Console.WriteLine();
+                        //    io_proxy.WriteLine();
                         //}
 
                         foreach (var a in node_atoms)

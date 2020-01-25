@@ -64,6 +64,34 @@ namespace dimorphics_dataset
             new atom("XXXX",'A',i,' ',a,0,0,0,"CA",'C',i,i,i)
         ).ToList();
 
+        private static subsequence_classification_data _template_scd = new subsequence_classification_data()
+        {
+            aa_subsequence = string.Join("", _template_source_atoms.Select(a => a.amino_acid).ToList()),
+            subsequence_atoms = _template_source_atoms,
+            subsequence_master_atoms = _template_source_atoms,
+            pdb_chain_atoms = _template_source_atoms,
+            pdb_chain_master_atoms = _template_source_atoms,
+            res_ids = _template_source_atoms.Select(a=>(a.residue_index,a.i_code,a.amino_acid)).ToList(),
+            dssp_monomer_subsequence = new string('C', _template_source_atoms.Count),
+            dssp_multimer_subsequence = new string('C', _template_source_atoms.Count),
+            class_name = "",
+            pdb_id = _template_source_atoms.First().pdb_id,
+            class_id = 0,
+            dimer_type = "",
+            symmetry_mode = "",
+            parallelism = "",
+            neighbourhood_3d = null,
+            protein_3d = null,
+            neighbourhood_1d = null,
+            protein_1d = null,
+            parent = null,
+            foldx_energy_differences = null,
+            chain_id = _template_source_atoms.First().chain_id,
+            stride_monomer_subsequence = new string('C', _template_source_atoms.Count),
+            stride_multimer_subsequence = new string('C', _template_source_atoms.Count),
+        };
+
+
         private static List<feature_info> _calculate_sable_classification_data_template = null;
 
 
@@ -255,65 +283,80 @@ namespace dimorphics_dataset
 
             var sable_data_list = new List<(string name, List<info_sable.info_sable_item> data)>();
             //sable_data_list.Add((nameof(pdb_sable_data), pdb_sable_data));
-            sable_data_list.Add((nameof(subseq_sable_data), subseq_sable_data));
+            sable_data_list.Add(("unsplit", subseq_sable_data));
+            sable_data_list.AddRange(feature_calcs.split_sequence(subseq_sable_data).Select(a => (name: "split", data: a)).ToList());
 
 
-            foreach (var sable_data in sable_data_list)
+            for (var index = 0; index < sable_data_list.Count; index++)
             {
-                var ds_entropy = descriptive_stats.get_stat_values(sable_data.data.Select(a => a.entropy_value).ToArray(), nameof(info_sable.info_sable_item.entropy_value));
-                var ds_burial_abs = descriptive_stats.get_stat_values(sable_data.data.Select(a => a.absolute_burial_value).ToArray(), nameof(info_sable.info_sable_item.absolute_burial_value));
-                var ds_burial_rel = descriptive_stats.get_stat_values(sable_data.data.Select(a => a.relative_burial_value).ToArray(), nameof(info_sable.info_sable_item.relative_burial_value));
+                var sable_data = sable_data_list[index];
 
-                var feats = new List<feature_info>();
-
-                var x0 = ds_entropy.encode().Select(a => new feature_info()
+                foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
                 {
-                    alphabet = "Overall",
-                    category = "sable",
-                    dimension = 1,
-                    source = source.ToString(),
-                    @group = "sable_entropy",
-                    member = a.member_id,
-                    perspective = a.perspective_id,
-                    feature_value = a.perspective_value
-                }).ToList();
+                    foreach (var alphabet_group in alphabet.groups)
+                    {
+                        var data = sable_data.data?.Where(a => a != null && alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList() ?? new List<info_sable.info_sable_item>();
 
-                var x1 = ds_burial_abs.encode().Select(a => new feature_info()
-                {
-                    alphabet = "Overall",
-                    category = "sable",
-                    dimension = 1,
-                    source = source.ToString(),
-                    @group = "sable_burial_abs",
-                    member = a.member_id,
-                    perspective = a.perspective_id,
-                    feature_value = a.perspective_value
-                }).ToList();
+                        var ds_entropy = descriptive_stats.get_stat_values(data?.Select(a => a?.entropy_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.entropy_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
+                        var ds_burial_abs = descriptive_stats.get_stat_values(data?.Select(a => a?.absolute_burial_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.absolute_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
+                        var ds_burial_rel = descriptive_stats.get_stat_values(data?.Select(a => a?.relative_burial_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.relative_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
+                        
+                        var x0 = ds_entropy.encode().Select(a => new feature_info()
+                        {
+                            alphabet = $@"Overall",
+                            category = $@"sable",
+                            dimension = 1,
+                            source = source.ToString(),
+                            @group = $@"sable_entropy_{sable_data.name}_{alphabet.name}",
+                            member = a.member_id,
+                            perspective = a.perspective_id,
+                            feature_value = a.perspective_value
+                        }).ToList();
 
-                var x2 = ds_burial_rel.encode().Select(a => new feature_info()
-                {
-                    alphabet = "Overall",
-                    category = "sable",
-                    dimension = 1,
-                    source = source.ToString(),
-                    @group = "sable_burial_rel",
-                    member = a.member_id,
-                    perspective = a.perspective_id,
-                    feature_value = a.perspective_value
-                }).ToList();
+                        var x1 = ds_burial_abs.encode().Select(a => new feature_info()
+                        {
+                            alphabet = $@"Overall",
+                            category = $@"sable",
+                            dimension = 1,
+                            source = source.ToString(),
+                            @group = $@"sable_burial_abs_{sable_data.name}_{alphabet.name}",
+                            member = a.member_id,
+                            perspective = a.perspective_id,
+                            feature_value = a.perspective_value
+                        }).ToList();
 
-                feats.AddRange(x0);
-                feats.AddRange(x1);
-                feats.AddRange(x2);
+                        var x2 = ds_burial_rel.encode().Select(a => new feature_info()
+                        {
+                            alphabet = $@"Overall",
+                            category = $@"sable",
+                            dimension = 1,
+                            source = source.ToString(),
+                            @group = $@"sable_burial_rel_{sable_data.name}_{alphabet.name}",
+                            member = a.member_id,
+                            perspective = a.perspective_id,
+                            feature_value = a.perspective_value
+                        }).ToList();
 
-                var x3 = feats.Select(a => new feature_info(a)
-                {
-                    @group = "sable_all"
-                }).ToList();
+                        var feats = new List<feature_info>();
+                        feats.AddRange(x0);
+                        feats.AddRange(x1);
+                        feats.AddRange(x2);
 
-                feats.AddRange(x3);
+                        var x3 = feats.Select(a => new feature_info(a)
+                        {
+                            @group = $@"sable_all_{sable_data.name}_{alphabet.name}"
+                        }).ToList();
 
-                features.AddRange(feats);
+                        var x4 = feats.Select(a => new feature_info(a)
+                        {
+                            @group = $@"sable_all_{alphabet.name}"
+                        }).ToList();
+                        
+                        feats.AddRange(x3);
+                        feats.AddRange(x4);
+                        features.AddRange(feats);
+                    }
+                }
             }
 
             if (_calculate_sable_classification_data_template == null)
@@ -371,7 +414,7 @@ namespace dimorphics_dataset
 
                 var master_indexes = sq.sequence.Select(a => a.master_index).Distinct().ToList();
 
-                var mpsa_readers = sq.sequence.SelectMany(a => a.mpsa_entries.Select(b => b.mpsa_entry.reader).Distinct().ToList()).Distinct().ToList();
+                var mpsa_readers = sq.sequence.SelectMany(a => a.mpsa_entries?.Select(b => b.mpsa_entry?.reader ?? null).Where(b=>b!=null).Distinct().ToList()?? new List<info_mpsa_reader>()).Where(a=>a!=null).Distinct().ToList();
                 //mpsa_readers = mpsa_readers.Where(a => a != null && a.mpsa_matrix != null && a.mpsa_matrix.Count > 0).ToList();
                 mpsa_readers = mpsa_readers.Select(a => new info_mpsa_reader(a, master_indexes)).ToList();
 
@@ -382,13 +425,13 @@ namespace dimorphics_dataset
                 var atoms_aa_seq = string.Join("", sq.sequence.Select(a => a.amino_acid).ToList());
                 foreach (var reader in mpsa_readers)
                 {
-                    var format = reader.format;
+                    var format = reader?.format ?? "";
 
-                    var mpsa_aa_seq = string.Join("", reader.mpsa_matrix.Select(a => a.amino_acid).ToList());
+                    var mpsa_aa_seq = string.Join("", reader?.mpsa_matrix?.Select(a => a.amino_acid).ToList()?? new List<char>());
 
-                    if (atoms_aa_seq != mpsa_aa_seq) throw new Exception();
+                    if (atoms_aa_seq != mpsa_aa_seq && mpsa_aa_seq?.Length > 0) throw new Exception();
 
-                    var ss_seq = string.Join("", reader.mpsa_matrix.Select(a => a.predicted_ss_code).ToList());
+                    var ss_seq = string.Join("", reader?.mpsa_matrix?.Select(a => a.predicted_ss_code).ToList()??new List<char>());
 
                     if (string.Equals(sq.name, "unsplit", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -845,7 +888,7 @@ namespace dimorphics_dataset
                 {
                     if (_calculate_foldx_classification_data_subsequence_3d_template == null)
                     {
-                        _calculate_foldx_classification_data_subsequence_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_subsequence_3d_template = calculate_foldx_classification_data(_template_scd, _template_source_atoms, source);
                         _calculate_foldx_classification_data_subsequence_3d_template.ForEach(a => { a.source = ""; a.feature_value=0;});
                     }
                     
@@ -866,7 +909,7 @@ namespace dimorphics_dataset
                 {
                     if (_calculate_foldx_classification_data_neighbourhood_3d_template == null)
                     {
-                        _calculate_foldx_classification_data_neighbourhood_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_neighbourhood_3d_template = calculate_foldx_classification_data(_template_scd, _template_source_atoms, source);
                         _calculate_foldx_classification_data_neighbourhood_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                     }
 
@@ -887,7 +930,7 @@ namespace dimorphics_dataset
                 {
                     if (_calculate_foldx_classification_data_protein_3d_template == null)
                     {
-                        _calculate_foldx_classification_data_protein_3d_template = calculate_foldx_classification_data(scd, _template_source_atoms, source);
+                        _calculate_foldx_classification_data_protein_3d_template = calculate_foldx_classification_data(_template_scd, _template_source_atoms, source);
                         _calculate_foldx_classification_data_protein_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                     }
 
@@ -1190,7 +1233,7 @@ namespace dimorphics_dataset
                                         foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features); //1
                                         //fx3d = items_ddg_ds_encoded_features.Count;
                                     }
-                                    //Console.WriteLine($@"c = {fx3c}, d = {fx3d}");
+                                    //io_proxy.WriteLine($@"c = {fx3c}, d = {fx3d}");
                                 }
 
                                 // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
@@ -1244,7 +1287,7 @@ namespace dimorphics_dataset
                                         //fx3b = items_ddg_ds_encoded_features.Count;
 
                                     }
-                                    //Console.WriteLine($@"a = {fx3a}, b = {fx3b}");
+                                    //io_proxy.WriteLine($@"a = {fx3a}, b = {fx3b}");
                                 }
 
 
@@ -1296,7 +1339,7 @@ namespace dimorphics_dataset
 
                                     }
 
-                                    //Console.WriteLine($@"e = {fx3e}, f = {fx3f}");
+                                    //io_proxy.WriteLine($@"e = {fx3e}, f = {fx3f}");
                                 }
 
                             }
@@ -1432,7 +1475,7 @@ namespace dimorphics_dataset
             {
                 if (_calculate_sequence_geometry_classification_data_template == null)
                 {
-                    _calculate_sequence_geometry_classification_data_template=calculate_sequence_geometry_classification_data(scd, _template_source_atoms, source);
+                    _calculate_sequence_geometry_classification_data_template=calculate_sequence_geometry_classification_data(_template_scd, _template_source_atoms, source);
                     _calculate_sequence_geometry_classification_data_template.ForEach(a => { a.source = "";a.feature_value=0;});
                 }
 
@@ -1461,7 +1504,7 @@ namespace dimorphics_dataset
             //var make_protein_len_feature = true;
 
 
-            var subsequence = scd?.aa_subsequence ?? "";
+            var subsequence = scd?.aa_subsequence ?? string.Join("", subsequence_master_atoms?.Select(a=>a.amino_acid).ToList() ?? new List<char>()) ?? "";
             //var uniprot_sequence = use_uniprot_seq ? (scd?.pdb_chain_master_atoms?.FirstOrDefault()?.uniprot_sequence ?? "") : "";
             var pdb_sequence = string.Join("", scd?.pdb_chain_master_atoms?.Select(a => a.amino_acid).ToList() ?? new List<char>());
 
@@ -1840,7 +1883,7 @@ namespace dimorphics_dataset
 
                                 //if (alphabet.name == "Overall")
                                 //{
-                                //  Console.WriteLine();
+                                //  io_proxy.WriteLine();
                                 //}
 
                                 //if (f_e_ds_values2.Count <= max_features)
@@ -2208,13 +2251,13 @@ namespace dimorphics_dataset
                 var sq = sequences[sq_index];
 
 
-                var all_pssm_unnormalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_unnormalised).ToList();
-                var all_pssm_normalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_normalised).ToList();
+                var all_pssm_unnormalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_unnormalised ?? new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>()).ToList();
+                var all_pssm_normalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_normalised ?? new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>()).ToList();
 
 
                 var alphabets = feature_calcs.aa_alphabets.ToList();
 
-                //pssm_database_names.ForEach(a => Console.WriteLine(a));
+                //pssm_database_names.ForEach(a => io_proxy.WriteLine(a));
                 foreach (var _database in pssm_database_names)
                 {
                     var database = _database;
@@ -2628,7 +2671,7 @@ namespace dimorphics_dataset
 
             //var g = features.Select(a => a.@group).Distinct().Count();
 
-            //Console.WriteLine("blast pssm features: " + features.Count + " groups: " + g);
+            //io_proxy.WriteLine("blast pssm features: " + features.Count + " groups: " + g);
             return features;
         }
 
@@ -4023,7 +4066,7 @@ namespace dimorphics_dataset
 
                     process.WaitForExit();
 
-                    //Console.WriteLine("Data: " + data);
+                    //io_proxy.WriteLine("Data: " + data);
 
                     var r = feature_info_container.deserialise(stdout);
 
@@ -4141,7 +4184,7 @@ namespace dimorphics_dataset
 
                     process.WaitForExit();
 
-                    //Console.WriteLine("Data: " + data);
+                    //io_proxy.WriteLine("Data: " + data);
 
                     var r = feature_info_container.deserialise(stdout);
 

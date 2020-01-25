@@ -487,7 +487,7 @@ namespace dimorphics_dataset
 
                                 if (pse_aac_options.average_seq_position)
                                 {
-                                    var average_position = String.IsNullOrEmpty(seq) ? 0 : (alphabet_group_indexes0based.Count > 0 ? (alphabet_group_indexes0based.Average() / (seq.Length - 1)) : 0.5);
+                                    var average_position = String.IsNullOrEmpty(seq) ? 0 : (alphabet_group_indexes0based.Count > 0 ? (alphabet_group_indexes0based.Select(a=>a+1).Average() / (seq.Length)) : 0.5);
 
                                     average_seq_positions[alphabet_group_index] = (name: alphabet_group.group_amino_acids, value: average_position);
                                 }
