@@ -85,18 +85,18 @@ namespace dimorphics_dataset
                     pdb_id: psi.pdb_id,
                     new atom.load_atoms_pdb_options()
                     {
-                        find_3d_intramolecular = features_3d,
-                        load_3d_dssp_data = features_3d,
-                        load_3d_stride_data = features_3d,
-                        load_3d_ring_data = features_3d,
-                        load_3d_foldx_ala_scan = features_3d,
-                        
-                        load_2d_rsa_data = features_1d,
-                        load_2d_mpsa_sec_struct_predictions = features_1d,
-                        load_2d_blast_pssms = features_1d,
-                        load_2d_iup_data = features_1d,
-                        load_2d_sable = features_1d,
-                        load_2d_dna_binding = features_1d,
+                        load_2d_mpsa_sec_struct_predictions = features_1d || features_3d,
+                        load_2d_blast_pssms = features_1d || features_3d,
+                        load_2d_iup_data = features_1d || features_3d,
+                        load_2d_sable = features_1d || features_3d,
+                        load_2d_dna_binding = features_1d || features_3d,
+
+                        find_3d_intramolecular = features_1d || features_3d,
+                        load_3d_dssp_data = features_1d || features_3d,
+                        load_3d_stride_data = features_1d || features_3d,
+                        load_3d_ring_data = features_1d || features_3d,
+                        load_3d_foldx_ala_scan = features_1d || features_3d,
+                        load_3d_rsa_data = features_1d || features_3d,
                     }
                     )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
@@ -442,6 +442,8 @@ namespace dimorphics_dataset
         {
             close_notifications();
 
+            var child_priority = ProcessPriorityClass.Idle;
+
             var cmd_params = get_params(args);
             var feature_types = feature_types_params(cmd_params);
 
@@ -482,12 +484,21 @@ namespace dimorphics_dataset
                     {
                         while (true)
                         {
-                            using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName,
-                                $"{string.Join(" ", args)} -first_index={_index} -last_index={_index}");
+                            using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, $"{string.Join(" ", args)} -first_index={_index} -last_index={_index}");
 
                             if (process != null)
                             {
+                                try
+                                {
+                                    process.PriorityClass = child_priority;
+                                }
+                                catch (Exception)
+                                {
+
+                                }
+                                
                                 process.WaitForExit();
+
                                 return;
                             }
                             else

@@ -366,7 +366,6 @@ namespace dimorphics_dataset
             internal bool first_icode_only = true;
 
             // 2d data
-            internal bool load_2d_rsa_data = false;
             internal bool load_2d_mpsa_sec_struct_predictions = true;
             internal bool load_2d_blast_pssms = true;
             internal bool load_2d_iup_data = true;
@@ -376,6 +375,7 @@ namespace dimorphics_dataset
             // 3d data
             internal bool find_3d_intramolecular = true;
             //internal bool find_3d_intermolecular = false;
+            internal bool load_3d_rsa_data = false;
             internal bool load_3d_dssp_data = false;
             internal bool load_3d_stride_data = false;
             internal bool load_3d_ring_data = true;
@@ -484,7 +484,7 @@ namespace dimorphics_dataset
                 if (options.load_3d_stride_data) { atom.load_stride(pdb_id, pdb_model_atoms); }
 
                 // load free-sasa values (rsa)
-                if (options.load_2d_rsa_data) { atom.load_rsa(pdb_id, pdb_model_atoms); }
+                if (options.load_3d_rsa_data) { atom.load_rsa(pdb_id, pdb_model_atoms); }
 
 
                 // load psi-blast PSSMs
@@ -1081,6 +1081,8 @@ namespace dimorphics_dataset
 
             var master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
 
+            if (master_atoms == null || master_atoms.Count == 0) return result;
+                
             var aa_seq = string.Join("", master_atoms.Select(a => a.amino_acid).ToList());
 
             var monomer_dssp_seq = string.Join("", master_atoms.Select(a => a.monomer_dssp).ToList());
@@ -1106,7 +1108,7 @@ namespace dimorphics_dataset
             if (get_dssp_and_mpsa_subsequences_params.HasFlag(enum_get_dssp_and_mpsa_subsequences_params.multimer_stride3_seq)) { result.Add((nameof(multimer_stride3_seq), multimer_stride3_seq)); }
 
 
-            var mpsa_seqs = master_atoms.SelectMany(a => a.mpsa_entries).ToList();
+            var mpsa_seqs = master_atoms.SelectMany(a => a?.mpsa_entries ?? new List<(string format, info_mpsa_reader.mpsa_line_entry mpsa_entry)>()).ToList();
 
             foreach (var s in mpsa_seqs.GroupBy(a => a.format))
             {
@@ -1119,7 +1121,7 @@ namespace dimorphics_dataset
 
             var con_ss_seq = string.Join("", master_atoms.Select(a =>
             {
-                var y = a.mpsa_entries.SelectMany(b => b.mpsa_entry.line_prob_values).ToList();
+                var y = a?.mpsa_entries?.SelectMany(b => b.mpsa_entry?.line_prob_values ?? new List<(char ss, char amino_acid, double value)>()).ToList() ?? new List<(char ss, char amino_acid, double value)>();
 
                 var prob_h = y.Where(b => b.ss == 'H').Select(b => b.value).DefaultIfEmpty(0).Average();
                 var prob_e = y.Where(b => b.ss == 'E').Select(b => b.value).DefaultIfEmpty(0).Average();

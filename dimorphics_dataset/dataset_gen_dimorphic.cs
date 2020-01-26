@@ -106,7 +106,7 @@ namespace dimorphics_dataset
             {
                 find_3d_intramolecular = false,
                 
-                load_2d_rsa_data = false,
+                load_3d_rsa_data = false,
                 load_3d_dssp_data = true,
                 load_3d_stride_data = true,
                 load_3d_ring_data = false,

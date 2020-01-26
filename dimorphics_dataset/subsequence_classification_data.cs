@@ -2705,7 +2705,7 @@ namespace dimorphics_dataset
 
                     foreach (var alphabet_group in alphabet.groups)
                     {
-                        var sequence_sasa_values = sq.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => (L_all_atoms_abs: a.RSA_L.all_atoms_abs, L_all_polar_abs: a.RSA_L.all_polar_abs, L_main_chain_abs: a.RSA_L.main_chain_abs, L_total_side_abs: a.RSA_L.total_side_abs, L_non_polar_abs: a.RSA_L.non_polar_abs, L_all_atoms_rel: a.RSA_L.all_atoms_rel, L_all_polar_rel: a.RSA_L.all_polar_rel, L_main_chain_rel: a.RSA_L.main_chain_rel, L_total_side_rel: a.RSA_L.total_side_rel, L_non_polar_rel: a.RSA_L.non_polar_rel, S_all_atoms_abs: a.RSA_S.all_atoms_abs, S_all_polar_abs: a.RSA_S.all_polar_abs, S_main_chain_abs: a.RSA_S.main_chain_abs, S_total_side_abs: a.RSA_S.total_side_abs, S_non_polar_abs: a.RSA_S.non_polar_abs, S_all_atoms_rel: a.RSA_S.all_atoms_rel, S_all_polar_rel: a.RSA_S.all_polar_rel, S_main_chain_rel: a.RSA_S.main_chain_rel, S_total_side_rel: a.RSA_S.total_side_rel, S_non_polar_rel: a.RSA_S.non_polar_rel)).ToList();
+                        var sequence_sasa_values = sq.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => (L_all_atoms_abs: a.RSA_L.all_atoms_abs, L_all_polar_abs: a.RSA_L.all_polar_abs, L_main_chain_abs: a.RSA_L.main_chain_abs, L_total_side_abs: a.RSA_L.total_side_abs, L_non_polar_abs: a.RSA_L.non_polar_abs, L_all_atoms_rel: a.RSA_L.all_atoms_rel, L_all_polar_rel: a.RSA_L.all_polar_rel, L_main_chain_rel: a.RSA_L.main_chain_rel, L_total_side_rel: a.RSA_L.total_side_rel, L_non_polar_rel: a.RSA_L.non_polar_rel, S_all_atoms_abs: a.RSA_S.all_atoms_abs, S_all_polar_abs: a.RSA_S.all_polar_abs, S_main_chain_abs: a.RSA_S.main_chain_abs, S_total_side_abs: a.RSA_S.total_side_abs, S_non_polar_abs: a.RSA_S.non_polar_abs, S_all_atoms_rel: a.RSA_S.all_atoms_rel, S_all_polar_rel: a.RSA_S.all_polar_rel, S_main_chain_rel: a.RSA_S.main_chain_rel, S_total_side_rel: a.RSA_S.total_side_rel, S_non_polar_rel: a.RSA_S.non_polar_rel)).ToList() ?? new List<(double L_all_atoms_abs, double L_all_polar_abs, double L_main_chain_abs, double L_total_side_abs, double L_non_polar_abs, double L_all_atoms_rel, double L_all_polar_rel, double L_main_chain_rel, double L_total_side_rel, double L_non_polar_rel, double S_all_atoms_abs, double S_all_polar_abs, double S_main_chain_abs, double S_total_side_abs, double S_non_polar_abs, double S_all_atoms_rel, double S_all_polar_rel, double S_main_chain_rel, double S_total_side_rel, double S_non_polar_rel)>();
 
                         var all_atoms_abs_L = sequence_sasa_values.Select(a => a.L_all_atoms_abs).ToArray();
                         var all_polar_abs_L = sequence_sasa_values.Select(a => a.L_all_polar_abs).ToArray();
@@ -2879,7 +2879,7 @@ namespace dimorphics_dataset
                     {
                         foreach (var alphabet_group in alphabet.groups)
                         {
-                            var sq = (name: sq_all.name, sequence: sq_all.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList());
+                            var sq = (name: sq_all.name, sequence: sq_all.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList() ?? new List<atom>());
 
                             var tortuosity1 = atom.measure_tortuosity1(sq.sequence);
 
