@@ -231,7 +231,7 @@ namespace dimorphics_dataset
             
         //}
 
-        private List<mpsa_line_entry> mpsa_matrix_fake(string format, List<char> matrix_column_headers, List<char> amino_acids = null)
+        private List<mpsa_line_entry> mpsa_matrix_fake(/*string format, */List<char> matrix_column_headers, List<char> amino_acids = null)
         {
             var mpsa_matrix = new List<mpsa_line_entry>();
 
@@ -265,7 +265,7 @@ namespace dimorphics_dataset
             {
                 var matrix_column_headers = info_mpsa_reader.secondary_structure_codes.First(a => a.format == this.format).ss_codes.ToList();
                 this.ss_column_headers = matrix_column_headers;
-                this.mpsa_matrix = mpsa_matrix_fake(format, matrix_column_headers, amino_acids ?? null);
+                this.mpsa_matrix = mpsa_matrix_fake(/*format, */matrix_column_headers, amino_acids ?? null);
             }
             else
             {
@@ -282,7 +282,7 @@ namespace dimorphics_dataset
                 if (this.mpsa_matrix == null || this.mpsa_matrix.Count == 0)
                 {
                     //throw new Exception();
-                    this.mpsa_matrix = mpsa_matrix_fake(format, data.matrix_colum_headers, amino_acids ?? null);
+                    this.mpsa_matrix = mpsa_matrix_fake(/*format,*/ data.matrix_colum_headers, amino_acids ?? null);
                 }
 
                 if (amino_acids != null && mpsa_matrix != null && this.mpsa_matrix.Count != amino_acids.Count) throw new Exception();

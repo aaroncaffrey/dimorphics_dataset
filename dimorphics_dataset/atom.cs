@@ -97,6 +97,11 @@ namespace dimorphics_dataset
 
         public static double[][] make_intramolecular_contact_table(List<atom> p)
         {
+            if (p == null)
+            {
+                return null;
+            }
+
             var d_flat = new (int index1, int index2, double distance)[p.Count * p.Count]; // could use only half ... ((p.Count*p.Count)/2)-(p.Count/2)
             var d_ref_flat = new (atom atom1, atom atom2, double distance)[p.Count * p.Count];
             var d = new double[p.Count][];
@@ -365,19 +370,16 @@ namespace dimorphics_dataset
             internal bool load_2d_mpsa_sec_struct_predictions = true;
             internal bool load_2d_blast_pssms = true;
             internal bool load_2d_iup_data = true;
+            internal bool load_2d_sable = true;
+            internal bool load_2d_dna_binding = true;
 
             // 3d data
             internal bool find_3d_intramolecular = true;
-            internal bool find_3d_intermolecular = false;
-
+            //internal bool find_3d_intermolecular = false;
             internal bool load_3d_dssp_data = false;
             internal bool load_3d_stride_data = false;
             internal bool load_3d_ring_data = true;
             internal bool load_3d_foldx_ala_scan = true;
-
-            // don't remember, need to check if 2d or 3d
-            internal bool load_sable = true;
-            internal bool load_dna_binding_vars = true;
         }
 
         public static List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)> load_atoms_pdb
@@ -572,7 +574,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (options.load_dna_binding_vars)
+                if (options.load_2d_dna_binding)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -626,7 +628,7 @@ namespace dimorphics_dataset
                 }
 
                 // load sable
-                if (options.load_sable)
+                if (options.load_2d_sable)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -696,7 +698,7 @@ namespace dimorphics_dataset
             {
                 foreach (var r in result)
                 {
-                    var dssp_mpsa = get_dssp_and_mpsa_subsequences(r.pdb_id, r.chain_id, r.pdb_model_chain_atoms, (enum_get_dssp_and_mpsa_subsequences_params)0b_1111_1111_1111);
+                    var dssp_mpsa = get_dssp_and_mpsa_subsequences(/*r.pdb_id, r.chain_id, */r.pdb_model_chain_atoms, (enum_get_dssp_and_mpsa_subsequences_params)0b_1111_1111_1111);
 
                     var
                         ground_truths =
@@ -1069,11 +1071,13 @@ namespace dimorphics_dataset
 
 
 
-        public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(string pdb_id, char chain_id, List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
+        public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(/*string pdb_id, char chain_id, */List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
         {
             var result = new List<(string format, string prediction)>();
 
             //result.Add("DSSP vs MPSA: " + pdb_id + " " + chain_id);
+
+            //atoms = atoms.Where(a => a.pdb_id == pdb_id && a.chain_id == chain_id).ToList();
 
             var master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
 

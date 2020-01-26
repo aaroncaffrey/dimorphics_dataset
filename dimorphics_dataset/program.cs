@@ -58,7 +58,7 @@ namespace dimorphics_dataset
             return dimorphics_data1;
         }
 
-        public static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types)
+        public static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types, protein_subsequence_info _template_protein)
         {
             // todo: check if pdb_folder should be pdb or pdb_repair?
 
@@ -72,23 +72,31 @@ namespace dimorphics_dataset
                 throw new ArgumentNullException(nameof(feature_types));
             }
 
+            var features_1d = (feature_types?.feature_types_subsequence_1d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value) ?? false);
+
+            var features_3d = (feature_types?.feature_types_subsequence_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value) ?? false);
+
             var pdb_atoms = atom.load_atoms_pdb
                 (
                     pdb_id: psi.pdb_id,
                     new atom.load_atoms_pdb_options()
                     {
-                        find_3d_intramolecular = true,
-                        find_3d_intermolecular = false,
-                        load_2d_rsa_data = true,
-                        load_3d_dssp_data = true,
-                        load_3d_stride_data = true,
-                        load_3d_ring_data = true,
-                        load_2d_mpsa_sec_struct_predictions = true,
-                        load_2d_blast_pssms = true,
-                        load_2d_iup_data = true,
-                        load_sable = true,
-                        load_3d_foldx_ala_scan = true,
-                        load_dna_binding_vars = true,
+                        find_3d_intramolecular = features_3d,
+                        load_3d_dssp_data = features_3d,
+                        load_3d_stride_data = features_3d,
+                        load_3d_ring_data = features_3d,
+                        load_3d_foldx_ala_scan = features_3d,
+                        
+                        load_2d_rsa_data = features_1d,
+                        load_2d_mpsa_sec_struct_predictions = features_1d,
+                        load_2d_blast_pssms = features_1d,
+                        load_2d_iup_data = features_1d,
+                        load_2d_sable = features_1d,
+                        load_2d_dna_binding = features_1d,
                     }
                     )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
@@ -101,6 +109,7 @@ namespace dimorphics_dataset
 
             if (subsequence_master_atoms.Count != psi.res_ids.Count) throw new Exception();
 
+            var need_template = false;
 
             var scd = new subsequence_classification_data
             {
@@ -137,30 +146,40 @@ namespace dimorphics_dataset
                 protein_3d = null
             };
 
+            if (scd.aa_subsequence.Length == 0 || scd.subsequence_atoms?.Count == 0) {need_template = true;}
+
             scd.foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, enum_protein_data_source.subsequence_3d);
 
-            if (feature_types.feature_types_neighbourhood_1d != null &&
-                feature_types.feature_types_neighbourhood_1d.AsArray().Any(a => a.value))
+            if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value)??false)
             {
                 scd.neighbourhood_1d = atom.get_intramolecular_neighbourhood_1d(scd);
+                if (string.IsNullOrEmpty(scd.neighbourhood_1d.aa_subsequence) || scd.neighbourhood_1d.subsequence_atoms?.Count == 0) {need_template = true;}
+
             }
 
-            if (feature_types.feature_types_protein_1d != null &&
-                feature_types.feature_types_protein_1d.AsArray().Any(a => a.value))
+            if (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value)??false)
             {
                 scd.protein_1d = atom.get_intramolecular_protein_1d(scd);
+                if (string.IsNullOrEmpty(scd.protein_1d.aa_subsequence) || scd.protein_1d.subsequence_atoms?.Count == 0) {need_template = true;}
+
             }
 
-            if (feature_types.feature_types_neighbourhood_3d != null &&
-                feature_types.feature_types_neighbourhood_3d.AsArray().Any(a => a.value))
+            if (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value)??false)
             {
                 scd.neighbourhood_3d = atom.get_intramolecular_neighbourhood_3d(scd);
+                if (string.IsNullOrEmpty(scd.neighbourhood_3d.aa_subsequence) || scd.neighbourhood_3d.subsequence_atoms?.Count == 0) {need_template = true;}
+
             }
 
-            if (feature_types.feature_types_protein_3d != null &&
-                feature_types.feature_types_protein_3d.AsArray().Any(a => a.value))
+            if (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value)??false)
             {
                 scd.protein_3d = atom.get_intramolecular_protein_3d(scd);
+                if (string.IsNullOrEmpty(scd.protein_3d.aa_subsequence) || scd.protein_3d.subsequence_atoms?.Count == 0) {need_template = true;}
+            }
+
+            if (need_template && _template_protein != null && subsequence_classification_data._template_scd == null)
+            {
+                subsequence_classification_data._template_scd = get_subsequence_classificiation_data(_template_protein, feature_types, null);
             }
 
             return scd;
@@ -221,6 +240,11 @@ namespace dimorphics_dataset
 
         public static string get_param(string name, List<string> args)
         {
+            if (args == null)
+            {
+                return null;
+            }
+
             var ix = args.FindIndex(a => string.Equals(a, $"-{name}", StringComparison.InvariantCultureIgnoreCase));
             
             if (ix == -1) return null;
@@ -412,6 +436,7 @@ namespace dimorphics_dataset
 
         //return;
 
+        
 
         public static void Main(string[] args)
         {
@@ -429,6 +454,7 @@ namespace dimorphics_dataset
             // 1. find subsequence details from analysis of pdb files
             var psi_list = part1(cmd_params, pdb_id_list);
 
+            var _template_protein = psi_list.First();
             //Parallel.For(0, psi_list.Count, index =>
 
             var tasks = new List<Task>();
@@ -489,7 +515,7 @@ namespace dimorphics_dataset
                 var psi_list2 = new List<protein_subsequence_info>() { psi_list[_index] };
 
                 // 2. load available data sources
-                var class_data_list = part2(cmd_params, psi_list2, feature_types);
+                var class_data_list = part2(cmd_params, psi_list2, feature_types, _template_protein);
 
                 // 3. encode the data as svm classification features
                 var data_encoded_list = part3(cmd_params, class_data_list, feature_types);
@@ -532,6 +558,19 @@ namespace dimorphics_dataset
             var text_features = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_features, nameof(program), nameof(part6)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
             var text_comments = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_comments, nameof(program), nameof(part6)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
 
+            // check for any lines with different total number of features
+            var num_features = text_features.Select((a, i) => (line: i, num_features: a.Count(b => b == ','))).OrderByDescending(a => a.num_features).ToList();
+
+            if (num_features.Select(a => a.num_features).Distinct().Count() > 1)
+            {
+                io_proxy.WriteLine($@"Feature counts don't match.", nameof(program), nameof(part6));
+            }
+            else
+            {
+                io_proxy.WriteLine($@"Feature counts match.", nameof(program), nameof(part6));
+            }
+
+            // check for any non-double type features
             var invalid_features = text_features
                 .SelectMany(a =>
                     a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || b == "∞" || b == "+∞" || b == "-∞" || b == "NaN") ? i : -1)
@@ -862,7 +901,7 @@ namespace dimorphics_dataset
 
         private static List<subsequence_classification_data> part2(
             (string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string
-                output_folder, int? first_index, int? last_index) cmd_params, List<protein_subsequence_info> psi_list, feature_types feature_types)
+                output_folder, int? first_index, int? last_index) cmd_params, List<protein_subsequence_info> psi_list, feature_types feature_types, protein_subsequence_info _template_protein)
         {
             if (cmd_params.first_index == null && cmd_params.last_index == null)
             {
@@ -881,7 +920,7 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
-                    var classification_data = get_subsequence_classificiation_data(psi, feature_types);
+                    var classification_data = get_subsequence_classificiation_data(psi, feature_types, _template_protein);
 
                     return classification_data;
                 });

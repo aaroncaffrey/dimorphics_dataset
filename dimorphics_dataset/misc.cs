@@ -54,7 +54,7 @@ namespace dimorphics_dataset
             var pdb = atom.load_atoms_pdb(pdb_id, new atom.load_atoms_pdb_options()
             {
                 find_3d_intramolecular = false,
-                find_3d_intermolecular = false,
+                
                 load_2d_rsa_data = false,
                 load_3d_dssp_data = true,
                 load_3d_stride_data = true,
@@ -62,9 +62,9 @@ namespace dimorphics_dataset
                 load_2d_mpsa_sec_struct_predictions = false,
                 load_2d_blast_pssms = false,
                 load_2d_iup_data = false,
-                load_sable = false,
+                load_2d_sable = false,
                 load_3d_foldx_ala_scan = false,
-                load_dna_binding_vars = false,
+                load_2d_dna_binding = false,
             });
 
             var chain_order = pdb.First().pdb_model_chain_atoms.First().chain_order_in_pdb_file;
@@ -458,7 +458,7 @@ namespace dimorphics_dataset
                     new atom.load_atoms_pdb_options()
                     {
                         find_3d_intramolecular = true,
-                        find_3d_intermolecular = false,
+                        
                         load_2d_rsa_data = true,
                         load_3d_dssp_data = true,
                         load_3d_stride_data = true,
@@ -466,9 +466,9 @@ namespace dimorphics_dataset
                         load_2d_mpsa_sec_struct_predictions = true,
                         load_2d_blast_pssms = true,
                         load_2d_iup_data = true,
-                        load_sable = true,
+                        load_2d_sable = true,
                         load_3d_foldx_ala_scan = true,
-                        load_dna_binding_vars = true,
+                        load_2d_dna_binding = true,
                     }, pdb_folder);
 
                 foreach (var chain in chains)
@@ -693,7 +693,7 @@ namespace dimorphics_dataset
             return (header, sequence);
         }
 
-        public static void get_uniprot_sequences(bool limited_to_dimorphics_and_standard = true)
+        public static void get_uniprot_sequences(/*bool limited_to_dimorphics_and_standard = true*/)
         {
             //var dimorphics_data = program.ReadAllLines(Path.Combine(program.data_root_folder,"csv\distinct dimorphics list.csv")
             //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
