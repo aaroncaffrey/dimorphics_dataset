@@ -15,6 +15,8 @@ namespace dimorphics_dataset
 
         public static void WriteLine(string text = "", string module_name = "", string function_name = "", bool use_lock = false)
         {
+            if (!program.verbose) return;
+
             try
             {
                 var pid = Process.GetCurrentProcess().Id;

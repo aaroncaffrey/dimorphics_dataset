@@ -427,7 +427,7 @@ namespace dimorphics_dataset
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_ssc = calculate_aa_or_ss_sequence_classification_data(source, "mpsa", $"mpsa_{sq.name}_{format}", ss_seq, enum_seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
+                        var pse_ssc = calculate_aa_or_ss_sequence_classification_data(source, 1, "mpsa", $"mpsa_{sq.name}_{format}", ss_seq, enum_seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
 
                         foreach (var a in pse_ssc.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Select(feature_infos => feature_infos.ToList()).ToList()/*.Where(a => a.Count <= max_features)*/)
                         {
@@ -3607,7 +3607,7 @@ namespace dimorphics_dataset
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, "aa", "aa", scd.aa_subsequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
+                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 1, "aa", "aa", scd.aa_subsequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
 
 
                         if (!check_headers(pse_aac_sequence_classification_data))
@@ -4232,7 +4232,7 @@ namespace dimorphics_dataset
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, "dssp_monomer", "dssp_monomer", scd.dssp_monomer_subsequence, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
+                        var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 3, "dssp_monomer", "dssp_monomer", scd.dssp_monomer_subsequence, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
 
 
                         if (!check_headers(pse_ssc_dssp_classification_data)) throw new Exception("duplicate headers");
@@ -4699,7 +4699,7 @@ namespace dimorphics_dataset
 
 
 
-        public static List<feature_info> calculate_aa_or_ss_sequence_classification_data(enum_protein_data_source source, string category_prefix, string group_prefix, string sequence, enum_seq_type seq_type, pse_aac_options pse_aac_options)
+        public static List<feature_info> calculate_aa_or_ss_sequence_classification_data(enum_protein_data_source source, int dimension, string category_prefix, string group_prefix, string sequence, enum_seq_type seq_type, pse_aac_options pse_aac_options)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_aa_or_ss_sequence_classification_data)}(enum_protein_data_source source, string category_prefix, string group_prefix, string sequence, feature_calcs.seq_type seq_type, feature_calcs.pse_aac_options pse_aac_options);");
@@ -4715,7 +4715,7 @@ namespace dimorphics_dataset
                 {
                     if (_calculate_aa_or_ss_sequence_classification_data_aa_template == null)
                     {
-                        _calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, category_prefix, group_prefix, _template_scd.aa_subsequence, seq_type, pse_aac_options);
+                        _calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, _template_scd.aa_subsequence, seq_type, pse_aac_options);
                         _calculate_aa_or_ss_sequence_classification_data_aa_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                     }
 
@@ -4733,7 +4733,7 @@ namespace dimorphics_dataset
                 {
                     if (_calculate_aa_or_ss_sequence_classification_data_ss_template == null)
                     {
-                        _calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, category_prefix, group_prefix, _template_scd.dssp_monomer_subsequence, seq_type, pse_aac_options);
+                        _calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, _template_scd.dssp_monomer_subsequence, seq_type, pse_aac_options);
                         _calculate_aa_or_ss_sequence_classification_data_ss_template.ForEach(a => { a.source = ""; a.feature_value=0;});
                     }
 
@@ -4806,7 +4806,7 @@ namespace dimorphics_dataset
                                             var f = new feature_info()
                                             {
                                                 alphabet = alphabet_name,
-                                                dimension = 1,
+                                                dimension = dimension,
                                                 category = $@"{category_prefix}_{d.name}",
                                                 source = source.ToString(),
                                                 @group = $@"{group_prefix}_{sq.name}_{d.name}_{(distance + 1)}_{alphabet_name}_{dist_name}",
@@ -4895,7 +4895,7 @@ namespace dimorphics_dataset
                                             var f = new feature_info()
                                             {
                                                 alphabet = alphabet_name,
-                                                dimension = 1,
+                                                dimension = dimension,
                                                 category = $@"{category_prefix}_{m.name}",
                                                 source = source.ToString(),
                                                 @group = $@"{group_prefix}_{sq.name}_{m.name}_{(motif_length + 1)}_{alphabet_name}_{dist_name}",
@@ -4992,7 +4992,7 @@ namespace dimorphics_dataset
                                     var x3 = o.oaac.Select(x => new feature_info()
                                     {
                                         alphabet = alphabet_name,
-                                        dimension = 1,
+                                        dimension = dimension,
                                         category = $@"{category_prefix}_{o.name}",
                                         source = source.ToString(),
                                         @group = $@"{group_prefix}_{sq.name}_{o.name}_{alphabet_name}_{dist_name}",
@@ -5011,7 +5011,7 @@ namespace dimorphics_dataset
                                 var x5 = average_seq_positions.Select(x => new feature_info()
                                 {
                                     alphabet = alphabet_name,
-                                    dimension = 1,
+                                    dimension = dimension,
                                     category = $@"{category_prefix}_{nameof(average_seq_positions)}",
                                     source = source.ToString(),
                                     @group = $@"{group_prefix}_{sq.name}_{nameof(average_seq_positions)}_{alphabet_name}_{dist_name}",
@@ -5028,7 +5028,7 @@ namespace dimorphics_dataset
                                 var x6 = average_dipeptide_distance.Select(x => new feature_info()
                                 {
                                     alphabet = alphabet_name,
-                                    dimension = 1,
+                                    dimension = dimension,
                                     category = $@"{category_prefix}_{nameof(average_dipeptide_distance)}",
                                     source = source.ToString(),
                                     @group = $@"{group_prefix}_{sq.name}_{nameof(average_dipeptide_distance)}_{alphabet_name}_{dist_name}",

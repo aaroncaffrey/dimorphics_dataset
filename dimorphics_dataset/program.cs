@@ -20,6 +20,7 @@ namespace dimorphics_dataset
         // todo: check which blast databases, output options are disabled.
         // todo: check blast distance option.
 
+        internal static bool verbose;
 
         internal static string data_root_folder = $@"C:\betastrands_dataset\";
 
@@ -274,9 +275,9 @@ namespace dimorphics_dataset
 
                 foreach (var a in new [] {"2i", "2n", "2p", "3i", "3n", "3p"})
                 {
-                    io_proxy.WriteLine($@"{a[0]}d {(a[1]=='i'?"interface subsequence":"")}{(a[1]=='n'?"neighbourhood":"")}{(a[1]=='p'?"protien":"")} area:");
-                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\dimorphic_coil\");
-                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\standard_coil\");
+                    io_proxy.WriteLine($@"{a[0]}d {(a[1]=='i'?"interface subsequence":"")}{(a[1]=='n'?"neighbourhood":"")}{(a[1]=='p'?"protein":"")} area:");
+                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\dimorphic_coil\ 1> e:\dataset\{a}\dimorphic_coil\stdout.txt 2> e:\dataset\{a}\dimorphic_coil\stderr.txt");
+                    io_proxy.WriteLine($@"  {exe} -area={a} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{a}\standard_coil\ 1> e:\dataset\{a}\standard_coil\stdout.txt 2> e:\dataset\{a}\standard_coil\stderr.txt");
                     io_proxy.WriteLine($@"");
                 }
 
@@ -445,6 +446,9 @@ namespace dimorphics_dataset
             var child_priority = ProcessPriorityClass.Idle;
 
             var cmd_params = get_params(args);
+
+            program.verbose = (cmd_params.first_index == null && cmd_params.last_index == null);
+            
             var feature_types = feature_types_params(cmd_params);
 
             //return;
