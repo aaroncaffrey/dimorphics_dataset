@@ -2056,7 +2056,7 @@ namespace dimorphics_dataset
                                     break;
                             }
 
-                            if (pssm_value_type == enum_pssm_value_type.distances) continue;
+                            //if (pssm_value_type == enum_pssm_value_type.distances) continue;
 
                             var pssm_value_type_str = pssm_value_type.ToString();
 
@@ -2550,7 +2550,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<feature_info> calculate_tortuosity_classification_data(/*subsequence_classification_data scd,*/ List<atom> subsequence_atoms, enum_protein_data_source source)
+        public static List<feature_info> calculate_tortuosity_classification_data(List<atom> subsequence_atoms, enum_protein_data_source source)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_tortuosity_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
@@ -2561,7 +2561,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_tortuosity_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = calculate_tortuosity_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
+                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = calculate_tortuosity_classification_data(subsequence_classification_data_templates._template_scd.interface_region.atoms, source);
                     subsequence_classification_data_templates._calculate_tortuosity_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -2894,7 +2894,7 @@ namespace dimorphics_dataset
         }*/
 
 
-        public static List<feature_info> calculate_atom_distances_classification_data(List<atom> subsequence_atoms, List<atom> neighbourhood_atoms, List<atom> protein_atoms)//, enum_protein_data_source source)
+        public static List<feature_info> calculate_atom_distances_classification_data(List<atom> interface_atoms, List<atom> neighbourhood_atoms, List<atom> chain_atoms)//, enum_protein_data_source source)
         {
             // features to express the 3d structural atomic relationships between SubSequence, NeighbourHood, Protein (IF/SS, NH, PT)
             // distance range -> protein area split/unsplit -> protein area split/unsplit -> alphabet -> alphabet group 1 (AAs) -> alphabet group 2 (AAs) -> atom group 1 -> atom group 2 ->
@@ -2902,9 +2902,9 @@ namespace dimorphics_dataset
             // e.g. IF-*-ALA-* to IF-*-GYL-* ... and IF
 
             var protein_areas = new List<(string name, List<atom> atoms)>();
-            if (subsequence_atoms != null) { protein_areas.Add((enum_protein_data_source.interface_3d.ToString(), subsequence_atoms)); }
+            if (interface_atoms != null) { protein_areas.Add((enum_protein_data_source.interface_3d.ToString(), interface_atoms)); }
             if (neighbourhood_atoms != null) { protein_areas.Add((enum_protein_data_source.neighbourhood_3d.ToString(), neighbourhood_atoms)); }
-            if (protein_atoms != null) { protein_areas.Add((enum_protein_data_source.chain_3d.ToString(), protein_atoms)); }
+            if (chain_atoms != null) { protein_areas.Add((enum_protein_data_source.chain_3d.ToString(), chain_atoms)); }
 
             if (protein_areas == null || protein_areas.Count == 0 || protein_areas.All(a => a.atoms.Count == 0))
             {
