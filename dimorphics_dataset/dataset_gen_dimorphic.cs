@@ -327,7 +327,7 @@ namespace dimorphics_dataset
             var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
             var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
 
-            var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.multimer_stride).ToList());
+            var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
             var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
 
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;

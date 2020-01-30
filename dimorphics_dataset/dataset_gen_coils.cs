@@ -123,7 +123,7 @@ namespace dimorphics_dataset
                                 //    aa_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
                                 //    dssp_multimer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
                                 //    dssp_monomer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
-                                //    stride_multimer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.multimer_stride).ToList()),
+                                //    stride_multimer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.stride_multimer).ToList()),
                                 //    stride_monomer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.stride_monomer).ToList()),
                                 //    pdb_chain_atoms = pdb_chain_atoms,
                                 //    pdb_chain_master_atoms = pdb_chain_master_atoms,

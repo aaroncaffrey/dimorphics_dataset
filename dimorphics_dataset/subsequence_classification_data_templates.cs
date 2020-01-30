@@ -14,6 +14,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> _calculate_mpsa_classification_data_template = null;
         internal static List<feature_info> _calculate_ring_classification_data_template = null;
         internal static List<feature_info> _calculate_foldx_classification_data_subsequence_3d_template = null;
+        internal static List<feature_info> _calculate_foldx_classification_data_neighbourhood_2d_template = null;
         internal static List<feature_info> _calculate_foldx_classification_data_neighbourhood_3d_template = null;
         internal static List<feature_info> _calculate_foldx_classification_data_protein_3d_template = null;
         internal static List<feature_info> _calculate_sequence_geometry_classification_data_template = null;

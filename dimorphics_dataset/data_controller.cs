@@ -161,7 +161,7 @@ namespace dimorphics_dataset
         //    return ret;
         //}
 
-        public static List<string> get_feature_headers_lines_csv((instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
+        public static List<string> get_feature_headers_lines_csv((subsequence_classification_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
             var header_list = row_encoded.feature_info.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
 
@@ -188,53 +188,59 @@ namespace dimorphics_dataset
 
 
 
-        public static List<string> get_row_comments_headers((instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
+        public static List<string> get_row_comments_headers((subsequence_classification_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
-            var comment_headers = new List<string>() // headers starting with '#' are excluded from copying to classification statistics
+            var comment_headers = new List<string>();
+
+            comment_headers.Add("row_index");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.pdb_id)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.chain_id)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.dimer_type)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.class_id)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.class_name)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.parallelism)}");
+            comment_headers.Add($"{nameof(row_encoded.instance_meta_data.symmetry_mode)}");
+
+            foreach (var region in row_encoded.instance_meta_data.get_regions())
             {
-                $"row_index",
-                $"{nameof(instance_meta_data.protein_pdb_id)}",
-                $"{nameof(instance_meta_data.protein_chain_id)}",
-                $"{nameof(instance_meta_data.protein_dimer_type)}",
-                $"{nameof(instance_meta_data.subsequence_class_id)}",
-                $"{nameof(instance_meta_data.subsequence_class_name)}",
-                $"{nameof(instance_meta_data.subsequence_parallelism)}",
-                $"{nameof(instance_meta_data.subsequence_symmetry_mode)}",
-                $"{nameof(instance_meta_data.subsequence_aa_seq)}_len",
-                $"{nameof(instance_meta_data.subsequence_aa_seq)}",
-                $"#{nameof(instance_meta_data.protein_aa_seq)}_len",
-                $"#{nameof(instance_meta_data.protein_aa_seq)}",
-                $"{nameof(instance_meta_data.subsequence_res_ids)}",
-                $"{nameof(instance_meta_data.subsequence_dssp_monomer)}",
-                $"{nameof(instance_meta_data.subsequence_dssp_multimer)}",
-                $"{nameof(instance_meta_data.subsequence_dssp3_monomer)}",
-                $"{nameof(instance_meta_data.subsequence_dssp3_multimer)}",
-            };
-            comment_headers.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.format).ToList());
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.aa_sequence.Length)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.aa_sequence)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.res_ids)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp3_monomer)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp3_multimer)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_monomer)}");
+                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_multimer)}");
+                comment_headers.AddRange(region.region.ss_predictions.Select(a => $@"{region.region_name}_{a.format}").ToList());
+            }
+
             return comment_headers;
         }
 
-        public static List<string> get_row_comments(int row_index, (instance_meta_data instance_meta_data, List<feature_info> feature_info) row_encoded)
+        public static List<string> get_row_comments(int row_index, (subsequence_classification_data instance_meta_data, List<feature_info> feature_info) row_encoded)
         {
             var row_comments = new List<string>();
+
             row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
-            row_comments.Add($"{(row_encoded.instance_meta_data.protein_pdb_id)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.protein_chain_id)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.protein_dimer_type)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_class_id)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_class_name)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_parallelism)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_symmetry_mode)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq.Length)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_aa_seq)}");
-            row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq.Length)}");
-            row_comments.Add($"#{(row_encoded.instance_meta_data.protein_aa_seq)}");
-            row_comments.Add($"{(string.Join(" ", row_encoded.instance_meta_data.subsequence_res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && a.i_code != ' ' ? a.i_code.ToString(CultureInfo.InvariantCulture) : "")}").ToList()))}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_monomer)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp_multimer)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_monomer)}");
-            row_comments.Add($"{(row_encoded.instance_meta_data.subsequence_dssp3_multimer)}");
-            row_comments.AddRange(row_encoded.instance_meta_data.ss_predictions.Select(a => a.prediction).ToList());
+            row_comments.Add($"{(row_encoded.instance_meta_data.pdb_id)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.chain_id)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.dimer_type)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.class_id)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.class_name)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.parallelism)}");
+            row_comments.Add($"{(row_encoded.instance_meta_data.symmetry_mode)}");
+
+            foreach (var region in row_encoded.instance_meta_data.get_regions())
+            {
+                row_comments.Add($"{(region.region.aa_sequence.Length)}");
+                row_comments.Add($"{(region.region.aa_sequence)}");
+                row_comments.Add($"{(string.Join(" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && a.i_code != ' ' ? a.i_code.ToString(CultureInfo.InvariantCulture) : "")}").ToList()))}");
+                row_comments.Add($"{(region.region.dssp3_monomer)}");
+                row_comments.Add($"{(region.region.dssp3_multimer)}");
+                row_comments.Add($"{(region.region.dssp_monomer)}");
+                row_comments.Add($"{(region.region.dssp_multimer)}");
+                row_comments.AddRange(region.region.ss_predictions.Select(a => a.prediction).ToList());
+            }
+            
             return row_comments;
         }
 

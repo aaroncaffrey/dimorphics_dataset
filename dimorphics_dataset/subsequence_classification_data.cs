@@ -26,6 +26,17 @@ namespace dimorphics_dataset
 
         }
 
+        public (string region_name, subsequence_classification_data_region region)[] get_regions()
+        {
+            return new (string region_name, subsequence_classification_data_region region)[]
+            {
+                (nameof(interface_region), interface_region),
+                (nameof(nh_flank_region), nh_flank_region),
+                (nameof(nh_contact_region), nh_contact_region),
+                (nameof(chain_region), chain_region),
+            };
+        }
+
         public void init_nh_flanking(int neighbourhood_flanking_size = 6)
         {
             if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)

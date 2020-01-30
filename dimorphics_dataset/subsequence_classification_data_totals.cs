@@ -52,6 +52,6 @@ namespace dimorphics_dataset
         internal static int total_subsequence_3d_classification_data = -1;
         internal static int total_neighbourhood_3d_classification_data = -1;
         internal static int total_protein_3d_classification_data = -1;
-        internal static int total_calculate_atom_distances_classification_data_result = -1;
+        internal static int total_atom_distances_classification_data = -1;
     }
 }

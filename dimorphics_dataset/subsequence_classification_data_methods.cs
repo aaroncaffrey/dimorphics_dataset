@@ -47,7 +47,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_sable_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_sable_classification_data_template = calculate_sable_sequence_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_sable_classification_data_template = calculate_sable_sequence_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_sable_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -166,7 +166,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_mpsa_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_mpsa_classification_data_template = calculate_mpsa_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_mpsa_classification_data_template = calculate_mpsa_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_mpsa_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -440,7 +440,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_ring_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_ring_classification_data_template = calculate_ring_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_ring_classification_data_template = calculate_ring_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_ring_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -1293,7 +1293,7 @@ namespace dimorphics_dataset
             return features;
         }
 
-        public static List<feature_info> calculate_sequence_geometry_classification_data(subsequence_classification_data scd, List<atom> subsequence_master_atoms, enum_protein_data_source source)
+        public static List<feature_info> calculate_sequence_geometry_classification_data(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_sequence_geometry_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
@@ -1301,11 +1301,11 @@ namespace dimorphics_dataset
 
             // note: cannot use PDB length data, because that leaks information.
 
-            if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
+            if (region.master_atoms == null || region.master_atoms.Count == 0)
             {
                 if (subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = calculate_sequence_geometry_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = calculate_sequence_geometry_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.interface_region, source);
                     subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -1325,74 +1325,17 @@ namespace dimorphics_dataset
 
             var features = new List<feature_info>();
 
-            var make_seq_len_feature = true;
-            var use_pdb_seq = true;
-            var use_uniprot_seq = false;
-
-            //var make_parity_feature = true;
-            //var make_subsequence_sequence_position_feature = true;
-            //var make_protein_len_feature = true;
-
-
-            var subsequence = scd?.aa_subsequence ?? string.Join("", subsequence_master_atoms?.Select(a => a.amino_acid).ToList() ?? new List<char>()) ?? "";
-            //var uniprot_sequence = use_uniprot_seq ? (scd?.pdb_chain_master_atoms?.FirstOrDefault()?.uniprot_sequence ?? "") : "";
-            var pdb_sequence = string.Join("", scd?.pdb_chain_master_atoms?.Select(a => a.amino_acid).ToList() ?? new List<char>());
-
-            //var pdb_id_simple = scd.pdb_id.Substring(0, 4) + scd.chain_id;
-
-            //var uniprot_mapping = program.ReadAllLines(Path.Combine(program.data_root_folder,"uniprot_pdb_mapping\{pdb_id_simple}.txt").Select(a =>
-            //{
-            //    var s = a.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            //    var i = 0;
-
-            //    var x = (
-            //            PDB_code: s[i++],
-            //            PDB_Chain_label: s[i++][0],
-            //            PDB_Sequential_residue_number: int.Parse(s[i++]),
-            //            PDB_Residue_type: s[i++],
-            //            PDB_Residue_number: int.Parse(s[i++]),
-            //            UniProt_Accession: s[i++],
-            //            UniProt_Residue_type: s[i++][0],
-            //            UniProt_Sequential_residue_number: int.Parse(s[i++])
-            //        );
-
-            //    return x;
-            //}).ToList();
-
+            var subsequence = region.aa_sequence;
+            var pdb_sequence = scd.chain_region.aa_sequence;
             var subseq_len = (double)subsequence.Length;
             var pdb_len = (double)pdb_sequence.Length;
-            //var uniprot_len = (double)uniprot_sequence.Length;
-
             var subseq_len_relative_to_pdb_len = (double)(pdb_len == 0 ? 0d : (double)subseq_len / (double)pdb_len);
-            //var subseq_len_relative_to_uniprot = (double)(uniprot_len == 0 ? 0d : (double)subseq_len / (double)uniprot_len);
+            
+            var middle_subseq_res = region.res_ids[region.res_ids.Count / 2];
+            var middle_subseq_res_pdb_index = (scd.chain_region.master_atoms == null || scd.chain_region.master_atoms.Count == 0) ? 0d : scd.chain_region.master_atoms.FindIndex(a => a.residue_index == middle_subseq_res.residue_index);
+            var middle_subseq_res_pdb_index_pct = (middle_subseq_res_pdb_index == -1 || scd.chain_region.master_atoms == null) ? 0d : ((double)(middle_subseq_res_pdb_index+1) / (double)pdb_len);
+            
 
-            //var protein_len_rel = protein_len / subseq_len_rel;
-            var middle_subseq_res = scd.res_ids[scd.res_ids.Count / 2];
-
-            //var middle_uniprot_index = uniprot_mapping.FirstOrDefault(a => a.PDB_Residue_number == middle_subseq_res.residue_index).UniProt_Sequential_residue_number;
-            //var middle_subseq_res_uniprot_index_pct = (middle_uniprot_index == -1 || scd.pdb_chain_master_atoms == null) ? 0d : (double)middle_uniprot_index / (double)uniprot_len;
-
-            var middle_subseq_res_pdb_index = (scd.pdb_chain_master_atoms == null || scd.pdb_chain_master_atoms.Count == 0) ? 0d : scd.pdb_chain_master_atoms.FindIndex(a => a.residue_index == middle_subseq_res.residue_index);
-
-            var middle_subseq_res_pdb_index_pct = (middle_subseq_res_pdb_index == -1 || scd.pdb_chain_master_atoms == null) ? 0d : (double)middle_subseq_res_pdb_index / (double)pdb_len;
-
-
-
-
-
-            //var length_rel = (string.IsNullOrWhiteSpace(scd.aa_subsequence) ||
-            //                  scd.pdb_chain_master_atoms == null ||
-            //                  scd.pdb_chain_master_atoms.Count == 0)
-            //    ?
-            //    0d
-            //    :
-            //    (double)subseq_len / (double)protein_len;
-
-
-
-
-            if (make_seq_len_feature)
-            {
                 var length_features = new List<feature_info>();
 
                 var category = "length_sequence";
@@ -1412,9 +1355,7 @@ namespace dimorphics_dataset
 
                 length_features.Add(x1);
 
-
-                if (use_pdb_seq)
-                {
+                
                     var x2a = new feature_info()
                     {
                         alphabet = alphabet,
@@ -1427,26 +1368,10 @@ namespace dimorphics_dataset
                         feature_value = subseq_len_relative_to_pdb_len
                     };
                     length_features.Add(x2a);
-                }
+                
 
-                if (use_uniprot_seq)
-                {
-                    //var x2b = new feature_info()
-                    //{
-                    //    alphabet = alphabet,
-                    //    dimension = 1,
-                    //    category = category,
-                    //    source = source.ToString(),
-                    //    group = "length_subsequence_rel_uniprot",
-                    //    member = "length_subsequence_rel_uniprot",
-                    //    perspective = "default",
-                    //    feature_value = subseq_len_relative_to_uniprot
-                    //};
-                    //length_features.Add(x2b);
-                }
-
-                if (use_pdb_seq)
-                {
+                
+                
                     var x3a = new feature_info()
                     {
                         alphabet = alphabet,
@@ -1459,28 +1384,8 @@ namespace dimorphics_dataset
                         feature_value = pdb_len
                     };
                     length_features.Add(x3a);
-                }
+            
 
-
-                if (use_uniprot_seq)
-                {
-                    //var x3b = new feature_info()
-                    //{
-                    //    alphabet = alphabet,
-                    //    dimension = 1,
-                    //    category = category,
-                    //    source = source.ToString(),
-                    //    group = "length_uniprot",
-                    //    member = "length_uniprot",
-                    //    perspective = "default",
-                    //    feature_value = uniprot_len
-                    //};
-                    //length_features.Add(x3b);
-
-                }
-
-                if (use_pdb_seq)
-                {
                     var x4a = new feature_info()
                     {
                         alphabet = alphabet,
@@ -1493,25 +1398,7 @@ namespace dimorphics_dataset
                         feature_value = middle_subseq_res_pdb_index_pct
                     };
                     length_features.Add(x4a);
-                }
-
-
-                if (use_uniprot_seq)
-                {
-                    //var x4b = new feature_info()
-                    //{
-                    //    alphabet = alphabet,
-                    //    dimension = 1,
-                    //    category = category,
-                    //    source = source.ToString(),
-                    //    group = "sequence_position_rel_uniprot",
-                    //    member = "default",
-                    //    perspective = "default",
-                    //    feature_value = middle_subseq_res_uniprot_index_pct
-                    //};
-
-                    //length_features.Add(x4b);
-                }
+                
 
                 var all_length_features = length_features.Select(a => new feature_info(a)
                 {
@@ -1520,15 +1407,12 @@ namespace dimorphics_dataset
 
                 features.AddRange(length_features);
                 features.AddRange(all_length_features);
-
-
-            }
+            
 
             if (subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template == null)
             {
                 subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
-
 
             return features;
         }
@@ -1610,18 +1494,18 @@ namespace dimorphics_dataset
             return aaindices_subsections;
         }
 
-        public static List<feature_info> calculate_aa_index_classification_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
+        public static List<feature_info> calculate_aa_index_classification_data(string complete_sequence, enum_protein_data_source source)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_aa_index_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
 
-            if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
+            if (complete_sequence == null || complete_sequence.Length == 0)
             {
                 if (subsequence_classification_data_templates._calculate_aa_index_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_aa_index_classification_data_template = calculate_aa_index_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_aa_index_classification_data_template = calculate_aa_index_classification_data("AAA", source);
                     subsequence_classification_data_templates._calculate_aa_index_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -1639,9 +1523,9 @@ namespace dimorphics_dataset
                 return template;
             }
 
-            var aaindices_subsections = _aaindex_subset_templates;
+            var aaindices_subsections = subsequence_classification_data_templates._aaindex_subset_templates;
 
-            var complete_sequence = string.Join("", subsequence_master_atoms.Select(a => a.amino_acid).ToList());
+            
 
             var sequences = new List<(string name, string sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
@@ -1751,7 +1635,7 @@ namespace dimorphics_dataset
 
                 if (subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template = calculate_chain_dna_binding_prediction_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template = calculate_chain_dna_binding_prediction_data(subsequence_classification_data_templates._template_scd.chain_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -1835,7 +1719,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template = calculate_intrinsically_unordered_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template = calculate_intrinsically_unordered_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -2001,7 +1885,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template = calculate_blast_pssm_classification_data(blast_pssm_options, subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template = calculate_blast_pssm_classification_data(blast_pssm_options, subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -2515,7 +2399,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_sasa_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_sasa_classification_data_template = calculate_sasa_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_sasa_classification_data_template = calculate_sasa_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_sasa_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -2677,7 +2561,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_tortuosity_classification_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = calculate_tortuosity_classification_data(subsequence_classification_data_templates._template_scd.subsequence_master_atoms, source);
+                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = calculate_tortuosity_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
                     subsequence_classification_data_templates._calculate_tortuosity_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -3026,7 +2910,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_atom_distances_data_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_atom_distances_data_template = calculate_atom_distances_classification_data(subsequence_classification_data_templates._template_scd.subsequence_atoms, subsequence_classification_data_templates._template_scd.neighbourhood_3d.subsequence_atoms, subsequence_classification_data_templates._template_scd.protein_3d.subsequence_atoms);
+                    subsequence_classification_data_templates._calculate_atom_distances_data_template = calculate_atom_distances_classification_data(subsequence_classification_data_templates._template_scd.interface_region.atoms, subsequence_classification_data_templates._template_scd.nh_contact_region.atoms, subsequence_classification_data_templates._template_scd.chain_region.atoms);
                     subsequence_classification_data_templates._calculate_atom_distances_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -3428,7 +3312,7 @@ namespace dimorphics_dataset
             return false;
         }
 
-        public static List<feature_info> calculate_classification_data_1d(subsequence_classification_data scd, List<atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d)
+        public static List<feature_info> calculate_classification_data_1d(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_classification_data_1d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d);");
@@ -3462,7 +3346,7 @@ namespace dimorphics_dataset
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 1, "aa", "aa", scd.aa_subsequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
+                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 1, "aa", "aa", region.aa_sequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
 
 
                         if (!check_headers(pse_aac_sequence_classification_data))
@@ -3492,8 +3376,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var sable_sequence_classification_data = calculate_sable_sequence_classification_data(/*scd,*/ subsequence_master_atoms, source);
-                            //features_1d.AddRange(sable_sequence_classification_data);
+                        var sable_sequence_classification_data = calculate_sable_sequence_classification_data(region.master_atoms, source);
 
                             if (!check_headers(sable_sequence_classification_data))
                         {
@@ -3522,7 +3405,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var mpsa_classification_data = calculate_mpsa_classification_data(subsequence_master_atoms, source);
+                        var mpsa_classification_data = calculate_mpsa_classification_data(region.master_atoms, source);
 
                         if (!check_headers(mpsa_classification_data))
                         {
@@ -3554,7 +3437,7 @@ namespace dimorphics_dataset
                     {
                         var pssm_options = new info_blast_pssm_options();
 
-                        var blast_pssm_subsequence_classification_data = calculate_blast_pssm_classification_data(pssm_options, /*scd,*/ subsequence_master_atoms, source);
+                        var blast_pssm_subsequence_classification_data = calculate_blast_pssm_classification_data(pssm_options, region.master_atoms, source);
 
 
                         if (!check_headers(blast_pssm_subsequence_classification_data))
@@ -3583,7 +3466,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var aa_index_classification_data = calculate_aa_index_classification_data(subsequence_master_atoms, source);
+                        var aa_index_classification_data = calculate_aa_index_classification_data(region.aa_sequence, source);
                             //features_1d.AddRange(aa_index_classification_data);
 
 
@@ -3613,7 +3496,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var sequence_geometry_classification_data = calculate_sequence_geometry_classification_data(scd, subsequence_master_atoms, source);
+                        var sequence_geometry_classification_data = calculate_sequence_geometry_classification_data(scd, region, source);
                             //features_1d.AddRange(sequence_geometry_classification_data);
 
 
@@ -3643,7 +3526,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var intrinsically_unordered_data = calculate_intrinsically_unordered_data(subsequence_master_atoms, source);
+                        var intrinsically_unordered_data = calculate_intrinsically_unordered_data(region.master_atoms, source);
                             //features_1d.AddRange(intrinsically_unordered_data);
 
 
@@ -3674,7 +3557,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var dna_binding_prediction_data = calculate_chain_dna_binding_prediction_data(subsequence_master_atoms, source);
+                        var dna_binding_prediction_data = calculate_chain_dna_binding_prediction_data(region.master_atoms, source);
                             //features_1d.AddRange(dna_binding_prediction_data);
 
 
@@ -3708,7 +3591,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var seq = scd.aa_subsequence;
+                        var seq = region.aa_sequence;
 
                             //var pep = new r_peptides();
 
@@ -3754,7 +3637,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var seq = scd.aa_subsequence;
+                        var seq = region.aa_sequence;
 
                             //var pep = new r_protr();
 
@@ -3809,29 +3692,29 @@ namespace dimorphics_dataset
         {
             if (sequence == null || sequence.Length == 0)
             {
-                if (_peptides_data_template == null)
+                if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
-                    _peptides_data_template = call_r_peptides(subsequence_classification_data_templates._template_scd.aa_subsequence, alphabet_name, source);
-                    _peptides_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._peptides_data_template = call_r_peptides("AAA", alphabet_name, source);
+                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
-                if (_peptides_data_template == null)
+                if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
                     throw new Exception();
                 }
 
 
-                var template = _peptides_data_template.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0 }).ToList();
 
                 return template;
             }
 
-            lock (_peptides_cache_lock)
+            lock (subsequence_classification_data_totals._peptides_cache_lock)
             {
-                var cache_index = _peptides_cache.FindIndex(a => a.sequence == sequence);
+                var cache_index = subsequence_classification_data_totals._peptides_cache.FindIndex(a => a.sequence == sequence);
                 if (cache_index > -1)
                 {
-                    var cached_item = _peptides_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
+                    var cached_item = subsequence_classification_data_totals._peptides_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
 
 
                     if (cached_item != null && cached_item.Count > 0)
@@ -3842,9 +3725,9 @@ namespace dimorphics_dataset
             }
 
             var call_count = 0;
-            lock (_peptides_call_count_lock)
+            lock (subsequence_classification_data_totals._peptides_call_count_lock)
             {
-                call_count = _peptides_call_count++;
+                call_count = subsequence_classification_data_totals._peptides_call_count++;
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
@@ -3929,7 +3812,7 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._protr_data_template == null)
                 {
-                    subsequence_classification_data_templates._protr_data_template = call_r_protr_data(subsequence_classification_data_templates._template_scd.aa_subsequence, alphabet_name, source);
+                    subsequence_classification_data_templates._protr_data_template = call_r_protr_data("AAA", alphabet_name, source);
                     subsequence_classification_data_templates._protr_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                 }
 
@@ -4114,7 +3997,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var foldx_classification_data = calculate_foldx_classification_data(scd, subsequence_master_atoms, source);
+                        var foldx_classification_data = calculate_foldx_classification_data(scd, region, source);
 
 
                         if (!check_headers(foldx_classification_data))
@@ -4160,7 +4043,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var ring_classification_data = calculate_ring_classification_data(/*scd,*/ subsequence_master_atoms, source);
+                        var ring_classification_data = calculate_ring_classification_data(region.master_atoms, source);
 
 
                         if (!check_headers(ring_classification_data))
@@ -4189,7 +4072,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var sasa_classification_data = calculate_sasa_classification_data(subsequence_master_atoms, source);
+                        var sasa_classification_data = calculate_sasa_classification_data(region.master_atoms, source);
 
 
                         if (!check_headers(sasa_classification_data))
@@ -4220,7 +4103,7 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var tortuosity_classification_data = calculate_tortuosity_classification_data(/*scd,*/ scd.subsequence_atoms, source);
+                        var tortuosity_classification_data = calculate_tortuosity_classification_data(region.atoms, source);
 
 
                         if (!check_headers(tortuosity_classification_data))
@@ -4571,7 +4454,7 @@ namespace dimorphics_dataset
                 {
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template == null)
                     {
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, subsequence_classification_data_templates._template_scd.aa_subsequence, seq_type, pse_aac_options);
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, subsequence_classification_data_templates._template_scd.interface_region.aa_sequence, seq_type, pse_aac_options);
                         subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                     }
 
@@ -4589,7 +4472,7 @@ namespace dimorphics_dataset
                 {
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template == null)
                     {
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, subsequence_classification_data_templates._template_scd.dssp_monomer_subsequence, seq_type, pse_aac_options);
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, subsequence_classification_data_templates._template_scd.interface_region.dssp_monomer, seq_type, pse_aac_options);
                         subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
                     }
 
@@ -5026,11 +4909,11 @@ namespace dimorphics_dataset
 
             var tasks = new List<Task>();
 
-            if (feature_types?.feature_types_subsequence_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (feature_types?.feature_types_interface_2d?.AsArray()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
-                    subsequence_1d_classification_data = calculate_classification_data_1d(scd, scd.subsequence_master_atoms, enum_protein_data_source.interface_2d, max_features, feature_types.feature_types_subsequence_1d);
+                    subsequence_1d_classification_data = calculate_classification_data_1d(scd, scd.interface_region, enum_protein_data_source.interface_2d, max_features, feature_types.feature_types_interface_2d);
 
                     if (max_features > 0)
                     {
@@ -5047,7 +4930,7 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (feature_types?.feature_types_neighbourhood_2d?.AsArray()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
@@ -5056,7 +4939,7 @@ namespace dimorphics_dataset
                         io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    neighbourhood_1d_classification_data = calculate_classification_data_1d(scd.neighbourhood_1d, scd.neighbourhood_1d.subsequence_master_atoms, enum_protein_data_source.neighbourhood_2d, max_features, feature_types.feature_types_neighbourhood_1d);
+                    neighbourhood_1d_classification_data = calculate_classification_data_1d(scd, scd.nh_flank_region, enum_protein_data_source.neighbourhood_2d, max_features, feature_types.feature_types_neighbourhood_2d);
 
                     if (max_features > 0)
                     {
@@ -5073,7 +4956,7 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (feature_types?.feature_types_chain_2d?.AsArray()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
@@ -5082,7 +4965,7 @@ namespace dimorphics_dataset
                         io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    protein_1d_classification_data = calculate_classification_data_1d(scd.protein_1d, scd.protein_1d.subsequence_master_atoms, enum_protein_data_source.chain_2d, max_features, feature_types.feature_types_protein_1d);
+                    protein_1d_classification_data = calculate_classification_data_1d(scd, scd.chain_region, enum_protein_data_source.chain_2d, max_features, feature_types.feature_types_chain_2d);
 
                     if (max_features > 0)
                     {
@@ -5099,12 +4982,12 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_subsequence_3d?.AsArray()?.Any(a => a.value) ?? false)
+            if (feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
 
-                    subsequence_3d_classification_data = calculate_classification_data_3d(scd, scd.subsequence_master_atoms, enum_protein_data_source.interface_3d, max_features, feature_types.feature_types_subsequence_3d);
+                    subsequence_3d_classification_data = calculate_classification_data_3d(scd, scd.interface_region, enum_protein_data_source.interface_3d, max_features, feature_types.feature_types_interface_3d);
 
                     if (max_features > 0)
                     {
@@ -5132,7 +5015,7 @@ namespace dimorphics_dataset
                         io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    neighbourhood_3d_classification_data = calculate_classification_data_3d(scd.neighbourhood_3d, scd.neighbourhood_3d.subsequence_master_atoms, enum_protein_data_source.neighbourhood_3d, max_features, feature_types.feature_types_neighbourhood_3d);
+                    neighbourhood_3d_classification_data = calculate_classification_data_3d(scd, scd.nh_contact_region, enum_protein_data_source.neighbourhood_3d, max_features, feature_types.feature_types_neighbourhood_3d);
 
                     if (max_features > 0)
                     {
@@ -5150,7 +5033,7 @@ namespace dimorphics_dataset
 
             }
 
-            if (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value) ?? false)
+            if (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
@@ -5159,7 +5042,7 @@ namespace dimorphics_dataset
                         io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    protein_3d_classification_data = calculate_classification_data_3d(scd.protein_3d, scd.chain_region.master_atoms, enum_protein_data_source.chain_3d, max_features, feature_types.feature_types_protein_3d);
+                    protein_3d_classification_data = calculate_classification_data_3d(scd, scd.chain_region, enum_protein_data_source.chain_3d, max_features, feature_types.feature_types_chain_3d);
 
                     if (max_features > 0)
                     {
@@ -5177,20 +5060,20 @@ namespace dimorphics_dataset
             }
 
 
-            if ((feature_types?.feature_types_subsequence_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+            if ((feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false) ||
                 (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value) ?? false))
+                (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false))
             {
                 var task = Task.Run(() =>
                 {
                     var calculate_atom_distances_classification_data_result =
                         calculate_atom_distances_classification_data
                         (
-                            feature_types.feature_types_subsequence_3d?.intramolecular_classification_data ?? false ? scd.interface_region.atoms : null,
+                            feature_types.feature_types_interface_3d?.intramolecular_classification_data ?? false ? scd.interface_region.atoms : null,
 
                             feature_types.feature_types_neighbourhood_3d?.intramolecular_classification_data ?? false ? scd.nh_contact_region.atoms : null,
 
-                            feature_types.feature_types_protein_3d?.intramolecular_classification_data ?? false ? scd.chain_region.atoms : null
+                            feature_types.feature_types_chain_3d?.intramolecular_classification_data ?? false ? scd.chain_region.atoms : null
                         );
 
                     if (max_features > 0)
@@ -5202,9 +5085,9 @@ namespace dimorphics_dataset
 
                     if (check_num_features_consistency)
                     {
-                        var _calculate_atom_distances_classification_data_result = calculate_atom_distances_classification_data_result?.Count ?? -1;
-                        if (totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result > -1 && subsequence_classification_data.totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result > -1 && subsequence_classification_data.totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result != totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result) throw new Exception();
-                        if (totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result > -1) subsequence_classification_data.totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result = totalsubsequence_classification_data_templates._calculate_atom_distances_classification_data_result;
+                        var total_atom_distances_classification_data = calculate_atom_distances_classification_data_result?.Count ?? -1;
+                        if (total_atom_distances_classification_data > -1 && subsequence_classification_data_totals.total_atom_distances_classification_data > -1 && subsequence_classification_data_totals.total_atom_distances_classification_data != total_atom_distances_classification_data) throw new Exception();
+                        if (total_atom_distances_classification_data > -1) subsequence_classification_data_totals.total_atom_distances_classification_data = total_atom_distances_classification_data;
                     }
                 });
 

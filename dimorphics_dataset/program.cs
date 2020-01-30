@@ -73,13 +73,13 @@ namespace dimorphics_dataset
                 throw new ArgumentNullException(nameof(feature_types));
             }
 
-            var features_1d = (feature_types?.feature_types_subsequence_1d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value) ?? false);
+            var features_1d = (feature_types?.feature_types_interface_2d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_neighbourhood_2d?.AsArray()?.Any(a => a.value) ?? false) ||
+                              (feature_types?.feature_types_chain_2d?.AsArray()?.Any(a => a.value) ?? false);
 
-            var features_3d = (feature_types?.feature_types_subsequence_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+            var features_3d = (feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false) ||
                               (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value) ?? false);
+                              (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false);
 
             var pdb_atoms = atom.load_atoms_pdb
                 (
@@ -664,7 +664,7 @@ namespace dimorphics_dataset
 
             var feature_types = new feature_types()
             {
-                feature_types_subsequence_1d = !do_2d_interface
+                feature_types_interface_2d = !do_2d_interface
                     ? null
                     : new feature_types_1d()
                     {
@@ -679,7 +679,7 @@ namespace dimorphics_dataset
                         r_peptides = do_2d_interface,
                         r_protr = do_2d_interface,
                     },
-                feature_types_neighbourhood_1d = !do_2d_nh
+                feature_types_neighbourhood_2d = !do_2d_nh
                     ? null
                     : new feature_types_1d()
                     {
@@ -694,7 +694,7 @@ namespace dimorphics_dataset
                         r_peptides = do_2d_nh,
                         r_protr = do_2d_nh,
                     },
-                feature_types_protein_1d = !do_2d_protein
+                feature_types_chain_2d = !do_2d_protein
                     ? null
                     : new feature_types_1d()
                     {
@@ -709,7 +709,7 @@ namespace dimorphics_dataset
                         r_peptides = do_2d_protein,
                         r_protr = do_2d_protein,
                     },
-                feature_types_subsequence_3d = !do_3d_interface
+                feature_types_interface_3d = !do_3d_interface
                     ? null
                     : new feature_types_3d()
                     {
@@ -733,7 +733,7 @@ namespace dimorphics_dataset
                         ring_classification_data = do_3d_nh,
                         pse_ssc_dssp_classification_data = do_3d_nh,
                     },
-                feature_types_protein_3d = !do_3d_protein
+                feature_types_chain_3d = !do_3d_protein
                     ? null
                     : new feature_types_3d()
                     {
@@ -748,20 +748,20 @@ namespace dimorphics_dataset
             };
 
             io_proxy.WriteLine(
-                $@"{nameof(feature_types.feature_types_subsequence_1d)} = {feature_types.feature_types_subsequence_1d}",
+                $@"{nameof(feature_types.feature_types_interface_2d)} = {feature_types.feature_types_interface_2d}",
                 nameof(program), nameof(feature_types_params));
             io_proxy.WriteLine(
-                $@"{nameof(feature_types.feature_types_neighbourhood_1d)} = {feature_types.feature_types_neighbourhood_1d}",
+                $@"{nameof(feature_types.feature_types_neighbourhood_2d)} = {feature_types.feature_types_neighbourhood_2d}",
                 nameof(program), nameof(feature_types_params));
-            io_proxy.WriteLine($@"{nameof(feature_types.feature_types_protein_1d)} = {feature_types.feature_types_protein_1d}",
+            io_proxy.WriteLine($@"{nameof(feature_types.feature_types_chain_2d)} = {feature_types.feature_types_chain_2d}",
                 nameof(program), nameof(feature_types_params));
             io_proxy.WriteLine(
-                $@"{nameof(feature_types.feature_types_subsequence_3d)} = {feature_types.feature_types_subsequence_3d}",
+                $@"{nameof(feature_types.feature_types_interface_3d)} = {feature_types.feature_types_interface_3d}",
                 nameof(program), nameof(feature_types_params));
             io_proxy.WriteLine(
                 $@"{nameof(feature_types.feature_types_neighbourhood_3d)} = {feature_types.feature_types_neighbourhood_3d}",
                 nameof(program), nameof(feature_types_params));
-            io_proxy.WriteLine($@"{nameof(feature_types.feature_types_protein_3d)} = {feature_types.feature_types_protein_3d}",
+            io_proxy.WriteLine($@"{nameof(feature_types.feature_types_chain_3d)} = {feature_types.feature_types_chain_3d}",
                 nameof(program), nameof(feature_types_params));
             return feature_types;
         }

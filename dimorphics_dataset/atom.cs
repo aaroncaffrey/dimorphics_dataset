@@ -1087,7 +1087,7 @@ namespace dimorphics_dataset
             var monomer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToList());
 
             var multimer_dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_multimer).ToList());
-            var multimer_stride_seq = string.Join("", master_atoms.Select(a => a.multimer_stride).ToList());
+            var multimer_stride_seq = string.Join("", master_atoms.Select(a => a.stride_multimer).ToList());
             var multimer_dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_multimer).ToList());
             var multimer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_multimer).ToList());
 
@@ -1266,7 +1266,7 @@ namespace dimorphics_dataset
                 if (ss_type == enum_ss_type.DSSP) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp_multimer : b.dssp_monomer;
                 if (ss_type == enum_ss_type.DSSP3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp3_multimer : b.dssp3_monomer;
 
-                if (ss_type == enum_ss_type.STRIDE) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_stride : b.stride_monomer;
+                if (ss_type == enum_ss_type.STRIDE) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.stride_multimer : b.stride_monomer;
                 if (ss_type == enum_ss_type.STRIDE3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.stride3_multimer : b.stride3_monomer;
                 return ' ';
             }).ToList()))).ToList();
@@ -1632,10 +1632,10 @@ namespace dimorphics_dataset
             foreach (var atom in atoms)
             {
                 {
-                    var multimer_stride = stride_multimer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
+                    var stride_multimer = stride_multimer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
 
-                    atom.multimer_stride = multimer_stride?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
-                    atom.stride3_multimer = secondary_structure_state_reduction(atom.multimer_stride);
+                    atom.stride_multimer = stride_multimer?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
+                    atom.stride3_multimer = secondary_structure_state_reduction(atom.stride_multimer);
                 }
                 {
                     var stride_monomer = stride_monomer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
