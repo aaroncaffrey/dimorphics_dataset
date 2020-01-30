@@ -102,15 +102,8 @@ namespace dimorphics_dataset
                     )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
 
-            var pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == psi.chain_id).ToList();
-            var pdb_chain_master_atoms = atom.select_amino_acid_master_atoms(psi.pdb_id, pdb_chain_atoms);
-
-            var subsequence_atoms = psi.res_ids.SelectMany(a => pdb_chain_atoms.Where(b => a.res_id == b.residue_index && a.amino_acid == b.amino_acid && a.i_code == b.i_code).ToList()).ToList();
-            var subsequence_master_atoms = psi.res_ids.Select(a => pdb_chain_master_atoms.First(b => a.res_id == b.residue_index && a.amino_acid == b.amino_acid && a.i_code == b.i_code)).ToList();
-
-            if (subsequence_master_atoms.Count != psi.res_ids.Count) throw new Exception();
-
-            var need_template = false;
+            var chain_atoms = pdb_atoms.Where(a => a.chain_id == psi.chain_id).ToList();
+            var interface_atoms = psi.res_ids.SelectMany(a => chain_atoms.Where(b => a.res_id == b.residue_index && a.amino_acid == b.amino_acid && a.i_code == b.i_code).ToList()).ToList();
 
             var scd = new subsequence_classification_data
             {
@@ -123,64 +116,54 @@ namespace dimorphics_dataset
 
                 pdb_id = psi.pdb_id,
                 chain_id = psi.chain_id,
-                res_ids = psi.res_ids,
-
-                aa_subsequence = string.Join("", subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
-
-                dssp_multimer_subsequence = string.Join("", subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
-                dssp_monomer_subsequence = string.Join("", subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
-
-                stride_multimer_subsequence = string.Join("", subsequence_master_atoms.Select(a => a.multimer_stride).ToList()),
-                stride_monomer_subsequence = string.Join("", subsequence_master_atoms.Select(a => a.monomer_stride).ToList()),
-
-                pdb_chain_atoms = pdb_chain_atoms,
-                pdb_chain_master_atoms = pdb_chain_master_atoms,
-                subsequence_atoms = subsequence_atoms,
-                subsequence_master_atoms = subsequence_master_atoms,
-
-                foldx_energy_differences = null,
-                neighbourhood_1d = null,
-                neighbourhood_3d = null,
-
-                parent = null,
-                protein_1d = null,
-                protein_3d = null
             };
+            
+            scd.interface_region = new subsequence_classification_data_region(scd, interface_atoms);
+            scd.chain_region = new subsequence_classification_data_region(scd, chain_atoms);
+            
+            // after the interface and chain properties are set, can then find neighborhood...
+            scd.init_nh_flanking();
+            scd.init_nh_contacts();
 
-            if (scd.aa_subsequence.Length == 0 || scd.subsequence_atoms?.Count == 0) {need_template = true;}
+            var need_template = (
+                                    string.IsNullOrEmpty(scd.interface_region.aa_sequence) ||
+                                    string.IsNullOrEmpty(scd.chain_region.aa_sequence) ||
+                                    string.IsNullOrEmpty(scd.nh_flank_region.aa_sequence) ||
+                                    string.IsNullOrEmpty(scd.nh_contact_region.aa_sequence)
+                                    );
 
-            scd.foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, scd.res_ids, false, enum_protein_data_source.subsequence_3d);
+            
 
-            if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value)??false)
+            //if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value)??false)
+            //{
+            //    scd.neighbourhood_1d = atom.get_intramolecular_neighbourhood_1d(scd);
+            //    if (string.IsNullOrEmpty(scd.neighbourhood_1d.aa_subsequence) || scd.neighbourhood_1d.interface_atoms?.Count == 0) {need_template = true;}
+
+            //}
+
+            //if (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value)??false)
+            //{
+            //    scd.protein_1d = atom.get_intramolecular_protein_1d(scd);
+            //    if (string.IsNullOrEmpty(scd.protein_1d.aa_subsequence) || scd.protein_1d.interface_atoms?.Count == 0) {need_template = true;}
+
+            //}
+
+            //if (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value)??false)
+            //{
+            //    scd.neighbourhood_3d = atom.get_intramolecular_neighbourhood_3d(scd);
+            //    if (string.IsNullOrEmpty(scd.neighbourhood_3d.aa_subsequence) || scd.neighbourhood_3d.interface_atoms?.Count == 0) {need_template = true;}
+
+            //}
+
+            //if (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value)??false)
+            //{
+            //    scd.protein_3d = atom.get_intramolecular_protein_3d(scd);
+            //    if (string.IsNullOrEmpty(scd.protein_3d.aa_subsequence) || scd.protein_3d.interface_atoms?.Count == 0) {need_template = true;}
+            //}
+
+            if (need_template && _template_protein != null && subsequence_classification_data_templates._template_scd == null)
             {
-                scd.neighbourhood_1d = atom.get_intramolecular_neighbourhood_1d(scd);
-                if (string.IsNullOrEmpty(scd.neighbourhood_1d.aa_subsequence) || scd.neighbourhood_1d.subsequence_atoms?.Count == 0) {need_template = true;}
-
-            }
-
-            if (feature_types?.feature_types_protein_1d?.AsArray()?.Any(a => a.value)??false)
-            {
-                scd.protein_1d = atom.get_intramolecular_protein_1d(scd);
-                if (string.IsNullOrEmpty(scd.protein_1d.aa_subsequence) || scd.protein_1d.subsequence_atoms?.Count == 0) {need_template = true;}
-
-            }
-
-            if (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value)??false)
-            {
-                scd.neighbourhood_3d = atom.get_intramolecular_neighbourhood_3d(scd);
-                if (string.IsNullOrEmpty(scd.neighbourhood_3d.aa_subsequence) || scd.neighbourhood_3d.subsequence_atoms?.Count == 0) {need_template = true;}
-
-            }
-
-            if (feature_types?.feature_types_protein_3d?.AsArray()?.Any(a => a.value)??false)
-            {
-                scd.protein_3d = atom.get_intramolecular_protein_3d(scd);
-                if (string.IsNullOrEmpty(scd.protein_3d.aa_subsequence) || scd.protein_3d.subsequence_atoms?.Count == 0) {need_template = true;}
-            }
-
-            if (need_template && _template_protein != null && subsequence_classification_data._template_scd == null)
-            {
-                subsequence_classification_data._template_scd = get_subsequence_classificiation_data(_template_protein, feature_types, null);
+                subsequence_classification_data_templates._template_scd = get_subsequence_classificiation_data(_template_protein, feature_types, null);
             }
 
             return scd;
@@ -803,7 +786,7 @@ namespace dimorphics_dataset
 
         private static void part4(
             (string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string
-                output_folder, int? first_index, int? last_index) cmd_params, List<(instance_meta_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int tag)
+                output_folder, int? first_index, int? last_index) cmd_params, List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int tag)
         {
             if (cmd_params.first_index == null && cmd_params.last_index == null)
             {
@@ -872,7 +855,7 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(fns.fn_features, features_lines, nameof(program), nameof(part4));
         }
 
-        private static List<(instance_meta_data instance_meta_data, List<feature_info> feature_info)> part3(
+        private static List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> part3(
             (string[] area, bool use_dssp3, int class_id, string class_name, int min_sequence_length, int max_features, string
                 output_folder, int? first_index, int? last_index) cmd_params, List<subsequence_classification_data> class_data_list, feature_types feature_types)
         {
@@ -884,8 +867,7 @@ namespace dimorphics_dataset
             }
 
             var tasks3 =
-                new List<Task<(instance_meta_data instance_meta_data,
-                    List<feature_info> feature_info)>>();
+                new List<Task<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)>>();
 
             for (var i = 0; i < class_data_list.Count; i++)
             {
@@ -895,9 +877,7 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
-                    var encoded_class_data_item =
-                        subsequence_classification_data.encode_subsequence_classification_data_row(class_data_item,
-                            cmd_params.max_features, feature_types);
+                    var encoded_class_data_item = (class_data_item, subsequence_classification_data_methods.encode_subsequence_classification_data_row(class_data_item, cmd_params.max_features, feature_types));
 
                     return encoded_class_data_item;
                 });

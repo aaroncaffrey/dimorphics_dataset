@@ -17,12 +17,12 @@ namespace dimorphics_dataset
 
     public enum enum_protein_data_source
     {
-        subsequence_1d,
-        neighbourhood_1d,
-        protein_1d,
-        subsequence_3d,
+        interface_2d,
+        neighbourhood_2d,
+        chain_2d,
+        interface_3d,
         neighbourhood_3d,
-        protein_3d
+        chain_3d
     }
 
     public enum enum_pssm_normalisation_method

@@ -7,8 +7,7 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-
-    public partial class atom
+    public class atom
     {
         internal string uniprot_sequence;
 
@@ -25,20 +24,17 @@ namespace dimorphics_dataset
 
         internal int master_index = -1;
 
-        internal char i_code;
+        internal char i_code = ' ';
 
-        internal char multimer_dssp = ' ';
-        internal char multimer_dssp3 = ' ';
+        internal char dssp_multimer = ' ';
+        internal char dssp3_multimer = ' ';
+        internal char dssp_monomer = ' ';
+        internal char dssp3_monomer = ' ';
 
-        internal char monomer_dssp = ' ';
-        internal char monomer_dssp3 = ' ';
-
-        internal char monomer_stride = ' ';
-        internal char monomer_stride3 = ' ';
-
-        internal char multimer_stride = ' ';
-        internal char multimer_stride3 = ' ';
-
+        internal char stride_multimer = ' ';
+        internal char stride3_multimer = ' ';
+        internal char stride_monomer = ' ';
+        internal char stride3_monomer = ' ';
 
         internal int is_strand_interface_atom = 0;
         internal int is_standard_strand_interface_atom = 0;
@@ -780,16 +776,16 @@ namespace dimorphics_dataset
                 var symmetry_mode_seq = string.Join("", master_atoms.Select(a => a.symmetry_mode).ToArray());
                 var symmetry_mode_seq_aa_types = symmetry_mode_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var dssp_seq = string.Join("", master_atoms.Select(a => a.monomer_dssp).ToArray());
+                var dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_monomer).ToArray());
                 var dssp_seq_ss_types = dssp_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var stride_seq = string.Join("", master_atoms.Select(a => a.monomer_stride).ToArray());
+                var stride_seq = string.Join("", master_atoms.Select(a => a.stride_monomer).ToArray());
                 var stride_seq_ss_types = stride_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var dssp3_seq = string.Join("", master_atoms.Select(a => a.monomer_dssp3).ToArray());
+                var dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToArray());
                 var dssp3_seq_ss_types = dssp3_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var stride3_seq = string.Join("", master_atoms.Select(a => a.monomer_stride3).ToArray());
+                var stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToArray());
                 var stride3_seq_ss_types = stride3_seq.Distinct().OrderBy(a => a).ToArray();
 
 
@@ -816,7 +812,7 @@ namespace dimorphics_dataset
                 //stride3_seq_ss_types.ToList().ForEach(aa => result2.Add((filename, pdb, format, nameof(stride3_seq), aa.ToString(CultureInfo.InvariantCulture), stride3_seq.Select(a => aa == a ? 1.0 : 0.0).Select(b => b.ToString(CultureInfo.InvariantCulture)).ToArray())));
                 //var atoms_all_dssp_seq = string.Join("", atoms_all.Select(a => a.monomer_dssp).ToArray());
                 //var atoms_all_dssp_seq_ss_types = atoms_all_dssp_seq.Distinct().OrderBy(a => a).ToArray();
-                //var atoms_all_stride_seq = string.Join("", atoms_all.Select(a => a.monomer_stride).ToArray());
+                //var atoms_all_stride_seq = string.Join("", atoms_all.Select(a => a.stride_monomer).ToArray());
                 //var atoms_all_stride_seq_ss_types = atoms_all_stride_seq.Distinct().OrderBy(a => a).ToArray();
                 //var atoms_all_dssp3_seq = string.Join("", atoms_all.Select(a => a.monomer_dssp3).ToArray());
                 //var atoms_all_dssp3_seq_ss_types = atoms_all_dssp3_seq.Distinct().OrderBy(a => a).ToArray();
@@ -844,22 +840,22 @@ namespace dimorphics_dataset
                         // all
                         var atoms_all = master_atoms.Where(a => true).ToList();
                         var atoms_all_mpsa = atoms_all.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_all_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_all.Select((a, i) => ((m == '*' || atoms_all[i].monomer_dssp3 == m || atoms_all[i].monomer_dssp == m) && (atoms_all[i].monomer_dssp3 == atoms_all_mpsa[i].predicted_ss_code || atoms_all[i].monomer_dssp == atoms_all_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_all.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_all_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_all.Select((a, i) => ((m == '*' || atoms_all[i].dssp3_monomer == m || atoms_all[i].dssp_monomer == m) && (atoms_all[i].dssp3_monomer == atoms_all_mpsa[i].predicted_ss_code || atoms_all[i].dssp_monomer == atoms_all_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_all.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_all_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_all), a.ss, a.value, a.truth_total)));
-                        var atoms_all_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_all.Select((a, i) => ((m == '*' || atoms_all[i].monomer_stride3 == m || atoms_all[i].monomer_stride == m) && (atoms_all[i].monomer_stride3 == atoms_all_mpsa[i].predicted_ss_code || atoms_all[i].monomer_stride == atoms_all_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_all.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_all_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_all.Select((a, i) => ((m == '*' || atoms_all[i].stride3_monomer == m || atoms_all[i].stride_monomer == m) && (atoms_all[i].stride3_monomer == atoms_all_mpsa[i].predicted_ss_code || atoms_all[i].stride_monomer == atoms_all_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_all.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_all_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_all), a.ss, a.value, a.truth_total)));
                         var atoms_all_mpsa_average = atoms_all_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList(); // each SS type, average probability
                         atoms_all_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_all), a.ss, a.av, a.truth_total)));
-                        "HEC".ToList().ForEach(a => av.Add((pdb_id, chain_id, "dssp", nameof(atoms_all), a, (double)atoms_all.Count(b => b.monomer_dssp3 == a || b.monomer_dssp == a) / (double)atoms_all.Count, atoms_all.Count))); //"HECT"
+                        "HEC".ToList().ForEach(a => av.Add((pdb_id, chain_id, "dssp", nameof(atoms_all), a, (double)atoms_all.Count(b => b.dssp3_monomer == a || b.dssp_monomer == a) / (double)atoms_all.Count, atoms_all.Count))); //"HECT"
                     }
 
                     {
                         // non-interface
                         var atoms_non_interface = master_atoms.Where(a => a.strand_interface_type == '_').ToList();
                         var atoms_non_interface_mpsa = atoms_non_interface.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_non_interface_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_non_interface.Select((a, i) => ((m == '*' || atoms_non_interface[i].monomer_dssp3 == m || atoms_non_interface[i].monomer_dssp == m) && (atoms_non_interface[i].monomer_dssp3 == atoms_non_interface_mpsa[i].predicted_ss_code || atoms_non_interface[i].monomer_dssp == atoms_non_interface_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_non_interface.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_non_interface_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_non_interface.Select((a, i) => ((m == '*' || atoms_non_interface[i].dssp3_monomer == m || atoms_non_interface[i].dssp_monomer == m) && (atoms_non_interface[i].dssp3_monomer == atoms_non_interface_mpsa[i].predicted_ss_code || atoms_non_interface[i].dssp_monomer == atoms_non_interface_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_non_interface.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_non_interface_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_non_interface), a.ss, a.value, a.truth_total)));
-                        var atoms_non_interface_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_non_interface.Select((a, i) => ((m == '*' || atoms_non_interface[i].monomer_stride3 == m || atoms_non_interface[i].monomer_stride == m) && (atoms_non_interface[i].monomer_stride3 == atoms_non_interface_mpsa[i].predicted_ss_code || atoms_non_interface[i].monomer_stride == atoms_non_interface_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_non_interface.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_non_interface_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_non_interface.Select((a, i) => ((m == '*' || atoms_non_interface[i].stride3_monomer == m || atoms_non_interface[i].stride_monomer == m) && (atoms_non_interface[i].stride3_monomer == atoms_non_interface_mpsa[i].predicted_ss_code || atoms_non_interface[i].stride_monomer == atoms_non_interface_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_non_interface.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_non_interface_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_non_interface), a.ss, a.value, a.truth_total)));
                         var atoms_non_interface_mpsa_average = atoms_non_interface_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_non_interface_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_non_interface), a.ss, a.av, a.truth_total)));
@@ -869,9 +865,9 @@ namespace dimorphics_dataset
                         // dimrophic
                         var atoms_dimorphic_strand = master_atoms.Where((a, i) => a.strand_interface_type == 'S').ToList();
                         var atoms_dimorphic_strand_mpsa = atoms_dimorphic_strand.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_dimorphic_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand.Select((a, i) => ((m == '*' || atoms_dimorphic_strand[i].monomer_dssp3 == m || atoms_dimorphic_strand[i].monomer_dssp == m) && (atoms_dimorphic_strand[i].monomer_dssp3 == atoms_dimorphic_strand_mpsa[i].predicted_ss_code || atoms_dimorphic_strand[i].monomer_dssp == atoms_dimorphic_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_dimorphic_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand.Select((a, i) => ((m == '*' || atoms_dimorphic_strand[i].dssp3_monomer == m || atoms_dimorphic_strand[i].dssp_monomer == m) && (atoms_dimorphic_strand[i].dssp3_monomer == atoms_dimorphic_strand_mpsa[i].predicted_ss_code || atoms_dimorphic_strand[i].dssp_monomer == atoms_dimorphic_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_dimorphic_strand_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_dimorphic_strand), a.ss, a.value, a.truth_total)));
-                        var atoms_dimorphic_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand.Select((a, i) => ((m == '*' || atoms_dimorphic_strand[i].monomer_stride3 == m || atoms_dimorphic_strand[i].monomer_stride == m) && (atoms_dimorphic_strand[i].monomer_stride3 == atoms_dimorphic_strand_mpsa[i].predicted_ss_code || atoms_dimorphic_strand[i].monomer_stride == atoms_dimorphic_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_dimorphic_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand.Select((a, i) => ((m == '*' || atoms_dimorphic_strand[i].stride3_monomer == m || atoms_dimorphic_strand[i].stride_monomer == m) && (atoms_dimorphic_strand[i].stride3_monomer == atoms_dimorphic_strand_mpsa[i].predicted_ss_code || atoms_dimorphic_strand[i].stride_monomer == atoms_dimorphic_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_dimorphic_strand_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_dimorphic_strand), a.ss, a.value, a.truth_total)));
 
                         var atoms_dimorphic_strand_mpsa_average = atoms_dimorphic_strand_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
@@ -890,9 +886,9 @@ namespace dimorphics_dataset
                             return false;
                         }).ToList();
                         var atoms_dimorphic_strand_flanking_mpsa = atoms_dimorphic_strand_flanking.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_dimorphic_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand_flanking.Select((a, i) => ((m == '*' || atoms_dimorphic_strand_flanking[i].monomer_dssp3 == m || atoms_dimorphic_strand_flanking[i].monomer_dssp == m) && (atoms_dimorphic_strand_flanking[i].monomer_dssp3 == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code || atoms_dimorphic_strand_flanking[i].monomer_dssp == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand_flanking.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_dimorphic_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand_flanking.Select((a, i) => ((m == '*' || atoms_dimorphic_strand_flanking[i].dssp3_monomer == m || atoms_dimorphic_strand_flanking[i].dssp_monomer == m) && (atoms_dimorphic_strand_flanking[i].dssp3_monomer == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code || atoms_dimorphic_strand_flanking[i].dssp_monomer == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand_flanking.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_dimorphic_strand_flanking_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_dimorphic_strand_flanking), a.ss, a.value, a.truth_total)));
-                        var atoms_dimorphic_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand_flanking.Select((a, i) => ((m == '*' || atoms_dimorphic_strand_flanking[i].monomer_stride3 == m || atoms_dimorphic_strand_flanking[i].monomer_stride == m) && (atoms_dimorphic_strand_flanking[i].monomer_stride3 == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code || atoms_dimorphic_strand_flanking[i].monomer_stride == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand_flanking.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_dimorphic_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_dimorphic_strand_flanking.Select((a, i) => ((m == '*' || atoms_dimorphic_strand_flanking[i].stride3_monomer == m || atoms_dimorphic_strand_flanking[i].stride_monomer == m) && (atoms_dimorphic_strand_flanking[i].stride3_monomer == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code || atoms_dimorphic_strand_flanking[i].stride_monomer == atoms_dimorphic_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_dimorphic_strand_flanking.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_dimorphic_strand_flanking_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_dimorphic_strand_flanking), a.ss, a.value, a.truth_total)));
                         var atoms_dimorphic_strand_flanking_mpsa_average = atoms_dimorphic_strand_flanking_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_dimorphic_strand_flanking_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_dimorphic_strand_flanking), a.ss, a.av, a.truth_total)));
@@ -902,9 +898,9 @@ namespace dimorphics_dataset
                         // standard
                         var atoms_standard_strand = master_atoms.Where((a, i) => a.strand_interface_type == 'M').ToList();
                         var atoms_standard_strand_mpsa = atoms_standard_strand.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_standard_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand.Select((a, i) => ((m == '*' || atoms_standard_strand[i].monomer_dssp3 == m || atoms_standard_strand[i].monomer_dssp == m) && (atoms_standard_strand[i].monomer_dssp3 == atoms_standard_strand_mpsa[i].predicted_ss_code || atoms_standard_strand[i].monomer_dssp == atoms_standard_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_standard_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand.Select((a, i) => ((m == '*' || atoms_standard_strand[i].dssp3_monomer == m || atoms_standard_strand[i].dssp_monomer == m) && (atoms_standard_strand[i].dssp3_monomer == atoms_standard_strand_mpsa[i].predicted_ss_code || atoms_standard_strand[i].dssp_monomer == atoms_standard_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_standard_strand_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_standard_strand), a.ss, a.value, a.truth_total)));
-                        var atoms_standard_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand.Select((a, i) => ((m == '*' || atoms_standard_strand[i].monomer_stride3 == m || atoms_standard_strand[i].monomer_stride == m) && (atoms_standard_strand[i].monomer_stride3 == atoms_standard_strand_mpsa[i].predicted_ss_code || atoms_standard_strand[i].monomer_stride == atoms_standard_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_standard_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand.Select((a, i) => ((m == '*' || atoms_standard_strand[i].stride3_monomer == m || atoms_standard_strand[i].stride_monomer == m) && (atoms_standard_strand[i].stride3_monomer == atoms_standard_strand_mpsa[i].predicted_ss_code || atoms_standard_strand[i].stride_monomer == atoms_standard_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_standard_strand_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_standard_strand), a.ss, a.value, a.truth_total)));
                         var atoms_standard_strand_mpsa_average = atoms_standard_strand_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_standard_strand_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_standard_strand), a.ss, a.av, a.truth_total)));
@@ -922,9 +918,9 @@ namespace dimorphics_dataset
                             return false;
                         }).ToList();
                         var atoms_standard_strand_flanking_mpsa = atoms_standard_strand_flanking.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_standard_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand_flanking.Select((a, i) => ((m == '*' || atoms_standard_strand_flanking[i].monomer_dssp3 == m || atoms_standard_strand_flanking[i].monomer_dssp == m) && (atoms_standard_strand_flanking[i].monomer_dssp3 == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code || atoms_standard_strand_flanking[i].monomer_dssp == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand_flanking.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_standard_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand_flanking.Select((a, i) => ((m == '*' || atoms_standard_strand_flanking[i].dssp3_monomer == m || atoms_standard_strand_flanking[i].dssp_monomer == m) && (atoms_standard_strand_flanking[i].dssp3_monomer == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code || atoms_standard_strand_flanking[i].dssp_monomer == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand_flanking.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_standard_strand_flanking_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_standard_strand_flanking), a.ss, a.value, a.truth_total)));
-                        var atoms_standard_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand_flanking.Select((a, i) => ((m == '*' || atoms_standard_strand_flanking[i].monomer_stride3 == m || atoms_standard_strand_flanking[i].monomer_stride == m) && (atoms_standard_strand_flanking[i].monomer_stride3 == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code || atoms_standard_strand_flanking[i].monomer_stride == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand_flanking.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_standard_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_standard_strand_flanking.Select((a, i) => ((m == '*' || atoms_standard_strand_flanking[i].stride3_monomer == m || atoms_standard_strand_flanking[i].stride_monomer == m) && (atoms_standard_strand_flanking[i].stride3_monomer == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code || atoms_standard_strand_flanking[i].stride_monomer == atoms_standard_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_standard_strand_flanking.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_standard_strand_flanking_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_standard_strand_flanking), a.ss, a.value, a.truth_total)));
                         var atoms_dimorphic_strand_flanking_mpsa_average = atoms_standard_strand_flanking_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_dimorphic_strand_flanking_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_standard_strand_flanking), a.ss, a.av, a.truth_total)));
@@ -940,9 +936,9 @@ namespace dimorphics_dataset
                         // hybrid
                         var atoms_hybrid_strand = master_atoms.Where((a, i) => a.strand_interface_type == 'H').ToList();
                         var atoms_hybrid_strand_mpsa = atoms_hybrid_strand.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_hybrid_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand.Select((a, i) => ((m == '*' || atoms_hybrid_strand[i].monomer_dssp3 == m || atoms_hybrid_strand[i].monomer_dssp == m) && (atoms_hybrid_strand[i].monomer_dssp3 == atoms_hybrid_strand_mpsa[i].predicted_ss_code || atoms_hybrid_strand[i].monomer_dssp == atoms_hybrid_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_hybrid_strand_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand.Select((a, i) => ((m == '*' || atoms_hybrid_strand[i].dssp3_monomer == m || atoms_hybrid_strand[i].dssp_monomer == m) && (atoms_hybrid_strand[i].dssp3_monomer == atoms_hybrid_strand_mpsa[i].predicted_ss_code || atoms_hybrid_strand[i].dssp_monomer == atoms_hybrid_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_hybrid_strand_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_hybrid_strand), a.ss, a.value, a.truth_total)));
-                        var atoms_hybrid_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand.Select((a, i) => ((m == '*' || atoms_hybrid_strand[i].monomer_stride3 == m || atoms_hybrid_strand[i].monomer_stride == m) && (atoms_hybrid_strand[i].monomer_stride3 == atoms_hybrid_strand_mpsa[i].predicted_ss_code || atoms_hybrid_strand[i].monomer_stride == atoms_hybrid_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_hybrid_strand_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand.Select((a, i) => ((m == '*' || atoms_hybrid_strand[i].stride3_monomer == m || atoms_hybrid_strand[i].stride_monomer == m) && (atoms_hybrid_strand[i].stride3_monomer == atoms_hybrid_strand_mpsa[i].predicted_ss_code || atoms_hybrid_strand[i].stride_monomer == atoms_hybrid_strand_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_hybrid_strand_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_hybrid_strand), a.ss, a.value, a.truth_total)));
                         var atoms_hybrid_strand_mpsa_average = atoms_hybrid_strand_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_hybrid_strand_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_hybrid_strand), a.ss, a.av, a.truth_total)));
@@ -960,9 +956,9 @@ namespace dimorphics_dataset
                             return false;
                         }).ToList();
                         var atoms_hybrid_strand_flanking_mpsa = atoms_hybrid_strand_flanking.SelectMany(a => a.mpsa_entries).Where(a => a.format == format).Select(a => a.mpsa_entry).ToArray();
-                        var atoms_hybrid_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand_flanking.Select((a, i) => ((m == '*' || atoms_hybrid_strand_flanking[i].monomer_dssp3 == m || atoms_hybrid_strand_flanking[i].monomer_dssp == m) && (atoms_hybrid_strand_flanking[i].monomer_dssp3 == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code || atoms_hybrid_strand_flanking[i].monomer_dssp == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand_flanking.Count(b => m == '*' || b.monomer_dssp3 == m || b.monomer_dssp == m))).ToList();
+                        var atoms_hybrid_strand_flanking_q3_dssp = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand_flanking.Select((a, i) => ((m == '*' || atoms_hybrid_strand_flanking[i].dssp3_monomer == m || atoms_hybrid_strand_flanking[i].dssp_monomer == m) && (atoms_hybrid_strand_flanking[i].dssp3_monomer == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code || atoms_hybrid_strand_flanking[i].dssp_monomer == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand_flanking.Count(b => m == '*' || b.dssp3_monomer == m || b.dssp_monomer == m))).ToList();
                         atoms_hybrid_strand_flanking_q3_dssp.ForEach(a => q3.Add((pdb_id, chain_id, "dssp", format, nameof(atoms_hybrid_strand_flanking), a.ss, a.value, a.truth_total)));
-                        var atoms_hybrid_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand_flanking.Select((a, i) => ((m == '*' || atoms_hybrid_strand_flanking[i].monomer_stride3 == m || atoms_hybrid_strand_flanking[i].monomer_stride == m) && (atoms_hybrid_strand_flanking[i].monomer_stride3 == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code || atoms_hybrid_strand_flanking[i].monomer_stride == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand_flanking.Count(b => m == '*' || b.monomer_stride3 == m || b.monomer_stride == m))).ToList();
+                        var atoms_hybrid_strand_flanking_q3_stride = "HEC*".Select(m => (ss: m, value: (double)atoms_hybrid_strand_flanking.Select((a, i) => ((m == '*' || atoms_hybrid_strand_flanking[i].stride3_monomer == m || atoms_hybrid_strand_flanking[i].stride_monomer == m) && (atoms_hybrid_strand_flanking[i].stride3_monomer == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code || atoms_hybrid_strand_flanking[i].stride_monomer == atoms_hybrid_strand_flanking_mpsa[i].predicted_ss_code)) ? 1 : 0).Sum(), truth_total: (double)atoms_hybrid_strand_flanking.Count(b => m == '*' || b.stride3_monomer == m || b.stride_monomer == m))).ToList();
                         atoms_hybrid_strand_flanking_q3_stride.ForEach(a => q3.Add((pdb_id, chain_id, "stride", format, nameof(atoms_hybrid_strand_flanking), a.ss, a.value, a.truth_total)));
                         var atoms_hybrid_strand_flanking_mpsa_average = atoms_hybrid_strand_flanking_mpsa.SelectMany(a => a.line_prob_values).GroupBy(a => a.ss).Select(a => (ss: a.Key, av: a.Select(b => b.value).Average(), truth_total: a.Count())).ToList();
                         atoms_hybrid_strand_flanking_mpsa_average.ForEach(a => av.Add((pdb_id, chain_id, format, nameof(atoms_hybrid_strand_flanking), a.ss, a.av, a.truth_total)));
@@ -1085,15 +1081,15 @@ namespace dimorphics_dataset
                 
             var aa_seq = string.Join("", master_atoms.Select(a => a.amino_acid).ToList());
 
-            var monomer_dssp_seq = string.Join("", master_atoms.Select(a => a.monomer_dssp).ToList());
-            var monomer_stride_seq = string.Join("", master_atoms.Select(a => a.monomer_stride).ToList());
-            var monomer_dssp3_seq = string.Join("", master_atoms.Select(a => a.monomer_dssp3).ToList());
-            var monomer_stride3_seq = string.Join("", master_atoms.Select(a => a.monomer_stride3).ToList());
+            var monomer_dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_monomer).ToList());
+            var monomer_stride_seq = string.Join("", master_atoms.Select(a => a.stride_monomer).ToList());
+            var monomer_dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToList());
+            var monomer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToList());
 
-            var multimer_dssp_seq = string.Join("", master_atoms.Select(a => a.multimer_dssp).ToList());
+            var multimer_dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_multimer).ToList());
             var multimer_stride_seq = string.Join("", master_atoms.Select(a => a.multimer_stride).ToList());
-            var multimer_dssp3_seq = string.Join("", master_atoms.Select(a => a.multimer_dssp3).ToList());
-            var multimer_stride3_seq = string.Join("", master_atoms.Select(a => a.multimer_stride3).ToList());
+            var multimer_dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_multimer).ToList());
+            var multimer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_multimer).ToList());
 
             if (get_dssp_and_mpsa_subsequences_params.HasFlag(enum_get_dssp_and_mpsa_subsequences_params.aa_seq)) { result.Add((nameof(aa_seq), aa_seq)); }
 
@@ -1267,11 +1263,11 @@ namespace dimorphics_dataset
 
             return group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, ss_sequence: String.Join("", a.atom_list.Select(b =>
             {
-                if (ss_type == enum_ss_type.DSSP) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_dssp : b.monomer_dssp;
-                if (ss_type == enum_ss_type.DSSP3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_dssp3 : b.monomer_dssp3;
+                if (ss_type == enum_ss_type.DSSP) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp_multimer : b.dssp_monomer;
+                if (ss_type == enum_ss_type.DSSP3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp3_multimer : b.dssp3_monomer;
 
-                if (ss_type == enum_ss_type.STRIDE) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_stride : b.monomer_stride;
-                if (ss_type == enum_ss_type.STRIDE3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_stride3 : b.monomer_stride3;
+                if (ss_type == enum_ss_type.STRIDE) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.multimer_stride : b.stride_monomer;
+                if (ss_type == enum_ss_type.STRIDE3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.stride3_multimer : b.stride3_monomer;
                 return ' ';
             }).ToList()))).ToList();
         }
@@ -1591,14 +1587,14 @@ namespace dimorphics_dataset
                 {
                     var multimer_dssp = multimer_dssp_list.FirstOrDefault(a => (a.Chain == atom.chain_id) && (a.PdbResidueSequenceIndex.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()) && (a.iCode == atom.i_code));
 
-                    atom.multimer_dssp = multimer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
-                    atom.multimer_dssp3 = secondary_structure_state_reduction(atom.multimer_dssp);
+                    atom.dssp_multimer = multimer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
+                    atom.dssp3_multimer = secondary_structure_state_reduction(atom.dssp_multimer);
                 }
                 {
                     var monomer_dssp = monomer_dssp_list.FirstOrDefault(a => (a.Chain == atom.chain_id) && (a.PdbResidueSequenceIndex.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()) && (a.iCode == atom.i_code));
 
-                    atom.monomer_dssp = monomer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
-                    atom.monomer_dssp3 = secondary_structure_state_reduction(atom.monomer_dssp);
+                    atom.dssp_monomer = monomer_dssp?.SecondaryStructure ?? info_dssp.dssp_record.dssp_default_secondary_structure;
+                    atom.dssp3_monomer = secondary_structure_state_reduction(atom.dssp_monomer);
                 }
             }
         }
@@ -1639,13 +1635,13 @@ namespace dimorphics_dataset
                     var multimer_stride = stride_multimer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
 
                     atom.multimer_stride = multimer_stride?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
-                    atom.multimer_stride3 = secondary_structure_state_reduction(atom.multimer_stride);
+                    atom.stride3_multimer = secondary_structure_state_reduction(atom.multimer_stride);
                 }
                 {
-                    var monomer_stride = stride_monomer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
+                    var stride_monomer = stride_monomer_list.FirstOrDefault(a => (a.ProteinChainIdentifier.Trim() == atom.chain_id.ToString(CultureInfo.InvariantCulture).Trim()) && (a.PdbResidueNumber.Trim() == atom.residue_index.ToString(CultureInfo.InvariantCulture).Trim()));
 
-                    atom.monomer_stride = monomer_stride?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
-                    atom.monomer_stride3 = secondary_structure_state_reduction(atom.monomer_stride);
+                    atom.stride_monomer = stride_monomer?.OneLetterSecondaryStructureCode?[0] ?? info_stride.Stride_DetailedSecondaryStructureAssignments.stride_default_secondary_structure;
+                    atom.stride3_monomer = secondary_structure_state_reduction(atom.stride_monomer);
                 }
             }
         }
@@ -1706,7 +1702,7 @@ namespace dimorphics_dataset
 
         public static double measure_atomic_linear_distance(List<atom> atoms)
         {
-            atoms = select_amino_acid_master_atoms(null, atoms);
+            //atoms = select_amino_acid_master_atoms(null, atoms);
 
             var atom1 = atoms.First();
             var atom2 = atoms.Last();
@@ -1720,7 +1716,7 @@ namespace dimorphics_dataset
         {
             // atoms must be in correct order
             // measures the distance in angstrom of the curve
-            atoms = select_amino_acid_master_atoms(null, atoms);
+            //atoms = select_amino_acid_master_atoms(null, atoms);
 
             var curve_distances = new double[atoms.Count - 1];
             for (var index = 0; index < atoms.Count - 1; index++)
@@ -1742,7 +1738,7 @@ namespace dimorphics_dataset
             }
 
 
-            atoms = select_amino_acid_master_atoms(null, atoms); // note: atoms parameter should already be passed as master atoms
+            //atoms = select_amino_acid_master_atoms(null, atoms); // note: atoms parameter should already be passed as master atoms
 
             var distance_of_curve = measure_atomic_curve_distance(atoms);
 
@@ -1750,7 +1746,7 @@ namespace dimorphics_dataset
 
             var displacement = measure_atomic_linear_distance(atoms);
 
-            var tortuosity1 = distance_of_curve / displacement;
+            var tortuosity1 = displacement == 0 ? 0d : (distance_of_curve / displacement);
 
             return (displacement, distance_of_curve, tortuosity1);
         }
@@ -1775,7 +1771,7 @@ namespace dimorphics_dataset
             //    return (null, null, null);
             //}
 
-            atoms = select_amino_acid_master_atoms(null, atoms);
+            //atoms = select_amino_acid_master_atoms(null, atoms);
 
 
 
@@ -1784,7 +1780,11 @@ namespace dimorphics_dataset
             if (atoms != null && atoms.Count >= 2)
             {
                 var pairs = atoms.SelectMany((a, x) => atoms.Where((b, y) => x < y).Select((b, y) => (atom1: a, atom2: b)).ToList()).ToList();
-                distances = pairs.Select(a => (curve_distance: measure_atomic_curve_distance(list_subsection_from_obj_to_obj(atoms, a.atom1, a.atom2)), displacement_distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z))).ToArray();
+                distances = pairs.Select(a => 
+                    (
+                        curve_distance: measure_atomic_curve_distance(list_subsection_from_obj_to_obj(atoms, a.atom1, a.atom2)), 
+                        displacement_distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z)
+                        )).ToArray();
             }
 
             // linear_distance / linear_list / linear_stat_values --> list of distances between all pairs of atoms, then averaged
@@ -1870,340 +1870,21 @@ namespace dimorphics_dataset
         }
         */
 
-        public static List<(atom atom1, atom atom2, double distance)> get_master_to_master_contacts(string pdb_id, List<atom> atoms, string atom_type = null)
-        {
-            if (atoms == null)
-            {
-                throw new ArgumentNullException(nameof(atoms));
-            }
+        //public static List<(atom atom1, atom atom2, double distance)> get_master_to_master_contacts(string pdb_id, List<atom> atoms, string atom_type = null)
+        //{
+        //    if (atoms == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(atoms));
+        //    }
 
-            var master_atoms = select_amino_acid_master_atoms(pdb_id, atoms, atom_type);
+        //    var master_atoms = select_amino_acid_master_atoms(pdb_id, atoms, atom_type);
 
-            var pairs = master_atoms.SelectMany((a, x) => master_atoms.Where((b, y) => x < y).Select((b, y) => (atom1: a, atom2: b)).ToList()).ToList();
+        //    var pairs = master_atoms.SelectMany((a, x) => master_atoms.Where((b, y) => x < y).Select((b, y) => (atom1: a, atom2: b)).ToList()).ToList();
 
-            var pair_distances = pairs.Select(a => (atom1: a.atom1, atom2: a.atom2, distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z))).ToList();
+        //    var pair_distances = pairs.Select(a => (atom1: a.atom1, atom2: a.atom2, distance: Distance3D(a.atom1.X, a.atom1.Y, a.atom1.Z, a.atom2.X, a.atom2.Y, a.atom2.Z))).ToList();
 
-            return pair_distances;
+        //    return pair_distances;
 
-        }
-
-        public static subsequence_classification_data get_intramolecular_protein_1d(subsequence_classification_data subsequence_data)
-        {
-            if (subsequence_data == null)
-            {
-                throw new ArgumentNullException(nameof(subsequence_data));
-            }
-
-            var result = new subsequence_classification_data()
-            {
-                pdb_id = subsequence_data.pdb_id,
-                chain_id = subsequence_data.chain_id,
-                class_id = subsequence_data.class_id,
-                class_name = subsequence_data.class_name,
-
-                dimer_type = subsequence_data.dimer_type,
-                parallelism = subsequence_data.parallelism,
-                symmetry_mode = subsequence_data.symmetry_mode,
-
-                aa_subsequence = null,
-                res_ids = null,
-
-                dssp_monomer_subsequence = null,
-                dssp_multimer_subsequence = null,
-
-                stride_monomer_subsequence = null,
-                stride_multimer_subsequence = null,
-
-                subsequence_atoms = subsequence_data.pdb_chain_atoms,
-                subsequence_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                pdb_chain_atoms = subsequence_data.pdb_chain_atoms,
-                pdb_chain_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                parent = subsequence_data,
-
-                foldx_energy_differences = null
-            };
-
-
-
-            var nh_sequence_list = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.DSSP);
-            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.STRIDE);
-            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.STRIDE);
-
-            result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
-            result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
-            result.dssp_monomer_subsequence = (nh_dssp_monomer_list.Count > 0) ? nh_dssp_monomer_list.First().ss_sequence : null;
-            result.dssp_multimer_subsequence = (nh_dssp_multimer_list.Count > 0) ? nh_dssp_multimer_list.First().ss_sequence : null;
-            result.stride_monomer_subsequence = (nh_stride_monomer_list.Count > 0) ? nh_stride_monomer_list.First().ss_sequence : null;
-            result.stride_multimer_subsequence = (nh_stride_multimer_list.Count > 0) ? nh_stride_multimer_list.First().ss_sequence : null;
-
-            return result;
-        }
-
-        public static subsequence_classification_data get_intramolecular_neighbourhood_1d(subsequence_classification_data subsequence_data, int neighbourhood_flanking_size = 6)
-        {
-            if (subsequence_data == null)
-            {
-                throw new ArgumentNullException(nameof(subsequence_data));
-            }
-
-            if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)
-            {
-                throw new Exception("Number must be divisible by both 2 and 3");
-            }
-
-            var result = new subsequence_classification_data()
-            {
-                pdb_id = subsequence_data.pdb_id,
-                chain_id = subsequence_data.chain_id,
-                class_id = subsequence_data.class_id,
-                class_name = subsequence_data.class_name,
-
-                dimer_type = subsequence_data.dimer_type,
-                parallelism = subsequence_data.parallelism,
-                symmetry_mode = subsequence_data.symmetry_mode,
-
-                aa_subsequence = null,
-                res_ids = null,
-
-                dssp_monomer_subsequence = null,
-                dssp_multimer_subsequence = null,
-
-                stride_monomer_subsequence = null,
-                stride_multimer_subsequence = null,
-
-                subsequence_atoms = null,
-                subsequence_master_atoms = null,
-
-                pdb_chain_atoms = subsequence_data.pdb_chain_atoms,
-                pdb_chain_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                parent = subsequence_data,
-
-                foldx_energy_differences = null
-            };
-
-
-            // returns the neighbours of a primary amino acid sequence
-            var subsequence_atoms_array_indexes = subsequence_data.subsequence_master_atoms.Select(a => subsequence_data.pdb_chain_master_atoms.IndexOf(a)).Where(a => a != -1).ToList();
-            var start_array_index = subsequence_atoms_array_indexes.Min(); // first res_id in interface or subseq
-            var end_array_index = subsequence_atoms_array_indexes.Max(); // last res_id in interface or subseq
-
-            var all_array_indexes = subsequence_data.subsequence_master_atoms.Select(a => a.residue_index).ToList();
-            var total_indexes_before_start = all_array_indexes.Count(a => a < start_array_index);
-            var total_indexes_after_end = all_array_indexes.Count(a => a > end_array_index);
-
-            var neighbourhood_size_before_start = neighbourhood_flanking_size;
-            var neighbourhood_size_after_end = neighbourhood_flanking_size;
-
-            if (total_indexes_before_start < neighbourhood_flanking_size && total_indexes_after_end > neighbourhood_flanking_size)
-            {
-                neighbourhood_size_after_end = neighbourhood_size_after_end + (neighbourhood_flanking_size - total_indexes_before_start);
-            }
-
-            if (total_indexes_after_end < neighbourhood_flanking_size && total_indexes_before_start > neighbourhood_flanking_size)
-            {
-                neighbourhood_size_before_start = neighbourhood_size_before_start + (neighbourhood_flanking_size - total_indexes_after_end);
-            }
-
-            result.subsequence_master_atoms = subsequence_data.pdb_chain_master_atoms.Where((a, i) => (i >= start_array_index - neighbourhood_size_before_start && i < start_array_index) || (i > end_array_index && i <= end_array_index + neighbourhood_size_after_end)).Except(subsequence_data.subsequence_atoms).ToList();
-
-
-            result.subsequence_atoms = result.subsequence_master_atoms.SelectMany(a => a.amino_acid_atoms).Distinct().ToList();
-
-            result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
-
-            var nh_sequence_list = atom.amino_acid_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.DSSP);
-            var nh_dssp_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.STRIDE);
-            var nh_stride_monomer_list = atom.ss_sequence(subsequence_data.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.STRIDE);
-
-            result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
-            result.dssp_multimer_subsequence = (nh_dssp_multimer_list.Count > 0) ? nh_dssp_multimer_list.First().ss_sequence : null;
-            result.dssp_monomer_subsequence = (nh_dssp_monomer_list.Count > 0) ? nh_dssp_monomer_list.First().ss_sequence : null;
-            result.stride_multimer_subsequence = (nh_stride_multimer_list.Count > 0) ? nh_stride_multimer_list.First().ss_sequence : null;
-            result.stride_monomer_subsequence = (nh_stride_monomer_list.Count > 0) ? nh_stride_monomer_list.First().ss_sequence : null;
-
-
-            return result;
-        }
-
-        public static subsequence_classification_data get_intramolecular_protein_3d(subsequence_classification_data subsequence_data)
-        {
-            if (subsequence_data == null)
-            {
-                throw new ArgumentNullException(nameof(subsequence_data));
-            }
-
-            var result = new subsequence_classification_data()
-            {
-                pdb_id = subsequence_data.pdb_id,
-                chain_id = subsequence_data.chain_id,
-                class_id = subsequence_data.class_id,
-                class_name = subsequence_data.class_name,
-
-                dimer_type = subsequence_data.dimer_type,
-                parallelism = subsequence_data.parallelism,
-                symmetry_mode = subsequence_data.symmetry_mode,
-
-                aa_subsequence = null,
-                res_ids = null,
-
-                dssp_monomer_subsequence = null,
-                dssp_multimer_subsequence = null,
-
-                stride_monomer_subsequence = null,
-                stride_multimer_subsequence = null,
-
-                subsequence_atoms = subsequence_data.pdb_chain_atoms,
-                subsequence_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                pdb_chain_atoms = subsequence_data.pdb_chain_atoms,
-                pdb_chain_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                parent = subsequence_data,
-
-                foldx_energy_differences = null
-            };
-
-            var protein_sequence_list = atom.amino_acid_sequence(result.pdb_id, result.subsequence_master_atoms);
-            var protein_dssp_multimer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.DSSP);
-            var protein_dssp_monomer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.DSSP);
-            var protein_stride_multimer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.STRIDE);
-            var protein_stride_monomer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.STRIDE);
-
-            result.aa_subsequence = (protein_sequence_list.Count > 0) ? protein_sequence_list.First().aa_sequence : null;
-            result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
-            result.dssp_monomer_subsequence = (protein_dssp_monomer_list.Count > 0) ? protein_dssp_monomer_list.First().ss_sequence : null;
-            result.dssp_multimer_subsequence = (protein_dssp_multimer_list.Count > 0) ? protein_dssp_multimer_list.First().ss_sequence : null;
-            result.stride_monomer_subsequence = (protein_stride_monomer_list.Count > 0) ? protein_stride_monomer_list.First().ss_sequence : null;
-            result.stride_multimer_subsequence = (protein_stride_multimer_list.Count > 0) ? protein_stride_multimer_list.First().ss_sequence : null;
-
-            var fx = info_foldx.load_calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, enum_protein_data_source.protein_3d);
-            result.foldx_energy_differences = fx;
-
-            // todo: check fx isn't empty for neighbourhood / protein
-
-            return result;
-        }
-
-        public static subsequence_classification_data get_intramolecular_neighbourhood_3d(subsequence_classification_data subsequence_data, double max_dist = (double)5.0, bool keep_source = false)
-        {
-            if (subsequence_data == null)
-            {
-                throw new ArgumentNullException(nameof(subsequence_data));
-            }
-
-            if (max_dist > 8.0)
-            {
-                throw new Exception("the specified maximum atomic distance is too long for contacts");
-            }
-
-            var result = new subsequence_classification_data()
-            {
-                pdb_id = subsequence_data.pdb_id,
-                chain_id = subsequence_data.chain_id,
-                class_id = subsequence_data.class_id,
-                class_name = subsequence_data.class_name,
-
-                dimer_type = subsequence_data.dimer_type,
-                parallelism = subsequence_data.parallelism,
-                symmetry_mode = subsequence_data.symmetry_mode,
-
-                aa_subsequence = null,
-                res_ids = null,
-
-                dssp_monomer_subsequence = null,
-                dssp_multimer_subsequence = null,
-
-                stride_monomer_subsequence = null,
-                stride_multimer_subsequence = null,
-
-                subsequence_atoms = null,
-                subsequence_master_atoms = null,
-
-                pdb_chain_atoms = subsequence_data.pdb_chain_atoms,
-                pdb_chain_master_atoms = subsequence_data.pdb_chain_master_atoms,
-
-                parent = subsequence_data,
-            };
-
-            // returns the 3d contact neighbours of a sequence
-            //var all_3d_contacts = subsequence_data.subsequence_atoms.SelectMany(a => a.amino_acid_atoms.SelectMany(b => b.contact_map_intramolecular).ToList()).Distinct().OrderBy(a => a.distance).ToList();
-
-            var contact_table = subsequence_data.subsequence_atoms.First().intramolecular_contact_table;
-
-            var contact_indexes = new List<int>();
-            foreach (var atom in subsequence_data.subsequence_atoms)
-            {
-                var distances = contact_table[atom.intramolecular_contact_table_index];
-
-                for (var i = 0; i < distances.Length; i++)
-                {
-                    if (i == atom.intramolecular_contact_table_index) continue;
-
-                    if (distances[i] <= max_dist)
-                    {
-                        contact_indexes.Add(i);
-                    }
-                }
-            }
-
-            // get list of contacts
-            var neighbourhood_3d_contacts = subsequence_data.pdb_chain_atoms.Where(a => contact_indexes.Contains(a.intramolecular_contact_table_index)).ToList();
-
-            if (!keep_source)
-            {
-                // remove the source of the contacts
-                neighbourhood_3d_contacts = neighbourhood_3d_contacts.Except(subsequence_data.subsequence_atoms).ToList();
-            }
-            else
-            {
-                // add the source contacts
-                neighbourhood_3d_contacts = neighbourhood_3d_contacts.Union(subsequence_data.subsequence_atoms).ToList();
-            }
-
-            // get only contacts or contacts plus all atoms of those contacts?
-            neighbourhood_3d_contacts = neighbourhood_3d_contacts.Distinct().SelectMany(a => a.amino_acid_atoms).Distinct().OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code).ToList();
-
-            // todo: check neighbourhood_3d_contacts res ids are near the interface... sanity/bug check.
-
-
-            //var neighbourhood_3d_master_contacts = neighbourhood_3d_contacts.Select(a => a.amino_acid_master_atom).Distinct().ToList();
-
-            //var neighbourhood_3d_contacts = all_3d_contacts.Where(a => a.distance <= max_dist).Select(a => a.atom.amino_acid_master_atom).Distinct().ToList(); //.Take(10).ToList();
-            //var min_3d_nh_length = 3;
-            //if (neighbourhood_3d_master_contacts.Count < min_3d_nh_length)
-            //{
-            //    neighbourhood_3d_master_contacts = all_3d_contacts.Select(a => a.atom.amino_acid_master_atom).Distinct().Take(min_3d_nh_length).ToList();
-            //}
-            //neighbourhood_3d_master_contacts = neighbourhood_3d_master_contacts.Select(a => a.amino_acid_master_atom).Distinct().ToList();
-
-            result.subsequence_atoms = neighbourhood_3d_contacts;
-            result.subsequence_master_atoms = atom.select_amino_acid_master_atoms(result.pdb_id, result.subsequence_atoms)/*.Except(subsequence_data.subsequence_atoms)*/.ToList();
-            result.res_ids = result.subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
-
-            var nh_sequence_list = atom.amino_acid_sequence(result.pdb_id, result.subsequence_master_atoms);
-            var nh_dssp_multimer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.DSSP);
-            var nh_dssp_monomer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.DSSP);
-            var nh_stride_multimer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.multimer, enum_ss_type.STRIDE);
-            var nh_stride_monomer_list = atom.ss_sequence(result.pdb_id, result.subsequence_master_atoms, enum_structure_oligomisation.monomer, enum_ss_type.STRIDE);
-
-            result.aa_subsequence = (nh_sequence_list.Count > 0) ? nh_sequence_list.First().aa_sequence : null;
-            result.dssp_multimer_subsequence = (nh_dssp_multimer_list.Count > 0) ? nh_dssp_multimer_list.First().ss_sequence : null;
-            result.dssp_monomer_subsequence = (nh_dssp_monomer_list.Count > 0) ? nh_dssp_monomer_list.First().ss_sequence : null;
-            result.stride_multimer_subsequence = (nh_stride_multimer_list.Count > 0) ? nh_stride_multimer_list.First().ss_sequence : null;
-            result.stride_monomer_subsequence = (nh_stride_monomer_list.Count > 0) ? nh_stride_monomer_list.First().ss_sequence : null;
-
-            var fx = info_foldx.load_calc_energy_differences(result.pdb_id, result.chain_id, result.res_ids, false, enum_protein_data_source.neighbourhood_3d);
-            result.foldx_energy_differences = fx;
-
-            // todo: check fx isn't empty for neighbourhood / protein
-            return result;
-        }
+        //}
     }
 }

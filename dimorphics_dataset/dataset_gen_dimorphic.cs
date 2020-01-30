@@ -267,11 +267,11 @@ namespace dimorphics_dataset
 
             if (include_host_coil)
             {
-                var continuous_strand1 = (use_dssp3 ? pdb_chain_master_atoms[strand_sequence_first_index].multimer_dssp3 : pdb_chain_master_atoms[strand_sequence_first_index].multimer_dssp) == 'E';
+                var continuous_strand1 = (use_dssp3 ? pdb_chain_master_atoms[strand_sequence_first_index].dssp3_multimer : pdb_chain_master_atoms[strand_sequence_first_index].dssp_multimer) == 'E';
 
                 for (var i = strand_sequence_first_index - 1; i >= 0; i--)
                 {
-                    var index_dssp_code = use_dssp3 ? pdb_chain_master_atoms[i].multimer_dssp3 : pdb_chain_master_atoms[i].multimer_dssp;
+                    var index_dssp_code = use_dssp3 ? pdb_chain_master_atoms[i].dssp3_multimer : pdb_chain_master_atoms[i].dssp_multimer;
 
                     continuous_strand1 = continuous_strand1 && index_dssp_code == 'E';
 
@@ -290,11 +290,11 @@ namespace dimorphics_dataset
 
             if (include_host_coil)
             {
-                var continuous_strand2 = (use_dssp3 ? pdb_chain_master_atoms[strand_sequence_last_index].multimer_dssp3 : pdb_chain_master_atoms[strand_sequence_last_index].multimer_dssp) == 'E';
+                var continuous_strand2 = (use_dssp3 ? pdb_chain_master_atoms[strand_sequence_last_index].dssp3_multimer : pdb_chain_master_atoms[strand_sequence_last_index].dssp_multimer) == 'E';
 
                 for (var i = strand_sequence_last_index + 1; i < pdb_chain_master_atoms.Count; i++)
                 {
-                    var index_dssp_code = use_dssp3 ? pdb_chain_master_atoms[i].multimer_dssp3 : pdb_chain_master_atoms[i].multimer_dssp;
+                    var index_dssp_code = use_dssp3 ? pdb_chain_master_atoms[i].dssp3_multimer : pdb_chain_master_atoms[i].dssp_multimer;
 
                     continuous_strand2 = continuous_strand2 && index_dssp_code == 'E';
 
@@ -324,11 +324,11 @@ namespace dimorphics_dataset
 
             var shc_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
 
-            var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList());
-            var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList());
+            var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
+            var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
 
             var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.multimer_stride).ToList());
-            var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.monomer_stride).ToList());
+            var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
 
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;
 
@@ -348,6 +348,9 @@ namespace dimorphics_dataset
                 symmetry_mode = symmetry_mode,
                 res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                 aa_subsequence = shc_sequence,
+                aa_before = "",
+                aa_after = "",
+                aa_protein = strand_protein
             };
 
 

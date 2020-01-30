@@ -180,8 +180,8 @@ namespace dimorphics_dataset
                 var master_atoms = atom.select_amino_acid_master_atoms_ignore_chain(pdb_id, ch.pdb_model_chain_atoms);
 
                 var seq = String.Concat(master_atoms.Select(a => a.amino_acid).ToList());
-                var dssp = String.Concat(master_atoms.Select(a => a.multimer_dssp3).ToList());
-                var stride = String.Concat(master_atoms.Select(a => a.multimer_stride3).ToList());
+                var dssp = String.Concat(master_atoms.Select(a => a.dssp3_multimer).ToList());
+                var stride = String.Concat(master_atoms.Select(a => a.stride3_multimer).ToList());
 
                 var match_indexes = feature_calcs.IndexOfAll(seq, subsequence);
 
@@ -196,8 +196,8 @@ namespace dimorphics_dataset
                     //var match_stride = stride.Substring(match_index, subsequence.Length);
 
                     var match_seq = String.Concat(match_atoms.Select(a => a.amino_acid).ToList());
-                    var match_dssp = String.Concat(match_atoms.Select(a => a.multimer_dssp3).ToList());
-                    var match_stride = String.Concat(match_atoms.Select(a => a.multimer_stride3).ToList());
+                    var match_dssp = String.Concat(match_atoms.Select(a => a.dssp3_multimer).ToList());
+                    var match_stride = String.Concat(match_atoms.Select(a => a.stride3_multimer).ToList());
 
                     var res_id_first = match_atoms.Min(a => a.residue_index);
 
