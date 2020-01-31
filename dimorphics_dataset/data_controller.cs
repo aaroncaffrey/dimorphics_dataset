@@ -210,7 +210,7 @@ namespace dimorphics_dataset
                 comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp3_multimer)}");
                 comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_monomer)}");
                 comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_multimer)}");
-                comment_headers.AddRange(region.region.ss_predictions.Select(a => $@"{region.region_name}_{a.format}").ToList());
+                comment_headers.AddRange(region.region?.ss_predictions?.Select(a => $@"{region.region_name}_{a.format}").ToList() ?? new List<string>());
             }
 
             return comment_headers;
@@ -238,7 +238,7 @@ namespace dimorphics_dataset
                 row_comments.Add($"{(region.region.dssp3_multimer)}");
                 row_comments.Add($"{(region.region.dssp_monomer)}");
                 row_comments.Add($"{(region.region.dssp_multimer)}");
-                row_comments.AddRange(region.region.ss_predictions.Select(a => a.prediction).ToList());
+                row_comments.AddRange(region.region?.ss_predictions?.Select(a => a.prediction).ToList() ?? new List<string>());
             }
             
             return row_comments;
