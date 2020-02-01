@@ -52,23 +52,33 @@ namespace dimorphics_dataset
             return ok;
         }
 
+        public List<(string key, string value)> AsArray(bool include_value = false)
+        {
+            var data = new List<(string key, string value)>
+            {
+                (nameof(alphabet), alphabet),
+                (nameof(dimension), dimension.ToString(CultureInfo.InvariantCulture)),
+                (nameof(category), category),
+                (nameof(source), source),
+                (nameof(@group), @group),
+                (nameof(member), member),
+                (nameof(perspective), perspective)
+            };
+
+            if (include_value)
+            {
+                data.Add((nameof(feature_value), feature_value.ToString("G17", CultureInfo.InvariantCulture)));
+            }
+
+            return data;
+        }
 
 
         public override string ToString()
         {
             //var header_list_str_c = header_list.Select((a, fid) => $"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
 
-
-            var data = new List<(string key, string value)>
-                {
-                    (nameof(alphabet), alphabet),
-                    (nameof(dimension), dimension.ToString(CultureInfo.InvariantCulture)),
-                    (nameof(category), category),
-                    (nameof(source), source),
-                    (nameof(@group), @group),
-                    (nameof(member), member),
-                    (nameof(perspective), perspective)
-                };
+            var data = AsArray();
 
             //data.Add((nameof(feature_value), feature_value.ToString("G17", CultureInfo.InvariantCulture)));
 

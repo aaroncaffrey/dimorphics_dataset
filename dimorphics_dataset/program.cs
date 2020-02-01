@@ -329,7 +329,7 @@ namespace dimorphics_dataset
             {
                 first_model_only = true,
                 first_icode_only = true,
-
+                load_uniprot = false,
 
                 load_2d_mpsa_sec_struct_predictions = false,
                 load_2d_blast_pssms = false,
@@ -347,9 +347,23 @@ namespace dimorphics_dataset
 
             var aa_list = psi_list.AsParallel().AsOrdered().SelectMany(a =>
             {
-                var b =get_subsequence_classificiation_data(a, new feature_types(), null, pdb_opt,false,false);
-                return b.get_regions().Select(c => c.region.aa_sequence).Distinct().ToList();
+                var b = get_subsequence_classificiation_data(a, new feature_types(), null, pdb_opt, false, false);
+                
+                var c = b.get_regions().Select(c => c.region.aa_sequence).Distinct().ToList();
+
+                return c;
             }).Distinct().ToList();
+
+            aa_list = aa_list.Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList();
+
+            var r_protr_results = aa_list.AsParallel().AsOrdered().Select(a => (aa_seq:a, features:subsequence_classification_data_methods.call_r_protr(a))).ToList();
+            var r_peptides_results = aa_list.AsParallel().AsOrdered().Select(a => (aa_seq:a, features:subsequence_classification_data_methods.call_r_peptides(a))).ToList();
+
+            var r_protr_csv = r_protr_results.SelectMany(a => a.features.Select(b => $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList()).ToList();
+            io_proxy.WriteAllLines($@"e:\dataset\r_protr_cache.csv", r_protr_csv);
+
+            var r_peptides_csv = r_peptides_results.SelectMany(a => a.features.Select(b => $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList()).ToList();
+            io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
 
             Console.WriteLine();
         }

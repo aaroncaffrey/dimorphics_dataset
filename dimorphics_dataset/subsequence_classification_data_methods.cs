@@ -3593,12 +3593,12 @@ namespace dimorphics_dataset
                     var task = Task.Run(() =>
                     {
                         var alphabet_name = "Overall";
-                        var r_peptides_data = call_r_peptides(region.aa_sequence, alphabet_name, source); //r_peptides.get_values(seq);
+                        var r_peptides_data = call_r_peptides(region.aa_sequence/*, alphabet_name, source*/); //r_peptides.get_values(seq);
                         
                         r_peptides_data.ForEach(a =>
                         {
                             a.source = source.ToString();
-                            a.alphabet = "Overall";
+                            a.alphabet = alphabet_name;
                         });
 
 
@@ -3631,7 +3631,13 @@ namespace dimorphics_dataset
                     var task = Task.Run(() =>
                     {
                         var alphabet_name = "Overall";
-                        var r_protr_data = call_r_protr_data(region.aa_sequence, alphabet_name, source); //r_protr.get_values(seq);
+                        var r_protr_data = call_r_protr(region.aa_sequence/*, alphabet_name, source*/); //r_protr.get_values(seq);
+
+                        r_protr_data.ForEach(a =>
+                        {
+                            a.source = source.ToString();
+                            a.alphabet = alphabet_name;
+                        });
 
                         if (!check_headers(r_protr_data))
                         {
@@ -3672,14 +3678,14 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<feature_info> call_r_peptides(string sequence, string alphabet_name, enum_protein_data_source source)
+        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
         {
             if (sequence == null || sequence.Length == 0)
             {
                 if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
-                    subsequence_classification_data_templates._peptides_data_template = call_r_peptides("ALG", alphabet_name, source);
-                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._peptides_data_template = call_r_peptides("ALG"/*, alphabet_name, source*/);
+                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { /*a.source = "";*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._peptides_data_template == null)
@@ -3688,7 +3694,7 @@ namespace dimorphics_dataset
                 }
 
 
-                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString(),*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -3698,7 +3704,7 @@ namespace dimorphics_dataset
                 var cache_index = subsequence_classification_data_totals._peptides_cache.FindIndex(a => a.sequence == sequence);
                 if (cache_index > -1)
                 {
-                    var cached_item = subsequence_classification_data_totals._peptides_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
+                    var cached_item = subsequence_classification_data_totals._peptides_cache[cache_index].features.Select(a => new feature_info(a) { /*alphabet = alphabet_name, source = source.ToString()*/ }).ToList();
 
 
                     if (cached_item != null && cached_item.Count > 0)
@@ -3782,30 +3788,27 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._peptides_data_template == null)
             {
-                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { /*source = "",*/ feature_value = 0 }).ToList();
             }
 
-            result.ForEach(a =>
-            {
-                a.source = source.ToString();
-                a.alphabet = alphabet_name;
-            });
+            //result.ForEach(a =>
+            //{
+            //    a.source = source.ToString();
+            //    a.alphabet = alphabet_name;
+            //});
 
 
             return result;
         }
 
-
-
-
-        public static List<feature_info> call_r_protr_data(string sequence, string alphabet_name, enum_protein_data_source source)
+        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
         {
             if (sequence == null || sequence.Length == 0)
             {
                 if (subsequence_classification_data_templates._protr_data_template == null)
                 {
-                    subsequence_classification_data_templates._protr_data_template = call_r_protr_data("ALG", alphabet_name, source);
-                    subsequence_classification_data_templates._protr_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._protr_data_template = call_r_protr("ALG"/*, alphabet_name, source*/);
+                    subsequence_classification_data_templates._protr_data_template.ForEach(a => {/* a.source = "";*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._protr_data_template == null)
@@ -3813,7 +3816,7 @@ namespace dimorphics_dataset
                     throw new Exception();
                 }
 
-                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString(), feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString(),*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -3823,7 +3826,7 @@ namespace dimorphics_dataset
                 var cache_index = subsequence_classification_data_totals._protr_cache.FindIndex(a => a.sequence == sequence);
                 if (cache_index > -1)
                 {
-                    var cached_item = subsequence_classification_data_totals._protr_cache[cache_index].features.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source.ToString() }).ToList();
+                    var cached_item = subsequence_classification_data_totals._protr_cache[cache_index].features.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString()*/ }).ToList();
 
                     if (cached_item != null && cached_item.Count > 0)
                     {
@@ -3911,11 +3914,11 @@ namespace dimorphics_dataset
                 subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
 
-            result.ForEach(a =>
-            {
-                a.source = source.ToString();
-                a.alphabet = alphabet_name;
-            });
+            //result.ForEach(a =>
+            //{
+            //    a.source = source.ToString();
+            //    a.alphabet = alphabet_name;
+            //});
 
             return result;
         }
