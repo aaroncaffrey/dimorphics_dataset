@@ -3681,6 +3681,7 @@ namespace dimorphics_dataset
         public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             const int min_sequence_length = 1;
+            var enable_cache = false;
 
             if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
@@ -3701,17 +3702,25 @@ namespace dimorphics_dataset
                 return template;
             }
 
-            lock (subsequence_classification_data_totals._peptides_cache_lock)
+            if (enable_cache)
             {
-                var cache_index = subsequence_classification_data_totals._peptides_cache.FindIndex(a => a.sequence == sequence);
-                if (cache_index > -1)
+                lock (subsequence_classification_data_totals._peptides_cache_lock)
                 {
-                    var cached_item = subsequence_classification_data_totals._peptides_cache[cache_index].features.Select(a => new feature_info(a) { /*alphabet = alphabet_name, source = source.ToString()*/ }).ToList();
-
-
-                    if (cached_item != null && cached_item.Count > 0)
+                    var cache_index =
+                        subsequence_classification_data_totals._peptides_cache.FindIndex(a => a.sequence == sequence);
+                    if (cache_index > -1)
                     {
-                        return cached_item;
+                        var cached_item = subsequence_classification_data_totals._peptides_cache[cache_index].features
+                            .Select(a => new feature_info(a)
+                            {
+                                /*alphabet = alphabet_name, source = source.ToString()*/
+                            }).ToList();
+
+
+                        if (cached_item != null && cached_item.Count > 0)
+                        {
+                            return cached_item;
+                        }
                     }
                 }
             }
@@ -3780,11 +3789,14 @@ namespace dimorphics_dataset
                 }
             }
 
-            if (result != null && result.Count > 0)
+            if (enable_cache)
             {
-                lock (subsequence_classification_data_totals._peptides_cache_lock)
+                if (result != null && result.Count > 0)
                 {
-                    subsequence_classification_data_totals._peptides_cache.Add((sequence, result.Select(a => new feature_info(a)).ToList()));
+                    lock (subsequence_classification_data_totals._peptides_cache_lock)
+                    {
+                        subsequence_classification_data_totals._peptides_cache.Add((sequence, result.Select(a => new feature_info(a)).ToList()));
+                    }
                 }
             }
 
@@ -3805,8 +3817,10 @@ namespace dimorphics_dataset
 
         public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
+            Console.WriteLine(sequence);
             const int min_sequence_length = 1;
-            
+            var enable_cache = false;
+
             if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
                 if (subsequence_classification_data_templates._protr_data_template == null)
@@ -3825,16 +3839,24 @@ namespace dimorphics_dataset
                 return template;
             }
 
-            lock (subsequence_classification_data_totals._protr_cache_lock)
+            if (enable_cache)
             {
-                var cache_index = subsequence_classification_data_totals._protr_cache.FindIndex(a => a.sequence == sequence);
-                if (cache_index > -1)
+                lock (subsequence_classification_data_totals._protr_cache_lock)
                 {
-                    var cached_item = subsequence_classification_data_totals._protr_cache[cache_index].features.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString()*/ }).ToList();
-
-                    if (cached_item != null && cached_item.Count > 0)
+                    var cache_index =
+                        subsequence_classification_data_totals._protr_cache.FindIndex(a => a.sequence == sequence);
+                    if (cache_index > -1)
                     {
-                        return cached_item;
+                        var cached_item = subsequence_classification_data_totals._protr_cache[cache_index].features
+                            .Select(a => new feature_info(a)
+                            {
+                                /* alphabet = alphabet_name, source = source.ToString()*/
+                            }).ToList();
+
+                        if (cached_item != null && cached_item.Count > 0)
+                        {
+                            return cached_item;
+                        }
                     }
                 }
             }
@@ -3905,11 +3927,15 @@ namespace dimorphics_dataset
                 }
             }
 
-            if (result != null && result.Count > 0)
+            if (enable_cache)
             {
-                lock (subsequence_classification_data_totals._protr_cache_lock)
+                if (result != null && result.Count > 0)
                 {
-                    subsequence_classification_data_totals._protr_cache.Add((sequence, result.Select(a => new feature_info(a)).ToList()));
+                    lock (subsequence_classification_data_totals._protr_cache_lock)
+                    {
+                        subsequence_classification_data_totals._protr_cache.Add((sequence,
+                            result.Select(a => new feature_info(a)).ToList()));
+                    }
                 }
             }
 

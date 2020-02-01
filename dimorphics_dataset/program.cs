@@ -321,6 +321,7 @@ namespace dimorphics_dataset
         
         public static void cache_r_servers()
         {
+            /*
             var files = new string[] { $@"E:\dataset\l__(standard_coil).csv", $@"E:\dataset\l__(dimorphic_coil).csv" };
 
             var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
@@ -355,6 +356,9 @@ namespace dimorphics_dataset
             }).Distinct().ToList();
 
             aa_list = aa_list.Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList();
+            */
+            var aa_list = cache_r_get_seqs();
+            aa_list = aa_list.OrderBy(a => a).ToList();
 
             {
                 var r_protr_results = aa_list.AsParallel().AsOrdered().Select(a =>
@@ -376,21 +380,16 @@ namespace dimorphics_dataset
                 io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
             }
 
-            Console.WriteLine();
+            //Console.WriteLine();
         }
 
-        public static void cache_r_get_seqs()
+        public static List<string> cache_r_get_seqs()
         {
             var files = new string[] { $@"e:\dataset\r_protr_cache.csv" };
 
-            var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList()).ToList();
+            var aa_seqs = files.SelectMany(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList()).ToList();
 
-            var equal = aa_seqs[0].SequenceEqual(aa_seqs[1]);
-
-            io_proxy.WriteLine("SequenceEqual: " + equal);
-
-            Console.WriteLine();
-
+            return aa_seqs;
         }
 
         public static void cache_r_servers_check()

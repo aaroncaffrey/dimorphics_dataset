@@ -48,7 +48,7 @@ namespace protr_server
             {
                 throw new ArgumentNullException(nameof(args));
             }
-
+            
             var arg_index = 0;
 
             var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, CultureInfo.InvariantCulture);

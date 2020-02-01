@@ -398,11 +398,13 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lambda_first || x.Length < lambda_last)
+            if (x.Length <= lambda_first || x.Length <= lambda_last)
             {
                 if (template_extractAPAAC == null)
                 {
-                    template_extractAPAAC = extractAPAAC(engine, "ALG", lambda_first, lambda_last);
+                    var seq_len = (lambda_last > lambda_first ? lambda_last : lambda_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    template_extractAPAAC = extractAPAAC(engine, temp_str, lambda_first, lambda_last);
                     template_extractAPAAC = template_extractAPAAC.Select(a => (name: a.name, lambda: a.lambda, value: 0d)).ToList();
                 }
 
@@ -462,7 +464,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (template_extractBLOSUM == null)
                 {
@@ -843,7 +845,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (template_extractDescScales == null)
                 {
@@ -952,7 +954,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (template_extractFAScales == null)
                 {
@@ -1121,7 +1123,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
             
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (_template_extractMDSScales == null)
                 {
@@ -1329,7 +1331,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lambda_first || x.Length < lamda_last)
+            if (x.Length <= lambda_first || x.Length <= lamda_last)
             {
                 if (_template_extractPAAC == null)
                 {
@@ -1454,7 +1456,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (_template_extractProtFP == null)
                 {
@@ -1551,7 +1553,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (_template_extractProtFPGap == null)
                 {
@@ -1648,7 +1650,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < nlag_first || x.Length < nlag_last)
+            if (x.Length <= nlag_first || x.Length <= nlag_last)
             {
                 if (_template_extractQSO == null)
                 {
@@ -1714,7 +1716,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < nlag_first || x.Length < nlag_last)
+            if (x.Length <= nlag_first || x.Length <= nlag_last)
             {
                 if (_template_extractSOCN == null)
                 {
@@ -1781,7 +1783,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (_template_extractScales == null)
                 {
@@ -1882,7 +1884,7 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
             
-            if (x.Length < lag_first || x.Length < lag_last)
+            if (x.Length <= lag_first || x.Length <= lag_last)
             {
                 if (_template_extractScalesGap == null)
                 {
