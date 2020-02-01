@@ -58,10 +58,8 @@ namespace peptides_server
             return engine1;
         }
 
-        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
+        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence, int min_sequence_length = 1)
         {
-            const int min_sequence_length = 3;
-
             lock (_get_values_lock)
             {
                 r_peptides._id = id;
@@ -73,16 +71,10 @@ namespace peptides_server
                         if (_template_get_values == null)
                         {
                             _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                            _template_get_values = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
                         }
 
-                        if (_template_get_values != null)
-                        {
-                            var template = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
-
-                            return template;
-                        }
-
-                        throw new Exception();
+                        return _template_get_values;
                     }
 
                     var lag_start = 1;
@@ -461,7 +453,7 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var rownames = engine.Evaluate($"rownames({v}[[1]])").AsCharacter();
-                var colnames = engine.Evaluate($"colnames({v}[[1]])").AsCharacter();
+                //var colnames = engine.Evaluate($"colnames({v}[[1]])").AsCharacter();
                 var values = engine.Evaluate($"{v}[[1]]").AsNumericMatrix();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -822,9 +814,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -992,9 +984,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1053,9 +1045,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1270,9 +1262,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1365,10 +1357,10 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate(eval_cmd);
 
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})").AsCharacter();
+                //var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})").AsCharacter();
                 var rownames = engine.Evaluate($"rownames({v}{ai})").AsCharacter();
-                var colnames = engine.Evaluate($"colnames({v}{ai})").AsCharacter();
+                //var colnames = engine.Evaluate($"colnames({v}{ai})").AsCharacter();
 
                 var values_Pep = engine.Evaluate($"{v}{ai}[[\"Pep\"]]").AsCharacter();
                 var values_H = engine.Evaluate($"{v}{ai}[[\"H\"]]").AsNumeric();
@@ -1419,9 +1411,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1536,9 +1528,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1580,9 +1572,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1624,9 +1616,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1673,9 +1665,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 
@@ -1733,9 +1725,9 @@ namespace peptides_server
 
                 var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
                 var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                var rownames = engine.Evaluate($"rownames({v}{ai})");
-                var colnames = engine.Evaluate($"colnames({v}{ai})");
+                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($"colnames({v}{ai})");
                 var values = engine.Evaluate($"{v}{ai}").AsNumeric();
                 var rm = engine.Evaluate($"rm({v})");
 

@@ -57,10 +57,8 @@ namespace protr_server
             return engine1;
         }
 
-        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
+        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence, int min_sequence_length = 1)
         {
-            const int min_sequence_length = 3;
-
             lock (_get_values_lock)
             {
                 r_protr._id = id;
@@ -72,16 +70,10 @@ namespace protr_server
                         if (_template_get_values == null)
                         {
                             _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                            _template_get_values = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
                         }
 
-                        if (_template_get_values != null)
-                        {
-                            var template = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
-
-                            return template;
-                        }
-
-                        throw new Exception();
+                        return _template_get_values;
                     }
 
                     var ret_extractAPAAC = extractAPAAC(engine, sequence);
@@ -402,10 +394,20 @@ namespace protr_server
 
         private static List<(string name, int lambda, double value)> template_extractAPAAC = null;
 
-        public static List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
+        public static  List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
+            if (x.Length < lambda_first || x.Length < lambda_last)
+            {
+                if (template_extractAPAAC == null)
+                {
+                    template_extractAPAAC = extractAPAAC(engine, "ALG", lambda_first, lambda_last);
+                    template_extractAPAAC = template_extractAPAAC.Select(a => (name: a.name, lambda: a.lambda, value: 0d)).ToList();
+                }
+
+                return template_extractAPAAC;
+            }
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -459,6 +461,20 @@ namespace protr_server
         public static List<(string name, string submat, int k, int lag, double value)> extractBLOSUM(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (template_extractBLOSUM == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    template_extractBLOSUM = extractBLOSUM(engine, temp_str, lag_first, lag_last);
+                    template_extractBLOSUM = template_extractBLOSUM.Select(a => (name: a.name, submat: a.submat, k: a.k, lag: a.lag, value: 0d)).ToList();
+
+                }
+
+                return template_extractBLOSUM;
+            }
 
 #if DEBUG
             var args = new List<(string key, string value)>()
@@ -827,6 +843,20 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (template_extractDescScales == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    template_extractDescScales = extractDescScales(engine, temp_str, lag_first, lag_last);
+                    template_extractDescScales = template_extractDescScales.Select(a => (name: a.name, propmat: a.propmat, pc: a.pc, lag: a.lag, pca: a.pca.Select(b => (b.row_name, b.col_name, 0d)).ToList(), value: 0d)).ToList();
+
+                }
+
+                return template_extractDescScales;
+            }
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -921,6 +951,20 @@ namespace protr_server
         public static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> extractFAScales(REngine engine, string x, int lag_first = 1, int lag_last = 2, int factors_first = 5, int factors_last = 5)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (template_extractFAScales == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    template_extractFAScales = extractFAScales(engine, temp_str, lag_first, lag_last, factors_first, factors_last);
+                    template_extractFAScales = template_extractFAScales.Select(a => (name: a.name, factors: a.factors, lag: a.lag, factors_list: a.factors_list.Select(b => (row_name: b.row_name, col_name: b.col_name, value: 0d)).ToList(), chi_sq: 0d, p_value: 0d, value: 0d)).ToList();
+
+                }
+
+                return template_extractFAScales;
+            }
 
 #if DEBUG
             var args = new List<(string key, string value)>()
@@ -1076,7 +1120,19 @@ namespace protr_server
         public static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> extractMDSScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+            
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (_template_extractMDSScales == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractMDSScales = extractMDSScales(engine, temp_str, lag_first, lag_last);
+                    _template_extractMDSScales = _template_extractMDSScales.Select(a => (name: a.name, k: a.k, lag: a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b => 0d).ToArray(), value: 0d)).ToList();
+                }
 
+                return _template_extractMDSScales;
+            }
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1273,6 +1329,19 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
+            if (x.Length < lambda_first || x.Length < lamda_last)
+            {
+                if (_template_extractPAAC == null)
+                {
+                    var seq_len = (lamda_last > lambda_first ? lamda_last : lambda_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractPAAC = extractPAAC(engine, temp_str, lambda_first, lamda_last);
+                    _template_extractPAAC = _template_extractPAAC.Select(a => (name: a.name, lambda: a.lambda, w: a.w, value: 0d)).ToList();
+                }
+
+                return _template_extractPAAC;
+            }
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1385,6 +1454,19 @@ namespace protr_server
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (_template_extractProtFP == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractProtFP = extractProtFP(engine, temp_str, lag_first, lag_last);
+                    _template_extractProtFP = _template_extractProtFP.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+                }
+
+                return _template_extractProtFP;
+            }
+                 
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1468,6 +1550,21 @@ namespace protr_server
         public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFPGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (_template_extractProtFPGap == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractProtFPGap = extractProtFPGap(engine, temp_str, lag_first, lag_last);
+                    _template_extractProtFPGap = _template_extractProtFPGap.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+
+                }
+
+                return _template_extractProtFPGap;
+            }
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1550,6 +1647,19 @@ namespace protr_server
         public static List<(string name, int nlag, double w, double value)> extractQSO(REngine engine, string x, int nlag_first = 1, int nlag_last = 2, double w = 0.1)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < nlag_first || x.Length < nlag_last)
+            {
+                if (_template_extractQSO == null)
+                {
+                    var seq_len = (nlag_last > nlag_first ? nlag_last : nlag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractQSO = extractQSO(engine, temp_str, nlag_first, nlag_last, w);
+                    _template_extractQSO = _template_extractQSO.Select(a => (name: a.name, nlag: a.nlag, w: a.w, value: 0d)).ToList();
+                }
+
+                return _template_extractQSO;
+            }
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1603,6 +1713,20 @@ namespace protr_server
         public static List<(string name, int nlag, double value)> extractSOCN(REngine engine, string x, int nlag_first = 1, int nlag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < nlag_first || x.Length < nlag_last)
+            {
+                if (_template_extractSOCN == null)
+                {
+                    var seq_len = (nlag_last > nlag_first ? nlag_last : nlag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractSOCN = extractSOCN(engine, temp_str, nlag_first, nlag_last);
+                    _template_extractSOCN = _template_extractSOCN.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
+                }
+
+                return _template_extractSOCN;
+            }
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1656,6 +1780,20 @@ namespace protr_server
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (_template_extractScales == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractScales = extractScales(engine, temp_str, lag_first, lag_last);
+                    _template_extractScales = _template_extractScales.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+
+                }
+
+                return _template_extractScales;
+            }
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
@@ -1743,6 +1881,21 @@ namespace protr_server
         public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScalesGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
+            
+            if (x.Length < lag_first || x.Length < lag_last)
+            {
+                if (_template_extractScalesGap == null)
+                {
+                    var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
+                    var temp_str = string.Join("", Enumerable.Repeat("ALG", seq_len).ToList()).Substring(0, seq_len);
+                    _template_extractScalesGap = extractScalesGap(engine, temp_str, lag_first, lag_last);
+                    _template_extractScalesGap = _template_extractScalesGap.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
+
+                }
+
+                return _template_extractScalesGap;
+            }
+
 #if DEBUG
             var args = new List<(string key, string value)>()
             {

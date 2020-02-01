@@ -8,6 +8,7 @@ namespace peptides_server
 {
     public static class program
     {
+        /*
 #if DEBUG
         private static Random random = new Random();
         public static string random_peptide(int length)
@@ -41,12 +42,9 @@ namespace peptides_server
             Console.ReadKey();
         }
 #endif
-
+*/
         public static void Main(string[] args)
         {
-#if DEBUG
-            //Test();
-#endif
             if (args == null || args.Length == 0)
             {
                 throw new ArgumentNullException(nameof(args));

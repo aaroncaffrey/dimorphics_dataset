@@ -379,9 +379,23 @@ namespace dimorphics_dataset
             Console.WriteLine();
         }
 
+        public static void cache_r_servers_check()
+        {
+            var files = new string[] { $@"e:\dataset\r_peptides_cache.csv" ,$@"e:\dataset\r_protr_cache.csv"};
+        
+            var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(a=>a.Length).ThenBy(a=>a).ToList()).ToList();
+
+
+
+            Console.WriteLine();
+
+        }
+
+
+
         public static void Main(string[] args)
         {
-            cache_r_servers();
+            cache_r_servers_check();
                 return;
                 
             close_notifications();

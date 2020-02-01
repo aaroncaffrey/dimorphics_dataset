@@ -6,7 +6,7 @@ using dimorphics_dataset;
 namespace protr_server
 {
     public static class program
-    {
+    {/*
 #if DEBUG
         private static Random random = new Random();
         public static string random_peptide(int length)
@@ -40,13 +40,10 @@ namespace protr_server
 
             Console.ReadKey();
         }
-#endif
+#endif*/
 
         public static void Main(string[] args)
         {
-#if DEBUG
-            //Test();
-#endif
             if (args == null || args.Length == 0)
             {
                 throw new ArgumentNullException(nameof(args));
