@@ -1067,7 +1067,7 @@ namespace dimorphics_dataset
 
 
 
-        public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(/*string pdb_id, char chain_id, */List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
+        public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
         {
             var result = new List<(string format, string prediction)>();
 
@@ -1281,7 +1281,7 @@ namespace dimorphics_dataset
             var master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_model_atoms);
 
 
-            var lookup_sequence_table = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences.txt"), nameof(atom), nameof(load_mpsa_sec_struct_predictions)).ToList();
+            //var lookup_sequence_table = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences.txt"), nameof(atom), nameof(load_mpsa_sec_struct_predictions)).ToList();
 
 
             var sequences = atom.amino_acid_sequence(pdb_id, master_atoms);
@@ -1291,15 +1291,15 @@ namespace dimorphics_dataset
                 var chain_id = seq.chain_id;
 
                 var chain_master_atoms = master_atoms.Where(a => a.chain_id == chain_id).ToList();
-                var sequence = seq.aa_sequence;
+                //var sequence = seq.aa_sequence;
 
                 //var line_index_match = lookup_sequence_table.IndexOf(sequence);
 
                 //if (line_index_match < 0) throw new Exception();
 
-                if (pdb_id_simple == "1EGP")
-                {
-                }
+                //if (pdb_id_simple == "1EGP")
+                //{
+                //}
 
                 var format_list = info_mpsa_reader.secondary_structure_codes.Select(a => a.format).ToList();
 

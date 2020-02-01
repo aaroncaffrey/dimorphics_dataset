@@ -22,11 +22,6 @@ namespace dimorphics_dataset
         internal string aa_after;
         internal string aa_protein;
 
-        public protein_subsequence_info()
-        {
-            
-        }
-
         public static void save(string filename, List<protein_subsequence_info> psi_list)
         {
             var text = psi_list.Select(a => $@"{a.class_id},{a.class_name},{a.dimer_type},{a.parallelism},{a.symmetry_mode},{a.pdb_id},{a.chain_id},{string.Join(";", a.res_ids.Select(b => $@"{b.amino_acid}{b.i_code}{b.res_id}").ToList())},{a.aa_subsequence},{a.aa_before},{a.aa_after},{a.aa_protein}").ToList();

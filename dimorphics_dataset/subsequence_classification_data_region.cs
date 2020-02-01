@@ -44,8 +44,8 @@ namespace dimorphics_dataset
             stride3_multimer = string.Join("", master_atoms.Select(a => a.stride3_multimer).ToList());
             dssp3_monomer = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToList());
             stride3_monomer = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToList());
-        
-            ss_predictions = null;
+
+            ss_predictions = atom.get_dssp_and_mpsa_subsequences(master_atoms);
             foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, res_ids, false);
         }
     }

@@ -93,6 +93,31 @@ namespace dimorphics_dataset
             return psi_list;
         }
 
+        public static (int strand_array_index, List<int> strand_res_ids) find_subseq_index(string strand_seq, string strand_protein, List<int> strand_protein_res_ids, int optional_res_index = -1)
+        {
+            var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);
+
+            if (optional_res_index > -1)
+            {
+                strand_array_index = strand_protein_res_ids.IndexOf(optional_res_index);
+
+                if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+                {
+                    var indexes = strand_protein.Select((a, i) => i + strand_seq.Length < strand_protein.Length && strand_protein.Substring(i, strand_seq.Length) == strand_seq ? i : -1).Where(a => a > -1).ToList();
+                    strand_array_index = indexes.Select(a => (index1: a, index2: Math.Abs(strand_array_index - a))).OrderBy(a => a.index2).First().index1;
+                }
+            }
+
+            if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+            {
+                throw new Exception("Not correct position");
+            }
+
+            var strand_res_ids = strand_protein_res_ids.Skip(strand_array_index).Take(strand_seq.Length).ToList();
+
+            return (strand_array_index, strand_res_ids);
+        }
+
         public static /*subsequence_classification_data*/protein_subsequence_info get_dhc_item(
             int class_id,
             string class_name,
@@ -139,26 +164,33 @@ namespace dimorphics_dataset
             var pdb_chain_master_atoms = pdb_master_atoms.Where(a => a.chain_id == chain_id).ToList();
 
             var strand_protein = sequences.First(a => a.chain_id == chain_id).sequence;
-            var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);
+            //var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);
 
-            var res_ids = pdb_chain_master_atoms.Select(a => a.residue_index).ToList();
+            //var res_ids = pdb_chain_master_atoms.Select(a => a.residue_index).ToList();
 
 
-            if (!string.IsNullOrWhiteSpace(optional_res_index))
-            {
-                strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture));
+            //if (!string.IsNullOrWhiteSpace(optional_res_index))
+            //{
+            //    strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture));
 
-                if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
-                {
-                    var indexes = strand_protein.Select((a, i) => i + strand_seq.Length < strand_protein.Length && strand_protein.Substring(i, strand_seq.Length) == strand_seq ? i : -1).Where(a => a > -1).ToList();
-                    strand_array_index = indexes.Select(a => (index1: a, index2: Math.Abs(strand_array_index - a))).OrderBy(a => a.index2).First().index1;
-                }
-            }
+            //    if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+            //    {
+            //        var indexes = strand_protein.Select((a, i) => i + strand_seq.Length < strand_protein.Length && strand_protein.Substring(i, strand_seq.Length) == strand_seq ? i : -1).Where(a => a > -1).ToList();
+            //        strand_array_index = indexes.Select(a => (index1: a, index2: Math.Abs(strand_array_index - a))).OrderBy(a => a.index2).First().index1;
+            //    }
+            //}
 
-            if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
-            {
-                throw new Exception("Not correct position");
-            }
+            //if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+            //{
+            //    throw new Exception("Not correct position");
+            //}
+
+            var find_subseq_index_ret = find_subseq_index(strand_seq, strand_protein,
+                pdb_chain_master_atoms.Select(a => a.residue_index).ToList(),
+                int.TryParse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture, out var opt_res_ix)
+                    ? opt_res_ix
+                    : -1);
+            var strand_array_index = find_subseq_index_ret.strand_array_index;
 
             // get list of dimorphics with same pdbid and chain
             /*var other_interfaces_in_chain = dimorphics_data_all.Where(a => / * a != di && * / a.pdb_id == dimorphics_interface.pdb_id && a.chain_number == dimorphics_interface.chain_number).ToList();

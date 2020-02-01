@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace dimorphics_dataset
 {
-    public class feature_types_1d
+    public class feature_types_2d
     {
         internal bool pse_aac_sequence_classification_data = false;
         internal bool sable_classification_data = false;
@@ -18,11 +16,11 @@ namespace dimorphics_dataset
         internal bool r_peptides = false;
         internal bool r_protr = false;
 
-        public feature_types_1d()
+        public feature_types_2d()
         {
 
         }
-        public feature_types_1d(bool enable)
+        public feature_types_2d(bool enable)
         {
             pse_aac_sequence_classification_data = enable;
             sable_classification_data = enable;
