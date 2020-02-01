@@ -325,8 +325,6 @@ namespace dimorphics_dataset
 
             var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
 
-            psi_list = psi_list.Where(a => a.pdb_id == $@"1OAC").ToList();
-
             var pdb_opt = new atom.load_atoms_pdb_options()
             {
                 first_model_only = true,
