@@ -118,6 +118,16 @@ namespace dimorphics_dataset
             return (strand_array_index, strand_res_ids);
         }
 
+        public static char get_chain_id_from_chain_number(List<atom> pdb_atoms, int chain_number)
+        {
+            var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
+            var pdb_master_atoms = atom.select_amino_acid_master_atoms(null, pdb_atoms);
+            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join("", a.Select(b => b.amino_acid).ToList()))).ToList();
+            var chain_id = chain_list_default_order[chain_number].chain_id;
+
+            return chain_id;
+        }
+
         public static /*subsequence_classification_data*/protein_subsequence_info get_dhc_item(
             int class_id,
             string class_name,
@@ -154,14 +164,17 @@ namespace dimorphics_dataset
             var strand_seq = dimorphics_interface.strand_seq;
             var optional_res_index = dimorphics_interface.optional_res_index;
 
-            var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
+            //var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_atoms);
             var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join("", a.Select(b => b.amino_acid).ToList()))).ToList();
-            var chain_id = chain_list_default_order[chain_number].chain_id;
+            //var chain_id = chain_list_default_order[chain_number].chain_id;
+
+            var chain_id = get_chain_id_from_chain_number(pdb_atoms, chain_number);
 
             pdb_atoms = pdb_atoms.Where(a => a.chain_id == chain_id).ToList();
             var pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == chain_id).ToList();
             var pdb_chain_master_atoms = pdb_master_atoms.Where(a => a.chain_id == chain_id).ToList();
+            
 
             var strand_protein = sequences.First(a => a.chain_id == chain_id).sequence;
             //var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);

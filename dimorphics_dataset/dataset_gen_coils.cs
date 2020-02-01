@@ -7,7 +7,7 @@ namespace dimorphics_dataset
 {
     public static class dataset_gen_coils
     {
-        public static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false)
+        public static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int chain_number, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false)
         {
             // find the coils within a given pdb file
             //var use_multimer_dssp = true;
@@ -33,7 +33,12 @@ namespace dimorphics_dataset
                 )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
 
+            var chain_id_filter = dataset_gen_dimorphic.get_chain_id_from_chain_number(pdb_atoms, chain_number);
+
             pdb_atoms = pdb_atoms.Where(a => string.Equals(a.pdb_id, pdb_id, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            
+            pdb_atoms = pdb_atoms.Where(a => a.chain_id == chain_id_filter).ToList();
+
 
             //pdb_atoms = pdb_atoms.Where(a => a.Multimer_DSSP3 == 'C').ToList(); // only need info about coils
 
@@ -152,7 +157,16 @@ namespace dimorphics_dataset
 
             var pdb_coils = tasks.SelectMany(a => a.Result).ToList();
 
-            pdb_coils = pdb_coils.GroupBy(scd => (scd.pdb_id, scd.aa_subsequence)).Select(group => group.First()).Distinct().ToList();
+            if (chain_ids != null && chain_ids.Count > 1)
+            {
+                var chain_seqs = atom.amino_acid_sequence(null, pdb_atoms);
+
+                if (chain_seqs.Any(a => chain_seqs.Any(b => a != b && (a.aa_sequence.Contains(b.aa_sequence, StringComparison.InvariantCulture) || b.aa_sequence.Contains(a.aa_sequence, StringComparison.InvariantCulture)))))
+                {
+                    pdb_coils = pdb_coils.GroupBy(scd => (scd.pdb_id, /*scd.chain_id,*/ scd.aa_subsequence))
+                        .Select(group => group.First()).Distinct().ToList();
+                }
+            }
 
             return pdb_coils;
         }

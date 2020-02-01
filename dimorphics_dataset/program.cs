@@ -866,7 +866,7 @@ namespace dimorphics_dataset
 
                     if (p.class_name == "standard_coil")
                     {
-                        psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, p.class_id, p.class_name, p.use_dssp3);
+                        psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, pdb_id_item.chain_number, p.class_id, p.class_name, p.use_dssp3);
                     }
                     else if (p.class_name == "dimorphic_coil")
                     {
@@ -882,7 +882,7 @@ namespace dimorphics_dataset
                         psi_list = psi_list.Where(pl => !invalid_res_ids.Any(iv =>
                             iv.pdb_id == pl.pdb_id &&
                             iv.chain_id == pl.chain_id &&
-                            !pl.res_ids.Any(c => iv.res_ids.Contains(c.res_id))
+                            pl.res_ids.Any(c => iv.res_ids.Contains(c.res_id))
                         )).ToList();
                     }
 
