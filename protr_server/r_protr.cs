@@ -59,24 +59,29 @@ namespace protr_server
 
         public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
+            const int min_sequence_length = 3;
+
             lock (_get_values_lock)
             {
                 r_protr._id = id;
 
                 var engine = init_r();
                 {
-                    if (string.IsNullOrWhiteSpace(sequence))
+                    if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
                     {
+                        if (_template_get_values == null)
+                        {
+                            _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                        }
+
                         if (_template_get_values != null)
                         {
                             var template = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
 
                             return template;
                         }
-                        else
-                        {
-                            throw new Exception();
-                        }
+
+                        throw new Exception();
                     }
 
                     var ret_extractAPAAC = extractAPAAC(engine, sequence);
@@ -104,7 +109,7 @@ namespace protr_server
 
 
                     var features = new List<feature_info>();
-                    
+
                     var ret_extractAPAAC_f = ret_extractAPAAC.Select(a => new feature_info()
                     {
                         alphabet = alphabet_name,
@@ -123,7 +128,7 @@ namespace protr_server
                         dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{a.submat}_{a.k}_{a.lag}_{alphabet_name}".Replace(".","_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{a.submat}_{a.k}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
                         member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(a.value)

@@ -43,7 +43,7 @@ namespace peptides_server
             if (need_init)
             {
                 need_init = false;
-                
+
                 var r_init_cmds = $@"
                     #install.packages(""devtools"")
                     #library(devtools)
@@ -51,8 +51,8 @@ namespace peptides_server
                     library(Peptides)
                     if (!exists(""AAdata"")) data(AAdata)
                 ";
-                
-                r_init_cmds.Split(new char[] {'\r', '\n'}).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
+
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -60,24 +60,29 @@ namespace peptides_server
 
         public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence)
         {
+            const int min_sequence_length = 3;
+
             lock (_get_values_lock)
             {
                 r_peptides._id = id;
 
                 var engine = init_r();
                 {
-                    if (string.IsNullOrWhiteSpace(sequence))
+                    if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
                     {
+                        if (_template_get_values == null)
+                        {
+                            _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                        }
+
                         if (_template_get_values != null)
                         {
-                            var template = _template_get_values.Select(a => new feature_info(a) {alphabet = alphabet_name, source = source, feature_value = 0}).ToList();
+                            var template = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
 
                             return template;
                         }
-                        else
-                        {
-                            throw new Exception();
-                        }
+
+                        throw new Exception();
                     }
 
                     var lag_start = 1;
@@ -412,7 +417,7 @@ namespace peptides_server
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new feature_info(a) {alphabet = "", source = "", feature_value = 0}).ToList();
+                        var template = features.Select(a => new feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
                         _template_get_values = template;
                     }
 
@@ -901,7 +906,7 @@ namespace peptides_server
         /// <returns></returns>
         public static double charge(REngine engine, string seq, double pH = 7, string pKscale = "Lehninger")
         {
-            if (engine == null || string.IsNullOrWhiteSpace(seq) ||  string.IsNullOrWhiteSpace(pKscale)) return default;
+            if (engine == null || string.IsNullOrWhiteSpace(seq) || string.IsNullOrWhiteSpace(pKscale)) return default;
 
             lock (engine_lock)
             {

@@ -3680,7 +3680,9 @@ namespace dimorphics_dataset
 
         public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
         {
-            if (sequence == null || sequence.Length == 0)
+            const int min_sequence_length = 3;
+
+            if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
                 if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
@@ -3803,7 +3805,9 @@ namespace dimorphics_dataset
 
         public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
         {
-            if (sequence == null || sequence.Length == 0)
+            const int min_sequence_length = 3;
+            
+            if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
                 if (subsequence_classification_data_templates._protr_data_template == null)
                 {

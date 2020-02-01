@@ -325,6 +325,8 @@ namespace dimorphics_dataset
 
             var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
 
+            psi_list = psi_list.Where(a => a.pdb_id == $@"1OAC").ToList();
+
             var pdb_opt = new atom.load_atoms_pdb_options()
             {
                 first_model_only = true,
@@ -356,14 +358,25 @@ namespace dimorphics_dataset
 
             aa_list = aa_list.Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList();
 
-            var r_protr_results = aa_list.AsParallel().AsOrdered().Select(a => (aa_seq:a, features:subsequence_classification_data_methods.call_r_protr(a))).ToList();
-            var r_peptides_results = aa_list.AsParallel().AsOrdered().Select(a => (aa_seq:a, features:subsequence_classification_data_methods.call_r_peptides(a))).ToList();
+            {
+                var r_protr_results = aa_list.AsParallel().AsOrdered().Select(a =>
+                    (aa_seq: a, features: subsequence_classification_data_methods.call_r_protr(a))).ToList();
+                var r_protr_csv = r_protr_results.SelectMany(a =>
+                        a.features.Select(b =>
+                            $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
+                    .ToList();
+                io_proxy.WriteAllLines($@"e:\dataset\r_protr_cache.csv", r_protr_csv);
+            }
 
-            var r_protr_csv = r_protr_results.SelectMany(a => a.features.Select(b => $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList()).ToList();
-            io_proxy.WriteAllLines($@"e:\dataset\r_protr_cache.csv", r_protr_csv);
-
-            var r_peptides_csv = r_peptides_results.SelectMany(a => a.features.Select(b => $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList()).ToList();
-            io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
+            {
+                var r_peptides_results = aa_list.AsParallel().AsOrdered().Select(a =>
+                    (aa_seq: a, features: subsequence_classification_data_methods.call_r_peptides(a))).ToList();
+                var r_peptides_csv = r_peptides_results.SelectMany(a =>
+                        a.features.Select(b =>
+                            $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
+                    .ToList();
+                io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
+            }
 
             Console.WriteLine();
         }
