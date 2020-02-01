@@ -106,9 +106,9 @@ namespace dimorphics_dataset
                                     chain_id = chain_id,
                                     res_ids = coil_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                                     aa_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
-                                    aa_before = "",
-                                    aa_after = "",
-                                    aa_protein = pdb_chain_aa_sequence,
+                                    //aa_before = "",
+                                    //aa_after = "",
+                                    //aa_protein = pdb_chain_aa_sequence,
                                 };
 
                                 pdb_chain_coils.Add(psi);

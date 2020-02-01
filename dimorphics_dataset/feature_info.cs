@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace dimorphics_dataset
@@ -72,6 +73,31 @@ namespace dimorphics_dataset
             //data.Add((nameof(feature_value), feature_value.ToString("G17", CultureInfo.InvariantCulture)));
 
             return string.Join(", ", data);
+        }
+
+        public static List<string> get_feature_headers_lines_csv(List<feature_info> feature_list)
+        {
+            //var header_list = feature_list.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
+
+            List<string> headers = new List<string>();
+            headers.Add($@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}");
+            headers.AddRange(feature_list.Select((a, fid) => $"{fid},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+
+            return headers;
+
+            // check for duplicately named features
+            //var header_list_str = header_list.Select((a, fid) => $"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            //var dupes = find_duplicate_strings(header_list_str);
+            //if (dupes != null && dupes.Count > 0)
+            //{
+            //    throw new Exception("Duplicate headers found: " + string.Join(", ", dupes));
+            //}
+
+            //var header_list_str_c = new List<string>();
+            //header_list_str_c.Add($@"fid,{nameof(subsequence_classification_data.feature_info.alphabet)},{nameof(subsequence_classification_data.feature_info.dimension)},{nameof(subsequence_classification_data.feature_info.category)},{nameof(subsequence_classification_data.feature_info.source)},{nameof(subsequence_classification_data.feature_info.@group)},{nameof(subsequence_classification_data.feature_info.member)},{nameof(subsequence_classification_data.feature_info.perspective)}");
+            //header_list_str_c.AddRange(header_list.Select((a, fid) => $"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+
+            //return header_list_str_c;
         }
     }
 }

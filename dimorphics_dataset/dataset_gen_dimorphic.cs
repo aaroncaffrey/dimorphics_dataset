@@ -333,7 +333,7 @@ namespace dimorphics_dataset
                     if (!continuous_strand2 && index_dssp_code != 'C') break;
 
                     shc_end_array_index = i;
-                    shc_sequence_after = shc_sequence_after + pdb_chain_master_atoms[i].amino_acid;
+                    shc_sequence_after += pdb_chain_master_atoms[i].amino_acid;
                 }
             }
 
@@ -352,15 +352,15 @@ namespace dimorphics_dataset
                 shc_sequence_after = "";
             }
 
-            var shc_subsequence_atoms = pdb_chain_atoms.Where(a => shc_subsequence_master_atoms.Any(b => a.pdb_id == b.pdb_id && a.chain_id == b.chain_id && a.residue_index == b.residue_index && a.i_code == b.i_code)).ToList();
+            //var shc_subsequence_atoms = pdb_chain_atoms.Where(a => shc_subsequence_master_atoms.Any(b => a.pdb_id == b.pdb_id && a.chain_id == b.chain_id && a.residue_index == b.residue_index && a.i_code == b.i_code)).ToList();
 
             var shc_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
 
-            var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
-            var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
+            //var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
+            //var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
 
-            var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
-            var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
+            //var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
+            //var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
 
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;
 
@@ -380,9 +380,9 @@ namespace dimorphics_dataset
                 symmetry_mode = symmetry_mode,
                 res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                 aa_subsequence = shc_sequence,
-                aa_before = "",
-                aa_after = "",
-                aa_protein = strand_protein
+                //aa_before = "",
+                //aa_after = "",
+                //aa_protein = strand_protein
             };
 
 
