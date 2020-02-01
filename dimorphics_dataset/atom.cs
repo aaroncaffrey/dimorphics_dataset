@@ -361,6 +361,8 @@ namespace dimorphics_dataset
             internal bool first_model_only = true;
             internal bool first_icode_only = true;
 
+            internal bool load_uniprot = false;
+
             // 2d data
             internal bool load_2d_mpsa_sec_struct_predictions = true;
             internal bool load_2d_blast_pssms = true;
@@ -370,10 +372,10 @@ namespace dimorphics_dataset
 
             // 3d data
             internal bool find_3d_intramolecular = true;
-            //internal bool find_3d_intermolecular = false;
-            internal bool load_3d_rsa_data = false;
-            internal bool load_3d_dssp_data = false;
-            internal bool load_3d_stride_data = false;
+            //internal bool find_3d_intermolecular = true;
+            internal bool load_3d_rsa_data = true;
+            internal bool load_3d_dssp_data = true;
+            internal bool load_3d_stride_data = true;
             internal bool load_3d_ring_data = true;
             internal bool load_3d_foldx_ala_scan = true;
         }
@@ -602,25 +604,34 @@ namespace dimorphics_dataset
                     // if (load_pos_scan) Atom.load_foldx_position_scanning(pdb_model_atoms);
                 }
 
-                // load uniprot sequence (& still to do: also load mapping and save in atoms)
-                //var chain_ids = pdb_model_chain_atoms.Select(a => a.chain_id).Distinct().ToList();
-                foreach (var c in pdb_model_chain_atoms)
-                //    foreach (var chain_id in chain_ids)
+                if (options.load_uniprot)
                 {
-                    var uniprot_file = Path.Combine(program.data_root_folder, $@"uniprot", $@"{pdb_id_simple}{c.chain_id}.fasta");
-
-                    var uniprot_file_data = file_cache.FirstOrDefault(a => a.filename == uniprot_file).data;
-
-                    if (uniprot_file_data == null)
+                    // load uniprot sequence (& still to do: also load mapping and save in atoms)
+                    //var chain_ids = pdb_model_chain_atoms.Select(a => a.chain_id).Distinct().ToList();
+                    foreach (var c in pdb_model_chain_atoms)
+                        //    foreach (var chain_id in chain_ids)
                     {
-                        if (!File.Exists(uniprot_file) || new FileInfo(uniprot_file).Length == 0) continue;
-                        uniprot_file_data = io_proxy.ReadAllLines(uniprot_file, nameof(atom), nameof(load_atoms_pdb));
-                        file_cache.Add((uniprot_file, uniprot_file_data));
+                        var uniprot_file = Path.Combine(program.data_root_folder, $@"uniprot",
+                            $@"{pdb_id_simple}{c.chain_id}.fasta");
+
+                        var uniprot_file_data = file_cache.FirstOrDefault(a => a.filename == uniprot_file).data;
+
+                        if (uniprot_file_data == null)
+                        {
+                            if (!File.Exists(uniprot_file) || new FileInfo(uniprot_file).Length == 0) continue;
+                            uniprot_file_data =
+                                io_proxy.ReadAllLines(uniprot_file, nameof(atom), nameof(load_atoms_pdb));
+                            file_cache.Add((uniprot_file, uniprot_file_data));
+                        }
+
+                        var uniprot_sequence = string.Join("",
+                            uniprot_file_data.Where(a =>
+                                    !string.IsNullOrWhiteSpace(a) &&
+                                    !a.StartsWith(">", StringComparison.InvariantCulture))
+                                .ToList());
+
+                        c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
                     }
-
-                    var uniprot_sequence = string.Join("", uniprot_file_data.Where(a => !string.IsNullOrWhiteSpace(a) && !a.StartsWith(">", StringComparison.InvariantCulture)).ToList());
-
-                    c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
                 }
 
                 // load sable

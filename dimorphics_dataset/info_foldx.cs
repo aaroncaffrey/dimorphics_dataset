@@ -467,7 +467,7 @@ namespace dimorphics_dataset
             internal (char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3) mutation_positions_data;
         }
 
-        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) load_foldx_buildmodel_position_scan((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run)
+        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) load_foldx_buildmodel_position_scan((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool write_list = false)
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
@@ -520,10 +520,14 @@ namespace dimorphics_dataset
 
             var mutant_list_file = Path.Combine(foldx_folder, "bm_ps", $@"individual_list_bm_ps_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
 
-            lock (file_write_lock)
+            if (write_list)
             {
-                //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                io_proxy.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx), nameof(load_foldx_buildmodel_position_scan));
+                lock (file_write_lock)
+                {
+                    //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
+                    io_proxy.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx),
+                        nameof(load_foldx_buildmodel_position_scan));
+                }
             }
 
             var foldx_cmd = $"BuildModel";
@@ -616,7 +620,7 @@ namespace dimorphics_dataset
             internal List<(char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3)> mutation_positions_data;
         }
 
-        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) load_foldx_buildmodel_subsequence_mutant((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run)
+        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) load_foldx_buildmodel_subsequence_mutant((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool save_list = false)
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
@@ -651,12 +655,16 @@ namespace dimorphics_dataset
 
             var mutant_list_file = Path.Combine( foldx_folder, "bm_if_subs", $@"individual_list_bm_if_subs_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
 
-            lock (file_write_lock)
-            {
-                //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
-                io_proxy.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx), nameof(load_foldx_buildmodel_subsequence_mutant));
-            }
 
+            if (save_list)
+            {
+                lock (file_write_lock)
+                {
+                    //Directory.CreateDirectory(Path.GetDirectoryName(mutant_list_file));
+                    io_proxy.WriteAllLines(mutant_list_file, foldx_mutation_positions_data, nameof(info_foldx),
+                        nameof(load_foldx_buildmodel_subsequence_mutant));
+                }
+            }
 
             var foldx_cmd = $"BuildModel";
             var foldx_output_pdb = false;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Linq;
 
 namespace dimorphics_dataset
@@ -38,7 +37,7 @@ namespace dimorphics_dataset
             };
         }
 
-        public void init_nh_flanking(int neighbourhood_flanking_size = 6)
+        public void init_nh_flanking(int neighbourhood_flanking_size = 6, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)
             {
@@ -69,10 +68,10 @@ namespace dimorphics_dataset
             var neighbourhood_flanking_master_atoms = chain_region.master_atoms.Where((a, i) => (i >= start_array_index - neighbourhood_size_before_start && i < start_array_index) || (i > end_array_index && i <= end_array_index + neighbourhood_size_after_end)).Except(interface_region.atoms).ToList();
             var neighbourhood_flanking_atoms = neighbourhood_flanking_master_atoms.SelectMany(a => a.amino_acid_atoms).Distinct().ToList();
             
-            nh_flank_region = new subsequence_classification_data_region(this, neighbourhood_flanking_atoms);
+            nh_flank_region = new subsequence_classification_data_region(this, neighbourhood_flanking_atoms,load_ss_predictions,load_foldx_energy);
         }
 
-        public void init_nh_contacts(double nh_max_dist = 5.0, bool should_include_interface = false)
+        public void init_nh_contacts(double nh_max_dist = 5.0, bool should_include_interface = false, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             if (nh_max_dist > 8.0)
             {
@@ -105,7 +104,7 @@ namespace dimorphics_dataset
             neighbourhood_3d_contacts = should_include_interface ? neighbourhood_3d_contacts.Union(interface_region.atoms).ToList() : neighbourhood_3d_contacts.Except(interface_region.atoms).ToList();
             neighbourhood_3d_contacts = neighbourhood_3d_contacts.Distinct().SelectMany(a => a.amino_acid_atoms).Distinct().OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code).ToList();
             
-            nh_contact_region=new subsequence_classification_data_region(this, neighbourhood_3d_contacts);
+            nh_contact_region=new subsequence_classification_data_region(this, neighbourhood_3d_contacts, load_ss_predictions, load_foldx_energy);
         }
 
         public static List<string> get_row_comments_headers(subsequence_classification_data instance_meta_data)

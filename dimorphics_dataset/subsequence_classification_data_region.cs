@@ -28,13 +28,14 @@ namespace dimorphics_dataset
         internal List<(string format, string prediction)> ss_predictions;
         internal info_foldx.energy_differences foldx_energy_differences;
 
-        public subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms)
+        public subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms,
+            bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             atoms = region_atoms;
             master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
             res_ids = master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
             aa_sequence = string.Join("", master_atoms.Select(a => a.amino_acid).ToList());
-            
+
             dssp_multimer = string.Join("", master_atoms.Select(a => a.dssp_multimer).ToList());
             stride_multimer = string.Join("", master_atoms.Select(a => a.stride_multimer).ToList());
             dssp_monomer = string.Join("", master_atoms.Select(a => a.dssp_monomer).ToList());
@@ -45,8 +46,16 @@ namespace dimorphics_dataset
             dssp3_monomer = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToList());
             stride3_monomer = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToList());
 
-            ss_predictions = atom.get_dssp_and_mpsa_subsequences(master_atoms);
-            foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, res_ids, false);
+            if (load_ss_predictions)
+            {
+                ss_predictions = atom.get_dssp_and_mpsa_subsequences(master_atoms);
+            }
+
+            if (load_foldx_energy)
+            {
+                foldx_energy_differences =
+                    info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, res_ids, false);
+            }
         }
     }
 }

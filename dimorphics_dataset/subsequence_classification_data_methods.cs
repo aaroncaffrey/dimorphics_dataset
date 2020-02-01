@@ -3720,7 +3720,8 @@ namespace dimorphics_dataset
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                //Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = $"{call_count} {sequence}",
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -3784,6 +3785,13 @@ namespace dimorphics_dataset
                 subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
 
+            result.ForEach(a =>
+            {
+                a.source = source.ToString();
+                a.alphabet = alphabet_name;
+            });
+
+
             return result;
         }
 
@@ -3836,7 +3844,8 @@ namespace dimorphics_dataset
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                //Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = $"{call_count} {sequence}",
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -3901,6 +3910,12 @@ namespace dimorphics_dataset
             {
                 subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
             }
+
+            result.ForEach(a =>
+            {
+                a.source = source.ToString();
+                a.alphabet = alphabet_name;
+            });
 
             return result;
         }

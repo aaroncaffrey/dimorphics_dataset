@@ -59,7 +59,7 @@ namespace dimorphics_dataset
             return dimorphics_data1;
         }
 
-        public static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types, protein_subsequence_info _template_protein)
+        public static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types, protein_subsequence_info _template_protein = null, atom.load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             // todo: check if pdb_folder should be pdb or pdb_repair?
 
@@ -73,31 +73,46 @@ namespace dimorphics_dataset
                 throw new ArgumentNullException(nameof(feature_types));
             }
 
-            var features_1d = (feature_types?.feature_types_interface_2d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_neighbourhood_2d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_chain_2d?.AsArray()?.Any(a => a.value) ?? false);
+            //var features_1d = (feature_types?.feature_types_interface_2d?.AsArray()?.Any(a => a.value) ?? false) ||
+            //                  (feature_types?.feature_types_neighbourhood_2d?.AsArray()?.Any(a => a.value) ?? false) ||
+            //                  (feature_types?.feature_types_chain_2d?.AsArray()?.Any(a => a.value) ?? false);
 
-            var features_3d = (feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                              (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false);
+            //var features_3d = (feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+            //                  (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
+            //                  (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false);
 
             var pdb_atoms = atom.load_atoms_pdb
                 (
                     pdb_id: psi.pdb_id,
+                    pdb_options ??
                     new atom.load_atoms_pdb_options()
                     {
-                        load_2d_mpsa_sec_struct_predictions = features_1d || features_3d,
-                        load_2d_blast_pssms = features_1d || features_3d,
-                        load_2d_iup_data = features_1d || features_3d,
-                        load_2d_sable = features_1d || features_3d,
-                        load_2d_dna_binding = features_1d || features_3d,
+                        //load_2d_mpsa_sec_struct_predictions = features_1d || features_3d,
+                        //load_2d_blast_pssms = features_1d || features_3d,
+                        //load_2d_iup_data = features_1d || features_3d,
+                        //load_2d_sable = features_1d || features_3d,
+                        //load_2d_dna_binding = features_1d || features_3d,
 
-                        find_3d_intramolecular = features_1d || features_3d,
-                        load_3d_dssp_data = features_1d || features_3d,
-                        load_3d_stride_data = features_1d || features_3d,
-                        load_3d_ring_data = features_1d || features_3d,
-                        load_3d_foldx_ala_scan = features_1d || features_3d,
-                        load_3d_rsa_data = features_1d || features_3d,
+                        //find_3d_intramolecular = features_1d || features_3d,
+                        //load_3d_dssp_data = features_1d || features_3d,
+                        //load_3d_stride_data = features_1d || features_3d,
+                        //load_3d_ring_data = features_1d || features_3d,
+                        //load_3d_foldx_ala_scan = features_1d || features_3d,
+                        //load_3d_rsa_data = features_1d || features_3d,
+
+
+                        load_2d_mpsa_sec_struct_predictions = true,
+                        load_2d_blast_pssms = true,
+                        load_2d_iup_data = true,
+                        load_2d_sable = true,
+                        load_2d_dna_binding = true,
+
+                        find_3d_intramolecular = true,
+                        load_3d_dssp_data = true,
+                        load_3d_stride_data = true,
+                        load_3d_ring_data = true,
+                        load_3d_foldx_ala_scan = true,
+                        load_3d_rsa_data = true,
                     }
                     )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
@@ -118,12 +133,12 @@ namespace dimorphics_dataset
                 chain_id = psi.chain_id,
             };
             
-            scd.interface_region = new subsequence_classification_data_region(scd, interface_atoms);
-            scd.chain_region = new subsequence_classification_data_region(scd, chain_atoms);
+            scd.interface_region = new subsequence_classification_data_region(scd, interface_atoms, load_ss_predictions, load_foldx_energy);
+            scd.chain_region = new subsequence_classification_data_region(scd, chain_atoms, load_ss_predictions, load_foldx_energy);
             
             // after the interface and chain properties are set, can then find neighborhood...
-            scd.init_nh_flanking();
-            scd.init_nh_contacts();
+            scd.init_nh_flanking(6, load_ss_predictions, load_foldx_energy);
+            scd.init_nh_contacts(5.0, false, load_ss_predictions, load_foldx_energy);
 
             var need_template = (
                                     string.IsNullOrEmpty(scd.interface_region.aa_sequence) ||
@@ -163,7 +178,7 @@ namespace dimorphics_dataset
 
             if (need_template && _template_protein != null && subsequence_classification_data_templates._template_scd == null)
             {
-                subsequence_classification_data_templates._template_scd = get_subsequence_classificiation_data(_template_protein, feature_types, null);
+                subsequence_classification_data_templates._template_scd = get_subsequence_classificiation_data(_template_protein, feature_types, null, pdb_options, load_ss_predictions, load_foldx_energy);
             }
 
             return scd;
@@ -304,9 +319,46 @@ namespace dimorphics_dataset
         //return;
 
         
+        public static void cache_r_servers()
+        {
+            var files = new string[] { $@"E:\dataset\l__(standard_coil).csv", $@"E:\dataset\l__(dimorphic_coil).csv" };
+
+            var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
+
+            var pdb_opt = new atom.load_atoms_pdb_options()
+            {
+                first_model_only = true,
+                first_icode_only = true,
+
+
+                load_2d_mpsa_sec_struct_predictions = false,
+                load_2d_blast_pssms = false,
+                load_2d_iup_data = false,
+                load_2d_sable = false,
+                load_2d_dna_binding = false,
+
+                find_3d_intramolecular = true,
+                load_3d_rsa_data = false,
+                load_3d_dssp_data = false,
+                load_3d_stride_data = false,
+                load_3d_ring_data = false,
+                load_3d_foldx_ala_scan = false,
+            };
+
+            var aa_list = psi_list.AsParallel().AsOrdered().SelectMany(a =>
+            {
+                var b =get_subsequence_classificiation_data(a, new feature_types(), null, pdb_opt,false,false);
+                return b.get_regions().Select(c => c.region.aa_sequence).Distinct().ToList();
+            }).Distinct().ToList();
+
+            Console.WriteLine();
+        }
 
         public static void Main(string[] args)
         {
+            cache_r_servers();
+                return;
+                
             close_notifications();
 
             var child_priority = ProcessPriorityClass.Idle;
