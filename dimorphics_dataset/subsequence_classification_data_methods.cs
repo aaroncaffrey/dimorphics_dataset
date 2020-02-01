@@ -3678,9 +3678,9 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
+        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
-            const int min_sequence_length = 3;
+            const int min_sequence_length = 1;
 
             if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
@@ -3748,7 +3748,7 @@ namespace dimorphics_dataset
                 {
                     try
                     {
-                        process.PriorityBoostEnabled = true;
+                        process.PriorityBoostEnabled = priority_boost;
                     }
                     catch (Exception)
                     {
@@ -3756,7 +3756,7 @@ namespace dimorphics_dataset
 
                     try
                     {
-                        process.PriorityClass = ProcessPriorityClass.High;
+                        process.PriorityClass = priority;
                     }
                     catch (Exception)
                     {
@@ -3803,9 +3803,9 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/)
+        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
-            const int min_sequence_length = 3;
+            const int min_sequence_length = 1;
             
             if (string.IsNullOrWhiteSpace(sequence) || sequence.Length < min_sequence_length)
             {
@@ -3871,7 +3871,7 @@ namespace dimorphics_dataset
                 {
                     try
                     {
-                        process.PriorityBoostEnabled = true;
+                        process.PriorityBoostEnabled = priority_boost;
                     }
                     catch (Exception)
                     {
@@ -3880,7 +3880,7 @@ namespace dimorphics_dataset
 
                     try
                     {
-                        process.PriorityClass = ProcessPriorityClass.High;
+                        process.PriorityClass = priority;
                     }
                     catch (Exception)
                     {
