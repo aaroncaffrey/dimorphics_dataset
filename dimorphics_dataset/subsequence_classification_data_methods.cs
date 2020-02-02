@@ -1334,7 +1334,7 @@ namespace dimorphics_dataset
             var middle_subseq_res = region.res_ids[region.res_ids.Count / 2];
             
             var middle_subseq_res_pdb_index = (scd.chain_region.master_atoms == null || scd.chain_region.master_atoms.Count == 0) ? 0d : scd.chain_region.master_atoms.FindIndex(a => a.residue_index == middle_subseq_res.residue_index);
-            var middle_subseq_res_pdb_index_pct = (middle_subseq_res_pdb_index == -1 || scd.chain_region.master_atoms == null) ? 0d : ((double)(middle_subseq_res_pdb_index) / (double)pdb_len - 1); // note: pct pos isn't correct with (index+1), must be (len-1)
+            var middle_subseq_res_pdb_index_pct = (middle_subseq_res_pdb_index == -1 || scd.chain_region.master_atoms == null || pdb_len - 1 == 0) ? 0d : ((double)(middle_subseq_res_pdb_index) / (double)pdb_len - 1); // note: pct pos isn't correct with (index+1), must be (len-1)
             
 
                 var length_features = new List<feature_info>();
@@ -3678,7 +3678,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
         {
             const int min_sequence_length = 1;
             var enable_cache = false;
@@ -3815,7 +3815,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = true, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
         {
             Console.WriteLine(sequence);
             const int min_sequence_length = 1;
