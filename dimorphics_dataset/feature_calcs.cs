@@ -231,7 +231,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<List<T>> split_sequence<T>(List<T> seq, int sections = 3, int divisible = 0, bool distribute = false)
+        public static List<List<T>> split_sequence<T>(ICollection<T> seq, int sections = 3, int divisible = 0, bool distribute = false)
         {
             var r = new List<List<T>>();
             for (var i = 0; i < sections; i++)

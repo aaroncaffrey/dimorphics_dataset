@@ -21,6 +21,7 @@ namespace dimorphics_dataset
         internal int? last_index;
         internal bool? verbose;
         internal string tag;
+        internal bool? use_children;
 
         public cmd_params()
         {
@@ -125,12 +126,16 @@ namespace dimorphics_dataset
                 verbose = (bool.TryParse(get_param(nameof(cmd_params.verbose), args_list), out var tp_verbose)
                     ? tp_verbose
                     : (bool?)null),
-                tag = get_param(nameof(cmd_params.tag), args_list)
+                tag = get_param(nameof(cmd_params.tag), args_list),
+                use_children = (bool.TryParse(get_param(nameof(cmd_params.use_children), args_list), out var tp_use_children)
+                    ? tp_use_children
+                    : (bool?)null),
             };
 
             ret.verbose ??= (ret.first_index == null && ret.last_index == null);
             ret.first_index ??= ret.last_index;
             ret.last_index ??= ret.first_index;
+            ret.use_children ??= true;
 
             if (args_list.Any())
             {

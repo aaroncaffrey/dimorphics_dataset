@@ -132,10 +132,10 @@ namespace dimorphics_dataset
                 pdb_id = psi.pdb_id,
                 chain_id = psi.chain_id,
             };
-            
+
             scd.interface_region = new subsequence_classification_data_region(scd, interface_atoms, load_ss_predictions, load_foldx_energy);
             scd.chain_region = new subsequence_classification_data_region(scd, chain_atoms, load_ss_predictions, load_foldx_energy);
-            
+
             // after the interface and chain properties are set, can then find neighborhood...
             scd.init_nh_flanking(6, load_ss_predictions, load_foldx_energy);
             scd.init_nh_contacts(5.0, false, load_ss_predictions, load_foldx_energy);
@@ -147,7 +147,7 @@ namespace dimorphics_dataset
                                     string.IsNullOrEmpty(scd.nh_contact_region.aa_sequence)
                                     );
 
-            
+
 
             //if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value)??false)
             //{
@@ -237,7 +237,7 @@ namespace dimorphics_dataset
             };
         }
 
-   
+
 
 
         //var pdbs = get_dataset_pdb_id_list().Select(a => a.pdb_id).Distinct().ToList();
@@ -318,118 +318,43 @@ namespace dimorphics_dataset
 
         //return;
 
-        
-        public static void cache_r_servers()
-        {
-            /*
-            var files = new string[] { $@"E:\dataset\l__(standard_coil).csv", $@"E:\dataset\l__(dimorphic_coil).csv" };
 
-            var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
-
-            var pdb_opt = new atom.load_atoms_pdb_options()
-            {
-                first_model_only = true,
-                first_icode_only = true,
-                load_uniprot = false,
-
-                load_2d_mpsa_sec_struct_predictions = false,
-                load_2d_blast_pssms = false,
-                load_2d_iup_data = false,
-                load_2d_sable = false,
-                load_2d_dna_binding = false,
-
-                find_3d_intramolecular = true,
-                load_3d_rsa_data = false,
-                load_3d_dssp_data = false,
-                load_3d_stride_data = false,
-                load_3d_ring_data = false,
-                load_3d_foldx_ala_scan = false,
-            };
-
-            var aa_list = psi_list.AsParallel().AsOrdered().SelectMany(a =>
-            {
-                var b = get_subsequence_classificiation_data(a, new feature_types(), null, pdb_opt, false, false);
-                
-                var c = b.get_regions().Select(c => c.region.aa_sequence).Distinct().ToList();
-
-                return c;
-            }).Distinct().ToList();
-
-            aa_list = aa_list.Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList();
-            */
-            var aa_list = cache_r_get_seqs();
-            aa_list = aa_list.OrderBy(a => a).ToList();
-
-            {
-                var r_protr_results = aa_list.AsParallel().AsOrdered().Select(a =>
-                    (aa_seq: a, features: subsequence_classification_data_methods.call_r_protr(a))).ToList();
-                var r_protr_csv = r_protr_results.SelectMany(a =>
-                        a.features.Select(b =>
-                            $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
-                    .ToList();
-                io_proxy.WriteAllLines($@"e:\dataset\r_protr_cache.csv", r_protr_csv);
-            }
-
-            {
-                var r_peptides_results = aa_list.AsParallel().AsOrdered().Select(a =>
-                    (aa_seq: a, features: subsequence_classification_data_methods.call_r_peptides(a))).ToList();
-                var r_peptides_csv = r_peptides_results.SelectMany(a =>
-                        a.features.Select(b =>
-                            $"{a.aa_seq},{string.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
-                    .ToList();
-                io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
-            }
-
-            //Console.WriteLine();
-        }
-
-        public static List<string> cache_r_get_seqs()
-        {
-            var files = new string[] { $@"e:\dataset\r_protr_cache.csv" };
-
-            var aa_seqs = files.SelectMany(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(a => a.Length).ThenBy(a => a).ToList()).ToList();
-
-            return aa_seqs;
-        }
-
-        public static void cache_r_servers_check()
-        {
-            var files = new string[] { $@"e:\dataset\r_protr_cache.csv", $@"e:\dataset\r_peptides_cache.csv"};
-        
-            var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(a=>a.Length).ThenBy(a=>a).ToList()).ToList();
-
-            var equal = aa_seqs[0].SequenceEqual(aa_seqs[1]);
-
-            io_proxy.WriteLine("SequenceEqual: " + equal);
-            
-            Console.WriteLine();
-
-        }
 
 
 
         public static void Main(string[] args)
         {
-            cache_r_servers();
-            cache_r_servers_check();
-            return;
-                
+
+            //var swx = new Stopwatch();
+            //swx.Start();
+            //var x = cache_r_load();
+            //swx.Stop();
+            //Console.WriteLine(swx.Elapsed.ToString("g"));
+
+            //cache_r_servers();
+            //cache_r_servers_check();
+            //return;
+
             close_notifications();
-
             var child_priority = ProcessPriorityClass.Idle;
-
             var p = cmd_params.get_params(args);
-
             program.verbose = p.verbose.Value;
-            
             var feature_types = feature_types_params(p);
+
+#if DEBUG
+            p.use_children = false;
+#endif
+
+            // preload
+            var cache_r_protr = subsequence_classification_data_r_methods.cache_r_protr;
+            var cache_r_peptides = subsequence_classification_data_r_methods.cache_r_peptides;
 
             //return;
             var sw1 = new Stopwatch();
             sw1.Start();
 
             var pdb_id_list = get_dataset_pdb_id_list();
-            
+
             // 1. find subsequence details from analysis of pdb files
             var psi_list = part1(p, pdb_id_list);
 
@@ -455,51 +380,69 @@ namespace dimorphics_dataset
                 var fns = get_output_filenames(p, _index);
                 if (File.Exists(fns.fn_headers) && File.Exists(fns.fn_features) && File.Exists(fns.fn_comments)) continue;
 
+
                 if (p.first_index == null && p.last_index == null)
                 {
-                    var task = Task.Run(() =>
+                    if (p.use_children.Value)
                     {
-                        while (true)
+                        var task = Task.Run(() =>
                         {
-                            using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, $"{string.Join(" ", args)} -first_index={_index} -last_index={_index}");
-
-                            if (process != null)
+                            while (true)
                             {
-                                try
-                                {
-                                    process.PriorityClass = child_priority;
-                                }
-                                catch (Exception)
-                                {
+                                using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, $"{string.Join(" ", args)} -first_index={_index} -last_index={_index}");
 
+                                if (process != null)
+                                {
+                                    try
+                                    {
+                                        process.PriorityClass = child_priority;
+                                    }
+                                    catch (Exception)
+                                    {
+                                    }
+                                    process.WaitForExit();
+                                    return;
                                 }
-                                
-                                process.WaitForExit();
+                                else
+                                {
+                                    Task.Delay(new TimeSpan(0, 0, 5)).Wait();
+                                }
+                            }
+                        });
+                        tasks.Add(task);
 
-                                return;
-                            }
-                            else
-                            {
-                                Task.Delay(new TimeSpan(0, 0, 5)).Wait();
-                            }
+                        var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
+                        if (incomplete_tasks.Length >= Environment.ProcessorCount)
+                        {
+                            Task.WaitAny(incomplete_tasks);
                         }
-                    });
 
-                    tasks.Add(task);
-
-                    var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
-                    if (incomplete_tasks.Length >= Environment.ProcessorCount)
-                    {
-                        Task.WaitAny(incomplete_tasks);
+                        continue;
                     }
+                    /*else
+                    {
+                        var task = Task.Run(() =>
+                        {
+                            var args2 = args.Union(new string[] { $@"-first_index={_index}", $@"-last_index={_index}" }).ToArray();
+                            Main(args2);
+                        });
+                        tasks.Add(task);
 
-                    continue;
+                        var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
+                        if (incomplete_tasks.Length >= Environment.ProcessorCount)
+                        {
+                            Task.WaitAny(incomplete_tasks);
+                        }
+
+                        continue;
+                    }*/
+                    
+                   
                 }
 
-                
-                
 
-               
+
+
                 var psi_list2 = new List<protein_subsequence_info>() { psi_list[_index] };
 
                 // 2. load available data sources
@@ -522,7 +465,7 @@ namespace dimorphics_dataset
             }
 
             sw1.Stop();
-            
+
             if (p.first_index == null && p.last_index == null)
             {
 
@@ -753,7 +696,7 @@ namespace dimorphics_dataset
             return feature_types;
         }
 
-        
+
         private static string get_input_filenames(cmd_params p, int? index = null)
         {
             var fn_input = Path.Combine(p.output_folder, $"l__({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
@@ -762,7 +705,7 @@ namespace dimorphics_dataset
 
         private static (string fn_headers, string fn_comments, string fn_features) get_output_filenames(cmd_params p, int? index = null)
         {
-            
+
             //var fn_input = Path.Combine(cmd_params.output_folder, $"l__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
             var fn_headers = Path.Combine(p.output_folder, $"h_{(p.tag ?? "")}_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
             var fn_comments = Path.Combine(p.output_folder, $"c_{(p.tag ?? "")}_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
@@ -791,7 +734,7 @@ namespace dimorphics_dataset
 
             // get list of the feature headers in csv format
             var feature_headers = feature_info.get_feature_headers_lines_csv(data_encoded_list.First().feature_info);
-            
+
             io_proxy.WriteAllLines(fns.fn_headers, feature_headers, nameof(program), nameof(part4));
 
             var tasks4 = new List<Task<(string row_feature_values_csv, string row_comments_csv)>>();
@@ -832,12 +775,12 @@ namespace dimorphics_dataset
 
             var comments_lines = tasks4.Select(a => a.Result.row_comments_csv).ToList();
             comments_lines.Insert(0, row_comments_header_csv);
-            
+
             io_proxy.WriteAllLines(fns.fn_comments, comments_lines, nameof(program), nameof(part4));
 
             var features_lines = tasks4.Select(a => a.Result.row_feature_values_csv).ToList();
             features_lines.Insert(0, row_feature_header_csv);
-            
+
             io_proxy.WriteAllLines(fns.fn_features, features_lines, nameof(program), nameof(part4));
         }
 
@@ -871,7 +814,7 @@ namespace dimorphics_dataset
 
                 wait_tasks(tasks3.ToArray<Task>(), nameof(program), nameof(part3));
             }
-            
+
             class_data_list.Clear();
             class_data_list = null;
             wait_tasks(tasks3.ToArray<Task>(), nameof(program), nameof(part3));
@@ -907,7 +850,7 @@ namespace dimorphics_dataset
 
                 wait_tasks(tasks2.ToArray<Task>(), nameof(program), nameof(part2));
             }
-            
+
             psi_list.Clear();
             psi_list = null;
             wait_tasks(tasks2.ToArray<Task>(), nameof(program), nameof(part2));
@@ -932,7 +875,7 @@ namespace dimorphics_dataset
             //var cache_filename = Path.Combine(cmd_params.output_folder, $@"l__({cmd_params.class_name}).csv");
 
             var cache_filename = get_input_filenames(p, null);
-            
+
             var cache = protein_subsequence_info.load(cache_filename);
 
             if (cache != null && cache.Count > 0)
@@ -940,7 +883,7 @@ namespace dimorphics_dataset
                 return cache;
             }
 
-            List<(string pdb_id, char chain_id, List<int> res_ids)> invalid_res_ids=null;
+            List<(string pdb_id, char chain_id, List<int> res_ids)> invalid_res_ids = null;
 
             if (p.class_name == "standard_coil")
             {
@@ -949,13 +892,13 @@ namespace dimorphics_dataset
                     class_id = -p.class_id,
                     class_name = "dimorphic_coil",
                 };
-                
-                var dimorphic_coils_psi_list = part1(p2, pdb_id_list.Select(a=> (a.pdb_id, a.dimer_type, a.class_name, a.symmetry_mode, a.parallelism, a.chain_number, a.strand_seq, a.optional_res_index)).ToList());
+
+                var dimorphic_coils_psi_list = part1(p2, pdb_id_list.Select(a => (a.pdb_id, a.dimer_type, a.class_name, a.symmetry_mode, a.parallelism, a.chain_number, a.strand_seq, a.optional_res_index)).ToList());
 
                 invalid_res_ids = dimorphic_coils_psi_list.Select(a => (a.pdb_id, a.chain_id, a.res_ids.Select(b => b.res_id).ToList())).ToList();
-                invalid_res_ids = invalid_res_ids.GroupBy(a => (a.pdb_id, a.chain_id)).Select(a => 
-                    (a.Key.pdb_id, 
-                        a.Key.chain_id, 
+                invalid_res_ids = invalid_res_ids.GroupBy(a => (a.pdb_id, a.chain_id)).Select(a =>
+                    (a.Key.pdb_id,
+                        a.Key.chain_id,
                         a.SelectMany(b => b.res_ids).Distinct().ToList())).ToList();
             }
 
