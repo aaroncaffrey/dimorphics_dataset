@@ -517,7 +517,7 @@ namespace dimorphics_dataset
                 io_proxy.WriteLine($@"No invalid feature ids.", nameof(program), nameof(part6_check_and_merge_outputs));
             }
 
-            var fns = get_output_filenames(p, null);
+            var fns = get_output_filenames(p, feature_types, null);
             io_proxy.WriteAllLines(fns.fn_headers, text_header);
             io_proxy.WriteAllLines(fns.fn_features, text_features);
             io_proxy.WriteAllLines(fns.fn_comments, text_comments);
@@ -579,19 +579,21 @@ namespace dimorphics_dataset
 
         private static string get_input_filenames(cmd_params p, int? index = null)
         {
-            var fn_input = Path.Combine(p.output_folder, $"l__({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            var fn_input = Path.Combine(p.output_folder, $"l__({(p.class_id > 0 ? "+" : "")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
             return fn_input;
         }
 
-        private static (string fn_headers, string fn_comments, string fn_features) get_output_filenames(cmd_params p, feature_types feature_types, int? index = null)
+        private static (string fn_headers, string fn_comments, string fn_features) get_output_filenames(cmd_params p, feature_types feature_types, int? index)
         {
+            if (p==null) throw new ArgumentNullException(nameof(p));
+            if (feature_types == null) throw new ArgumentNullException(nameof(feature_types));
 
             var tag = feature_types.get_output_file_tag();
 
             //var fn_input = Path.Combine(cmd_params.output_folder, $"l__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
-            var fn_headers = Path.Combine(p.output_folder, $"h_{(tag ?? "")}_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
-            var fn_comments = Path.Combine(p.output_folder, $"c_{(tag ?? "")}_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
-            var fn_features = Path.Combine(p.output_folder, $"f_{(tag ?? "")}_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            var fn_headers = Path.Combine(p.output_folder, $"h_{(tag ?? "")}_({(p.class_id > 0 ? "+" : "")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            var fn_comments = Path.Combine(p.output_folder, $"c_{(tag ?? "")}_({(p.class_id > 0 ? "+" : "")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            var fn_features = Path.Combine(p.output_folder, $"f_{(tag ?? "")}_({(p.class_id > 0 ? "+" : "")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
 
             return (fn_headers, fn_comments, fn_features);
         }

@@ -65,12 +65,12 @@ namespace dimorphics_dataset
 
         public static cmd_params get_params(string[] args)
         {
-            if (args == null || args.Length == 0 || (args.Length == 1 && args[0] == "-test"))
+            if (args == null || args.Length == 0)// || (args.Length == 1 && args[0] == "-test"))
             {
                 var test = args?.Any(a => a == "-test") ?? false;
 
                 var areas = new[] {"2i", "2n", "2p", "3i", "3n", "3p"};
-
+                var classes = new[] { (class_id:+1, class_name:"dimorphic_coil"), (class_id:-1, class_name:"standard_coil") };
                 program.verbose = true;
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
                 io_proxy.WriteLine($@"");
@@ -82,11 +82,20 @@ namespace dimorphics_dataset
                 io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} examples:");
                 io_proxy.WriteLine($@"");
 
-                //io_proxy.WriteLine($@"{a[0]}d {(a[1] == 'i' ? "interface subsequence" : "")}{(a[1] == 'n' ? "neighbourhood" : "")}{(a[1] == 'p' ? "protein" : "")} area:");
-                io_proxy.WriteLine($@"{exe} -area={string.Join(",", areas)} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")}dimorphic_coil\ -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}dimorphic_coil\stdout.txt 2> e:\dataset\{(test ? $@"test\" : "")}dimorphic_coil\stderr.txt");
-                io_proxy.WriteLine($@"{exe} -area={string.Join(",", areas)} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")}standard_coil\  -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}standard_coil\stdout.txt  2> e:\dataset\{(test ? $@"test\" : "")}standard_coil\stderr.txt");
-                io_proxy.WriteLine($@"");
-                
+                foreach (var a in areas)
+                {
+                    io_proxy.WriteLine(
+                        $@"{a[0]}d {(a[1] == 'i' ? "interface subsequence" : "")}{(a[1] == 'n' ? "neighbourhood" : "")}{(a[1] == 'p' ? "protein chain" : "")} area:");
+                    //io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")} -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}stdout_{a}_dimorphic_coil.txt 2> e:\dataset\{(test ? $@"test\" : "")}stderr_{a}_dimorphic_coil.txt");
+                    //io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")} -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}stdout_{a}_standard_coil.txt  2> e:\dataset\{(test ? $@"test\" : "")}stderr_{a}_standard_coil.txt");
+
+                    foreach (var b in classes)
+                    {
+                        io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id={(b.class_id>0?"+":"")}{b.class_id} -class_name={b.class_name} -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\ -verbose=true 1> e:\dataset\stdout_{a}_({(b.class_id > 0 ? "+" : "")}{b.class_id})_({b.class_name}).txt 2> e:\dataset\stderr_{a}_({(b.class_id>0?"+":"")}{b.class_id})_({b.class_name}).txt");
+                    }
+
+                    io_proxy.WriteLine($@"");
+                }
 
                 Environment.Exit(0);
                 //return default;
