@@ -10,8 +10,8 @@ namespace dimorphics_dataset
 {
     public static class subsequence_classification_data_r_methods
     {
-        public static List<(string aa_sequence, List<feature_info> features)> cache_r_protr = cache_r_load(@"e:\dataset\r_protr_cache.csv");
-        public static List<(string aa_sequence, List<feature_info> features)> cache_r_peptides = cache_r_load(@"e:\dataset\r_peptides_cache.csv");
+        public static List<(string aa_sequence, List<feature_info> features)> cache_r_protr = null;// cache_r_load(@"e:\dataset\r_protr_cache.csv");
+        public static List<(string aa_sequence, List<feature_info> features)> cache_r_peptides = null;//cache_r_load(@"e:\dataset\r_peptides_cache.csv");
 
         public static void cache_r_servers()
         {

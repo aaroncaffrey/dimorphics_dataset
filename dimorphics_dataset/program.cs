@@ -337,13 +337,17 @@ namespace dimorphics_dataset
 
             close_notifications();
             var child_priority = ProcessPriorityClass.Idle;
+            var child_priority_boost = false;
             var p = cmd_params.get_params(args);
-            program.verbose = p.verbose.Value;
-            var feature_types2 = dimorphics_dataset.feature_types.feature_types_params(p.area);
+            
+            if (p == null)
+            {
+                return;
+            }
 
-            // preload
-            var cache_r_protr = subsequence_classification_data_r_methods.cache_r_protr;
-            var cache_r_peptides = subsequence_classification_data_r_methods.cache_r_peptides;
+            program.verbose = p?.verbose.Value ?? true;
+
+            var feature_types2 = feature_types.feature_types_params(p?.area ?? null);
 
             //return;
             var sw1 = new Stopwatch();
@@ -353,6 +357,13 @@ namespace dimorphics_dataset
 
             // 1. find subsequence details from analysis of pdb files
             var psi_list = part1_find_samples(p, pdb_id_list);
+
+            // load r cache, if not using children (takes too many resources to load cache for individual items)
+            if (!p.use_children.Value)
+            {
+                subsequence_classification_data_r_methods.cache_r_protr = subsequence_classification_data_r_methods.cache_r_load(@"e:\dataset\r_protr_cache.csv");
+                subsequence_classification_data_r_methods.cache_r_peptides = subsequence_classification_data_r_methods.cache_r_load(@"e:\dataset\r_peptides_cache.csv");
+            }
 
             var _template_protein = psi_list.First();
             //Parallel.For(0, psi_list.Count, index =>
@@ -389,13 +400,9 @@ namespace dimorphics_dataset
 
                                 if (process != null)
                                 {
-                                    try
-                                    {
-                                        process.PriorityClass = child_priority;
-                                    }
-                                    catch (Exception)
-                                    {
-                                    }
+                                    try { process.PriorityClass = child_priority; } catch (Exception) { }
+                                    try { process.PriorityBoostEnabled = child_priority_boost; } catch (Exception) { }
+
                                     process.WaitForExit();
                                     return;
                                 }
@@ -744,15 +751,20 @@ namespace dimorphics_dataset
 
         private static List<protein_subsequence_info> part1_find_samples(cmd_params p, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> pdb_id_list)
         {
-            if (p.class_name == "standard_coil")
+            const string standard_coil = "standard_coil";
+            const string dimorphic_coil = "dimorphic_coil";
+
+            var pdb_id_list2 = pdb_id_list;
+
+            if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
             {
-                pdb_id_list = pdb_id_list.GroupBy(a => a.pdb_id).Select(a => a.First()).ToList();
+                pdb_id_list2 = pdb_id_list.GroupBy(a => (a.pdb_id, a.chain_number)).Select(a => a.First()).ToList();
             }
 
             if (p.first_index == null && p.last_index == null)
             {
                 io_proxy.WriteLine(
-                    $@"{p.class_id} {p.class_name}: 1. Loading pdb info from {pdb_id_list.Count} files...",
+                    $@"{p.class_id} {p.class_name}: 1. Loading pdb info from {pdb_id_list2.Count} files...",
                     nameof(program), nameof(part1_find_samples));
             }
 
@@ -769,15 +781,17 @@ namespace dimorphics_dataset
 
             List<(string pdb_id, char chain_id, List<int> res_ids)> invalid_res_ids = null;
 
-            if (p.class_name == "standard_coil")
+            if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
             {
                 var p2 = new cmd_params(p)
                 {
                     class_id = -p.class_id,
-                    class_name = "dimorphic_coil",
+                    class_name = dimorphic_coil,
+                    
                 };
 
-                var dimorphic_coils_psi_list = part1_find_samples(p2, pdb_id_list.Select(a => (a.pdb_id, a.dimer_type, a.class_name, a.symmetry_mode, a.parallelism, a.chain_number, a.strand_seq, a.optional_res_index)).ToList());
+                var pdb_id_list3 = pdb_id_list.Select(a => (a.pdb_id, a.dimer_type, a.class_name, a.symmetry_mode, a.parallelism, a.chain_number, a.strand_seq, a.optional_res_index)).ToList();
+                var dimorphic_coils_psi_list = part1_find_samples(p2, pdb_id_list3);
 
                 invalid_res_ids = dimorphic_coils_psi_list.Select(a => (a.pdb_id, a.chain_id, a.res_ids.Select(b => b.res_id).ToList())).ToList();
                 invalid_res_ids = invalid_res_ids.GroupBy(a => (a.pdb_id, a.chain_id)).Select(a =>
@@ -788,21 +802,21 @@ namespace dimorphics_dataset
 
             var tasks1 = new List<Task<List<protein_subsequence_info>>>();
 
-            for (var i = 0; i < pdb_id_list.Count; i++)
+            for (var i = 0; i < pdb_id_list2.Count; i++)
             {
-                var pdb_id_item = pdb_id_list[i];
+                var pdb_id_item = pdb_id_list2[i];
 
-                pdb_id_list[i] = default;
+                pdb_id_list2[i] = default;
 
                 var task = Task.Run(() =>
                 {
                     var psi_list = new List<protein_subsequence_info>();
 
-                    if (p.class_name == "standard_coil")
+                    if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
                     {
                         psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, pdb_id_item.chain_number, p.class_id, p.class_name, p.use_dssp3);
                     }
-                    else if (p.class_name == "dimorphic_coil")
+                    else if (string.Equals(p.class_name, dimorphic_coil, StringComparison.InvariantCultureIgnoreCase))
                     {
                         psi_list.Add(dataset_gen_dimorphic.get_dhc_item(p.class_id, p.class_name, p.use_dssp3, true, false, pdb_id_item));
                     }
@@ -828,16 +842,20 @@ namespace dimorphics_dataset
                 //wait_tasks(tasks1.ToArray<Task>(), nameof(program), nameof(part1));
             }
 
-            pdb_id_list.Clear();
+            pdb_id_list2?.Clear();
+            pdb_id_list2 = null;
+
+            pdb_id_list?.Clear();
             pdb_id_list = null;
+
             wait_tasks(tasks1.ToArray<Task>(), nameof(program), nameof(part1_find_samples));
-            var psi_list = tasks1.SelectMany(a => a.Result).ToList();
+            var psi_list2 = tasks1.SelectMany(a => a.Result).ToList();
 
-            psi_list = psi_list.Where(a => a.aa_subsequence.Length >= p.min_sequence_length).ToList();
+            psi_list2 = psi_list2.Where(a => a.aa_subsequence.Length >= p.min_sequence_length).ToList();
 
-            protein_subsequence_info.save(cache_filename, psi_list);
+            protein_subsequence_info.save(cache_filename, psi_list2);
 
-            return psi_list;
+            return psi_list2;
         }
     }
 }

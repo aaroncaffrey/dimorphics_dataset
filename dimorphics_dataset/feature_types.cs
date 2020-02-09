@@ -66,6 +66,11 @@ namespace dimorphics_dataset
 
         public static feature_types feature_types_params(string[] area)
         {
+            if (area == null || area.Length == 0)
+            {
+                return null;
+            }
+
             var do_2d_interface = area?.Any(a => string.Equals(a, "2i", StringComparison.InvariantCultureIgnoreCase)) ?? false;
             var do_2d_nh = area?.Any(a => string.Equals(a, "2n", StringComparison.InvariantCultureIgnoreCase)) ?? false;
             var do_2d_protein = area?.Any(a => string.Equals(a, "2p", StringComparison.InvariantCultureIgnoreCase)) ?? false;

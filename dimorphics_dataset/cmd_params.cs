@@ -40,6 +40,7 @@ namespace dimorphics_dataset
             first_index = p.first_index;
             last_index = p.last_index;
             verbose = p.verbose;
+            use_children = p.use_children;
             //tag = p.tag;
         }
 
@@ -65,12 +66,16 @@ namespace dimorphics_dataset
 
         public static cmd_params get_params(string[] args)
         {
+            const string standard_coil = "standard_coil";
+            const string dimorphic_coil = "dimorphic_coil";
+
             if (args == null || args.Length == 0)// || (args.Length == 1 && args[0] == "-test"))
             {
                 var test = args?.Any(a => a == "-test") ?? false;
 
                 var areas = new[] {"2i", "2n", "2p", "3i", "3n", "3p"};
-                var classes = new[] { (class_id:+1, class_name:"dimorphic_coil"), (class_id:-1, class_name:"standard_coil") };
+                var classes = new[] { (class_id:+1, class_name:dimorphic_coil), (class_id:-1, class_name:standard_coil) };
+                var output_folder = @"e:\dataset\";
                 program.verbose = true;
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
                 io_proxy.WriteLine($@"");
@@ -84,22 +89,25 @@ namespace dimorphics_dataset
 
                 foreach (var a in areas)
                 {
-                    io_proxy.WriteLine(
-                        $@"{a[0]}d {(a[1] == 'i' ? "interface subsequence" : "")}{(a[1] == 'n' ? "neighbourhood" : "")}{(a[1] == 'p' ? "protein chain" : "")} area:");
+                    io_proxy.WriteLine($@"{a[0]}d {(a[1] == 'i' ? "interface subsequence" : "")}{(a[1] == 'n' ? "neighbourhood" : "")}{(a[1] == 'p' ? "protein chain" : "")} area:");
                     //io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")} -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}stdout_{a}_dimorphic_coil.txt 2> e:\dataset\{(test ? $@"test\" : "")}stderr_{a}_dimorphic_coil.txt");
                     //io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id=-1 -class_name=standard_coil  -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\{(test ? $@"test\" : "")} -verbose=true 1> e:\dataset\{(test ? $@"test\" : "")}stdout_{a}_standard_coil.txt  2> e:\dataset\{(test ? $@"test\" : "")}stderr_{a}_standard_coil.txt");
 
                     foreach (var b in classes)
                     {
-                        io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id={(b.class_id>0?"+":"")}{b.class_id} -class_name={b.class_name} -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset\ -verbose=true 1> e:\dataset\stdout_{a}_({(b.class_id > 0 ? "+" : "")}{b.class_id})_({b.class_name}).txt 2> e:\dataset\stderr_{a}_({(b.class_id>0?"+":"")}{b.class_id})_({b.class_name}).txt");
+                        var stdout_file = Path.Combine(output_folder, $@"stdout_{a}_({(b.class_id > 0 ? "+" : "")}{b.class_id})_({b.class_name}).txt");
+                        var stderr_file = Path.Combine(output_folder, $@"stderr_{a}_({(b.class_id > 0 ? "+" : "")}{b.class_id})_({b.class_name}).txt");
+                        
+                        io_proxy.WriteLine($@"{exe} -area={a} -use_dssp3=true -class_id={(b.class_id>0?"+":"")}{b.class_id} -class_name={b.class_name} -min_sequence_length=3 -max_features=100 -output_folder={output_folder} -use_children=true -verbose=true 1> {stdout_file} 2> {stderr_file}");
                     }
 
                     io_proxy.WriteLine($@"");
                 }
 
-                Environment.Exit(0);
+                //Environment.Exit(0);
                 //return default;
                 //throw new Exception($@"No {nameof(args)} specified.");
+                return null;
             }
 
             io_proxy.WriteLine(string.Join(" ", args), nameof(program), nameof(get_params));
@@ -141,7 +149,7 @@ namespace dimorphics_dataset
             ret.verbose ??= (ret.first_index == null && ret.last_index == null);
             ret.first_index ??= ret.last_index;
             ret.last_index ??= ret.first_index;
-            ret.use_children ??= false;
+            ret.use_children ??= true;
 
             if (args_list.Any())
             {
@@ -185,6 +193,8 @@ namespace dimorphics_dataset
                 io_proxy.WriteLine($@"{nameof(ret.last_index)} = ""{ret.last_index}""", nameof(program),
                     nameof(get_params));
                 io_proxy.WriteLine($@"{nameof(ret.verbose)} = ""{ret.verbose}""", nameof(program),
+                    nameof(get_params));
+                io_proxy.WriteLine($@"{nameof(ret.use_children)} = ""{ret.use_children}""", nameof(program),
                     nameof(get_params));
                 //io_proxy.WriteLine($@"{nameof(ret.tag)} = ""{ret.tag}""", nameof(program), nameof(get_params));
             }
