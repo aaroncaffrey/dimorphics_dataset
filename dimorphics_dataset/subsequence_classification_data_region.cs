@@ -28,8 +28,7 @@ namespace dimorphics_dataset
         internal List<(string format, string prediction)> ss_predictions;
         internal info_foldx.energy_differences foldx_energy_differences;
 
-        public subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms,
-            bool load_ss_predictions = true, bool load_foldx_energy = true)
+        public subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             atoms = region_atoms;
             master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
@@ -48,13 +47,21 @@ namespace dimorphics_dataset
 
             if (load_ss_predictions)
             {
-                ss_predictions = atom.get_dssp_and_mpsa_subsequences(master_atoms);
+                if (master_atoms == null || master_atoms.Count == 0)
+                {
+                    var template_region = scd.get_regions().First(a => a.region != null && a.region.master_atoms != null && a.region.master_atoms.Count > 0).region.master_atoms;
+                    ss_predictions = atom.get_dssp_and_mpsa_subsequences(template_region);
+                    ss_predictions = ss_predictions.Select(a => (a.format, "")).ToList();
+                }
+                else
+                {
+                    ss_predictions = atom.get_dssp_and_mpsa_subsequences(master_atoms);
+                }
             }
 
             if (load_foldx_energy)
             {
-                foldx_energy_differences =
-                    info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, res_ids, false);
+                foldx_energy_differences = info_foldx.load_calc_energy_differences(scd.pdb_id, scd.chain_id, res_ids, false);
             }
         }
     }

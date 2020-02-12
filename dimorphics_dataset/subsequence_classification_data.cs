@@ -163,6 +163,4 @@ namespace dimorphics_dataset
             return row_comments;
         }
     }
-
-   
 }
