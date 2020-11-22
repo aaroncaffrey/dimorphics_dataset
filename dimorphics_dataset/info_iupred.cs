@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class info_iupred
+    internal static class info_iupred
     {
-        public static List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)> load(string pdb_id, char chain_id)
+        internal static List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)> load(string pdb_id, char chain_id)
         {
        
             //var seq_index_lookup_file = Path.Combine(program.data_root_folder,"betastrands_dataset_sequences_limited.txt";

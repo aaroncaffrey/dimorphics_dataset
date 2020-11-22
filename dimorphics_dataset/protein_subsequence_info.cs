@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class protein_subsequence_info
+    internal class protein_subsequence_info
     {
         internal int class_id;
         internal string class_name;
@@ -22,14 +22,14 @@ namespace dimorphics_dataset
         //internal string aa_after;
         //internal string aa_protein;
 
-        public static void save(string filename, List<protein_subsequence_info> psi_list)
+        internal static void save(string filename, List<protein_subsequence_info> psi_list)
         {
             var text = psi_list.Select(a => $@"{a.class_id},{a.class_name},{a.dimer_type},{a.parallelism},{a.symmetry_mode},{a.pdb_id},{a.chain_id},{string.Join(";", a.res_ids.Select(b => $@"{b.amino_acid}{b.i_code}{b.res_id}").ToList())},{a.aa_subsequence}").ToList();
             text.Insert(0, $@"{nameof(class_id)},{nameof(class_name)},{nameof(dimer_type)},{nameof(parallelism)},{nameof(symmetry_mode)},{nameof(pdb_id)},{nameof(chain_id)},{nameof(res_ids)},{nameof(aa_subsequence)}");
             io_proxy.WriteAllLines(filename, text, nameof(protein_subsequence_info), nameof(save));
         }
 
-        public static List<protein_subsequence_info> load(string filename)
+        internal static List<protein_subsequence_info> load(string filename)
         {
             if (!File.Exists(filename) || new FileInfo(filename).Length == 0) return null;
 

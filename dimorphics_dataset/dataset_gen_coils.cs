@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class dataset_gen_coils
+    internal static class dataset_gen_coils
     {
-        public static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int chain_number, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false)
+        internal static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int chain_number, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false)
         {
             // find the coils within a given pdb file
             //var use_multimer_dssp = true;
@@ -17,18 +17,20 @@ namespace dimorphics_dataset
                 pdb_id:pdb_id,
                 new atom.load_atoms_pdb_options()
                 { 
-                    find_3d_intramolecular=false, 
-                    
-                    load_3d_rsa_data=false,
+                    find_3d_intramolecular=false,
+
+                    load_1d_blast_pssms = false,
+                    load_1d_iup_data = false,
+                    load_1d_sable = false,
+                    load_1d_dna_binding = false,
+
+                    load_2d_mpsa_sec_struct_predictions = false,
+
+                    load_3d_rsa_data =false,
                     load_3d_dssp_data=true,
                     load_3d_stride_data=false,
                     load_3d_ring_data=false,
-                    load_2d_mpsa_sec_struct_predictions=false,
-                    load_2d_blast_pssms=false,
-                    load_2d_iup_data=false,
-                    load_2d_sable=false,
-                    load_3d_foldx_ala_scan=false,
-                    load_2d_dna_binding=false,
+                    load_3d_foldx_ala_scan = false,
                 }
                 )
                 .Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();

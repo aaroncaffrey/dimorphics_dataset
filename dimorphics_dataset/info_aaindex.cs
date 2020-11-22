@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class info_aaindex
+    internal static class info_aaindex
     {
-        public static readonly List<info_aaindex.info_aaindex_entry> aaindex_entries = info_aaindex.Load();
+        internal static readonly List<info_aaindex.info_aaindex_entry> aaindex_entries = info_aaindex.Load();
 
-        public class info_aaindex_entry
+        internal class info_aaindex_entry
         {
             internal string H_Accession_Number;
             internal string D_Data_Description;
@@ -23,7 +23,7 @@ namespace dimorphics_dataset
             internal List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data_Normalised=new List<(char, double)>();
         }
 
-        //public static List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)> sequence_aaindex_all(string sequence)//, List<aaindex_entry> aaindex_entries = null)
+        //internal static List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)> sequence_aaindex_all(string sequence)//, List<aaindex_entry> aaindex_entries = null)
         //{
         //    //
 
@@ -96,7 +96,7 @@ namespace dimorphics_dataset
 
         //}
 
-        public static List<(char amino_acid, double value)> sequence_aaindex_entry(/*List<aaindex_entry> aaindex_list, */string accession_number, string sequence)
+        internal static List<(char amino_acid, double value)> sequence_aaindex_entry(/*List<aaindex_entry> aaindex_list, */string accession_number, string sequence)
         {
             // returns a list of values for each sequence
 
@@ -112,7 +112,7 @@ namespace dimorphics_dataset
         }
         
 
-        public static List<info_aaindex_entry> Load(string aaindex1_file = null, bool remove_incomplete_entries = false)
+        internal static List<info_aaindex_entry> Load(string aaindex1_file = null, bool remove_incomplete_entries = false)
         {
             if (string.IsNullOrWhiteSpace(aaindex1_file))
             {
@@ -263,7 +263,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static double scale_value(double value, double min, double max)
+        internal static double scale_value(double value, double min, double max)
         {
             var x = value - min;
             var y = max - min;

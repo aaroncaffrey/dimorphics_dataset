@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "djGlok7UGXMAL/0pJEmaLOdTcEpomI/zfzGvnIMUS/dokDLt5MguxSF2hM76G0nEPyJTXTKparaISadBggcjRg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codeanalysis.fxcopanalyzers\\3.3.1\\microsoft.codeanalysis.fxcopanalyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codeanalysis.versioncheckanalyzer\\3.3.1\\microsoft.codeanalysis.versioncheckanalyzer.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codequality.analyzers\\3.3.1\\microsoft.codequality.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.netcore.analyzers\\3.3.1\\microsoft.netcore.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.netframework.analyzers\\3.3.1\\microsoft.netframework.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

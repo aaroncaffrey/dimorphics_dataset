@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-
 
 namespace dimorphics_dataset
 {
-    public static class info_dssp
+    internal static class info_dssp
     {
-        public class dssp_record
+        internal class dssp_record
         {
             internal const char dssp_default_secondary_structure = 'C';
             
@@ -40,7 +38,7 @@ namespace dimorphics_dataset
             internal string Y_CA;
             internal string Z_CA;
 
-            public dssp_record(string line)
+            internal dssp_record(string line)
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
@@ -81,7 +79,7 @@ namespace dimorphics_dataset
 
         }
 
-        public static List<dssp_record> Load(string file)
+        internal static List<dssp_record> Load(string file)
         {
             const string SsDataMarker1 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA ";
             const string SsDataMarker2 = "  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA            CHAIN";

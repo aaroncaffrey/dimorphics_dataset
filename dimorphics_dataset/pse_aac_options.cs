@@ -1,7 +1,7 @@
 ﻿namespace dimorphics_dataset
 {
   
-        public class pse_aac_options
+        internal class pse_aac_options
         {
 
             internal bool oaac = true;

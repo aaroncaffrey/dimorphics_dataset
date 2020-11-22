@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class io_proxy
+    internal static class io_proxy
     {
         private static readonly object _console_lock = new object();
 
-        public static void WriteLine(string text = "", string module_name = "", string function_name = "", bool use_lock = false)
+        internal static void WriteLine(string text = "", string module_name = "", string function_name = "", bool use_lock = false)
         {
             if (!program.verbose) return;
 
             try
             {
-                var pid = Process.GetCurrentProcess().Id;
+                var pid = Environment.ProcessId;
                 var thread_id = Thread.CurrentThread.ManagedThreadId;
                 var task_id = Task.CurrentId ?? 0;
 
@@ -39,7 +38,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void CreateDirectory(string filename)//, string module_name, string function_name)
+        internal static void CreateDirectory(string filename)//, string module_name, string function_name)
         {
             //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
 
@@ -55,7 +54,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static string[] ReadAllLines(string filename, string module_name="", string function_name="")
+        internal static string[] ReadAllLines(string filename, string module_name="", string function_name="")
         {
             io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(ReadAllLines));
 
@@ -75,7 +74,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
+        internal static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
             io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllLines));
 
@@ -96,7 +95,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
+        internal static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
             io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllLines));
 
@@ -117,7 +116,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void AppendAllText(string filename, string text, string module_name="", string function_name="")
+        internal static void AppendAllText(string filename, string text, string module_name="", string function_name="")
         {
             io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllText));
 
@@ -138,7 +137,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void WriteAllText(string filename, string text, string module_name="", string function_name="")
+        internal static void WriteAllText(string filename, string text, string module_name="", string function_name="")
         {
             io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllText));
 

@@ -2,7 +2,7 @@
 
 namespace dimorphics_dataset
 {
-    public enum enum_substructure_type
+    internal enum enum_substructure_type
     {
         dimorphic,
         dimorphic_coil,
@@ -15,31 +15,36 @@ namespace dimorphics_dataset
         standard_coil,
     }
 
-    public enum enum_protein_data_source
+    internal enum enum_protein_data_source
     {
+        interface_1d,
+        neighbourhood_1d,
+        chain_1d,
+
         interface_2d,
         neighbourhood_2d,
         chain_2d,
+
         interface_3d,
         neighbourhood_3d,
         chain_3d
     }
 
-    public enum enum_pssm_normalisation_method
+    internal enum enum_pssm_normalisation_method
     {
 
         norm_none, norm_whole_pssm, norm_subseq, norm_encoded_parts, norm_encoded_vector
     }
 
 
-    public enum enum_pssm_value_type
+    internal enum enum_pssm_value_type
     {
         standard,
         distances,
         intervals
     }
 
-    public enum enum_ss_type
+    internal enum enum_ss_type
         { 
             DSSP3, 
             DSSP,
@@ -48,7 +53,7 @@ namespace dimorphics_dataset
         }
 
         [Flags]
-        public enum enum_get_dssp_and_mpsa_subsequences_params
+        internal enum enum_get_dssp_and_mpsa_subsequences_params
         {
             none = 0b_0000_0000_0000,
 
@@ -65,13 +70,13 @@ namespace dimorphics_dataset
             multimer_stride3_seq = 0b_0001_0000_0000,
         }
 
-        public enum enum_seq_type
+        internal enum enum_seq_type
         {
             amino_acid_sequence,
             secondary_structure_sequence
         }
 
-        public enum enum_structure_oligomisation
+        internal enum enum_structure_oligomisation
         {
             monomer,
             multimer

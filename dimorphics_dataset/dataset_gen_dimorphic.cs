@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class dataset_gen_dimorphic
+    internal static class dataset_gen_dimorphic
     {
-        public static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
+        internal static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
         {
             var class_name_in_file = "";
             var include_host_coil = false;
@@ -62,7 +61,7 @@ namespace dimorphics_dataset
         }
 
         
-        public static List<protein_subsequence_info> get_dhc_list(int class_id, string class_name, bool use_dssp3, bool include_host_coil, bool full_protein_seq,
+        internal static List<protein_subsequence_info> get_dhc_list(int class_id, string class_name, bool use_dssp3, bool include_host_coil, bool full_protein_seq,
             List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data)
         {
 
@@ -93,9 +92,9 @@ namespace dimorphics_dataset
             return psi_list;
         }
 
-        public static (int strand_array_index, List<int> strand_res_ids) find_subseq_index(string strand_seq, string strand_protein, List<int> strand_protein_res_ids, int optional_res_index = -1)
+        internal static (int strand_array_index, List<int> strand_res_ids) find_subseq_index(string strand_seq, string strand_protein, List<int> strand_protein_res_ids, int optional_res_index = -1)
         {
-            var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);
+            var strand_array_index = strand_protein?.IndexOf(strand_seq, StringComparison.InvariantCulture) ?? -1;
 
             if (optional_res_index > -1)
             {
@@ -108,17 +107,17 @@ namespace dimorphics_dataset
                 }
             }
 
-            if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+            if (strand_protein?.Substring(strand_array_index, strand_seq.Length) != strand_seq)
             {
                 throw new Exception("Not correct position");
             }
 
-            var strand_res_ids = strand_protein_res_ids.Skip(strand_array_index).Take(strand_seq.Length).ToList();
+            var strand_res_ids = strand_protein_res_ids.Skip(strand_array_index).Take(strand_seq?.Length ?? 0).ToList();
 
             return (strand_array_index, strand_res_ids);
         }
 
-        public static char get_chain_id_from_chain_number(List<atom> pdb_atoms, int chain_number)
+        internal static char get_chain_id_from_chain_number(List<atom> pdb_atoms, int chain_number)
         {
             var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(null, pdb_atoms);
@@ -128,7 +127,7 @@ namespace dimorphics_dataset
             return chain_id;
         }
 
-        public static /*subsequence_classification_data*/protein_subsequence_info get_dhc_item(
+        internal static /*subsequence_classification_data*/protein_subsequence_info get_dhc_item(
             int class_id,
             string class_name,
             bool use_dssp3, 
@@ -140,17 +139,20 @@ namespace dimorphics_dataset
             var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new atom.load_atoms_pdb_options()
             {
                 find_3d_intramolecular = false,
-                
+
+                load_1d_blast_pssms = false,
+                load_1d_iup_data = false,
+                load_1d_sable = false,
+                load_1d_dna_binding = false,
+
+                load_2d_mpsa_sec_struct_predictions = false,
+
                 load_3d_rsa_data = false,
                 load_3d_dssp_data = true,
                 load_3d_stride_data = true,
                 load_3d_ring_data = false,
-                load_2d_mpsa_sec_struct_predictions = false,
-                load_2d_blast_pssms = false,
-                load_2d_iup_data = false,
-                load_2d_sable = false,
                 load_3d_foldx_ala_scan = false,
-                load_2d_dna_binding = false,
+                
             }).Where(a => a.pdb_model_index == 0).SelectMany(a => a.pdb_model_chain_atoms).ToList();
 
 

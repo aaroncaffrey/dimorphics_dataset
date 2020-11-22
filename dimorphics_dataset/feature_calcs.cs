@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class feature_calcs
+    internal static class feature_calcs
     {
-        public static double transform_value(double value, double length, bool sqrt, bool as_dist)
+        internal static double transform_value(double value, double length, bool sqrt, bool as_dist)
         {
             if (value == 0.0)
             {
@@ -16,7 +16,7 @@ namespace dimorphics_dataset
 
             if (as_dist && length != 0)
             {
-                value = value / length;
+                value /= length;
             }
 
             if (sqrt)
@@ -221,7 +221,7 @@ namespace dimorphics_dataset
         //        (12, "Sulphuric", "MC"),
 
 
-        public static string[] split_sequence(string seq, int sections = 3, int divisible = 0, bool distribute = false)
+        internal static string[] split_sequence(string seq, int sections = 3, int divisible = 0, bool distribute = false)
         {
             if (seq == null) seq = "";
 
@@ -231,7 +231,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<List<T>> split_sequence<T>(ICollection<T> seq, int sections = 3, int divisible = 0, bool distribute = false)
+        internal static List<List<T>> split_sequence<T>(ICollection<T> seq, int sections = 3, int divisible = 0, bool distribute = false)
         {
             var r = new List<List<T>>();
             for (var i = 0; i < sections; i++)
@@ -277,17 +277,17 @@ namespace dimorphics_dataset
 
 
 
-        public static List<int> IndexOfAll(string text, char[] substring)
+        internal static List<int> IndexOfAll(string text, char[] substring)
         {
             return substring.SelectMany(a => IndexOfAll(text, a)).ToList();
         }
 
-        public static List<int> IndexOfAll(string text, List<char> substring)
+        internal static List<int> IndexOfAll(string text, List<char> substring)
         {
             return substring.SelectMany(a => IndexOfAll(text, a)).ToList();
         }
 
-        public static List<int> IndexOfAll(string text, char substring)
+        internal static List<int> IndexOfAll(string text, char substring)
         {
             var indexes = new List<int>();
 
@@ -306,7 +306,7 @@ namespace dimorphics_dataset
             return indexes;
         }
 
-        public static List<int> IndexOfAll(string text, string substring)
+        internal static List<int> IndexOfAll(string text, string substring)
         {
             var indexes = new List<int>();
 
@@ -328,7 +328,7 @@ namespace dimorphics_dataset
             return indexes;
         }
 
-        public static
+        internal static
             List<(int alphabet_id, string alphabet_name, (string name, double value)[][] motifs, (string name, double value)[][] motifs_binary, (string name, double value)[] oaac, (string name, double value)[] oaac_binary, (string name, double value)[] average_seq_positions, (string name, double value)[][] dipeptides, (string name, double value)[][] dipeptides_binary, (string name, double value)[] average_dipeptide_distance)> feature_pse_aac(string seq, enum_seq_type seq_type, pse_aac_options pse_aac_options, bool sqrt, bool as_dist)
         {
             // number of distinct amino acids in sequence
@@ -615,7 +615,7 @@ namespace dimorphics_dataset
         }
 
 
-        //public List<(int id, string name, double[] values)> feature_AAOrder(string seq, bool sqrt, bool as_dist)
+        //internal List<(int id, string name, double[] values)> feature_AAOrder(string seq, bool sqrt, bool as_dist)
         //{
         //    var result = new List<(int id, string name, double[] values)>();
 
@@ -654,7 +654,7 @@ namespace dimorphics_dataset
 
 
 
-        //public List<double[]> feature_AAOrder(string seq, bool sqrt, bool as_dist)
+        //internal List<double[]> feature_AAOrder(string seq, bool sqrt, bool as_dist)
         //{
         //    var result = new List<double[]>();
         //    for (var alphabet_index = 0; alphabet_index < alphabets.Count; alphabet_index++)
@@ -694,7 +694,7 @@ namespace dimorphics_dataset
 
 
 
-        //public static List<(int interval, double value, char aa1, char aa2)> aa_sequence_dipeptide_pairs(int sequence_interval, string seq, aa_alphabet aa_alphabet)
+        //internal static List<(int interval, double value, char aa1, char aa2)> aa_sequence_dipeptide_pairs(int sequence_interval, string seq, aa_alphabet aa_alphabet)
         //{
         //    // get dipeptide counts for set interval
 
@@ -731,7 +731,7 @@ namespace dimorphics_dataset
         //}
 
 
-        //public static double aa_sequence_distance(string seq1, string seq2)
+        //internal static double aa_sequence_distance(string seq1, string seq2)
         //{
         //    // get distance between 2 sequences by comparing AAs 
 
@@ -751,7 +751,7 @@ namespace dimorphics_dataset
         //}
 
 
-        //public static double aa_group_sequence_distance(string seq1, string seq2)
+        //internal static double aa_group_sequence_distance(string seq1, string seq2)
         //{
         //    // get distance between 2 sequences by comparing AA groups
         //    bool sqrt = true;
@@ -771,7 +771,7 @@ namespace dimorphics_dataset
 
 
 
-        //public static readonly List<(int index, string group_name, string aa_list)> aa_chem_groups =
+        //internal static readonly List<(int index, string group_name, string aa_list)> aa_chem_groups =
         //    new List<(int index, string group_name, string aa_list)>()
         //    {
         //        (0, "Aliphatic", "ILV"),
@@ -788,28 +788,28 @@ namespace dimorphics_dataset
         //        (11, "Aromatic", "FYWH"),
         //        (12, "Sulphuric", "MC"),
         //    };
-        //public static readonly List<(string group_pair, int index1, int index2/*, List<int> list*/)> aa_chem_group_pairs = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index/*, list: new List<int>()*/)).ToList()).ToList();
-        //public static readonly List<(string group_pair, int index1, int index2/*, List<int> list*/)> aa_chem_group_pairs_half_with_middle = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Where((a2, y) => x <= y).Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index/*, list: new List<int>()*/)).ToList()).ToList();
-        ////public static readonly List<(string group_pair, int index1, int index2, List<int> list)> aa_chem_group_pairs_half = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Where((a2, y) => x < y).Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index, list: new List<int>())).ToList()).ToList();
+        //internal static readonly List<(string group_pair, int index1, int index2/*, List<int> list*/)> aa_chem_group_pairs = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index/*, list: new List<int>()*/)).ToList()).ToList();
+        //internal static readonly List<(string group_pair, int index1, int index2/*, List<int> list*/)> aa_chem_group_pairs_half_with_middle = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Where((a2, y) => x <= y).Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index/*, list: new List<int>()*/)).ToList()).ToList();
+        ////internal static readonly List<(string group_pair, int index1, int index2, List<int> list)> aa_chem_group_pairs_half = aa_chem_groups.SelectMany((a1, x) => aa_chem_groups.Where((a2, y) => x < y).Select((a2, y) => (group_pair: $"{a1.group_name}_{a2.group_name}", index1: a1.index, index2: a2.index, list: new List<int>())).ToList()).ToList();
 
-        //public const string aa_list = "ARNDCQEGHILKMFPSTWYV";
+        //internal const string aa_list = "ARNDCQEGHILKMFPSTWYV";
 
-        //public const string group4_list = "1234";
-        //public const string group7_list = "1234";
+        //internal const string group4_list = "1234";
+        //internal const string group7_list = "1234";
 
-        //public static readonly List<string> aa_pairs = aa_list.SelectMany((a, x) => aa_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
-        //public static readonly List<string> aa_pairs_half_with_middle = aa_list.SelectMany((a, x) => aa_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> aa_pairs = aa_list.SelectMany((a, x) => aa_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> aa_pairs_half_with_middle = aa_list.SelectMany((a, x) => aa_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
 
 
-        //public static readonly List<string> group4_pairs = group4_list.SelectMany((a, x) => group4_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
-        //public static readonly List<string> group4_pairs_half_with_middle = group4_list.SelectMany((a, x) => group4_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> group4_pairs = group4_list.SelectMany((a, x) => group4_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> group4_pairs_half_with_middle = group4_list.SelectMany((a, x) => group4_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
 
-        //public static readonly List<string> group7_pairs = group7_list.SelectMany((a, x) => group7_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
-        //public static readonly List<string> group7_pairs_half_with_middle = group7_list.SelectMany((a, x) => group7_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> group7_pairs = group7_list.SelectMany((a, x) => group7_list.Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> group7_pairs_half_with_middle = group7_list.SelectMany((a, x) => group7_list.Where((b, y) => x <= y).Select((b, y) => $"{a}{b}").ToList()).ToList();
 
-        //public static readonly List<string> aa_pairs_half = aa_list.SelectMany((a, x) => aa_list.Where((b, y) => x < y).Select((b, y) => $"{a}{b}").ToList()).ToList();
+        //internal static readonly List<string> aa_pairs_half = aa_list.SelectMany((a, x) => aa_list.Where((b, y) => x < y).Select((b, y) => $"{a}{b}").ToList()).ToList();
 
-        //public static readonly List<string> aa_thrices = aa_list.SelectMany(a => aa_list.SelectMany(b => aa_list.Select(c => ""+a+b+c).ToList()).ToList()).ToList();
+        //internal static readonly List<string> aa_thrices = aa_list.SelectMany(a => aa_list.SelectMany(b => aa_list.Select(c => ""+a+b+c).ToList()).ToList()).ToList();
         //return pairs as distnace (min,mid,max,average)
 
 
@@ -826,7 +826,7 @@ namespace dimorphics_dataset
             c c  x = y
          */
 
-        //public static List<(char char_value1, char char_value2, List<int> distance_list)> find_distance_all(string text, string chars = aa_list)
+        //internal static List<(char char_value1, char char_value2, List<int> distance_list)> find_distance_all(string text, string chars = aa_list)
         //{
         //    // find distance between all 'chars' within 'text'
         //    var indexes = chars.Select(a => (char_value: a, char_index_list: text.IndexOfAll(a))).ToList();
@@ -837,7 +837,7 @@ namespace dimorphics_dataset
         //    return distances;
         //}
 
-        //public static List<descriptive_stats> aa_group_pair_distribution(string sequence, bool sqrt, bool as_dist)//, bool direction_sensitive = true)
+        //internal static List<descriptive_stats> aa_group_pair_distribution(string sequence, bool sqrt, bool as_dist)//, bool direction_sensitive = true)
         //{
         //    // ~13*13/2 features
 
@@ -879,7 +879,7 @@ namespace dimorphics_dataset
         //    return sv;
         //}
 
-        //public static List<descriptive_stats> aa_pair_distribution(string sequence, bool sqrt, bool as_dist)
+        //internal static List<descriptive_stats> aa_pair_distribution(string sequence, bool sqrt, bool as_dist)
         //{
         //    // ~20*20/2 features
 

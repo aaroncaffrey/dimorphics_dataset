@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 
 namespace dimorphics_dataset
 {
@@ -24,6 +23,8 @@ namespace dimorphics_dataset
 
         public feature_info(string csv_line, int csv_offset=0)
         {
+            if (csv_line == null) throw new ArgumentNullException(nameof(csv_line));
+
             var x = csv_line.Split(',');
             
             var ix = csv_offset;
@@ -69,7 +70,7 @@ namespace dimorphics_dataset
             //    }
             //}
 
-            
+
         }
 
         public feature_info(feature_info feature_info)
@@ -124,7 +125,7 @@ namespace dimorphics_dataset
         }
 
 
-        public override string ToString()
+        public string key_value_list_hr()
         {
             //var header_list_str_c = header_list.Select((a, fid) => $"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
 
@@ -135,12 +136,17 @@ namespace dimorphics_dataset
             return string.Join(", ", data);
         }
 
+        public override string ToString()
+        {
+            return key_value_list_hr();
+            //throw new NotImplementedException();
+        }
+
         public static List<string> get_feature_headers_lines_csv(List<feature_info> feature_list)
         {
             //var header_list = feature_list.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
 
-            List<string> headers = new List<string>();
-            headers.Add($@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}");
+            List<string> headers = new List<string> {$@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}"};
             headers.AddRange(feature_list.Select((a, fid) => $"{fid},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
 
             return headers;

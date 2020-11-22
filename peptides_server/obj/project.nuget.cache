@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "dgSpecHash": "NoCt073VFQVLvoQGLrjuEhL78l8cLbo3AGaNE7IvBEi9AaybZhG9VnPKhKy/Vqsk0uHjMwupqAjIWRRYpCE7vA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Aaron\\.nuget\\packages\\dynamicinterop\\0.9.1\\dynamicinterop.0.9.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codeanalysis.fxcopanalyzers\\3.3.1\\microsoft.codeanalysis.fxcopanalyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codeanalysis.versioncheckanalyzer\\3.3.1\\microsoft.codeanalysis.versioncheckanalyzer.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.codequality.analyzers\\3.3.1\\microsoft.codequality.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.netcore.analyzers\\3.3.1\\microsoft.netcore.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.netcore.platforms\\2.0.0\\microsoft.netcore.platforms.2.0.0.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.netframework.analyzers\\3.3.1\\microsoft.netframework.analyzers.3.3.1.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\microsoft.win32.registry\\4.5.0\\microsoft.win32.registry.4.5.0.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\r.net\\1.9.0\\r.net.1.9.0.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\system.security.accesscontrol\\4.5.0\\system.security.accesscontrol.4.5.0.nupkg.sha512",
+    "C:\\Users\\Aaron\\.nuget\\packages\\system.security.principal.windows\\4.5.0\\system.security.principal.windows.4.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

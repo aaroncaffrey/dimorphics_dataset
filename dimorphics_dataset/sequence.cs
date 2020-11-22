@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class sequence
+    internal class sequence
     {
-        public class sequence_id
+        internal class sequence_id
         {
             internal string pdb_id;
             internal char chain_id;
@@ -15,7 +14,7 @@ namespace dimorphics_dataset
             internal string len;
             internal string description;
 
-            public sequence_id(string sequence_id)
+            internal sequence_id(string sequence_id)
             {
                 if (String.IsNullOrWhiteSpace(sequence_id))
                 {
@@ -90,7 +89,7 @@ namespace dimorphics_dataset
 
             }
 
-            public void Init(string pdb_id, char chain_id, string mol, string len, string description)
+            internal void Init(string pdb_id, char chain_id, string mol, string len, string description)
             {
                 this.pdb_id = pdb_id;
                 this.chain_id = chain_id;
@@ -102,7 +101,7 @@ namespace dimorphics_dataset
 
         private string _id;
 
-        public string id
+        internal string id
         {
             get { return _id; }
             set
@@ -114,20 +113,20 @@ namespace dimorphics_dataset
         internal sequence_id id_split;
         internal string full_sequence;
 
-        public sequence(string id, string full_sequence)
+        internal sequence(string id, string full_sequence)
         {
             this.id = id;
             this.full_sequence = full_sequence;
         }
 
-        public static void Save(string outputFastaFile, List<sequence> sequenceList)
+        internal static void Save(string outputFastaFile, List<sequence> sequenceList)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
             io_proxy.WriteAllText(outputFastaFile, string.Join("", sequenceList.Select(a => $"{a.id}\r\n{a.full_sequence}\r\n").ToList()), nameof(sequence), nameof(Save));
         }
 
-        public static void Save(string outputFastaFile, sequence sequence)
+        internal static void Save(string outputFastaFile, sequence sequence)
         {
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 

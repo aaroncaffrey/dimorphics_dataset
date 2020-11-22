@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class info_solvent_access
+    internal class info_solvent_access
     {
         internal string pdb_id;
         internal char algo;
@@ -34,7 +34,7 @@ namespace dimorphics_dataset
         internal double all_polar_rel;
 
 
-        public static double try_parse_double(string value, double default_value = 0)
+        internal static double try_parse_double(string value, double default_value = 0)
         {
             if (!string.IsNullOrWhiteSpace(value) && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
             {
@@ -47,7 +47,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<info_solvent_access> load(List<string> files)
+        internal static List<info_solvent_access> load(List<string> files)
         {
             if (files == null)
             {

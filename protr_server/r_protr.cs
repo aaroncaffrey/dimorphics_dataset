@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using dimorphics_dataset;
 using RDotNet;
 
 namespace protr_server
 {
-    public static class r_protr
+    internal static class r_protr
     {
-        public static readonly object engine_lock = new object();
+        internal static readonly object engine_lock = new object();
         private static uint _key = 1;
         private static readonly object _key_lock = new object();
         private static int _id;
-        private static List<feature_info> _template_get_values = null;
+        private static List<feature_info> _template_get_values;
         private static readonly object _get_values_lock = new object();
 
-        public static string Key
+        internal static string Key
         {
             get
             {
@@ -32,12 +31,9 @@ namespace protr_server
 
         private static bool need_init = true;
 
-        public static REngine init_r()
+        internal static REngine init_r()
         {
-            StartupParameter rinit = new StartupParameter();
-            rinit.Quiet = true;
-            rinit.Interactive = false;
-            rinit.RHome = $@"C:\Program Files\R\R-3.6.2\";
+            var rinit = new StartupParameter {Quiet = true, Interactive = false, RHome = $@"C:\Program Files\R\R-3.6.2\"};
             var engine1 = REngine.GetInstance(Path.Combine(rinit.RHome, $@"bin\x64\R.dll"), true, rinit);
 
             if (need_init)
@@ -57,7 +53,7 @@ namespace protr_server
             return engine1;
         }
 
-        public static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence, int min_sequence_length = 1)
+        internal static List<feature_info> get_values(int id, string source, string alphabet_name, string sequence, int min_sequence_length = 1)
         {
             lock (_get_values_lock)
             {
@@ -392,9 +388,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, int lambda, double value)> template_extractAPAAC = null;
+        private static List<(string name, int lambda, double value)> template_extractAPAAC;
 
-        public static  List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
+        internal static  List<(string name, int lambda, double value)> extractAPAAC(REngine engine, string x, int lambda_first = 1, int lambda_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -458,9 +454,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, string submat, int k, int lag, double value)> template_extractBLOSUM = null;
+        private static List<(string name, string submat, int k, int lag, double value)> template_extractBLOSUM;
 
-        public static List<(string name, string submat, int k, int lag, double value)> extractBLOSUM(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, string submat, int k, int lag, double value)> extractBLOSUM(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -543,9 +539,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, double value)> template_extractCTDC = null;
+        private static List<(string name, double value)> template_extractCTDC;
 
-        public static List<(string name, double value)> extractCTDC(REngine engine, string x)
+        internal static List<(string name, double value)> extractCTDC(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -592,8 +588,8 @@ namespace protr_server
         }
 
 
-        private static List<(string name, double value)> temlate_extractCTDD = null;
-        public static List<(string name, double value)> extractCTDD(REngine engine, string x)
+        private static List<(string name, double value)> temlate_extractCTDD;
+        internal static List<(string name, double value)> extractCTDD(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -642,9 +638,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, double value)> temlate_extractCTDT = null;
+        private static List<(string name, double value)> temlate_extractCTDT;
 
-        public static List<(string name, double value)> extractCTDT(REngine engine, string x)
+        internal static List<(string name, double value)> extractCTDT(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -690,9 +686,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, double value)> temlate_extractCTriad = null;
+        private static List<(string name, double value)> temlate_extractCTriad;
 
-        public static List<(string name, double value)> extractCTriad(REngine engine, string x)
+        internal static List<(string name, double value)> extractCTriad(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -738,10 +734,10 @@ namespace protr_server
             }
         }
 
-        private static List<(string name, double value)> temlate_extractCTriadClass = null;
+        private static List<(string name, double value)> temlate_extractCTriadClass;
 
 
-        public static List<(string name, double value)> extractCTriadClass(REngine engine, string x)
+        internal static List<(string name, double value)> extractCTriadClass(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -790,9 +786,9 @@ namespace protr_server
             }
         }
 
-        private static List<(string name, double value)> temlate_extractDC = null;
+        private static List<(string name, double value)> temlate_extractDC;
 
-        public static List<(string name, double value)> extractDC(REngine engine, string x)
+        internal static List<(string name, double value)> extractDC(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -839,9 +835,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> template_extractDescScales = null;
+        private static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> template_extractDescScales;
 
-        public static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> extractDescScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, string propmat, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca, double value)> extractDescScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -948,9 +944,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> template_extractFAScales = null;
+        private static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> template_extractFAScales;
 
-        public static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> extractFAScales(REngine engine, string x, int lag_first = 1, int lag_last = 2, int factors_first = 5, int factors_last = 5)
+        internal static List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)> extractFAScales(REngine engine, string x, int lag_first = 1, int lag_last = 2, int factors_first = 5, int factors_last = 5)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1059,9 +1055,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int nlag, double value)> _template_extractGeary = null;
+        private static List<(string name, int nlag, double value)> _template_extractGeary;
 
-        public static List<(string name, int nlag, double value)> extractGeary(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
+        internal static List<(string name, int nlag, double value)> extractGeary(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1117,9 +1113,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> _template_extractMDSScales = null;
+        private static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> _template_extractMDSScales;
 
-        public static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> extractMDSScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)> extractMDSScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
             
@@ -1202,9 +1198,9 @@ namespace protr_server
         }
 
 
-        private static List<(string name, int nlag, double value)> _template_extractMoran = null;
+        private static List<(string name, int nlag, double value)> _template_extractMoran;
 
-        public static List<(string name, int nlag, double value)> extractMoran(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
+        internal static List<(string name, int nlag, double value)> extractMoran(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1263,9 +1259,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int nlag, double value)> _template_extractMoreauBroto = null;
+        private static List<(string name, int nlag, double value)> _template_extractMoreauBroto;
 
-        public static List<(string name, int nlag, double value)> extractMoreauBroto(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
+        internal static List<(string name, int nlag, double value)> extractMoreauBroto(REngine engine, string x, int nlag_first = 2, int nlag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1325,9 +1321,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int lambda, double w, double value)> _template_extractPAAC = null;
+        private static List<(string name, int lambda, double w, double value)> _template_extractPAAC;
 
-        public static List<(string name, int lambda, double w, double value)> extractPAAC(REngine engine, string x, int lambda_first = 1, int lamda_last = 2, double w = 0.5)
+        internal static List<(string name, int lambda, double w, double value)> extractPAAC(REngine engine, string x, int lambda_first = 1, int lamda_last = 2, double w = 0.5)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1397,7 +1393,7 @@ namespace protr_server
 
 
 
-        public static void extractPSSM(REngine engine, string x)
+        internal static void extractPSSM(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return;
 
@@ -1414,7 +1410,7 @@ namespace protr_server
 
 
 
-        public static void extractPSSMAcc(REngine engine, string x)
+        internal static void extractPSSMAcc(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return;
 
@@ -1431,7 +1427,7 @@ namespace protr_server
 
 
 
-        public static void extractPSSMFeature(REngine engine, string x)
+        internal static void extractPSSMFeature(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return;
 
@@ -1450,9 +1446,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFP = null;
+        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFP;
 
-        public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFP(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFP(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1547,9 +1543,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFPGap = null;
+        private static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractProtFPGap;
 
-        public static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFPGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractProtFPGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1644,9 +1640,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int nlag, double w, double value)> _template_extractQSO = null;
+        private static List<(string name, int nlag, double w, double value)> _template_extractQSO;
 
-        public static List<(string name, int nlag, double w, double value)> extractQSO(REngine engine, string x, int nlag_first = 1, int nlag_last = 2, double w = 0.1)
+        internal static List<(string name, int nlag, double w, double value)> extractQSO(REngine engine, string x, int nlag_first = 1, int nlag_last = 2, double w = 0.1)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1710,9 +1706,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int nlag, double value)> _template_extractSOCN = null;
+        private static List<(string name, int nlag, double value)> _template_extractSOCN;
 
-        public static List<(string name, int nlag, double value)> extractSOCN(REngine engine, string x, int nlag_first = 1, int nlag_last = 2)
+        internal static List<(string name, int nlag, double value)> extractSOCN(REngine engine, string x, int nlag_first = 1, int nlag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1777,9 +1773,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScales = null;
+        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScales;
 
-        public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScales(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 
@@ -1878,9 +1874,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScalesGap = null;
+        private static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> _template_extractScalesGap;
 
-        public static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScalesGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
+        internal static List<(string name, int pc, int lag, List<(string row_name, string col_name, double pca_value)> pca_list, double value)> extractScalesGap(REngine engine, string x, int lag_first = 1, int lag_last = 2)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
             
@@ -1982,9 +1978,9 @@ namespace protr_server
 
 
 
-        private static List<(string name, double value)> template_extractTC = null;
+        private static List<(string name, double value)> template_extractTC;
 
-        public static List<(string name, double value)> extractTC(REngine engine, string x)
+        internal static List<(string name, double value)> extractTC(REngine engine, string x)
         {
             if (engine == null || string.IsNullOrWhiteSpace(x)) return default;
 #if DEBUG

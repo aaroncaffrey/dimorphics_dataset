@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public class atom
+    internal class atom
     {
         internal string uniprot_sequence;
 
@@ -36,10 +36,10 @@ namespace dimorphics_dataset
         internal char stride_monomer = ' ';
         internal char stride3_monomer = ' ';
 
-        internal int is_strand_interface_atom = 0;
-        internal int is_standard_strand_interface_atom = 0;
-        internal int is_dimorphic_strand_interface_atom = 0;
-        internal int is_hybrid_strand_interface_atom = 0;
+        // todo: unused variable: internal int is_strand_interface_atom;
+        // todo: unused variable: internal int is_standard_strand_interface_atom;
+        // todo: unused variable: internal int is_dimorphic_strand_interface_atom;
+        // todo: unused variable: internal int is_hybrid_strand_interface_atom;
 
         internal char parallelism = '_';
         internal char symmetry_mode = '_';
@@ -76,22 +76,22 @@ namespace dimorphics_dataset
         internal List<info_ring.info_ring_node> monomer_ring_nodes;
 
 
-        internal bool amino_acid_exists_in_repaired_structure = false;
+        // todo: unused variable: internal bool amino_acid_exists_in_repaired_structure;
 
-        internal double chain_dna_binding_prob_nr = 0d;
-        internal double chain_dna_binding_prob_swissprot = 0d;
-        internal double chain_dna_binding_prob_uniref90 = 0d;
+        internal double chain_dna_binding_prob_nr;
+        internal double chain_dna_binding_prob_swissprot;
+        internal double chain_dna_binding_prob_uniref90;
 
         //internal List<(bool repaired, char mutant_res, double ddg)> foldx_position_scan_ddg;
 
         //META30P
 
-        public (int index1, int index2, double distance)[] intramolecular_contact_flat_table = null;
-        public (atom atom1, atom atom2, double distance)[] intramolecular_contact_flat_ref_table = null;
-        public double[][] intramolecular_contact_table = null;
-        public int intramolecular_contact_table_index = -1;
+        internal (int index1, int index2, double distance)[] intramolecular_contact_flat_table;
+        // todo: unused variable: internal (atom atom1, atom atom2, double distance)[] intramolecular_contact_flat_ref_table;
+        internal double[][] intramolecular_contact_table;
+        internal int intramolecular_contact_table_index = -1;
 
-        public static double[][] make_intramolecular_contact_table(List<atom> p)
+        internal static double[][] make_intramolecular_contact_table(List<atom> p)
         {
             if (p == null)
             {
@@ -143,7 +143,7 @@ namespace dimorphics_dataset
             return d;
         }
 
-        public static char Aa3To1(string aa)
+        internal static char Aa3To1(string aa)
         {
             var aa_codes = new (string three_letter_code, char one_letter_code)[]
             {
@@ -162,7 +162,7 @@ namespace dimorphics_dataset
             return r;
         }
 
-        public static string Aa1To3(char aa)
+        internal static string Aa1To3(char aa)
         {
             if (!char.IsLetter(aa)) return "" + aa;
 
@@ -176,7 +176,7 @@ namespace dimorphics_dataset
 
             var r = aa_codes.FirstOrDefault(a => a.one_letter_code == aa).three_letter_code;
 
-            if (r == default(string))
+            if (r == default)
             {
                 r = "" + aa;
             }
@@ -184,14 +184,14 @@ namespace dimorphics_dataset
             return r.ToUpperInvariant();
         }
 
-        public static string secondary_structure_state_reduction(string ss)
+        internal static string secondary_structure_state_reduction(string ss)
         {
             if (string.IsNullOrEmpty(ss)) return ss;
 
             return string.Concat(ss.Select(secondary_structure_state_reduction).ToList());
         }
 
-        public static char secondary_structure_state_reduction(char ss)
+        internal static char secondary_structure_state_reduction(char ss)
         {
             if (ss == 'E' || ss == 'B' || ss == 'e' || ss == 'b') return 'E'; // change E/e, B/b to E
             if (ss == 'G' || ss == 'g' || ss == 'H' || ss == 'h') return 'H'; // change G/g, H/h to H
@@ -199,7 +199,7 @@ namespace dimorphics_dataset
             return 'C'; // all others to C
         }
 
-        public static string[] extract_split_pdb_chains(string pdb_id, char? chain_id)
+        internal static string[] extract_split_pdb_chains(string pdb_id, char? chain_id)
         {
             var use_ram_disk = false;
 
@@ -231,7 +231,7 @@ namespace dimorphics_dataset
             return chains.Select(a => $@"{pdb_out_folder}{pdb_id}{a.Key}.pdb").ToArray();
         }
 
-        public static string extract_split_pdb_chains_res_ids(string pdb_id, char chain_id, int first_res_id, int last_res_id)
+        internal static string extract_split_pdb_chains_res_ids(string pdb_id, char chain_id, int first_res_id, int last_res_id)
         {
             if (string.IsNullOrWhiteSpace(pdb_id))
             {
@@ -274,7 +274,7 @@ namespace dimorphics_dataset
             return output_pdb_file;
         }
 
-        public static void run_dssp(string pdb_id, string pdb_folder = "pdb", string dssp_exe = "dssp2.exe")
+        internal static void run_dssp(string pdb_id, string pdb_folder = "pdb", string dssp_exe = "dssp2.exe")
         {
             pdb_folder = Path.Combine(program.data_root_folder, pdb_folder);
             dssp_exe = Path.Combine(program.data_root_folder, pdb_folder, dssp_exe);
@@ -294,24 +294,20 @@ namespace dimorphics_dataset
                 RedirectStandardError = true
             };
 
-            using (var process = Process.Start(start))
-            {
-                if (process == null) return;
+            using var process = Process.Start(start);
+            if (process == null) return;
 
-                io_proxy.WriteLine($"{start.FileName} {start.Arguments}", nameof(atom), nameof(run_dssp));
-                using (var reader = process.StandardOutput)
-                {
-                    var result = reader.ReadToEnd(); // Here is the result of StdOut(for example: print "test")
-                    if (!string.IsNullOrWhiteSpace(result)) io_proxy.WriteLine(result, nameof(atom), nameof(run_dssp));
+            io_proxy.WriteLine($"{start.FileName} {start.Arguments}", nameof(atom), nameof(run_dssp));
+            using var reader = process.StandardOutput;
+            var result = reader.ReadToEnd(); // Here is the result of StdOut(for example: print "test")
+            if (!string.IsNullOrWhiteSpace(result)) io_proxy.WriteLine(result, nameof(atom), nameof(run_dssp));
 
-                    var stderr = process.StandardError.ReadToEnd(); // Here are the exceptions from our Python script
-                    if (!string.IsNullOrWhiteSpace(stderr)) io_proxy.WriteLine(stderr, nameof(atom), nameof(run_dssp));
-                    return;
-                }
-            }
+            var stderr = process.StandardError.ReadToEnd(); // Here are the exceptions from our Python script
+            if (!string.IsNullOrWhiteSpace(stderr)) io_proxy.WriteLine(stderr, nameof(atom), nameof(run_dssp));
+            return;
         }
 
-        public atom(string pdb_id, string pdb_atom_line, int pdb_model_array_index = -1, int array_index = -1)
+        internal atom(string pdb_id, string pdb_atom_line, int pdb_model_array_index = -1, int array_index = -1)
         {
             if (string.IsNullOrWhiteSpace(pdb_atom_line))
             {
@@ -329,13 +325,13 @@ namespace dimorphics_dataset
             this.serial_index = int.Parse(pdb_atom_line.Substring(7 - 1, (11 - 7) + 1), NumberStyles.Integer, CultureInfo.InvariantCulture);
 
             this.atom_type = pdb_atom_line.Substring(13 - 1, (16 - 13) + 1).Trim(); // is this CA / CB  etc ??
-            this.element = pdb_atom_line.Length >= 77 - 1 ? pdb_atom_line.Substring(77 - 1, (78 - 77) + 1).Trim().FirstOrDefault() : default(char);
+            this.element = pdb_atom_line.Length >= 77 - 1 ? pdb_atom_line.Substring(77 - 1, (78 - 77) + 1).Trim().FirstOrDefault() : default;
             this.X = double.Parse(pdb_atom_line.Substring(31 - 1, (38 - 31) + 1), NumberStyles.Float, CultureInfo.InvariantCulture);
             this.Y = double.Parse(pdb_atom_line.Substring(39 - 1, (46 - 39) + 1), NumberStyles.Float, CultureInfo.InvariantCulture);
             this.Z = double.Parse(pdb_atom_line.Substring(47 - 1, (54 - 47) + 1), NumberStyles.Float, CultureInfo.InvariantCulture);
         }
 
-        public atom(string pdb_id, char chain_id, int residue_index, char i_code, char amino_acid, int array_index, int model_index, int serial_index, string atom_type, char element, double X, double Y, double Z)
+        internal atom(string pdb_id, char chain_id, int residue_index, char i_code, char amino_acid, int array_index, int model_index, int serial_index, string atom_type, char element, double X, double Y, double Z)
         {
             this.pdb_id = pdb_id;
             this.chain_id = chain_id;
@@ -352,23 +348,25 @@ namespace dimorphics_dataset
             this.Z = Z;
         }
 
-        //public static bool use_ram_disk = true;
-        //public const string pdb_folder = /*$@"{(use_ram_disk?"r":"c")}*/ Path.Combine(program.data_root_folder,"pdb\";
+        //internal static bool use_ram_disk = true;
+        //internal const string pdb_folder = /*$@"{(use_ram_disk?"r":"c")}*/ Path.Combine(program.data_root_folder,"pdb\";
 
 
-        public class load_atoms_pdb_options
+        internal class load_atoms_pdb_options
         {
             internal bool first_model_only = true;
             internal bool first_icode_only = true;
 
-            internal bool load_uniprot = false;
+            internal bool load_uniprot;
+
+            // 1d data
+            internal bool load_1d_blast_pssms = true;
+            internal bool load_1d_iup_data = true;
+            internal bool load_1d_sable = true;
+            internal bool load_1d_dna_binding = true;
 
             // 2d data
             internal bool load_2d_mpsa_sec_struct_predictions = true;
-            internal bool load_2d_blast_pssms = true;
-            internal bool load_2d_iup_data = true;
-            internal bool load_2d_sable = true;
-            internal bool load_2d_dna_binding = true;
 
             // 3d data
             internal bool find_3d_intramolecular = true;
@@ -380,7 +378,7 @@ namespace dimorphics_dataset
             internal bool load_3d_foldx_ala_scan = true;
         }
 
-        public static List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)> load_atoms_pdb
+        internal static List<(string pdb_id, int pdb_model_index, char chain_id, List<atom> pdb_model_chain_atoms)> load_atoms_pdb
         (
             string pdb_id,
 
@@ -487,7 +485,7 @@ namespace dimorphics_dataset
 
                 // load psi-blast PSSMs
 
-                if (options.load_2d_blast_pssms) atom.load_pssm(pdb_id, pdb_model_atoms);
+                if (options.load_1d_blast_pssms) atom.load_pssm(pdb_id, pdb_model_atoms);
 
                 // load MPSA secondary structure predictions
                 if (options.load_2d_mpsa_sec_struct_predictions)
@@ -541,7 +539,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (options.load_2d_iup_data)
+                if (options.load_1d_iup_data)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -572,7 +570,7 @@ namespace dimorphics_dataset
                     }
                 }
 
-                if (options.load_2d_dna_binding)
+                if (options.load_1d_dna_binding)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -635,7 +633,7 @@ namespace dimorphics_dataset
                 }
 
                 // load sable
-                if (options.load_2d_sable)
+                if (options.load_1d_sable)
                 {
                     foreach (var c in pdb_model_chain_master_atoms)
                     {
@@ -752,13 +750,13 @@ namespace dimorphics_dataset
             return result;
         }
 
-        private static object dssp_mpsa_lock = new object();
+        private static readonly object dssp_mpsa_lock = new object();
 
-        private static List<string> compare_dssp_to_mpsa_list = new List<string>();
+        private static readonly List<string> compare_dssp_to_mpsa_list = new List<string>();
 
-        private static object compare_dssp_to_mpsa_lock = new object();
+        private static readonly object compare_dssp_to_mpsa_lock = new object();
 
-        public static void compare_dssp_to_mpsa(string pdb_id, char chain_id, List<atom> param_atoms)
+        internal static void compare_dssp_to_mpsa(string pdb_id, char chain_id, List<atom> param_atoms)
         {
             lock (compare_dssp_to_mpsa_lock)
             {
@@ -832,12 +830,10 @@ namespace dimorphics_dataset
 
                 var mpsa_seqs = master_atoms.SelectMany(a => a.mpsa_entries).ToArray();
 
-                var q3 = new List<(string pdb_id, char chain_id, string truth_format, string predictor_format, string aa_subset, char ss, double q3_value, double truth_total)>();
-                q3.Add(("pdb_id", 'c', "truth_format", "predictor_format", "aa_subset", 's', 0, 0));
+                var q3 = new List<(string pdb_id, char chain_id, string truth_format, string predictor_format, string aa_subset, char ss, double q3_value, double truth_total)> {("pdb_id", 'c', "truth_format", "predictor_format", "aa_subset", 's', 0, 0)};
 
                 // for each subset, what is the average predicted value
-                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)>();
-                av.Add(("pdb_id", 'c', "predictor_format", "aa_subset", 's', 0, 0));
+                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)> {("pdb_id", 'c', "predictor_format", "aa_subset", 's', 0, 0)};
 
                 // problem(?): this doesn't separate the interfaces
 
@@ -1078,7 +1074,7 @@ namespace dimorphics_dataset
 
 
 
-        public static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
+        internal static List<(string format, string prediction)> get_dssp_and_mpsa_subsequences(List<atom> atoms, enum_get_dssp_and_mpsa_subsequences_params get_dssp_and_mpsa_subsequences_params = enum_get_dssp_and_mpsa_subsequences_params.none)
         {
             var result = new List<(string format, string prediction)>();
 
@@ -1136,11 +1132,7 @@ namespace dimorphics_dataset
                 var prob_t = y.Where(b => b.ss == 'T').Select(b => b.value).DefaultIfEmpty(0).Average();
                 //var prob_f = y.Where(b => b.ss == 'F').Select(b => b.value).DefaultIfEmpty(0).Average();
 
-                var values = new List<(char ss, double value)>();
-                values.Add(('C', prob_c));
-                values.Add(('E', prob_e));
-                values.Add(('H', prob_h));
-                values.Add(('T', prob_t));
+                var values = new List<(char ss, double value)> {('C', prob_c), ('E', prob_e), ('H', prob_h), ('T', prob_t)};
                 //values.Add(('F', prob_f));
                 values = values.OrderByDescending(c => c.value).ToList();
 
@@ -1155,7 +1147,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<atom> select_amino_acid_master_atoms(string pdb_id, List<atom> atoms, string atom_type = null)
+        internal static List<atom> select_amino_acid_master_atoms(string pdb_id, List<atom> atoms, string atom_type = null)
         {
             // if null, default to CA or first available in N, C, O, CB.
 
@@ -1211,7 +1203,7 @@ namespace dimorphics_dataset
             return master_atoms;
         }
 
-        public static List<atom> select_amino_acid_master_atoms_ignore_chain(string pdb_id, List<atom> atoms)
+        internal static List<atom> select_amino_acid_master_atoms_ignore_chain(string pdb_id, List<atom> atoms)
         {
             atoms = atoms.Where(a => pdb_id == null || string.Equals(pdb_id, a.pdb_id, StringComparison.InvariantCultureIgnoreCase)).Distinct().ToList();
 
@@ -1240,7 +1232,7 @@ namespace dimorphics_dataset
             return atoms;
         }
 
-        public static List<(string pdb_id, char chain_id, List<atom> atom_list)> group_atoms_by_pdb_id_and_chain_id(string pdb_id, List<atom> atoms)
+        internal static List<(string pdb_id, char chain_id, List<atom> atom_list)> group_atoms_by_pdb_id_and_chain_id(string pdb_id, List<atom> atoms)
         {
             atoms = atoms.Distinct().ToList();
             atoms = atoms.OrderBy(a => a.chain_id).ThenBy(a => a.residue_index).ThenBy(a => a.i_code) /*.ThenBy(a => a.SerialIndex)*/.ToList();
@@ -1249,7 +1241,7 @@ namespace dimorphics_dataset
             return seq;
         }
 
-        public static List<(string pdb_id, char chain_id, List<atom> atom_list)> group_master_atoms_by_pdb_id_and_chain_id(string pdb_id, List<atom> atoms)
+        internal static List<(string pdb_id, char chain_id, List<atom> atom_list)> group_master_atoms_by_pdb_id_and_chain_id(string pdb_id, List<atom> atoms)
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
@@ -1259,7 +1251,7 @@ namespace dimorphics_dataset
             return seq;
         }
 
-        public static List<(string pdb_id, char chain_id, string aa_sequence)> amino_acid_sequence(string pdb_id, List<atom> atoms)
+        internal static List<(string pdb_id, char chain_id, string aa_sequence)> amino_acid_sequence(string pdb_id, List<atom> atoms)
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
@@ -1267,7 +1259,7 @@ namespace dimorphics_dataset
             return seq;
         }
 
-        public static List<(string pdb_id, char chain_id, string ss_sequence)> ss_sequence(string pdb_id, List<atom> atoms, enum_structure_oligomisation structure_oligomisation, enum_ss_type ss_type = enum_ss_type.DSSP)
+        internal static List<(string pdb_id, char chain_id, string ss_sequence)> ss_sequence(string pdb_id, List<atom> atoms, enum_structure_oligomisation structure_oligomisation, enum_ss_type ss_type = enum_ss_type.DSSP)
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
@@ -1361,9 +1353,9 @@ namespace dimorphics_dataset
         }
 
 
-        //public static List<string> pssm_database_names = new List<string>();
+        //internal static List<string> pssm_database_names = new List<string>();
 
-        public static void load_dna_binding(string pdb_id, List<atom> pdb_model_atoms)
+        internal static void load_dna_binding(string pdb_id, List<atom> pdb_model_atoms)
         {
             if (pdb_model_atoms == null || pdb_model_atoms.Count == 0)
             {
@@ -1394,7 +1386,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void load_pssm(string pdb_id, List<atom> pdb_model_atoms)
+        internal static void load_pssm(string pdb_id, List<atom> pdb_model_atoms)
         {
             var pdb_id_simple = Path.GetFileNameWithoutExtension(pdb_id).Substring(0, 4);
 
@@ -1468,7 +1460,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void load_ring(string pdb_id, List<atom> atoms)
+        internal static void load_ring(string pdb_id, List<atom> atoms)
         {
             //var edge_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", "*.edges");
             //var node_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", "*.nodes");
@@ -1562,7 +1554,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void load_dssp(string pdb_id, List<atom> atoms)
+        internal static void load_dssp(string pdb_id, List<atom> atoms)
         {
             if (atoms == null || atoms.Count == 0)
             {
@@ -1611,7 +1603,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static void load_stride(string pdb_id, List<atom> atoms)
+        internal static void load_stride(string pdb_id, List<atom> atoms)
         {
             if (atoms == null || atoms.Count == 0)
             {
@@ -1657,7 +1649,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void load_rsa(string pdb_id, List<atom> atoms)
+        internal static void load_rsa(string pdb_id, List<atom> atoms)
         {
             if (atoms == null || atoms.Count == 0)
             {
@@ -1684,7 +1676,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static double Distance3D(atom atom1, atom atom2)
+        internal static double Distance3D(atom atom1, atom atom2)
         {
             //if (atom1 == null)
             //{
@@ -1699,19 +1691,19 @@ namespace dimorphics_dataset
             return Distance3D(atom1.X, atom1.Y, atom1.Z, atom2.X, atom2.Y, atom2.Z);
         }
 
-        public static double Distance2D(double x0, double y0, double x1, double y1)
+        internal static double Distance2D(double x0, double y0, double x1, double y1)
         {
             return (double)Math.Sqrt((double)(((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0))));
         }
 
 
-        public static double Distance3D(double x0, double y0, double z0, double x1, double y1, double z1)
+        internal static double Distance3D(double x0, double y0, double z0, double x1, double y1, double z1)
         {
             return (double)Math.Sqrt((double)(((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0)) + ((z1 - z0) * (z1 - z0))));
         }
 
 
-        public static double measure_atomic_linear_distance(List<atom> atoms)
+        internal static double measure_atomic_linear_distance(List<atom> atoms)
         {
             //atoms = select_amino_acid_master_atoms(null, atoms);
 
@@ -1723,7 +1715,7 @@ namespace dimorphics_dataset
             return distance;
         }
 
-        public static double measure_atomic_curve_distance(List<atom> atoms)
+        internal static double measure_atomic_curve_distance(List<atom> atoms)
         {
             // atoms must be in correct order
             // measures the distance in angstrom of the curve
@@ -1741,7 +1733,7 @@ namespace dimorphics_dataset
             return curve_distances.Sum();
         }
 
-        public static (double displacement, double distance_of_curve, double tortuosity1) measure_tortuosity1(List<atom> atoms)
+        internal static (double displacement, double distance_of_curve, double tortuosity1) measure_tortuosity1(List<atom> atoms)
         {
             if (atoms == null || atoms.Count <= 1)
             {
@@ -1762,7 +1754,7 @@ namespace dimorphics_dataset
             return (displacement, distance_of_curve, tortuosity1);
         }
 
-        public static List<T> list_subsection_from_obj_to_obj<T>(List<T> list, T first_list_object, T last_list_object)
+        internal static List<T> list_subsection_from_obj_to_obj<T>(List<T> list, T first_list_object, T last_list_object)
         {
             if (list == null)
             {
@@ -1775,7 +1767,7 @@ namespace dimorphics_dataset
             return list.Skip(index1 < index2 ? index1 : index2).Take(Math.Abs(index2 - index1) + 1).ToList();
         }
 
-        public static (descriptive_stats displacement_stat_values, descriptive_stats curve_stat_values, descriptive_stats tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
+        internal static (descriptive_stats displacement_stat_values, descriptive_stats curve_stat_values, descriptive_stats tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
         {
             //if (atoms == null || atoms.Count <= 1)
             //{
@@ -1813,7 +1805,7 @@ namespace dimorphics_dataset
             return (displacement_stat_values, curve_stat_values, tortuosity_stat_values);
         }
         /*
-        public static void find_intramolecular_contacts(string pdb_id, List<atom> atoms, double? max_dist = null)
+        internal static void find_intramolecular_contacts(string pdb_id, List<atom> atoms, double? max_dist = null)
         {
             if (atoms == null)
             {
@@ -1825,7 +1817,7 @@ namespace dimorphics_dataset
             find_contacts(pdb_id, atoms, intermolecular: intermolecular, intramolecular: intramolecular, max_dist: max_dist);
         }
 
-        public static void find_intermolecular_contacts(string pdb_id, List<atom> atoms, double? max_dist = null)
+        internal static void find_intermolecular_contacts(string pdb_id, List<atom> atoms, double? max_dist = null)
         {
             if (atoms == null)
             {
@@ -1881,7 +1873,7 @@ namespace dimorphics_dataset
         }
         */
 
-        //public static List<(atom atom1, atom atom2, double distance)> get_master_to_master_contacts(string pdb_id, List<atom> atoms, string atom_type = null)
+        //internal static List<(atom atom1, atom atom2, double distance)> get_master_to_master_contacts(string pdb_id, List<atom> atoms, string atom_type = null)
         //{
         //    if (atoms == null)
         //    {

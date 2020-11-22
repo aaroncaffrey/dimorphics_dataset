@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 
 namespace dimorphics_dataset
 {
 
-    public static class column_value_extensions
+    internal static class column_value_extensions
     {
-        public static string column_value(this string column_format_line, int start_position, int end_position, bool trim = true)
+        internal static string column_value(this string column_format_line, int start_position, int end_position, bool trim = true)
         {
             if (string.IsNullOrWhiteSpace(column_format_line))
             {
@@ -26,11 +25,11 @@ namespace dimorphics_dataset
         }
     }
 
-    public static class info_stride
+    internal static class info_stride
     {
     
 
-        public abstract class stride_record
+        internal abstract class stride_record
         {
             //1-3	Record code
             //4-5	Not used
@@ -56,58 +55,58 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_Remark : stride_record
+        internal class Stride_Remark : stride_record
         {
             //REM Remarks and blank   lines
 
-            public Stride_Remark(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_Remark(string columnFormatLine) : base(columnFormatLine)
             {
 
             }
         }
 
-        public class Stride_Header : stride_record
+        internal class Stride_Header : stride_record
         {
             //HDR Header.  Protein name, date of file creation and PDB code
 
-            public Stride_Header(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_Header(string columnFormatLine) : base(columnFormatLine)
             {
 
             }
         }
 
-        public class Stride_Compound : stride_record
+        internal class Stride_Compound : stride_record
         {
             //CMP Compound.Full name of the molecule and identifying information
 
-            public Stride_Compound(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_Compound(string columnFormatLine) : base(columnFormatLine)
             {
 
             }
         }
 
-        public class Stride_Receptor : stride_record
+        internal class Stride_Receptor : stride_record
         {
             //SRC Species, organ, tissue, and mutant from which the molecule has been obtained
 
-            public Stride_Receptor(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_Receptor(string columnFormatLine) : base(columnFormatLine)
             {
 
             }
         }
 
-        public class Stride_StructureAuthors : stride_record
+        internal class Stride_StructureAuthors : stride_record
         {
             //AUT Names of the structure authors
 
-            public Stride_StructureAuthors(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_StructureAuthors(string columnFormatLine) : base(columnFormatLine)
             {
 
             }
 
         }
 
-        public class Stride_Chain : stride_record
+        internal class Stride_Chain : stride_record
         {
             //CHN File name and PDB chain identifier*).
             // Format: File name beginning from position 6 followed by one space and one-letter chain    identifier
@@ -119,7 +118,7 @@ namespace dimorphics_dataset
             internal string FileName;
             internal string OneLetterChainIdentifier;
 
-            public Stride_Chain(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_Chain(string columnFormatLine) : base(columnFormatLine)
             {
                 FileName = columnFormatLine.column_value(6, 75);
                 OneLetterChainIdentifier = FileName.Substring(FileName.LastIndexOf(' ') + 1);
@@ -127,7 +126,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_AminoAcidSequence : stride_record
+        internal class Stride_AminoAcidSequence : stride_record
         {
             //SEQ Amino acid sequence
             //
@@ -140,7 +139,7 @@ namespace dimorphics_dataset
             internal string Sequence;
             internal string LastResiduePdbNumber;
 
-            public Stride_AminoAcidSequence(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_AminoAcidSequence(string columnFormatLine) : base(columnFormatLine)
             {
                 FirstResiduePdbNumber = columnFormatLine.column_value(6, 9);
                 Sequence = columnFormatLine.column_value(11, 60);
@@ -148,7 +147,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_SecondaryStructure : stride_record
+        internal class Stride_SecondaryStructure : stride_record
         {
 
             //STR Secondary   structure summary
@@ -158,13 +157,13 @@ namespace dimorphics_dataset
 
             internal string SecondaryStructureAssignment;
 
-            public Stride_SecondaryStructure(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_SecondaryStructure(string columnFormatLine) : base(columnFormatLine)
             {
                 SecondaryStructureAssignment = columnFormatLine.column_value(11, 60);
             }
         }
 
-        public class Stride_LocationOfSecondaryStructureElements : stride_record
+        internal class Stride_LocationOfSecondaryStructureElements : stride_record
         {
             //LOC Location of secondary structure elements
             //
@@ -188,7 +187,7 @@ namespace dimorphics_dataset
             internal string LastResiduePdbNumber;
             internal string LastResidueChainIdentifier;
 
-            public Stride_LocationOfSecondaryStructureElements(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_LocationOfSecondaryStructureElements(string columnFormatLine) : base(columnFormatLine)
             {
                 ElementName = columnFormatLine.column_value(6, 17);
                 FirstResidueName = columnFormatLine.column_value(19, 21);
@@ -200,7 +199,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_DetailedSecondaryStructureAssignments : stride_record
+        internal class Stride_DetailedSecondaryStructureAssignments : stride_record
         {
             //ASG Detailed secondary structure assignment
             //
@@ -227,7 +226,7 @@ namespace dimorphics_dataset
             internal string PsiAngle;
             internal string ResidueSolventAccessibleArea;
 
-            public Stride_DetailedSecondaryStructureAssignments(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_DetailedSecondaryStructureAssignments(string columnFormatLine) : base(columnFormatLine)
             {
                 ResidueName = columnFormatLine.column_value(6, 8);
                 ProteinChainIdentifier = columnFormatLine.column_value(10, 10);
@@ -244,7 +243,7 @@ namespace dimorphics_dataset
 
         }
 
-        public class Stride_LigandDonorReside : stride_record
+        internal class Stride_LigandDonorReside : stride_record
         {
             // DNR LigandDonor residue
             //
@@ -277,7 +276,7 @@ namespace dimorphics_dataset
             internal string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
             internal string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
 
-            public Stride_LigandDonorReside(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_LigandDonorReside(string columnFormatLine) : base(columnFormatLine)
             {
                 LigandDonorResidueName = columnFormatLine.column_value(6, 8);
                 ProteinChainIdentifier1 = columnFormatLine.column_value(10, 10);
@@ -295,7 +294,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class Stride_AcceptorResidue : stride_record
+        internal class Stride_AcceptorResidue : stride_record
         {
             // ACC Acceptor residue
             //
@@ -328,7 +327,7 @@ namespace dimorphics_dataset
             internal string AngleBetweenThePlanesOfLigandDonorComplexAndO__n_c;
             internal string AngleBetweenThePlanesOfAcceptorComplexAndN__o_c;
 
-            public Stride_AcceptorResidue(string columnFormatLine) : base(columnFormatLine)
+            internal Stride_AcceptorResidue(string columnFormatLine) : base(columnFormatLine)
             {
                 AcceptorResidueName = columnFormatLine.column_value(6, 8);
                 ProteinChainIdentifier1 = columnFormatLine.column_value(10, 10);
@@ -347,7 +346,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<stride_record> Load(string strideFilename)
+        internal static List<stride_record> Load(string strideFilename)
         {
             var result = new List<stride_record>();
 

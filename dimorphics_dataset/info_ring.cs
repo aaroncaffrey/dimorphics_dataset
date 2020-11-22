@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class info_ring
+    internal static class info_ring
     {
 
-        public class info_ring_edge
+        internal class info_ring_edge
         {
             //http://protein.bio.unipd.it/ring/help
             //"NodeId1     Interaction   NodeId2      Distance   Angle    Energy   Atom1   Atom2   Donor        Positive	Cation	Orientation"
@@ -30,7 +28,7 @@ namespace dimorphics_dataset
             internal string Orientation;
 
 
-            public static List<info_ring_edge> load(string filename)
+            internal static List<info_ring_edge> load(string filename)
             {
                 var result = new List<info_ring_edge>();
 
@@ -93,7 +91,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public class info_ring_node
+        internal class info_ring_node
         {
             //http://protein.bio.unipd.it/ring/help
             //"NodeId       Chain   Position   Residue   Dssp    Degree   Bfactor_CA    x         y         z         pdbFileName              Rapdf     Tap"
@@ -114,7 +112,7 @@ namespace dimorphics_dataset
             internal double Rapdf;//(Optional). The RAPDF energy. It is calculated based on statistical potentials, see [2]. Tosatto, S.C.E., 2005. The victor/FRST function for model quality estimation. J. Comput. Biol. 12, 1316–1327. doi:10.1089/cmb.2005.12.1316
             internal double Tap;//(Optional). The TAP energy. It is calculated based on statistical potentials, see [3]. Tosatto, S.C.E., Battistutta, R., 2007. TAP score: torsion angle propensity normalization applied to local protein structure evaluation. BMC Bioinformatics 8, 155. doi:10.1186/1471-2105-8-155
 
-            public static List<info_ring_node> load(string filename)
+            internal static List<info_ring_node> load(string filename)
             {
                 var result = new List<info_ring_node>();
 

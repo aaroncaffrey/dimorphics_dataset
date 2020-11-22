@@ -4,16 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class program
+    internal static class program
     {
         // todo: re-check tortusoity code, intramolecular distance code, and averageatom-atom distance cpde
 
@@ -24,7 +21,7 @@ namespace dimorphics_dataset
 
         internal static string data_root_folder = $@"C:\betastrands_dataset\";
 
-        public static List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> get_dataset_pdb_id_list(string class_name_in_file = "Single")
+        internal static List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> get_dataset_pdb_id_list(string class_name_in_file = "Single")
         {
             //List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)>
 
@@ -59,7 +56,7 @@ namespace dimorphics_dataset
             return dimorphics_data1;
         }
 
-        public static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types, protein_subsequence_info _template_protein = null, atom.load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
+        internal static subsequence_classification_data get_subsequence_classificiation_data(protein_subsequence_info psi, feature_types feature_types, protein_subsequence_info _template_protein = null, atom.load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             // todo: check if pdb_folder should be pdb or pdb_repair?
 
@@ -101,12 +98,13 @@ namespace dimorphics_dataset
                         //load_3d_rsa_data = features_1d || features_3d,
 
 
-                        load_2d_mpsa_sec_struct_predictions = true,
-                        load_2d_blast_pssms = true,
-                        load_2d_iup_data = true,
-                        load_2d_sable = true,
-                        load_2d_dna_binding = true,
+                        load_1d_blast_pssms = true,
+                        load_1d_iup_data = true,
+                        load_1d_sable = true,
+                        load_1d_dna_binding = true,
 
+                        load_2d_mpsa_sec_struct_predictions = true,
+                        
                         find_3d_intramolecular = true,
                         load_3d_dssp_data = true,
                         load_3d_stride_data = true,
@@ -184,7 +182,7 @@ namespace dimorphics_dataset
             return scd;
         }
 
-        public static void wait_tasks(Task[] tasks, string module_name = "", string function_name = "")
+        internal static void wait_tasks(Task[] tasks, string module_name = "", string function_name = "")
         {
             if (tasks == null || tasks.Length == 0) return;
 
@@ -221,7 +219,7 @@ namespace dimorphics_dataset
             Task.WaitAll(tasks.ToArray<Task>());
         }
 
-        public static void close_notifications()
+        internal static void close_notifications()
         {
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
@@ -322,8 +320,10 @@ namespace dimorphics_dataset
 
 
 
-        public static void Main(string[] args)
+        internal static void Main(string[] args)
         {
+            var module_name = nameof(program);
+            var method_name = nameof(Main);
 
             //var swx = new Stopwatch();
             //swx.Start();
@@ -458,7 +458,7 @@ namespace dimorphics_dataset
                 part4_save_outputs(feature_types2, p, data_encoded_list, _index);
             }
 
-            wait_tasks(tasks.ToArray<Task>(), nameof(program), nameof(Main));
+            wait_tasks(tasks.ToArray<Task>(), module_name, method_name);
 
             if (p.first_index == null && p.last_index == null)
             {
@@ -472,34 +472,35 @@ namespace dimorphics_dataset
             if (p.first_index == null && p.last_index == null)
             {
 
-                io_proxy.WriteLine(
-                    $@"{p.class_id} {p.class_name}: Finished: ({sw1.Elapsed:dd\:hh\:mm\:ss\.fff})",
-                    nameof(program), nameof(Main));
+                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: Finished: ({sw1.Elapsed:dd\:hh\:mm\:ss\.fff})", module_name, method_name);
             }
         }
          
         private static void part6_check_and_merge_outputs(List<protein_subsequence_info> psi_list, feature_types feature_types, cmd_params p)
         {
+            var module_name = nameof(program);
+            var method_name = nameof(part6_check_and_merge_outputs);
+
             var files = psi_list.AsParallel().AsOrdered().Select((a, i) =>
             {
                 var b = get_output_filenames(p, feature_types, i);
                 return (fn_headers: b.fn_headers, fn_features: b.fn_features, fn_comments: b.fn_comments);
             }).ToList();
 
-            var text_header = io_proxy.ReadAllLines(files.First().fn_headers, nameof(program), nameof(part6_check_and_merge_outputs));
-            var text_features = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_features, nameof(program), nameof(part6_check_and_merge_outputs)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
-            var text_comments = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_comments, nameof(program), nameof(part6_check_and_merge_outputs)).Skip(i == 0 ? 0 : 1).ToList()).ToList();
+            var text_header = io_proxy.ReadAllLines(files.First().fn_headers, module_name, method_name);
+            var text_features = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_features, module_name, method_name).Skip(i == 0 ? 0 : 1).ToList()).ToList();
+            var text_comments = files.SelectMany((a, i) => io_proxy.ReadAllLines(a.fn_comments, module_name, method_name).Skip(i == 0 ? 0 : 1).ToList()).ToList();
 
             // check for any lines with different total number of features
             var num_features = text_features.Select((a, i) => (line: i, num_features: a.Count(b => b == ','))).OrderByDescending(a => a.num_features).ToList();
 
             if (num_features.Select(a => a.num_features).Distinct().Count() > 1)
             {
-                io_proxy.WriteLine($@"Feature counts don't match.", nameof(program), nameof(part6_check_and_merge_outputs));
+                io_proxy.WriteLine($@"Feature counts don't match.", module_name, method_name);
             }
             else
             {
-                io_proxy.WriteLine($@"Feature counts match.", nameof(program), nameof(part6_check_and_merge_outputs));
+                io_proxy.WriteLine($@"Feature counts match.", module_name, method_name);
             }
 
             // check for any non-double type features
@@ -510,7 +511,7 @@ namespace dimorphics_dataset
 
             if (invalid_features.Count > 0)
             {
-                io_proxy.WriteLine($@"Invalid feature ids: " + string.Join(", ", invalid_features), nameof(program), nameof(part6_check_and_merge_outputs));
+                io_proxy.WriteLine($@"Invalid feature ids: " + string.Join(", ", invalid_features), module_name, method_name);
 
                 foreach (var i in invalid_features)
                 {
@@ -521,7 +522,7 @@ namespace dimorphics_dataset
             }
             else
             {
-                io_proxy.WriteLine($@"No invalid feature ids.", nameof(program), nameof(part6_check_and_merge_outputs));
+                io_proxy.WriteLine($@"No invalid feature ids.", module_name, method_name);
             }
 
             var fns = get_output_filenames(p, feature_types, null);
@@ -606,16 +607,17 @@ namespace dimorphics_dataset
         }
 
         private static void part4_save_outputs(
-            feature_types feature_types, cmd_params p, List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int tag)
+            feature_types feature_types, cmd_params p, List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int item_index)
         {
+            var module_name = nameof(program);
+            var method_name = nameof(part4_save_outputs);
+
             if (p.first_index == null && p.last_index == null)
             {
-                io_proxy.WriteLine(
-                    $@"{p.class_id} {p.class_name}: 4. Saving encoded data to file for {data_encoded_list.Count} items...",
-                    nameof(program), nameof(part4_save_outputs));
+                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: 4. Saving encoded data to file for {data_encoded_list.Count} items...", module_name, method_name);
             }
 
-            var fns = get_output_filenames(p, feature_types, tag);
+            var fns = get_output_filenames(p, feature_types, item_index);
 
             // get header row indexes in csv format
             var row_feature_header_csv = string.Join(",", Enumerable.Range(0, data_encoded_list.First().feature_info.Count));
@@ -626,14 +628,16 @@ namespace dimorphics_dataset
             // get list of the feature headers in csv format
             // save headers
             var feature_headers = feature_info.get_feature_headers_lines_csv(data_encoded_list.First().feature_info);
-            io_proxy.WriteAllLines(fns.fn_headers, feature_headers, nameof(program), nameof(part4_save_outputs));
+            io_proxy.WriteAllLines(fns.fn_headers, feature_headers, module_name, method_name);
 
 
             var tasks4 = new List<Task<(string row_feature_values_csv, string row_comments_csv)>>();
 
             for (var i = 0; i < data_encoded_list.Count; i++)
             {
-                var row_index = i;
+                //var row_index = i;
+                var row_index = i + item_index;
+
                 var data_encoded_item = data_encoded_list[i];
 
                 data_encoded_list[i] = default;
@@ -657,22 +661,22 @@ namespace dimorphics_dataset
 
                 tasks4.Add(task);
 
-                wait_tasks(tasks4.ToArray<Task>(), nameof(program), nameof(part4_save_outputs));
+                wait_tasks(tasks4.ToArray<Task>(), module_name, method_name);
             }
 
             data_encoded_list.Clear();
             data_encoded_list = null;
-            wait_tasks(tasks4.ToArray<Task>(), nameof(program), nameof(part4_save_outputs));
+            wait_tasks(tasks4.ToArray<Task>(), module_name, method_name);
 
             // save comments
             var comments_lines = tasks4.Select(a => a.Result.row_comments_csv).ToList();
             comments_lines.Insert(0, row_comments_header_csv);
-            io_proxy.WriteAllLines(fns.fn_comments, comments_lines, nameof(program), nameof(part4_save_outputs));
+            io_proxy.WriteAllLines(fns.fn_comments, comments_lines, module_name, method_name);
 
             // save features
             var features_lines = tasks4.Select(a => a.Result.row_feature_values_csv).ToList();
             features_lines.Insert(0, row_feature_header_csv);
-            io_proxy.WriteAllLines(fns.fn_features, features_lines, nameof(program), nameof(part4_save_outputs));
+            io_proxy.WriteAllLines(fns.fn_features, features_lines, module_name, method_name);
         }
 
         private static List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> part3_encode_features(

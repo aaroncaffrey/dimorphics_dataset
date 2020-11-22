@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace dimorphics_dataset
 {
-
     public class descriptive_stats
     {
         internal string member_id_name;
@@ -44,39 +43,39 @@ namespace dimorphics_dataset
         internal descriptive_stats interquartile_range_descriptive_stats;
         internal descriptive_stats intervals_descriptive_stats;
 
-        public class descriptive_stats_encoding_options
+        internal class descriptive_stats_encoding_options
         {
             internal string options_name = "";
             
-            internal bool count = false;
-            internal bool count_zero_values = false;
-            internal bool count_non_zero_values = false;
-            internal bool count_distinct_values = false;
-            internal bool sum = false;
-            internal bool mean_arithmetic = false;
-            internal bool min = false;
-            internal bool max = false;
-            internal bool range = false;
-            internal bool mid_range = false;
-            internal bool variance = false;
-            internal bool dev_standard = false;
-            internal bool skewness = false;
-            internal bool kurtosis = false;
-            internal bool interquartile_range = false;
-            internal bool median_q1 = false;
-            internal bool median_q2 = false;
-            internal bool median_q3 = false;
-            internal bool sum_of_error = false;
-            internal bool sum_of_error_square = false;
-            internal bool mode = false;
-            internal bool mad_mean_arithmetic = false;
-            internal bool mad_median_q1 = false;
-            internal bool mad_median_q2 = false;
-            internal bool mad_median_q3 = false;
-            internal bool mad_mode = false;
-            internal bool mad_mid_range = false;
+            internal bool count;
+            internal bool count_zero_values;
+            internal bool count_non_zero_values;
+            internal bool count_distinct_values;
+            internal bool sum;
+            internal bool mean_arithmetic;
+            internal bool min;
+            internal bool max;
+            internal bool range;
+            internal bool mid_range;
+            internal bool variance;
+            internal bool dev_standard;
+            internal bool skewness;
+            internal bool kurtosis;
+            internal bool interquartile_range;
+            internal bool median_q1;
+            internal bool median_q2;
+            internal bool median_q3;
+            internal bool sum_of_error;
+            internal bool sum_of_error_square;
+            internal bool mode;
+            internal bool mad_mean_arithmetic;
+            internal bool mad_median_q1;
+            internal bool mad_median_q2;
+            internal bool mad_median_q3;
+            internal bool mad_mode;
+            internal bool mad_mid_range;
 
-            public descriptive_stats_encoding_options(string name, bool enable = false)
+            internal descriptive_stats_encoding_options(string name, bool enable = false)
             {
                 options_name = name;
 
@@ -109,7 +108,7 @@ namespace dimorphics_dataset
                 mad_mid_range = enable;
             }
 
-            public static descriptive_stats_encoding_options options_average()
+            internal static descriptive_stats_encoding_options options_average()
             {
                 return new descriptive_stats_encoding_options("mean", false)
                 {
@@ -117,7 +116,7 @@ namespace dimorphics_dataset
                 };
             }
 
-            public static descriptive_stats_encoding_options options_average_sd()
+            internal static descriptive_stats_encoding_options options_average_sd()
             {
                 return new descriptive_stats_encoding_options("mean", false)
                 {
@@ -127,17 +126,17 @@ namespace dimorphics_dataset
             }
         }
 
-        public static readonly descriptive_stats_encoding_options options_default = descriptive_stats_encoding_options.options_average();
+        internal static readonly descriptive_stats_encoding_options options_default = descriptive_stats_encoding_options.options_average();
 
-        public static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options("all", true);
+        internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options("all", true);
 
 
-        public List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
+        internal List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
         {
             return descriptive_stats.encode(this, descriptive_stats_encoding_options, encode_intervals_descriptive_stats, encode_interquartile_range_descriptive_stats);
         }
 
-        public static List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats stats, descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
+        internal static List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats stats, descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
         {
             var result = new List<(string member_id, string perspective_id, double perspective_value)>();
 
@@ -200,12 +199,12 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static descriptive_stats get_stat_values(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
+        internal static descriptive_stats get_stat_values(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
         {
             return new descriptive_stats(data, member_id_name, preserve_values, presorted, calc_interquartile_range_stats, calc_interval_stats);
         }
 
-        public descriptive_stats(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
+        internal descriptive_stats(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
         {
             this.member_id_name = member_id_name;
 
@@ -333,7 +332,7 @@ namespace dimorphics_dataset
 
 
             this.min = sorted_data[0];
-            this.max = sorted_data[sorted_data.Length - 1];
+            this.max = sorted_data[^1];
             this.range = this.max - this.min;
             this.mid_range = (this.max + this.min) / (double)2.0;
 
@@ -468,7 +467,7 @@ namespace dimorphics_dataset
             return value;
         }
 
-        public static double mad(double[] values, double? centre)
+        internal static double mad(double[] values, double? centre)
         {
             if (values == null || values.Length == 0)
             {
@@ -482,7 +481,7 @@ namespace dimorphics_dataset
             return mad;
         }
 
-        public static double percentile(double[] sorted_data, double p)
+        internal static double percentile(double[] sorted_data, double p)
         {
             if (sorted_data == null)
             {
@@ -502,12 +501,12 @@ namespace dimorphics_dataset
             // algo derived from Aczel pg 15 bottom
             if (p >= (double)100.0)
             {
-                return sorted_data[sorted_data.Length - 1];
+                return sorted_data[^1];
             }
 
             var position = (double)(sorted_data.Length + 1) * p / ((double)100.0);
-            var left_number = (double)0.0;
-            var right_number = (double)0.0;
+            double left_number;
+            double right_number;
 
             double n = p / ((double)100.0) * (sorted_data.Length - 1) + ((double)1.0);
 

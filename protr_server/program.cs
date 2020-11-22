@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using dimorphics_dataset;
 
 namespace protr_server
 {
-    public static class program
+    internal static class program
     {/*
 #if DEBUG
         private static Random random = new Random();
-        public static string random_peptide(int length)
+        internal static string random_peptide(int length)
         {
             const string chars = "ACDEFGHIKLMNPQRSTVWY";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public static void Test()
+        internal static void Test()
         {
             for (var length = 3; length <= 10; length++)
             {
@@ -42,7 +41,7 @@ namespace protr_server
         }
 #endif*/
 
-        public static void Main(string[] args)
+        internal static void Main(string[] args)
         {
             if (args == null || args.Length == 0)
             {

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
-    public static class info_sable
+    internal static class info_sable
     {
-        //public static List<sable_item> sable_data = sable.load(Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt");
+        //internal static List<sable_item> sable_data = sable.load(Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt");
 
 
-        public class info_sable_item
+        internal class info_sable_item
         {
             internal string seq_name;
             internal int seq_index;
@@ -27,7 +26,7 @@ namespace dimorphics_dataset
             internal double entropy_value;
         }
 
-        public static List<info_sable_item> load(string filename)// = Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt")
+        internal static List<info_sable_item> load(string filename)// = Path.Combine(program.data_root_folder,"sable\OUT_SABLE_RES.txt")
         {
             var lines = io_proxy.ReadAllLines(filename, nameof(info_sable), nameof(load)).ToList();
 
@@ -140,9 +139,9 @@ namespace dimorphics_dataset
                         var prob_total = item.prob_h + item.prob_e + item.prob_c;
                         if (prob_total != 0)
                         {
-                            item.prob_h = item.prob_h / prob_total;
-                            item.prob_e = item.prob_e / prob_total;
-                            item.prob_c = item.prob_c / prob_total;
+                            item.prob_h /= prob_total;
+                            item.prob_e /= prob_total;
+                            item.prob_c /= prob_total;
                         }
 
                        

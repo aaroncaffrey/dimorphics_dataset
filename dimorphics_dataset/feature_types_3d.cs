@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace dimorphics_dataset
 {
-    public class feature_types_3d
+    internal class feature_types_3d
     {
-        internal bool pse_ssc_dssp_classification_data = false;
+        internal bool pse_ssc_dssp_classification_data;
         //internal bool dssp_dist_classification_data = false;
-        internal bool foldx_classification_data = false;
-        internal bool ring_classification_data = false;
-        internal bool sasa_classification_data = false;
-        internal bool tortuosity_classification_data = false;
-        internal bool intramolecular_classification_data = false;
+        internal bool foldx_classification_data;
+        internal bool ring_classification_data;
+        internal bool sasa_classification_data;
+        internal bool tortuosity_classification_data;
+        internal bool intramolecular_classification_data;
         //internal bool atom_distance_classification_data = false;
         //internal bool aa_aa_distances = false;
 
-        public feature_types_3d()
+        internal feature_types_3d()
         {
 
         }
-        public feature_types_3d(bool enable)
+        internal feature_types_3d(bool enable)
         {
             pse_ssc_dssp_classification_data = enable;
             //dssp_dist_classification_data = enable;
@@ -34,7 +32,7 @@ namespace dimorphics_dataset
             //aa_aa_distances = enable;
         }
 
-        public List<(string key, bool value)> AsArray()
+        internal List<(string key, bool value)> AsArray()
         {
             var data = new List<(string key, bool value)>()
                 {
@@ -51,13 +49,19 @@ namespace dimorphics_dataset
             return data;
         }
 
-        public override string ToString()
+        internal string key_value_list_hr()
         {
             var data = AsArray();
 
             var ret = $@"({string.Join(", ", data.Select(a => $"{a.key} = {a.value}").ToList())})";
 
             return ret;
+        }
+
+        public override string ToString()
+        {
+            return key_value_list_hr();
+            //throw new NotImplementedException();
         }
     }
 }

@@ -4,16 +4,15 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace dimorphics_dataset
 {
-    public static class subsequence_classification_data_r_methods
+    internal static class subsequence_classification_data_r_methods
     {
-        public static List<(string aa_sequence, List<feature_info> features)> cache_r_protr = null;// cache_r_load(@"e:\dataset\r_protr_cache.csv");
-        public static List<(string aa_sequence, List<feature_info> features)> cache_r_peptides = null;//cache_r_load(@"e:\dataset\r_peptides_cache.csv");
+        internal static List<(string aa_sequence, List<feature_info> features)> cache_r_protr;// cache_r_load(@"e:\dataset\r_protr_cache.csv");
+        internal static List<(string aa_sequence, List<feature_info> features)> cache_r_peptides;//cache_r_load(@"e:\dataset\r_peptides_cache.csv");
 
-        public static void cache_r_servers()
+        internal static void cache_r_servers()
         {
             /*
             var files = new string[] { $@"E:\dataset\l__(standard_coil).csv", $@"E:\dataset\l__(dimorphic_coil).csv" };
@@ -77,7 +76,7 @@ namespace dimorphics_dataset
             //Console.WriteLine();
         }
 
-        public static List<string> cache_r_get_seqs()
+        internal static List<string> cache_r_get_seqs()
         {
             var files = new string[] { $@"e:\dataset\r_protr_cache.csv" };
 
@@ -86,7 +85,7 @@ namespace dimorphics_dataset
             return aa_seqs;
         }
 
-        public static void cache_r_servers_check()
+        internal static void cache_r_servers_check()
         {
             var files = new string[] { $@"e:\dataset\r_protr_cache.csv", $@"e:\dataset\r_peptides_cache.csv" };
 
@@ -103,7 +102,7 @@ namespace dimorphics_dataset
 
 
 
-        public static List<(string aa_sequence, List<feature_info> features)> cache_r_load(string cache_file)
+        internal static List<(string aa_sequence, List<feature_info> features)> cache_r_load(string cache_file)
         {
             // note: features must be in original order.  more important that it is correct than fast.  parallel was not any faster relatively.
 
@@ -139,7 +138,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
+        internal static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
         {
             if (cache_r_peptides != null && cache_r_peptides.Count > 0)
             {
@@ -245,7 +244,7 @@ namespace dimorphics_dataset
                     var stdout = process.StandardOutput.ReadToEnd();
                     var stderr = process.StandardError.ReadToEnd();
 
-                    stdout = stdout.Substring(stdout.IndexOf('\n', StringComparison.InvariantCulture) + 1);
+                    stdout = stdout[(stdout.IndexOf('\n', StringComparison.InvariantCulture) + 1)..];
 
 
 
@@ -285,7 +284,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        public static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
+        internal static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
         {
             if (cache_r_protr != null && cache_r_protr.Count > 0)
             {
@@ -392,7 +391,7 @@ namespace dimorphics_dataset
                     var stdout = process.StandardOutput.ReadToEnd();
                     var stderr = process.StandardError.ReadToEnd();
 
-                    stdout = stdout.Substring(stdout.IndexOf('\n', StringComparison.InvariantCulture) + 1);
+                    stdout = stdout[(stdout.IndexOf('\n', StringComparison.InvariantCulture) + 1)..];
 
 
 

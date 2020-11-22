@@ -6,7 +6,7 @@ using System.Linq;
 namespace dimorphics_dataset
 {
    
-    public class subsequence_classification_data
+    internal class subsequence_classification_data
     {
         internal int class_id;
         internal string class_name;
@@ -21,12 +21,12 @@ namespace dimorphics_dataset
         internal subsequence_classification_data_region nh_contact_region;
         internal subsequence_classification_data_region chain_region;
         
-        public subsequence_classification_data()
+        internal subsequence_classification_data()
         {
 
         }
 
-        public (string region_name, subsequence_classification_data_region region)[] get_regions()
+        internal (string region_name, subsequence_classification_data_region region)[] get_regions()
         {
             return new (string region_name, subsequence_classification_data_region region)[]
             {
@@ -37,7 +37,7 @@ namespace dimorphics_dataset
             };
         }
 
-        public void init_nh_flanking(int neighbourhood_flanking_size = 6, bool load_ss_predictions = true, bool load_foldx_energy = true)
+        internal void init_nh_flanking(int neighbourhood_flanking_size = 6, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)
             {
@@ -57,12 +57,12 @@ namespace dimorphics_dataset
 
             if (total_indexes_before_start < neighbourhood_flanking_size && total_indexes_after_end > neighbourhood_flanking_size)
             {
-                neighbourhood_size_after_end = neighbourhood_size_after_end + (neighbourhood_flanking_size - total_indexes_before_start);
+                neighbourhood_size_after_end += (neighbourhood_flanking_size - total_indexes_before_start);
             }
 
             if (total_indexes_after_end < neighbourhood_flanking_size && total_indexes_before_start > neighbourhood_flanking_size)
             {
-                neighbourhood_size_before_start = neighbourhood_size_before_start + (neighbourhood_flanking_size - total_indexes_after_end);
+                neighbourhood_size_before_start += (neighbourhood_flanking_size - total_indexes_after_end);
             }
 
             var neighbourhood_flanking_master_atoms = chain_region.master_atoms.Where((a, i) => (i >= start_array_index - neighbourhood_size_before_start && i < start_array_index) || (i > end_array_index && i <= end_array_index + neighbourhood_size_after_end)).Except(interface_region.atoms).ToList();
@@ -71,7 +71,7 @@ namespace dimorphics_dataset
             nh_flank_region = new subsequence_classification_data_region(this, neighbourhood_flanking_atoms,load_ss_predictions,load_foldx_energy);
         }
 
-        public void init_nh_contacts(double nh_max_dist = 5.0, bool should_include_interface = false, bool load_ss_predictions = true, bool load_foldx_energy = true)
+        internal void init_nh_contacts(double nh_max_dist = 5.0, bool should_include_interface = false, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             if (nh_max_dist > 8.0)
             {
@@ -107,18 +107,20 @@ namespace dimorphics_dataset
             nh_contact_region=new subsequence_classification_data_region(this, neighbourhood_3d_contacts, load_ss_predictions, load_foldx_energy);
         }
 
-        public static List<string> get_row_comments_headers(subsequence_classification_data instance_meta_data)
+        internal static List<string> get_row_comments_headers(subsequence_classification_data instance_meta_data)
         {
-            var comment_headers = new List<string>();
-
-            comment_headers.Add("row_index");
-            comment_headers.Add($"{nameof(instance_meta_data.pdb_id)}");
-            comment_headers.Add($"{nameof(instance_meta_data.chain_id)}");
-            comment_headers.Add($"{nameof(instance_meta_data.dimer_type)}");
-            comment_headers.Add($"{nameof(instance_meta_data.class_id)}");
-            comment_headers.Add($"{nameof(instance_meta_data.class_name)}");
-            comment_headers.Add($"{nameof(instance_meta_data.parallelism)}");
-            comment_headers.Add($"{nameof(instance_meta_data.symmetry_mode)}");
+            var comment_headers = new List<string>
+            {
+                "row_index",
+                "unique_id", 
+                $"{nameof(instance_meta_data.pdb_id)}",
+                $"{nameof(instance_meta_data.chain_id)}", 
+                $"{nameof(instance_meta_data.dimer_type)}", 
+                $"{nameof(instance_meta_data.class_id)}", 
+                $"{nameof(instance_meta_data.class_name)}", 
+                $"{nameof(instance_meta_data.parallelism)}", 
+                $"{nameof(instance_meta_data.symmetry_mode)}"
+            };
 
             foreach (var region in instance_meta_data.get_regions())
             {
@@ -135,28 +137,35 @@ namespace dimorphics_dataset
             return comment_headers;
         }
 
-        public static List<string> get_row_comments(int row_index, subsequence_classification_data instance_meta_data)
+        internal static List<string> get_row_comments(int row_index, subsequence_classification_data instance_meta_data)
         {
             var row_comments = new List<string>();
 
-            row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
-            row_comments.Add($"{(instance_meta_data.pdb_id)}");
-            row_comments.Add($"{(instance_meta_data.chain_id)}");
-            row_comments.Add($"{(instance_meta_data.dimer_type)}");
-            row_comments.Add($"{(instance_meta_data.class_id)}");
-            row_comments.Add($"{(instance_meta_data.class_name)}");
-            row_comments.Add($"{(instance_meta_data.parallelism)}");
-            row_comments.Add($"{(instance_meta_data.symmetry_mode)}");
+            var regions = instance_meta_data.get_regions();
 
-            foreach (var region in instance_meta_data.get_regions())
+            var if_region = regions.First(a => a.region_name == nameof(interface_region));
+
+            row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
+            // -1Z1Y2AA34Y35K36A37
+            row_comments.Add($"{instance_meta_data.class_id:+#;-#;+0}{instance_meta_data.pdb_id}{instance_meta_data.chain_id}{(string.Join(" ", if_region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $"{(char.IsDigit(a.i_code) ? "i" : "")}{a.i_code}" : "")}").ToList()))}");
+
+            row_comments.Add($"{instance_meta_data.pdb_id}");
+            row_comments.Add($"{instance_meta_data.chain_id}");
+            row_comments.Add($"{instance_meta_data.dimer_type}");
+            row_comments.Add($"{instance_meta_data.class_id}");
+            row_comments.Add($"{instance_meta_data.class_name}");
+            row_comments.Add($"{instance_meta_data.parallelism}");
+            row_comments.Add($"{instance_meta_data.symmetry_mode}");
+
+            foreach (var region in regions)
             {
-                row_comments.Add($"{(region.region.aa_sequence.Length)}");
-                row_comments.Add($"{(region.region.aa_sequence)}");
-                row_comments.Add($"{(string.Join(" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && a.i_code != ' ' ? a.i_code.ToString(CultureInfo.InvariantCulture) : "")}").ToList()))}");
-                row_comments.Add($"{(region.region.dssp3_monomer)}");
-                row_comments.Add($"{(region.region.dssp3_multimer)}");
-                row_comments.Add($"{(region.region.dssp_monomer)}");
-                row_comments.Add($"{(region.region.dssp_multimer)}");
+                row_comments.Add($"{region.region.aa_sequence.Length}");
+                row_comments.Add($"{region.region.aa_sequence}");
+                row_comments.Add($"{string.Join(" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $"{(char.IsDigit(a.i_code) ? "i" : "")}{a.i_code}" : "")}").ToList())}");
+                row_comments.Add($"{region.region.dssp3_monomer}");
+                row_comments.Add($"{region.region.dssp3_multimer}");
+                row_comments.Add($"{region.region.dssp_monomer}");
+                row_comments.Add($"{region.region.dssp_multimer}");
                 row_comments.AddRange(region.region?.ss_predictions?.Select(a => a.prediction).ToList() ?? new List<string>());
             }
 

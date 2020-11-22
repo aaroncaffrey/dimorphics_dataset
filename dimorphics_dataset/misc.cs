@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class misc
+    internal static class misc
     {
-        public class subseq_match
+        internal class subseq_match
         {
             internal string pdb_id;
             internal int chain_number;
             internal int alphabetical_chain_number;
-            //public List<Atom> pdb_model_chain_atoms;
+            //internal List<Atom> pdb_model_chain_atoms;
             internal char chain_id;
             internal int pdb_model_index;
             internal string seq;
@@ -26,10 +26,10 @@ namespace dimorphics_dataset
             internal int array_index;
             internal int residue_index;
 
-            //public List<(int array_index, int residue_index)> subseq_indexes;
+            //internal List<(int array_index, int residue_index)> subseq_indexes;
         }
 
-        public class class_file_line
+        internal class class_file_line
         {
             internal string pair_id;
             internal string pdb_id;
@@ -48,22 +48,24 @@ namespace dimorphics_dataset
         }
 
 
-        public static List<misc.subseq_match> find_subsequences(string pdb_id, string subsequence, bool fix)
+        internal static List<misc.subseq_match> find_subsequences(string pdb_id, string subsequence, bool fix)
         {
             var pdb = atom.load_atoms_pdb(pdb_id, new atom.load_atoms_pdb_options()
             {
                 find_3d_intramolecular = false,
-                
+
+                load_1d_blast_pssms = false,
+                load_1d_iup_data = false,
+                load_1d_sable = false,
+                load_1d_dna_binding = false,
+
+                load_2d_mpsa_sec_struct_predictions = false,
+
                 load_3d_rsa_data = false,
                 load_3d_dssp_data = true,
                 load_3d_stride_data = true,
                 load_3d_ring_data = false,
-                load_2d_mpsa_sec_struct_predictions = false,
-                load_2d_blast_pssms = false,
-                load_2d_iup_data = false,
-                load_2d_sable = false,
                 load_3d_foldx_ala_scan = false,
-                load_2d_dna_binding = false,
             });
 
             var chain_order = pdb.First().pdb_model_chain_atoms.First().chain_order_in_pdb_file;
@@ -232,7 +234,7 @@ namespace dimorphics_dataset
 
 
 
-        public static void fill_missing_chains()
+        internal static void fill_missing_chains()
         {
 
             var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv", nameof(misc), nameof(fill_missing_chains));
@@ -368,7 +370,7 @@ namespace dimorphics_dataset
             //Console.ReadLine();
 
         }
-        public static void extract_all_pdbs()
+        internal static void extract_all_pdbs()
         {
             var pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"pdb"), $@"*.pdb").ToList();
 
@@ -379,7 +381,7 @@ namespace dimorphics_dataset
             }
         }
 
-        public static void repair_all_extracted_pdbs(bool run)
+        internal static void repair_all_extracted_pdbs(bool run)
         {
             var split_pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"pdb_split"), "*.pdb").ToList();
 
@@ -408,7 +410,7 @@ namespace dimorphics_dataset
 
         }
 
-        public static List<string> get_pdb_sequences(bool limited_to_dimorphics_and_standard = true)
+        internal static List<string> get_pdb_sequences(bool limited_to_dimorphics_and_standard = true)
         {
 
             var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), nameof(misc), nameof(get_pdb_sequences))
@@ -457,17 +459,19 @@ namespace dimorphics_dataset
                     new atom.load_atoms_pdb_options()
                     {
                         find_3d_intramolecular = true,
-                        
+
+                        load_1d_blast_pssms = true,
+                        load_1d_iup_data = true,
+                        load_1d_sable = true,
+                        load_1d_dna_binding = true,
+
+                        load_2d_mpsa_sec_struct_predictions = true,
+
                         load_3d_rsa_data = true,
                         load_3d_dssp_data = true,
                         load_3d_stride_data = true,
                         load_3d_ring_data = true,
-                        load_2d_mpsa_sec_struct_predictions = true,
-                        load_2d_blast_pssms = true,
-                        load_2d_iup_data = true,
-                        load_2d_sable = true,
                         load_3d_foldx_ala_scan = true,
-                        load_2d_dna_binding = true,
                     }, pdb_folder);
 
                 foreach (var chain in chains)
@@ -524,7 +528,7 @@ namespace dimorphics_dataset
 
 
 
-        public static void get_pssms(string blast_db = "swissprot", string db_folder = @"c:\blast\db\", bool remote = false, bool run = false)
+        internal static void get_pssms(string blast_db = "swissprot", string db_folder = @"c:\blast\db\", bool remote = false, bool run = false)
         {
             int num_iterations = 3;
 
@@ -652,7 +656,7 @@ namespace dimorphics_dataset
             io_proxy.WriteLine($@"{blast_db}_{num_iterations}_{(remote ? "remote" : "local")}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}");
         }
 
-        public static void load_pssms()
+        internal static void load_pssms()
         {
             var txt_sequences = io_proxy.ReadAllLines(@"c:\bioinf\betastrands_dataset_sequences.txt", nameof(misc), nameof(load_pssms));
 
@@ -676,7 +680,7 @@ namespace dimorphics_dataset
 
         }
 
-        public static (string header, string sequence) get_uniprot_sequence(string uniprot_id)
+        internal static (string header, string sequence) get_uniprot_sequence(string uniprot_id)
         {
             var uniprot_url = $@"https://www.uniprot.org/uniprot/{uniprot_id}.fasta";
 
@@ -692,7 +696,7 @@ namespace dimorphics_dataset
             return (header, sequence);
         }
 
-        public static void get_uniprot_sequences(/*bool limited_to_dimorphics_and_standard = true*/)
+        internal static void get_uniprot_sequences(/*bool limited_to_dimorphics_and_standard = true*/)
         {
             //var dimorphics_data = program.ReadAllLines(Path.Combine(program.data_root_folder,"csv\distinct dimorphics list.csv")
             //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", ""))).Select((a, i) =>
@@ -771,7 +775,7 @@ namespace dimorphics_dataset
 
         }
 
-        public static void check_buildmodel_position_scan_files_are_complete()
+        internal static void check_buildmodel_position_scan_files_are_complete()
         {
             var cmd_list_file = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"foldx_calc_buildmodel_position_scan.bat");
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"missing_foldx_calc_buildmodel_position_scan.bat");
@@ -845,7 +849,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static void check_buildmodel_subseq_mutant_files_are_complete()
+        internal static void check_buildmodel_subseq_mutant_files_are_complete()
         {
             var cmd_list_file = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"foldx_calc_buildmodel_subsequence_mutant.bat");
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, "foldx", $@"bat", $@"missing_foldx_calc_buildmodel_subsequence_mutant.bat");
@@ -915,7 +919,7 @@ namespace dimorphics_dataset
 
         }
 
-        public static void check_ala_scanning_files_are_complete()
+        internal static void check_ala_scanning_files_are_complete()
         {
             var ala_scan_folder = Path.Combine(program.data_root_folder, $@"foldx_ala_scan");
 
@@ -976,7 +980,7 @@ namespace dimorphics_dataset
             io_proxy.WriteLine();
         }
 
-        public static void check_foldx_position_scan_files_are_completed()
+        internal static void check_foldx_position_scan_files_are_completed()
         {
 
             var missing_res = compare_repaired_pdb_to_pdb();
@@ -1096,7 +1100,7 @@ namespace dimorphics_dataset
             io_proxy.WriteLine();
         }
 
-        public static List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> compare_repaired_pdb_to_pdb()
+        internal static List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> compare_repaired_pdb_to_pdb()
         {
             var split_pdbs = Path.Combine(program.data_root_folder, "pdb_split");
             var split_pdbs_repair = Path.Combine(program.data_root_folder, "pdb_split_repair");
@@ -1126,7 +1130,7 @@ namespace dimorphics_dataset
             return diff;
         }
 
-        public static void get_limited_ids()
+        internal static void get_limited_ids()
         {
 
             var seqs_all = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"), nameof(misc), nameof(get_limited_ids));
@@ -1147,7 +1151,7 @@ namespace dimorphics_dataset
 
 
 
-        //public static void get_missing_data()
+        //internal static void get_missing_data()
         //{
         //    var lines = program.ReadAllLines(@"c:\bioinf\dimorphics_data_set.csv").Skip(1).Select(a => a.Split(',').ToList()).ToList();
 
@@ -1237,7 +1241,7 @@ namespace dimorphics_dataset
         //    sequence_list = larks;
         //}
 
-        public static void test2()
+        internal static void test2()
         {
 
             /*for (var i = 10; i >= 0; i--)

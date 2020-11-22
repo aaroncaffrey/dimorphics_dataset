@@ -8,25 +8,25 @@ using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
-    public static class info_foldx
+    internal static class info_foldx
     {
         internal static string foldx_folder = Path.Combine(program.data_root_folder, $@"foldx");
         internal static string pdb_folder = Path.Combine(program.data_root_folder, $@"foldx", $@"pdb");
 
          
 
-        //public class energy_differences
+        //internal class energy_differences
         //{
-        //    public List<(bool is_fragment, bool is_repaired, double[] energy)> ala_scan;
-        //    public List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_position_scan;
-        //    public List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_subsequence_mutant;
-        //    public List<(bool is_fragment, bool is_repaired, double[] energy)> position_scan;
-        //    //public List<(bool is_fragment, bool is_repaired, double[] energy)> stability;
+        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> ala_scan;
+        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_position_scan;
+        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_subsequence_mutant;
+        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> position_scan;
+        //    //internal List<(bool is_fragment, bool is_repaired, double[] energy)> stability;
         //}
 
-        public class energy_differences
+        internal class energy_differences
         {
-            //public (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) foldx_ala_scanning_result_protein;
+            //internal (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) foldx_ala_scanning_result_protein;
 
             internal (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) foldx_ala_scanning_result_subsequence;
 
@@ -40,7 +40,7 @@ namespace dimorphics_dataset
 
         private static readonly object file_write_lock = new object();
 
-        public static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = "all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
+        internal static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = "all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");
@@ -101,7 +101,7 @@ namespace dimorphics_dataset
 
 
 
-        public class foldx_energy_terms
+        internal class foldx_energy_terms
         {
             internal string pdb_id;
             internal char chain_id;
@@ -109,9 +109,9 @@ namespace dimorphics_dataset
 
             internal int line_index;
 
-            //public string pdb_filename;
-            //public string wait_filename;
-            //public bool repaired;
+            //internal string pdb_filename;
+            //internal string wait_filename;
+            //internal bool repaired;
             internal string Pdb;
             internal double SD;
             internal double total_energy;
@@ -137,7 +137,7 @@ namespace dimorphics_dataset
             internal double energy_Ionisation;
             internal double Entropy_Complex;
 
-            public (string name, double value)[] properties() {
+            internal (string name, double value)[] properties() {
                 return new (string name, double value)[]
                     {
                         (nameof(total_energy),              total_energy),
@@ -167,7 +167,7 @@ namespace dimorphics_dataset
         }
 
 
-        public static readonly
+        internal static readonly
             List<(int index, string full_name, string foldx_aa_code3, char foldx_aa_code1, string standard_aa_code3, char standard_aa_code1, bool is_mutable, string residue_type)>
             foldx_residues =
                 new
@@ -228,12 +228,12 @@ namespace dimorphics_dataset
                         (51, "water", "HOH", ' ',"HOH", ' ', false, "water"),
                     };
 
-        public static readonly List<(int index, string full_name, string foldx_aa_code3, char foldx_aa_code1, string standard_aa_code3, char standard_aa_code1, bool is_mutable, string residue_type)>
+        internal static readonly List<(int index, string full_name, string foldx_aa_code3, char foldx_aa_code1, string standard_aa_code3, char standard_aa_code1, bool is_mutable, string residue_type)>
             foldx_residues_aa_mutable = foldx_residues.Where(a => (a.index >= 0) && (a.index <= 30)).ToList();
 
         private static readonly List<string> call_foldx_lock = new List<string>();
 
-        public static string[] read_all_lines_until_success(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10)
+        internal static string[] read_all_lines_until_success(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"{nameof(read_all_lines_until_success)}(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10);");
@@ -294,7 +294,7 @@ namespace dimorphics_dataset
             return data;
         }
 
-        public static (string cmd_line, string[] data) call_foldx(string pdb_file_id, string foldx_command, string foldx_args, string wait_filename, string lock_code_local, bool run, string pdb_folder = null)
+        internal static (string cmd_line, string[] data) call_foldx(string pdb_file_id, string foldx_command, string foldx_args, string wait_filename, string lock_code_local, bool run, string pdb_folder = null)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($@"call_foldx(pdb_file_id={pdb_file_id}, foldx_command={foldx_command}, foldx_args={foldx_args}, wait_filename={wait_filename}, lock_code_local={lock_code_local}");
@@ -434,7 +434,7 @@ namespace dimorphics_dataset
             return (cmd_line, data);
         }
 
-        public static string foldx_repair_pdb(string pdb_id, bool run, string pdb_folder = null, string repair_folder = null)
+        internal static string foldx_repair_pdb(string pdb_id, bool run, string pdb_folder = null, string repair_folder = null)
         {
 #if DEBUG
             //if (program.verbose_debug) io.WriteLine($"foldx_repair_pdb(pdb_id = \"{pdb_id}\")");
@@ -462,12 +462,12 @@ namespace dimorphics_dataset
         }
 
 
-        public class foldx_energy_terms_ps : foldx_energy_terms
+        internal class foldx_energy_terms_ps : foldx_energy_terms
         {
             internal (char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3) mutation_positions_data;
         }
 
-        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) load_foldx_buildmodel_position_scan((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool write_list = false)
+        internal static (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) load_foldx_buildmodel_position_scan((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool write_list = false)
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
@@ -615,12 +615,12 @@ namespace dimorphics_dataset
         }
 
 
-        public class foldx_energy_terms_sm : foldx_energy_terms
+        internal class foldx_energy_terms_sm : foldx_energy_terms
         {
             internal List<(char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3)> mutation_positions_data;
         }
 
-        public static (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) load_foldx_buildmodel_subsequence_mutant((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool save_list = false)
+        internal static (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) load_foldx_buildmodel_subsequence_mutant((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool save_list = false)
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
@@ -752,7 +752,7 @@ namespace dimorphics_dataset
             return (cmd_line, wait_filename, results);
         }
 
-        public class foldx_ala_scanning_result
+        internal class foldx_ala_scanning_result
         {
             // LYS 86 to ALA energy change is 0.0306484
             // THR 87 to ALA energy change is -0.727468
@@ -762,8 +762,8 @@ namespace dimorphics_dataset
             internal char chain_id;
             internal int residue_index;
 
-            //public string res_name;
-            //public string scan_res_name;
+            //internal string res_name;
+            //internal string scan_res_name;
 
             internal char original_foldx_amino_acid_1;
             internal string original_foldx_amino_acid_3;
@@ -778,7 +778,7 @@ namespace dimorphics_dataset
             internal double ddg;
         }
 
-        public class foldx_position_scanning_result
+        internal class foldx_position_scanning_result
         {
             // FoldX --command=PositionScan --pdb-dir=c:\betastrands_dataset\pdb\ --pdb=1AJYA.pdb --positions MA30d
 
@@ -804,7 +804,7 @@ namespace dimorphics_dataset
             internal double ddg;
         }
 
-        public static string fix_non_standard_naming(string res_name, bool fix)
+        internal static string fix_non_standard_naming(string res_name, bool fix)
         {
             if (string.IsNullOrWhiteSpace(res_name))
             {
@@ -849,7 +849,7 @@ namespace dimorphics_dataset
             return res_name;
         }
 
-        public static (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) load_foldx_ala_scanning(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run)
+        internal static (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) load_foldx_ala_scanning(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run)
         {
             //    var (pdb_id, chain_id, res_ids) = interface_residues;
 #if DEBUG
@@ -942,7 +942,7 @@ namespace dimorphics_dataset
 
 
 
-        public static (string cmd_line, string wait_filename, List<foldx_position_scanning_result> data) load_foldx_position_scanning((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run)
+        internal static (string cmd_line, string wait_filename, List<foldx_position_scanning_result> data) load_foldx_position_scanning((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run)
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 

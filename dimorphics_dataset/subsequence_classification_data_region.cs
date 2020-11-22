@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace dimorphics_dataset
 {
-    public class subsequence_classification_data_region
+    internal class subsequence_classification_data_region
     {
         internal List<(int residue_index, char i_code, char amino_acid)> res_ids;
         internal string aa_sequence;
@@ -28,7 +20,7 @@ namespace dimorphics_dataset
         internal List<(string format, string prediction)> ss_predictions;
         internal info_foldx.energy_differences foldx_energy_differences;
 
-        public subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms, bool load_ss_predictions = true, bool load_foldx_energy = true)
+        internal subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             atoms = region_atoms;
             master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
