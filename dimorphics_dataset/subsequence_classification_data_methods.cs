@@ -3017,7 +3017,7 @@ namespace dimorphics_dataset
                         dimension = 1,
                         category = $@"blast_pssm",
                         source = $@"{source}",
-                        group = $@"{x.database}_{x.sequence_name}_{x.alphabet}_{x.pssm_encoding_name}",
+                        group = $@"{x.database}_{x.sequence_name}_{x.alphabet}_{x.pssm_encoding_name}_{y.group_id}",
                         member = y.member_id,
                         perspective = y.perspective_id,
                         feature_value = y.perspective_value
