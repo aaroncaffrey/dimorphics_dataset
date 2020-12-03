@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
     internal class subsequence_classification_data_region
     {
+        internal string pdb_id;
+        internal char chain_id;
         internal List<(int residue_index, char i_code, char amino_acid)> res_ids;
         internal string aa_sequence;
         internal string dssp_monomer;
@@ -20,8 +23,21 @@ namespace dimorphics_dataset
         internal List<(string format, string prediction)> ss_predictions;
         internal info_foldx.energy_differences foldx_energy_differences;
 
+        internal string unique_id()
+        {
+            return string.Join("_", new string[]
+            {
+                pdb_id,
+                $@"{chain_id}",
+                string.Join("_", res_ids?.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*$@"i"*/$@"" : $@"")}{a.i_code}" : $@"")}").ToArray() ?? Array.Empty<string>())
+            });
+        }
+        
         internal subsequence_classification_data_region(subsequence_classification_data scd, List<atom> region_atoms, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
+            pdb_id = scd.pdb_id;
+            chain_id = scd.chain_id;
+
             atoms = region_atoms;
             master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
             res_ids = master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
@@ -43,7 +59,7 @@ namespace dimorphics_dataset
                 {
                     var template_region = scd.get_regions().First(a => a.region != null && a.region.master_atoms != null && a.region.master_atoms.Count > 0).region.master_atoms;
                     ss_predictions = atom.get_dssp_and_mpsa_subsequences(template_region);
-                    ss_predictions = ss_predictions.Select(a => (a.format, "")).ToList();
+                    ss_predictions = ss_predictions.Select(a => (a.format, $@"")).ToList();
                 }
                 else
                 {

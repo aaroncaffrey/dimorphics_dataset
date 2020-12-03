@@ -17,6 +17,8 @@ namespace dimorphics_dataset
 
     internal enum enum_protein_data_source
     {
+        none,
+
         interface_1d,
         neighbourhood_1d,
         chain_1d,

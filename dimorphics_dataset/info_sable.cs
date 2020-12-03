@@ -62,7 +62,7 @@ namespace dimorphics_dataset
                 var query_name = query.First(a => a.StartsWith("Query:", StringComparison.InvariantCulture)).Split().Last();
 
                 // 3 sectionss
-                var SECTION_SS = query.Skip(query.FindIndex(a => a == "SECTION_SS")+1).TakeWhile(a => a != "END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
+                var SECTION_SS = query.Skip(query.FindIndex(a => a == $@"SECTION_SS")+1).TakeWhile(a => a != $@"END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
 
                 var SECTION_SS_joined = (
                     query_seq: string.Join("", SECTION_SS.Where((a, i) =>          i % 3 == 0).ToList()).ToCharArray(),
@@ -71,17 +71,17 @@ namespace dimorphics_dataset
                     );
 
                 // 4 sections H-> E-> C->
-                var SECTION_SS_PROBABILITIES = query.Skip(query.FindIndex(a => a == "SECTION_SS_PROBABILITIES")+1).TakeWhile(a => a != "END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
+                var SECTION_SS_PROBABILITIES = query.Skip(query.FindIndex(a => a == $@"SECTION_SS_PROBABILITIES")+1).TakeWhile(a => a != $@"END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
 
                 var SECTION_SS_PROBABILITIES_joined = (
-                    query_seq: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>   i % 4 == 0).ToList()).Replace(" ","", StringComparison.InvariantCulture).ToCharArray(),
-                    prob_h: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>   i % 4 == 1).ToList()).Replace("H->", "", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList(),
-                    prob_e: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) => i % 4 == 2).ToList()).Replace("E->", "", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList(),
-                    prob_c: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>  i % 4 == 3).ToList()).Replace("C->", "", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList()
+                    query_seq: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>   i % 4 == 0).ToList()).Replace($@" ",$@"", StringComparison.InvariantCulture).ToCharArray(),
+                    prob_h: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>   i % 4 == 1).ToList()).Replace($@"H->", $@"", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList(),
+                    prob_e: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) => i % 4 == 2).ToList()).Replace($@"E->", $@"", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList(),
+                    prob_c: string.Join("", SECTION_SS_PROBABILITIES.Where((a, i) =>  i % 4 == 3).ToList()).Replace($@"C->", $@"", StringComparison.InvariantCulture).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture) / 100).ToList()
                     );
 
                 // 3 sections
-                var SECTION_SA = query.Skip(query.FindIndex(a => a == "SECTION_SA")+1).TakeWhile(a => a != "END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
+                var SECTION_SA = query.Skip(query.FindIndex(a => a == $@"SECTION_SA")+1).TakeWhile(a => a != $@"END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
 
                 var SECTION_SA_joined = (
                     query_seq: string.Join("", SECTION_SA.Where((a, i) =>   i % 3 == 0).ToList()).ToCharArray(),
@@ -90,19 +90,19 @@ namespace dimorphics_dataset
                 );
 
                 //every 2 lines
-                var SECTION_SA_ABSOLUTE = query.Skip(query.FindIndex(a => a == "SECTION_SA_ABSOLUTE")+1).TakeWhile(a => a != "END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
+                var SECTION_SA_ABSOLUTE = query.Skip(query.FindIndex(a => a == $@"SECTION_SA_ABSOLUTE")+1).TakeWhile(a => a != $@"END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
 
                 var SECTION_SA_ABSOLUTE_joined = (
-                    seq: string.Join("", SECTION_SA_ABSOLUTE.Where((a, i) => i % 2 == 0).ToList()).Replace(" ","", StringComparison.InvariantCulture).ToCharArray(),
-                    absolute_burial_value: string.Join(" ", SECTION_SA_ABSOLUTE.Where((a, i) => i % 2 == 1).ToList()).Split(new []{' '},StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)/100).ToList()
+                    seq: string.Join("", SECTION_SA_ABSOLUTE.Where((a, i) => i % 2 == 0).ToList()).Replace($@" ",$@"", StringComparison.InvariantCulture).ToCharArray(),
+                    absolute_burial_value: string.Join($@" ", SECTION_SA_ABSOLUTE.Where((a, i) => i % 2 == 1).ToList()).Split(new []{' '},StringSplitOptions.RemoveEmptyEntries).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)/100).ToList()
                 );
 
-                // every 2 lines "ENTROPY->"
-                var SECTION_ENTROPY = query.Skip(query.FindIndex(a => a == "SECTION_ENTROPY")+1).TakeWhile(a => a != "END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
+                // every 2 lines $@"ENTROPY->"
+                var SECTION_ENTROPY = query.Skip(query.FindIndex(a => a == $@"SECTION_ENTROPY")+1).TakeWhile(a => a != $@"END_SECTION").SkipWhile(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Where(a => !a.StartsWith(">", StringComparison.InvariantCulture)).Select(a => a.Trim()).ToList();
 
                 var SECTION_ENTROPY_joined = (
-                    seq: string.Join("", SECTION_ENTROPY.Where((a, i) => i % 2 == 0).ToList()).Replace(" ","", StringComparison.InvariantCulture).ToCharArray(),
-                    entropy: string.Join("", SECTION_ENTROPY.Where((a, i) => i % 2 == 1).ToList()).Replace("ENTROPY->","", StringComparison.InvariantCulture).Split(new char[]{' '},StringSplitOptions.RemoveEmptyEntries).Select(a=>double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList()
+                    seq: string.Join("", SECTION_ENTROPY.Where((a, i) => i % 2 == 0).ToList()).Replace($@" ", $@"", StringComparison.InvariantCulture).ToCharArray(),
+                    entropy: string.Join("", SECTION_ENTROPY.Where((a, i) => i % 2 == 1).ToList()).Replace("ENTROPY->", $@"", StringComparison.InvariantCulture).Split(new char[]{' '},StringSplitOptions.RemoveEmptyEntries).Select(a=>double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList()
                 );
 
                 var joined = SECTION_ENTROPY_joined.seq.Select((a, i) => new info_sable_item()

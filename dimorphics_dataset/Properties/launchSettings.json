@@ -1,7 +1,8 @@
 {
   "profiles": {
     "dimorphics_dataset": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-3i=false -3p=true -3p.foldx=false -3i.foldx=true"
     }
   }
 }

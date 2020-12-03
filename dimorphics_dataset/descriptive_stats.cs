@@ -1,445 +1,589 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
     public class descriptive_stats
     {
-        internal string member_id_name;
+        internal string ds_group_name;
+        internal string ds_member_name;
+
         internal uint count;
         internal uint count_zero_values;
         internal uint count_non_zero_values;
         internal uint count_distinct_values;
         internal double sum;
         internal double mean_arithmetic;
-        //internal double mean_geometric;
-        //internal double mean_harmonic;
+        internal double mean_geometric;
+        internal double mean_harmonic;
         internal double min;
         internal double max;
         internal double range;
         internal double mid_range;
         internal double variance;
         internal double dev_standard;
+        internal double root_mean_square;
         internal double skewness;
         internal double kurtosis;
         internal double interquartile_range;
         internal double median_q1;
         internal double median_q2;
         internal double median_q3;
-        internal double sum_of_error;
-        internal double sum_of_error_square;
-        internal double mode;
         internal double mad_mean_arithmetic;
-        //internal double mad_mean_harmonic;
-        //internal double mad_mean_geometric;
+        internal double mad_mean_harmonic;
+        internal double mad_mean_geometric;
         internal double mad_median_q1;
         internal double mad_median_q2;
         internal double mad_median_q3;
-        internal double mad_mode;
         internal double mad_mid_range;
-        
-        internal descriptive_stats interquartile_range_descriptive_stats;
+
+        //internal double mode;
+        //internal double mad_mode;
+
         internal descriptive_stats intervals_descriptive_stats;
+        internal descriptive_stats distances_descriptive_stats;
+        internal descriptive_stats interquartile_range_descriptive_stats;
+        internal descriptive_stats abs_descriptive_stats;
+        internal descriptive_stats rescaled_descriptive_stats;
 
-        internal class descriptive_stats_encoding_options
+        internal static double geometric_mean(double[] values, bool ignore_zeros = true)
         {
-            internal string options_name = "";
-            
-            internal bool count;
-            internal bool count_zero_values;
-            internal bool count_non_zero_values;
-            internal bool count_distinct_values;
-            internal bool sum;
-            internal bool mean_arithmetic;
-            internal bool min;
-            internal bool max;
-            internal bool range;
-            internal bool mid_range;
-            internal bool variance;
-            internal bool dev_standard;
-            internal bool skewness;
-            internal bool kurtosis;
-            internal bool interquartile_range;
-            internal bool median_q1;
-            internal bool median_q2;
-            internal bool median_q3;
-            internal bool sum_of_error;
-            internal bool sum_of_error_square;
-            internal bool mode;
-            internal bool mad_mean_arithmetic;
-            internal bool mad_median_q1;
-            internal bool mad_median_q2;
-            internal bool mad_median_q3;
-            internal bool mad_mode;
-            internal bool mad_mid_range;
+            // note: it only makes sense to ignore zeros if they are non-responses/not-applicable.
+            // other strategies exist, such as adding 1 to all values or changing 0 to 1
 
-            internal descriptive_stats_encoding_options(string name, bool enable = false)
+            if (values == null || values.Length == 0) return 0;
+
+            double sum = 1.0;
+            int zeros = 0;
+            var use_log = false;
+
+            for (int i = 0; i < values.Length; i++)
             {
-                options_name = name;
+                if (values[i] == 0 && ignore_zeros)
+                {
+                    zeros++;
+                    continue;
+                }
 
-                count = enable;
-                count_zero_values = enable;
-                count_non_zero_values = enable;
-                count_distinct_values = enable;
-                sum = enable;
-                mean_arithmetic = enable;
-                min = enable;
-                max = enable;
-                range = enable;
-                mid_range = enable;
-                variance = enable;
-                dev_standard = enable;
-                skewness = enable;
-                kurtosis = enable;
-                interquartile_range = enable;
-                median_q1 = enable;
-                median_q2 = enable;
-                median_q3 = enable;
-                sum_of_error = enable;
-                sum_of_error_square = enable;
-                mode = enable;
-                mad_mean_arithmetic = enable;
-                mad_median_q1 = enable;
-                mad_median_q2 = enable;
-                mad_median_q3 = enable;
-                mad_mode = enable;
-                mad_mid_range = enable;
+                sum *= values[i];
+
+                if (double.IsInfinity(sum) || double.IsNaN(sum))
+                {
+                    use_log = true;
+
+                    break;
+                }
             }
 
-            internal static descriptive_stats_encoding_options options_average()
+            if (!use_log)
             {
-                return new descriptive_stats_encoding_options("mean", false)
-                {
-                    mean_arithmetic = true,
-                };
-            }
+                if (zeros == values.Length) return 0;
 
-            internal static descriptive_stats_encoding_options options_average_sd()
+                return Math.Pow(sum, 1.0 / (values.Length - zeros));
+            }
+            else
             {
-                return new descriptive_stats_encoding_options("mean", false)
+                zeros = 0;
+                sum = 0;
+
+                for (int i = 0; i < values.Length; i++)
                 {
-                    mean_arithmetic = true,
-                    dev_standard = true,
-                };
+                    if (values[i] == 0 && ignore_zeros)
+                    {
+                        zeros++;
+                        continue;
+                    }
+                    sum += Math.Log(values[i]);
+                }
+
+                if (zeros == values.Length) return 0;
+
+                return Math.Exp(sum / (values.Length - zeros));
             }
         }
 
-        internal static readonly descriptive_stats_encoding_options options_default = descriptive_stats_encoding_options.options_average();
-
-        internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options("all", true);
-
-
-        internal List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
+        public static double harmonic_mean(double[] values, bool correct_zeros = true, bool ignore_zeros = true)
         {
-            return descriptive_stats.encode(this, descriptive_stats_encoding_options, encode_intervals_descriptive_stats, encode_interquartile_range_descriptive_stats);
-        }
+            if (values == null || values.Length == 0) return 0;
 
-        internal static List<(string member_id, string perspective_id, double perspective_value)> encode(descriptive_stats stats, descriptive_stats_encoding_options descriptive_stats_encoding_options = null, bool encode_intervals_descriptive_stats = false, bool encode_interquartile_range_descriptive_stats = false)
-        {
-            var result = new List<(string member_id, string perspective_id, double perspective_value)>();
+            var nonzero = values.Where(a => a != 0).ToArray();
+            var zeros = values.Length - nonzero.Length;
 
-            if (stats == null) stats = new descriptive_stats(null, "");
-
-            if (encode_intervals_descriptive_stats && stats.intervals_descriptive_stats != null)
+            if (correct_zeros)
             {
-                var x = encode(stats.intervals_descriptive_stats, descriptive_stats_encoding_options, false, false);
-
-                result.AddRange(x);
+                var nt = (double)values.Length;
+                var n0 = (double)zeros;
+                var correction = (nt - n0) / nt;
+                var hm = (1 / nonzero.Select(i => 1.0 / i).Average()) * correction;
+                return hm;
             }
 
-            if (encode_interquartile_range_descriptive_stats && stats.interquartile_range_descriptive_stats != null)
-            {
-                var y = encode(stats.interquartile_range_descriptive_stats, descriptive_stats_encoding_options, false, false);
+            if (!ignore_zeros && zeros > 0) return 0;
 
-                result.AddRange(y);
+            return values.Length / values.Sum(i => i != 0 ? 1.0 / i : 0);
+        }
+
+        public static double sample_variance(double[] samples)
+        {
+            if (samples == null || samples.Length <= 1)
+            {
+                return 0;
+            }
+
+            var variance = 0.0;
+            var t = samples[0];
+            for (int i = 1; i < samples.Length; i++)
+            {
+                t += samples[i];
+                var diff = ((i + 1) * samples[i]) - t;
+                variance += (diff * diff) / ((i + 1.0) * i);
+            }
+
+            return variance / (samples.Length - 1);
+        }
+
+        public static (double variance, double stdev) sample_standard_deviation(double[] samples)
+        {
+            if (samples == null || samples.Length <= 1)
+            {
+                return (0, 0);
+            }
+
+            var variance = sample_variance(samples);
+            var stdev = Math.Sqrt(variance);
+
+            return (variance, stdev);
+        }
+
+        public static double rms(double[] data)
+        {
+            if (data == null || data.Length == 0)
+            {
+                return double.NaN;
+            }
+
+            double mean = 0;
+            ulong m = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                mean += (data[i] * data[i] - mean) / ++m;
+            }
+
+            return Math.Sqrt(mean);
+        }
+
+        public static (double skewness, double kurtosis, double mean, double variance, double stdev) shape(double[] data)
+        {
+            if (data == null || data.Length == 0)
+            {
+                return (0.0, 0.0, 0.0, 0.0, 0.0);
+            }
+
+            var mean = 0.0;
+            var error = 0.0;
+            var skewness = 0.0;
+            var kurtosis = 0.0;
+            long n = 0;
+
+            for (var index = 0; index < data.Length; index++)
+            {
+                var delta = data[index] - mean;
+                var scaleDelta = delta / ++n;
+                var scaleDeltaSqr = scaleDelta * scaleDelta;
+                var tmpDelta = delta * (n - 1);
+
+                mean += scaleDelta;
+
+                kurtosis += tmpDelta * scaleDelta * scaleDeltaSqr * (n * n - 3 * n + 3) + 6 * scaleDeltaSqr * error - 4 * scaleDelta * skewness;
+
+                skewness += tmpDelta * scaleDeltaSqr * (n - 2) - 3 * scaleDelta * error;
+                error += tmpDelta * scaleDelta;
+            }
+
+            var variance = n > 1 ? error / (n - 1) : 0;
+            var stdev = variance != 0 ? Math.Sqrt(variance) : 0;
+            skewness = variance != 0 && n > 2 ? (double)n / ((n - 1) * (n - 2)) * (skewness / (variance * stdev)) : 0;
+            kurtosis = variance != 0 && n > 3 ? ((double)n * n - 1) / ((n - 2) * (n - 3)) * (n * kurtosis / (error * error) - 3 + 6.0 / (n + 1)) : 0;
+
+            return (skewness, kurtosis, mean, variance, stdev);
+        }
+
+
+        internal List<(string group_id, string member_id, string perspective_id, double perspective_value)> encode(
+                descriptive_stats_encoding_options descriptive_stats_encoding_options,
+                bool presorted,
+                bool interval,
+                bool distance,
+                bool interquartile,
+                bool abs,
+                bool rescale)
+        {
+            return encode(
+                this,
+                descriptive_stats_encoding_options,
+                presorted,
+                interval,
+                distance,
+                interquartile,
+                abs,
+                rescale
+                    );
+        }
+
+        private static List<(string group_id, string member_id, string perspective_id, double perspective_value)> encode(
+            descriptive_stats stats,
+            descriptive_stats_encoding_options descriptive_stats_encoding_options,
+            bool presorted,
+            bool interval,
+            bool distance,
+            bool interquartile,
+            bool abs,
+            bool rescale)
+        {
+            var result = new List<(string group_id, string member_id, string perspective_id, double perspective_value)>();
+
+            if (stats == null)
+            {
+                stats = new descriptive_stats(data: null, ds_group_name: $@"", ds_member_name: $@"", presorted: presorted, interval: interval, distance: distance, interquartile: interquartile, abs: abs, rescale: rescale);
             }
 
             if (descriptive_stats_encoding_options == null)
             {
-                descriptive_stats_encoding_options = options_default;
+                descriptive_stats_encoding_options = descriptive_stats_encoding_options.options_default;
             }
 
-            var z = new List<(string member_id, string perspective_id, double perspective_value)>();
-            if (descriptive_stats_encoding_options.count) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.count)}", (double)stats.count)); }
-            if (descriptive_stats_encoding_options.count_zero_values) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.count_zero_values)}", (double)stats.count_zero_values)); }
-            if (descriptive_stats_encoding_options.count_non_zero_values) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.count_non_zero_values)}", (double)stats.count_non_zero_values)); }
-            if (descriptive_stats_encoding_options.count_distinct_values) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.count_distinct_values)}", (double)stats.count_distinct_values)); }
-            if (descriptive_stats_encoding_options.min) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.min)}", stats.min)); }
-            if (descriptive_stats_encoding_options.max) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.max)}", stats.max)); }
-            if (descriptive_stats_encoding_options.range) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.range)}", stats.range)); }
-            if (descriptive_stats_encoding_options.sum) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.sum)}", stats.sum)); }
-            if (descriptive_stats_encoding_options.mid_range) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mid_range)}", stats.mid_range)); }
-            if (descriptive_stats_encoding_options.mode) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mode)}", stats.mode)); }
-            if (descriptive_stats_encoding_options.median_q1) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.median_q1)}", stats.median_q1)); }
-            if (descriptive_stats_encoding_options.median_q2) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.median_q2)}", stats.median_q2)); }
-            if (descriptive_stats_encoding_options.median_q3) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.median_q3)}", stats.median_q3)); }
-            if (descriptive_stats_encoding_options.mean_arithmetic) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mean_arithmetic)}", stats.mean_arithmetic)); }
-            //if (descriptive_stats_encoding_options.mean_harmonic) { z.Add((member_id: $"{stats.name}", perspective_id: $"{nameof(stats.mean_harmonic)}",stats.mean_harmonic)); }
-            //if (descriptive_stats_encoding_options.mean_geometric) { z.Add((member_id: $"{stats.name}", perspective_id: $"{nameof(stats.mean_geometric)}",stats.mean_geometric)); }
-            if (descriptive_stats_encoding_options.variance) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.variance)}", stats.variance)); }
-            if (descriptive_stats_encoding_options.dev_standard) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.dev_standard)}", stats.dev_standard)); }
-            if (descriptive_stats_encoding_options.mad_mean_arithmetic) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_mean_arithmetic)}", stats.mad_mean_arithmetic)); }
-            //if (descriptive_stats_encoding_options.mad_mean_harmonic) { z.Add((member_id: $"{stats.name}", perspective_id: $"{nameof(stats.mad_mean_harmonic)}",stats.mad_mean_harmonic)); }
-            //if (descriptive_stats_encoding_options.mad_mean_geometric) { z.Add((member_id: $"{stats.name}", perspective_id: $"{nameof(stats.mad_mean_geometric)}",stats.mad_mean_geometric)); }
-            if (descriptive_stats_encoding_options.mad_median_q1) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_median_q1)}", stats.mad_median_q1)); }
-            if (descriptive_stats_encoding_options.mad_median_q2) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_median_q2)}", stats.mad_median_q2)); }
-            if (descriptive_stats_encoding_options.mad_median_q3) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_median_q3)}", stats.mad_median_q3)); }
-            if (descriptive_stats_encoding_options.mad_mode) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_mode)}", stats.mad_mode)); }
-            if (descriptive_stats_encoding_options.mad_mid_range) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.mad_mid_range)}", stats.mad_mid_range)); }
-            if (descriptive_stats_encoding_options.sum_of_error) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.sum_of_error)}", stats.sum_of_error)); }
-            if (descriptive_stats_encoding_options.sum_of_error_square) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.sum_of_error_square)}", stats.sum_of_error_square)); }
-            if (descriptive_stats_encoding_options.interquartile_range) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.interquartile_range)}", stats.interquartile_range)); }
-            if (descriptive_stats_encoding_options.skewness) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.skewness)}", stats.skewness)); }
-            if (descriptive_stats_encoding_options.kurtosis) { z.Add((member_id: $"{stats.member_id_name}", perspective_id: $"{nameof(stats.kurtosis)}", stats.kurtosis)); }
+            if (interval && stats.intervals_descriptive_stats != null)
+            {
+                var encoded_intervals_descriptive_stats = encode(stats.intervals_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+
+                result.AddRange(encoded_intervals_descriptive_stats);
+            }
+
+            if (distance && stats.distances_descriptive_stats != null)
+            {
+                var encoded_distances_descriptive_stats = encode(stats.distances_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+
+                result.AddRange(encoded_distances_descriptive_stats);
+            }
+
+            if (interquartile && stats.interquartile_range_descriptive_stats != null)
+            {
+                var encoded_interquartile_range_descriptive_stats = encode(stats.interquartile_range_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+
+                result.AddRange(encoded_interquartile_range_descriptive_stats);
+            }
+
+            if (abs && stats.abs_descriptive_stats != null)
+            {
+                var encoded_abs_descriptive_stats = encode(stats.abs_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+
+                result.AddRange(encoded_abs_descriptive_stats);
+            }
+
+            var z = new List<(string group_id, string member_id, string perspective_id, double perspective_value)>();
+            if (descriptive_stats_encoding_options.count) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.count)}", (double)stats.count)); }
+            if (descriptive_stats_encoding_options.count_zero_values) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.count_zero_values)}", (double)stats.count_zero_values)); }
+            if (descriptive_stats_encoding_options.count_non_zero_values) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.count_non_zero_values)}", (double)stats.count_non_zero_values)); }
+            if (descriptive_stats_encoding_options.count_distinct_values) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.count_distinct_values)}", (double)stats.count_distinct_values)); }
+            if (descriptive_stats_encoding_options.min) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.min)}", stats.min)); }
+            if (descriptive_stats_encoding_options.max) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.max)}", stats.max)); }
+            if (descriptive_stats_encoding_options.range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.range)}", stats.range)); }
+            if (descriptive_stats_encoding_options.sum) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.sum)}", stats.sum)); }
+            if (descriptive_stats_encoding_options.mid_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mid_range)}", stats.mid_range)); }
+            //if (descriptive_stats_encoding_options.mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mode)}", stats.mode)); }
+            if (descriptive_stats_encoding_options.median_q1) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q1)}", stats.median_q1)); }
+            if (descriptive_stats_encoding_options.median_q2) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q2)}", stats.median_q2)); }
+            if (descriptive_stats_encoding_options.median_q3) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q3)}", stats.median_q3)); }
+
+            if (descriptive_stats_encoding_options.root_mean_square) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.root_mean_square)}", stats.root_mean_square)); }
+            if (descriptive_stats_encoding_options.mean_arithmetic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_arithmetic)}", stats.mean_arithmetic)); }
+            if (descriptive_stats_encoding_options.mean_harmonic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_harmonic)}", stats.mean_harmonic)); }
+            if (descriptive_stats_encoding_options.mean_geometric) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_geometric)}", stats.mean_geometric)); }
+
+            if (descriptive_stats_encoding_options.variance) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.variance)}", stats.variance)); }
+            if (descriptive_stats_encoding_options.dev_standard) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.dev_standard)}", stats.dev_standard)); }
+
+            if (descriptive_stats_encoding_options.mad_mean_arithmetic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_arithmetic)}", stats.mad_mean_arithmetic)); }
+            if (descriptive_stats_encoding_options.mad_mean_harmonic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_harmonic)}", stats.mad_mean_harmonic)); }
+            if (descriptive_stats_encoding_options.mad_mean_geometric) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_geometric)}", stats.mad_mean_geometric)); }
+
+            if (descriptive_stats_encoding_options.mad_median_q1) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q1)}", stats.mad_median_q1)); }
+            if (descriptive_stats_encoding_options.mad_median_q2) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q2)}", stats.mad_median_q2)); }
+            if (descriptive_stats_encoding_options.mad_median_q3) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q3)}", stats.mad_median_q3)); }
+            //if (descriptive_stats_encoding_options.mad_mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mad_mode)}", stats.mad_mode)); }
+            if (descriptive_stats_encoding_options.mad_mid_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mid_range)}", stats.mad_mid_range)); }
+
+            if (descriptive_stats_encoding_options.interquartile_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.interquartile_range)}", stats.interquartile_range)); }
+            if (descriptive_stats_encoding_options.skewness) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.skewness)}", stats.skewness)); }
+            if (descriptive_stats_encoding_options.kurtosis) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.kurtosis)}", stats.kurtosis)); }
             result.AddRange(z);
 
 
             return result;
         }
 
-        internal static descriptive_stats get_stat_values(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
+        internal static descriptive_stats get_stat_values(
+            double[] data,
+            string group_id_name,
+            string member_id_name,
+            /*bool preserve_values = false,*/
+            bool presorted,
+            bool interval,
+            bool distance,
+            bool interquartile,
+            bool abs,
+            bool rescale
+            )
         {
-            return new descriptive_stats(data, member_id_name, preserve_values, presorted, calc_interquartile_range_stats, calc_interval_stats);
+            return new descriptive_stats(data, group_id_name, member_id_name, /*preserve_values,*/ presorted, interval, distance, interquartile, abs, rescale);
         }
 
-        internal descriptive_stats(double[] data, string member_id_name, bool preserve_values = false, bool presorted = false, bool calc_interquartile_range_stats = false, bool calc_interval_stats = false)
+        internal descriptive_stats(
+            double[] data,
+            string ds_group_name,
+            string ds_member_name,
+            /*bool preserve_values = false,*/
+            bool presorted,
+            bool interval,
+            bool distance,
+            bool interquartile,
+            bool abs,
+            bool rescale
+            )
         {
-            this.member_id_name = member_id_name;
+
+            this.ds_group_name = ds_group_name;
+            this.ds_member_name = ds_member_name;
+
 
             if (data == null || data.Length == 0 || data.All(a => a == 0))
             {
-                if (calc_interquartile_range_stats)
+
+                if (interval)
                 {
-                    this.interquartile_range_descriptive_stats = new descriptive_stats(Array.Empty<double>(), $"{this.member_id_name}_{nameof(this.interquartile_range_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
+                    var interval_group_name = string.Join("_", new string[] { nameof(interval), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var interval_member_name = string.Join("_", new string[] { nameof(interval), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    intervals_descriptive_stats = new descriptive_stats(Array.Empty<double>(), interval_group_name, interval_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
                 }
 
-                if (calc_interval_stats)
+                if (distance)
                 {
-                    this.intervals_descriptive_stats = new descriptive_stats(Array.Empty<double>(), $"{this.member_id_name}_{nameof(this.intervals_descriptive_stats)}", preserve_values: false, presorted: true, calc_interquartile_range_stats: false, calc_interval_stats: false);
+                    var distance_group_name = string.Join("_", new string[] { nameof(distance), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var distance_member_name = string.Join("_", new string[] { nameof(distance), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    distances_descriptive_stats = new descriptive_stats(Array.Empty<double>(), distance_group_name, distance_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                }
+
+                if (interquartile)
+                {
+                    var interquartile_group_name = string.Join("_", new string[] { nameof(interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var interquartile_member_name = string.Join("_", new string[] { nameof(interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    interquartile_range_descriptive_stats = new descriptive_stats(Array.Empty<double>(), interquartile_group_name, interquartile_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                }
+
+                if (abs)
+                {
+                    var abs_group_name = string.Join("_", new string[] { nameof(abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var abs_member_name = string.Join("_", new string[] { nameof(abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    abs_descriptive_stats = new descriptive_stats(Array.Empty<double>(), abs_group_name, abs_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                }
+
+                if (rescale)
+                {
+                    var rescale_group_name = string.Join("_", new string[] { nameof(rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var rescale_member_name = string.Join("_", new string[] { nameof(rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    abs_descriptive_stats = new descriptive_stats(Array.Empty<double>(), rescale_group_name, rescale_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
                 }
 
                 return;
             }
 
-            double[] sorted_data;
-
-            if (presorted)
+            if (data.Any(a => double.IsInfinity(a) || double.IsNaN(a)))
             {
-                sorted_data = data;
-            }
-            else
-            {
-                sorted_data = new double[data.Length];
-                data.CopyTo(sorted_data, 0);
-                Array.Sort(sorted_data);
+                throw new ArgumentOutOfRangeException(nameof(data), $@"");
             }
 
-            this.count_distinct_values = (uint)sorted_data.Distinct().Count();
+         
 
-            //var cum_product = (double)1.0; // to calculate geometric mean
-            //var cum_reciprocal = (double)0.0; // to calculate harmonic mean
+            var sorted_data = presorted ? data : data.OrderBy(a => a).ToArray();
 
-            // First iteration
-            for (var i = 0; i < sorted_data.Length; i++)
+            count = (uint)sorted_data.Length;
+            count_distinct_values = (uint)sorted_data.Distinct().Count();
+            count_non_zero_values = (uint)sorted_data.Count(a => a != 0);
+            count_zero_values = (uint)sorted_data.Length - count_non_zero_values;
+
+            sum = sorted_data.Sum();
+            root_mean_square = rms(sorted_data);
+            mean_arithmetic = count != 0 ? sum / count : 0d;
+            mean_harmonic = harmonic_mean(sorted_data);
+            mean_geometric = geometric_mean(sorted_data);
+
+
+
+            var stat = shape(sorted_data);
+
+
+            variance = stat.variance;
+            dev_standard = stat.stdev;
+            kurtosis = stat.kurtosis;
+            skewness = stat.skewness;
+
+
+            min = sorted_data[0];
+            max = sorted_data[^1];
+            range = max - min;
+            mid_range = (max + min) / 2.0;
+
+            median_q1 = percentile(sorted_data, 25);
+            median_q3 = percentile(sorted_data, 75);
+            median_q2 = percentile(sorted_data, 50);
+            interquartile_range = Math.Abs(median_q3 - median_q1);
+
+            //var sorted_data_groups = sorted_data.GroupBy(x => x).ToArray();
+            //var sorted_data_max_group_count = sorted_data_groups.Max(g => g.Count());
+            //var modes = sorted_data_groups.Where(a => a.Count() == sorted_data_max_group_count).ToList();
+            //mode = modes.Select(a => a.Key).DefaultIfEmpty(0).Average();
+
+            mad_mean_arithmetic = mad(sorted_data, mean_arithmetic);
+            mad_mean_geometric = mad(sorted_data, mean_geometric);
+            mad_mean_harmonic = mad(sorted_data, mean_harmonic);
+            mad_median_q1 = mad(sorted_data, median_q1);
+            mad_median_q2 = mad(sorted_data, median_q2);
+            mad_median_q3 = mad(sorted_data, median_q3);
+            mad_mid_range = mad(sorted_data, mid_range);
+            //mad_mode = mad(sorted_data, mode);
+
+
+            fix_double();
+
+
+            
+            if (interval)
             {
-                if (sorted_data[i] == (double)0.0)
-                {
-                    this.count_zero_values++;
-                    continue;
-                }
-                this.count_non_zero_values++;
-
-                //cum_product *= sorted_data[i];
-                //cum_reciprocal += ((double)1.0) / sorted_data[i];
-            }
-
-            this.count = (uint)sorted_data.Length;
-            var n = (double)this.count; // use a shorter variable in double type
-            this.sum = sorted_data.Sum();
-            this.mean_arithmetic = this.sum / n;
-            //this.mean_geometric = (double)Math.Pow((double)cum_product, (double)((double)1.0 / n));
-            //this.mean_harmonic = ((double)1.0) / (cum_reciprocal / n); // see http://mathworld.wolfram.com/HarmonicMean.html
-            //this.range = this.max - this.min;
-
-            // second loop, calculate Stdev, sum of errors
-            //double[] eSquares = new double[data.Length];
-            var m1 = (double)0.0;
-            var m2 = (double)0.0;
-            var m3 = (double)0.0; // for skewness calculation
-            var m4 = (double)0.0; // for kurtosis calculation
-                                  // for skewness
-            for (int i = 0; i < sorted_data.Length; i++)
-            {
-                var m = sorted_data[i] - this.mean_arithmetic;
-                var mPow2 = m * m;
-                var mPow3 = mPow2 * m;
-                var mPow4 = mPow3 * m;
-
-                m1 += Math.Abs(m);
-
-                m2 += mPow2;
-
-                // calculate skewness
-                m3 += mPow3;
-
-                // calculate skewness
-                m4 += mPow4;
-
-            }
-
-            this.sum_of_error = m1;
-            this.sum_of_error_square = m2;
-
-            this.variance = this.count <= 1 ? (double)0.0 : this.sum_of_error_square / ((double)this.count - 1);
-            this.dev_standard = this.variance == (double)0.0 ? (double)0.0 : (double)Math.Sqrt((double)this.variance);
-
-            var skew_cum = (double)0.0;
-            if (this.dev_standard != (double)0.0)
-            {
-                for (int i = 0; i < sorted_data.Length; i++)
-                {
-                    skew_cum += (double)Math.Pow((double)((sorted_data[i] - this.mean_arithmetic) / this.dev_standard), 3);
-                }
-            }
-
-            if (skew_cum != 0)
-            {
-                var x = (n - 1);
-                var y = (n - 2);
-                if (x != 0 && y != 0)// && skew_cum != 0)
-                {
-                    this.skewness = n / x / y * skew_cum;
-                }
-            }
-
-
-            // kurtosis: see http://en.wikipedia.org/wiki/Kurtosis (heading: Sample Kurtosis)
-            var m2_2 = (double)Math.Pow((double)this.sum_of_error_square, 2);
-            if (m2_2 != (double)0.0)
-            {
-                var x = ((n - 2) * (n - 3));
-                var y = (m4 / m2_2);
-                var z = ((double)Math.Pow((double)(n - 1), 2));
-
-                if (x != 0 && y != 0 && z != 0)
-                {
-                    this.kurtosis = ((n + 1) * n * (n - 1)) / x * y - 3 * z / x;
-                }
-            }
-            // calculate quartiles
-
-
-            this.min = sorted_data[0];
-            this.max = sorted_data[^1];
-            this.range = this.max - this.min;
-            this.mid_range = (this.max + this.min) / (double)2.0;
-
-            this.median_q1 = percentile(sorted_data, 25);
-            this.median_q3 = percentile(sorted_data, 75);
-            this.median_q2 = percentile(sorted_data, 50);
-            this.interquartile_range = Math.Abs(this.median_q3 - this.median_q1);
-
-            var sorted_data_groups = sorted_data.GroupBy(x => x).ToArray();
-            var sorted_data_max_group_count = sorted_data_groups.Max(g => g.Count());
-            var modes = sorted_data_groups.Where(a => a.Count() == sorted_data_max_group_count).ToList();
-            var mode_mean = modes.Select(a => a.Key).DefaultIfEmpty(0).Average();
-            this.mode = mode_mean;
-
-            this.mad_mean_arithmetic = mad(sorted_data, this.mean_arithmetic);
-            //this.mad_mean_geometric = mad(sorted_data, this.mean_geometric);
-            //this.mad_mean_harmonic = mad(sorted_data, this.mean_harmonic);
-            this.mad_median_q1 = mad(sorted_data, this.median_q1);
-            this.mad_median_q2 = mad(sorted_data, this.median_q2);
-            this.mad_median_q3 = mad(sorted_data, this.median_q3);
-            this.mad_mid_range = mad(sorted_data, this.mid_range);
-            this.mad_mode = mad(sorted_data, this.mode);
-
-
-
-            fix_double(nameof(sum), ref sum);
-            fix_double(nameof(mean_arithmetic), ref mean_arithmetic);
-            //fix_double(nameof(mean_geometric), ref mean_geometric);
-            //fix_double(nameof(mean_harmonic), ref mean_harmonic);
-            fix_double(nameof(min), ref min);
-            fix_double(nameof(max), ref max);
-            fix_double(nameof(range), ref range);
-            fix_double(nameof(mid_range), ref mid_range);
-            fix_double(nameof(variance), ref variance);
-            fix_double(nameof(dev_standard), ref dev_standard);
-            fix_double(nameof(skewness), ref skewness);
-            fix_double(nameof(kurtosis), ref kurtosis);
-            fix_double(nameof(interquartile_range), ref interquartile_range);
-            fix_double(nameof(median_q1), ref median_q1);
-            fix_double(nameof(median_q2), ref median_q2);
-            fix_double(nameof(median_q3), ref median_q3);
-            fix_double(nameof(sum_of_error), ref sum_of_error);
-            fix_double(nameof(sum_of_error_square), ref sum_of_error_square);
-            fix_double(nameof(mode), ref mode);
-            fix_double(nameof(mad_mean_arithmetic), ref mad_mean_arithmetic);
-            //fix_double(nameof(mad_mean_harmonic), ref mad_mean_harmonic);
-            //fix_double(nameof(mad_mean_geometric), ref mad_mean_geometric);
-            fix_double(nameof(mad_median_q1), ref mad_median_q1);
-            fix_double(nameof(mad_median_q2), ref mad_median_q2);
-            fix_double(nameof(mad_median_q3), ref mad_median_q3);
-            fix_double(nameof(mad_mode), ref mad_mode);
-            fix_double(nameof(mad_mid_range), ref mad_mid_range);
-
-
-            if (calc_interquartile_range_stats)
-            {
-                var interquartile_data = sorted_data.Where(a => a >= this.median_q1 && a <= this.median_q3).ToArray();
-
-
-                this.interquartile_range_descriptive_stats = new descriptive_stats(interquartile_data, $"{this.member_id_name}_{nameof(this.interquartile_range_descriptive_stats)}", preserve_values: false, presorted: true,
-                    calc_interquartile_range_stats: false, calc_interval_stats: false);
-            }
-
-            if (calc_interval_stats)
-            {
-                var data_point_distances = new double[sorted_data.Length - 1];
+                var data_point_intevals = new double[sorted_data.Length - 1];
 
                 for (var i = 1; i < sorted_data.Length; i++)
                 {
-                    data_point_distances[i - 1] = Math.Abs(sorted_data[i] - sorted_data[i - 1]);
+                    data_point_intevals[i - 1] = Math.Abs(sorted_data[i] - sorted_data[i - 1]);
                 }
-                Array.Sort(data_point_distances);
+                Array.Sort(data_point_intevals);
 
-                this.intervals_descriptive_stats = new descriptive_stats(data_point_distances, $"{this.member_id_name}_{nameof(this.intervals_descriptive_stats)}", preserve_values: false, presorted: true,
-                    calc_interquartile_range_stats: false, calc_interval_stats: false);
+                var interval_group_name = string.Join("_", new string[] { nameof(interval), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var interval_member_name = string.Join("_", new string[] { nameof(interval), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                intervals_descriptive_stats = new descriptive_stats(data_point_intevals, interval_group_name, interval_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
             }
 
-            if (!preserve_values)
+            if (distance)
             {
-                data = null;
-                sorted_data = null;
+                var data_point_distances = new double[((sorted_data.Length - 1) * sorted_data.Length) / 2];
+
+                var k = 0;
+
+                for (var i = 0; i < sorted_data.Length; i++)
+                {
+                    for (var j = 0; j < sorted_data.Length; j++)
+                    {
+                        if (i <= j) continue;
+
+                        data_point_distances[k] = Math.Abs(sorted_data[i] - sorted_data[j]);
+
+                        k++;
+                    }
+                }
+
+                Array.Sort(data_point_distances);
+
+                var distance_group_name = string.Join("_", new string[] { nameof(distance), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var distance_member_name = string.Join("_", new string[] { nameof(distance), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                distances_descriptive_stats = new descriptive_stats(data_point_distances, distance_group_name, distance_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+            }
+
+            if (interquartile)
+            {
+                var interquartile_data = sorted_data.Where(a => a >= this.median_q1 && a <= this.median_q3).ToArray();
+
+                var interquartile_group_name = string.Join("_", new string[] { nameof(interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var interquartile_member_name = string.Join("_", new string[] { nameof(interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                interquartile_range_descriptive_stats = new descriptive_stats(interquartile_data, interquartile_group_name, interquartile_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+            }
+
+            if (abs)
+            {
+                var has_neg = sorted_data.Any(a => a < 0);
+
+                var sorted_data_abs = has_neg ? sorted_data.Select(a => Math.Abs(a)).OrderBy(a => a).ToArray() : sorted_data;
+
+                var abs_group_name = string.Join("_", new string[] { nameof(abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var abs_member_name = string.Join("_", new string[] { nameof(abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                abs_descriptive_stats = new descriptive_stats(sorted_data_abs, abs_group_name, abs_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+            }
+
+            if (rescale)
+            {
+                var s = new scaling(data);
+                s.rescale_scale_min = 1; // avoid zeros whilst keeping data on the same scale.. only applicable with single arrays, not for multi array comparison if the value size has meaning...
+                s.rescale_scale_max = 2;
+                var rescaled_sorted_data = s.scale(sorted_data, scaling.scale_function.rescale);
+
+                var rescale_group_name = string.Join("_", new string[] { nameof(rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var rescale_member_name = string.Join("_", new string[] { nameof(rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                rescaled_descriptive_stats = new descriptive_stats(rescaled_sorted_data, rescale_group_name, rescale_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
             }
         }
 
-        public static void fix_double(string name, ref double value)
+        public void fix_double()
         {
-            const double c_double_max = (double)1.79769e+308;
-            const double c_double_min = (double)-c_double_max;
-            const double double_zero = (double)0;
+            fix_double(ref sum);
+            fix_double(ref mean_arithmetic);
+            fix_double(ref mean_geometric);
+            fix_double(ref mean_harmonic);
+            fix_double(ref min);
+            fix_double(ref max);
+            fix_double(ref range);
+            fix_double(ref mid_range);
+            fix_double(ref variance);
+            fix_double(ref dev_standard);
+            fix_double(ref root_mean_square);
+            fix_double(ref skewness);
+            fix_double(ref kurtosis);
+            fix_double(ref interquartile_range);
+            fix_double(ref median_q1);
+            fix_double(ref median_q2);
+            fix_double(ref median_q3);
+            //fix_double(ref mode);
+            fix_double(ref mad_mean_arithmetic);
+            fix_double(ref mad_mean_harmonic);
+            fix_double(ref mad_mean_geometric);
+            fix_double(ref mad_median_q1);
+            fix_double(ref mad_median_q2);
+            fix_double(ref mad_median_q3);
+            //fix_double(ref mad_mode);
+            fix_double(ref mad_mid_range);
+        }
 
-            var output = false;
+        public static void fix_double(/*string name,*/ ref double value)
+        {
+            const double c_double_max = 1.79769e+308;
+            const double c_double_min = -c_double_max;
+            const double double_zero = 0.0;
+
+            //var output = false;
 
             if (double.IsPositiveInfinity(value) || value >= c_double_max || value >= double.MaxValue)
             {
-                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is positive infinity.");
+                //if (output) io_proxy.WriteLine($@"{nameof(fix_double)}: {name} = {value:G17} is positive infinity.");
 
                 value = c_double_max;
             }
             else if (double.IsNegativeInfinity(value) || value <= c_double_min || value <= double.MinValue)
             {
-                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is negative infinity.");
+                //if (output) io_proxy.WriteLine($@"{nameof(fix_double)}: {name} = {value:G17} is negative infinity.");
 
                 value = c_double_min;
             }
             else if (double.IsNaN(value))
             {
-                if (output) io_proxy.WriteLine("fix_double: " + name + " = " + value.ToString("G17", CultureInfo.InvariantCulture) + " is not a number.");
+                //if (output) io_proxy.WriteLine($@"{nameof(fix_double)}: {name} = {value:G17} is not a number.");
 
                 value = double_zero;
             }
@@ -483,12 +627,7 @@ namespace dimorphics_dataset
 
         internal static double percentile(double[] sorted_data, double p)
         {
-            if (sorted_data == null)
-            {
-                return 0; //throw new ArgumentNullException(nameof(sorted_data));
-            }
-
-            if (sorted_data.Length == 0)
+            if (sorted_data == null || sorted_data.Length == 0)
             {
                 return 0;
             }
@@ -498,22 +637,21 @@ namespace dimorphics_dataset
                 return sorted_data[0];
             }
 
-            // algo derived from Aczel pg 15 bottom
-            if (p >= (double)100.0)
+            if (p >= 100.0)
             {
                 return sorted_data[^1];
             }
 
-            var position = (double)(sorted_data.Length + 1) * p / ((double)100.0);
+            var position = (sorted_data.Length + 1) * p / (100.0);
             double left_number;
             double right_number;
 
-            double n = p / ((double)100.0) * (sorted_data.Length - 1) + ((double)1.0);
+            double n = p / (100.0) * (sorted_data.Length - 1) + (1.0);
 
             if (position >= 1)
             {
-                left_number = sorted_data[(int)System.Math.Floor(n) - 1];
-                right_number = sorted_data[(int)System.Math.Floor(n)];
+                left_number = sorted_data[(int)Math.Floor(n) - 1];
+                right_number = sorted_data[(int)Math.Floor(n)];
             }
             else
             {
@@ -531,8 +669,5 @@ namespace dimorphics_dataset
                 return left_number + part * (right_number - left_number);
             }
         }
-
-
-
     }
 }

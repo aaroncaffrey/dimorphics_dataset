@@ -10,11 +10,11 @@ namespace dimorphics_dataset
 {
     internal static class subsequence_classification_data_methods
     {
-        
+
         internal static feature_info calculate_class_id_classification_data(subsequence_classification_data scd)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_class_id_classification_data)}(subsequence_classification_data scd);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_class_id_classification_data)}(subsequence_classification_data scd);");
 #endif
             if (scd == null)
             {
@@ -24,6 +24,7 @@ namespace dimorphics_dataset
             var class_id_feature = new feature_info()
             {
                 alphabet = nameof(scd.class_id),
+                stats = "",
                 dimension = 0,
                 category = nameof(scd.class_id),
                 source = nameof(scd.class_id),
@@ -40,7 +41,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_sable_sequence_classification_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_sable_sequence_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_sable_sequence_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
@@ -48,7 +49,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_sable_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_sable_classification_data_template = calculate_sable_sequence_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_sable_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_sable_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_sable_classification_data_template == null)
@@ -58,7 +59,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_sable_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -73,7 +74,7 @@ namespace dimorphics_dataset
             var sable_data_list = new List<(string name, List<info_sable.info_sable_item> data)>();
             //sable_data_list.Add((nameof(pdb_sable_data), pdb_sable_data));
             sable_data_list.Add(("unsplit", subseq_sable_data));
-            sable_data_list.AddRange(feature_calcs.split_sequence(subseq_sable_data).Select(a => (name: "split", data: a)).ToList());
+            sable_data_list.AddRange(feature_calcs.split_sequence(subseq_sable_data).Select(a => (name: $@"split", data: a)).ToList());
 
 
             for (var index = 0; index < sable_data_list.Count; index++)
@@ -86,50 +87,118 @@ namespace dimorphics_dataset
                     {
                         var data = sable_data.data?.Where(a => a != null && alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList() ?? new List<info_sable.info_sable_item>();
 
-                        var ds_entropy = descriptive_stats.get_stat_values(data?.Select(a => a?.entropy_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.entropy_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
-                        var ds_burial_abs = descriptive_stats.get_stat_values(data?.Select(a => a?.absolute_burial_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.absolute_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
-                        var ds_burial_rel = descriptive_stats.get_stat_values(data?.Select(a => a?.relative_burial_value ?? 0).ToArray() ?? null, $"{nameof(info_sable.info_sable_item.relative_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}");
 
-                        var x0 = ds_entropy.encode().Select(a => new feature_info()
-                        {
-                            alphabet = $@"Overall",
-                            category = $@"sable",
-                            dimension = 1,
-                            source = source.ToString(),
-                            @group = $@"sable_entropy_{sable_data.name}_{alphabet.name}",
-                            member = a.member_id,
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-
-                        var x1 = ds_burial_abs.encode().Select(a => new feature_info()
-                        {
-                            alphabet = $@"Overall",
-                            category = $@"sable",
-                            dimension = 1,
-                            source = source.ToString(),
-                            @group = $@"sable_burial_abs_{sable_data.name}_{alphabet.name}",
-                            member = a.member_id,
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
-
-                        var x2 = ds_burial_rel.encode().Select(a => new feature_info()
-                        {
-                            alphabet = $@"Overall",
-                            category = $@"sable",
-                            dimension = 1,
-                            source = source.ToString(),
-                            @group = $@"sable_burial_rel_{sable_data.name}_{alphabet.name}",
-                            member = a.member_id,
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
 
                         var feats = new List<feature_info>();
-                        feats.AddRange(x0);
-                        feats.AddRange(x1);
-                        feats.AddRange(x2);
+
+                        var ds_entropy = descriptive_stats.get_stat_values(
+                            data?.Select(a => a?.entropy_value ?? 0).ToArray() ?? null,
+                            $@"",
+                            $@"{nameof(info_sable.info_sable_item.entropy_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_entropy,
+                            distance: descriptive_stats_encoding_options.dse_distances_sable_ds_entropy,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_entropy,
+                            abs: descriptive_stats_encoding_options.dse_abs_sable_ds_entropy,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_entropy
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_sable_ds_entropy)
+                        {
+                            var x0 = ds_entropy.encode(
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_entropy,
+                                distance: descriptive_stats_encoding_options.dse_distances_sable_ds_entropy,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_entropy,
+                                abs: descriptive_stats_encoding_options.dse_abs_sable_ds_entropy,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_entropy
+                                    ).Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = $@"Overall",
+                                        stats = dse_options.options_name,
+                                        category = $@"sable",
+                                        dimension = 1,
+                                        source = $@"{source}",
+                                        @group = $@"{ds_stat.group_id}_sable_entropy_{sable_data.name}_{alphabet.name}",
+                                        member = ds_stat.member_id,
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+
+                            feats.AddRange(x0);
+                        }
+
+                        var ds_burial_abs = descriptive_stats.get_stat_values(
+                            data?.Select(a => a?.absolute_burial_value ?? 0).ToArray() ?? null,
+                            $@"",
+                            $@"{nameof(info_sable.info_sable_item.absolute_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_burial_abs,
+                            distance: descriptive_stats_encoding_options.dse_distances_sable_ds_burial_abs,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_burial_abs,
+                            abs: descriptive_stats_encoding_options.dse_abs_sable_ds_burial_abs,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_burial_abs
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_sable_ds_burial_abs)
+                        {
+                            var x1 = ds_burial_abs.encode(
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_burial_abs,
+                                distance: descriptive_stats_encoding_options.dse_distances_sable_ds_burial_abs,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_burial_abs,
+                                abs: descriptive_stats_encoding_options.dse_abs_sable_ds_burial_abs,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_burial_abs
+                                    ).Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = $@"Overall",
+                                        stats = dse_options.options_name,
+                                        category = $@"sable",
+                                        dimension = 1,
+                                        source = $@"{source}",
+                                        @group = $@"{ds_stat.group_id}_sable_burial_abs_{sable_data.name}_{alphabet.name}",
+                                        member = ds_stat.member_id,
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+
+                            feats.AddRange(x1);
+                        }
+
+                        var ds_burial_rel = descriptive_stats.get_stat_values(
+                            data?.Select(a => a?.relative_burial_value ?? 0).ToArray() ?? null,
+                            $@"",
+                            $@"{nameof(info_sable.info_sable_item.relative_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_burial_rel,
+                            distance: descriptive_stats_encoding_options.dse_distances_sable_ds_burial_rel,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_burial_rel,
+                            abs: descriptive_stats_encoding_options.dse_abs_sable_ds_burial_rel,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_burial_rel
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_sable_ds_burial_rel)
+                        {
+                            var x2 = ds_burial_rel.encode(
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sable_ds_burial_rel,
+                                distance: descriptive_stats_encoding_options.dse_distances_sable_ds_burial_rel,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_sable_ds_burial_rel,
+                                abs: descriptive_stats_encoding_options.dse_abs_sable_ds_burial_rel,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_sable_ds_burial_rel
+                                    ).Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = $@"Overall",
+                                        stats = dse_options.options_name,
+                                        category = $@"sable",
+                                        dimension = 1,
+                                        source = $@"{source}",
+                                        @group = $@"{ds_stat.group_id}_sable_burial_rel_{sable_data.name}_{alphabet.name}",
+                                        member = ds_stat.member_id,
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+
+                            feats.AddRange(x2);
+                        }
+
 
                         var x3 = feats.Select(a => new feature_info(a)
                         {
@@ -150,7 +219,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_sable_classification_data_template == null)
             {
-                subsequence_classification_data_templates._calculate_sable_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._calculate_sable_classification_data_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
             }
 
             return features;
@@ -159,7 +228,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_mpsa_classification_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_mpsa_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_mpsa_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
@@ -167,7 +236,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_mpsa_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_mpsa_classification_data_template = calculate_mpsa_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_mpsa_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_mpsa_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_mpsa_classification_data_template == null)
@@ -177,7 +246,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_mpsa_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -214,7 +283,7 @@ namespace dimorphics_dataset
                 var atoms_aa_seq = string.Join("", sq.sequence.Select(a => a.amino_acid).ToList());
                 foreach (var reader in mpsa_readers)
                 {
-                    var format = reader?.format ?? "";
+                    var format = reader?.format ?? $@"";
 
                     var mpsa_aa_seq = string.Join("", reader?.mpsa_matrix?.Select(a => a.amino_acid).ToList() ?? new List<char>());
 
@@ -222,7 +291,7 @@ namespace dimorphics_dataset
 
                     var ss_seq = string.Join("", reader?.mpsa_matrix?.Select(a => a.predicted_ss_code).ToList() ?? new List<char>());
 
-                    if (string.Equals(sq.name, "unsplit", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(sq.name, $@"unsplit", StringComparison.InvariantCultureIgnoreCase))
                     {
                         // PseSSC data (secondary structure sequence pattern descriptors)
                         var mpsa_pse_aac_options = new pse_aac_options()
@@ -241,7 +310,7 @@ namespace dimorphics_dataset
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_ssc = calculate_aa_or_ss_sequence_classification_data(source, 1, "mpsa", $"mpsa_{sq.name}_{format}", ss_seq, enum_seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
+                        var pse_ssc = calculate_aa_or_ss_sequence_classification_data(source, 1, $@"mpsa", $@"mpsa_{sq.name}_{format}", ss_seq, enum_seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
 
                         foreach (var a in pse_ssc.GroupBy(a => (a.alphabet, a.dimension, a.category, a.source, a.@group)).Select(feature_infos => feature_infos.ToList()).ToList()/*.Where(a => a.Count <= max_features)*/)
                         {
@@ -255,8 +324,8 @@ namespace dimorphics_dataset
                     //var split_ss_overall_average = reader.split_ss_overall_average;
 
                     var merged_ss_overall_average = new List<(string group_suffix, string member_suffix, List<(char ss, double prob_value, double dist_value)> data)>();
-                    merged_ss_overall_average.Add(( /*"unsplit"*/"", "", ss_overall_average));
-                    //merged_ss_overall_average.AddRange(split_ss_overall_average.Select((a, i) => ("split", $"{i}", a)).ToList());
+                    merged_ss_overall_average.Add(( /*"unsplit"*/"", $@"", ss_overall_average));
+                    //merged_ss_overall_average.AddRange(split_ss_overall_average.Select((a, i) => ("split", $@"{i}", a)).ToList());
 
                     foreach (var item in merged_ss_overall_average)
                     {
@@ -264,52 +333,60 @@ namespace dimorphics_dataset
                         {
                             var prob = new feature_info()
                             {
-                                alphabet = "Overall",
+                                alphabet = $@"Overall",
+
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
+                                category = $@"mpsa",
+                                source = $@"{source}",
                                 @group = $@"mpsa_{sq.name}_{format}_overall_probability_{item.group_suffix}",
-                                member = $"{sq_index}_{x.ss}_{item.member_suffix}",
-                                perspective = "default",
+                                member = $@"{sq_index}_{x.ss}_{item.member_suffix}",
+                                perspective = $@"default",
                                 feature_value = x.prob_value,
                             };
                             features.Add(prob);
 
                             var dist = new feature_info()
                             {
-                                alphabet = "Overall",
+                                alphabet = $@"Overall",
+
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
+                                category = $@"mpsa",
+                                source = $@"{source}",
                                 @group = $@"mpsa_{sq.name}_{format}_overall_distribution_{item.group_suffix}",
-                                member = $"{sq_index}_{x.ss}_{item.member_suffix}",
-                                perspective = "default",
+                                member = $@"{sq_index}_{x.ss}_{item.member_suffix}",
+                                perspective = $@"default",
                                 feature_value = x.dist_value,
                             };
                             features.Add(dist);
 
                             var prob_all = new feature_info()
                             {
-                                alphabet = "Overall",
+                                alphabet = $@"Overall",
+
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
+                                category = $@"mpsa",
+                                source = $@"{source}",
                                 @group = $@"mpsa_{sq.name}_all_overall_probability_{item.group_suffix}",
-                                member = $"{sq_index}_{format}_{x.ss}_{item.member_suffix}",
-                                perspective = "default",
+                                member = $@"{sq_index}_{format}_{x.ss}_{item.member_suffix}",
+                                perspective = $@"default",
                                 feature_value = x.prob_value,
                             };
                             features_prob_all.Add(prob_all);
 
                             var dist_all = new feature_info()
                             {
-                                alphabet = "Overall",
+                                alphabet = $@"Overall",
+
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
+                                category = $@"mpsa",
+                                source = $@"{source}",
                                 @group = $@"mpsa_{sq.name}_all_overall_distribution_{item.group_suffix}",
-                                member = $"{sq_index}_{format}_{x.ss}_{item.member_suffix}",
-                                perspective = "default",
+                                member = $@"{sq_index}_{format}_{x.ss}_{item.member_suffix}",
+                                perspective = $@"default",
                                 feature_value = x.dist_value,
                             };
                             features_dist_all.Add(dist_all);
@@ -320,8 +397,8 @@ namespace dimorphics_dataset
                     //var split_ss_probabilities_per_aa = reader.split_ss_probabilities_per_aa;
 
                     var merged_ss_probabilities_per_aa = new List<(string group_suffix, string member_suffix, List<(char ss, int alphabet_id, string alphabet_name, string alphabet_group, double prob_value, double dist_value)> data)>();
-                    merged_ss_probabilities_per_aa.Add(( /*"unsplit"*/"", "", ss_probabilities_per_aa));
-                    //merged_ss_probabilities_per_aa.AddRange(split_ss_probabilities_per_aa.Select((a, i) => ("split", $"{i}", a)).ToList());
+                    merged_ss_probabilities_per_aa.Add(( /*"unsplit"*/"", $@"", ss_probabilities_per_aa));
+                    //merged_ss_probabilities_per_aa.AddRange(split_ss_probabilities_per_aa.Select((a, i) => ("split", $@"{i}", a)).ToList());
 
 
                     foreach (var item in merged_ss_probabilities_per_aa)
@@ -332,31 +409,33 @@ namespace dimorphics_dataset
 
                             var group = alphabet.ToList();
 
-                            var probs = @group.Select(a => new feature_info()
+                            var probs = @group.Select(ds_stat => new feature_info()
                             {
-                                alphabet = a.alphabet_name,
+                                alphabet = ds_stat.alphabet_name,
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
-                                @group = $@"mpsa_{sq.name}_{format}_probability_{a.alphabet_name}_{item.group_suffix}",
-                                member = $"{sq_index}_{a.ss}_{a.alphabet_group}_{item.member_suffix}",
-                                perspective = "default",
-                                feature_value = a.prob_value,
+                                category = $@"mpsa",
+                                source = $@"{source}",
+                                @group = $@"mpsa_{sq.name}_{format}_probability_{ds_stat.alphabet_name}_{item.group_suffix}",
+                                member = $@"{sq_index}_{ds_stat.ss}_{ds_stat.alphabet_group}_{item.member_suffix}",
+                                perspective = $@"default",
+                                feature_value = ds_stat.prob_value,
                             }).ToList();
 
                             /*if (probs.Count <= max_features)*/
                             features.AddRange(probs);
 
-                            var dists = @group.Select(a => new feature_info()
+                            var dists = @group.Select(ds_stat => new feature_info()
                             {
-                                alphabet = a.alphabet_name,
+                                alphabet = ds_stat.alphabet_name,
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
-                                @group = $@"mpsa_{sq.name}_{format}_distribution_{a.alphabet_name}_{item.group_suffix}",
-                                member = $"{sq_index}_{a.ss}_{a.alphabet_group}_{item.member_suffix}",
-                                perspective = "default",
-                                feature_value = a.dist_value,
+                                category = $@"mpsa",
+                                source = $@"{source}",
+                                @group = $@"mpsa_{sq.name}_{format}_distribution_{ds_stat.alphabet_name}_{item.group_suffix}",
+                                member = $@"{sq_index}_{ds_stat.ss}_{ds_stat.alphabet_group}_{item.member_suffix}",
+                                perspective = $@"default",
+                                feature_value = ds_stat.dist_value,
                             }).ToList();
 
                             /*if (dists.Count <= max_features)*/
@@ -365,31 +444,33 @@ namespace dimorphics_dataset
 
                             // all
 
-                            var probs_all = @group.Select(a => new feature_info()
+                            var probs_all = @group.Select(ds_stat => new feature_info()
                             {
-                                alphabet = a.alphabet_name,
+                                alphabet = ds_stat.alphabet_name,
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
-                                @group = $@"mpsa_{sq.name}_all_probability_{a.alphabet_name}_{item.group_suffix}",
-                                member = $"{sq_index}_{format}_{a.ss}_{a.alphabet_group}_{item.member_suffix}",
-                                perspective = "default",
-                                feature_value = a.prob_value,
+                                category = $@"mpsa",
+                                source = $@"{source}",
+                                @group = $@"mpsa_{sq.name}_all_probability_{ds_stat.alphabet_name}_{item.group_suffix}",
+                                member = $@"{sq_index}_{format}_{ds_stat.ss}_{ds_stat.alphabet_group}_{item.member_suffix}",
+                                perspective = $@"default",
+                                feature_value = ds_stat.prob_value,
                             }).ToList();
 
                             /* if (probs_all.Count <= max_features) */
                             features_prob_aa_all.AddRange(probs_all);
 
-                            var dists_all = @group.Select(a => new feature_info()
+                            var dists_all = @group.Select(ds_stat => new feature_info()
                             {
-                                alphabet = a.alphabet_name,
+                                alphabet = ds_stat.alphabet_name,
+                                stats = "",
                                 dimension = 1,
-                                category = "mpsa",
-                                source = source.ToString(),
-                                @group = $@"mpsa_{sq.name}_all_distribution_{a.alphabet_name}_{item.group_suffix}",
-                                member = $"{sq_index}_{format}_{a.ss}_{a.alphabet_group}_{item.member_suffix}",
-                                perspective = "default",
-                                feature_value = a.dist_value,
+                                category = $@"mpsa",
+                                source = $@"{source}",
+                                @group = $@"mpsa_{sq.name}_all_distribution_{ds_stat.alphabet_name}_{item.group_suffix}",
+                                member = $@"{sq_index}_{format}_{ds_stat.ss}_{ds_stat.alphabet_group}_{item.member_suffix}",
+                                perspective = $@"default",
+                                feature_value = ds_stat.dist_value,
                             }).ToList();
 
                             /*if (dists_all.Count <= max_features)*/
@@ -422,7 +503,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_mpsa_classification_data_template == null)
             {
-                subsequence_classification_data_templates._calculate_mpsa_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._calculate_mpsa_classification_data_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
             }
 
             return features;
@@ -431,7 +512,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_ring_classification_data(/*subsequence_classification_data scd,*/ List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_ring_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_ring_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             var features = new List<feature_info>();
@@ -441,7 +522,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_ring_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_ring_classification_data_template = calculate_ring_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_ring_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_ring_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_ring_classification_data_template == null)
@@ -451,7 +532,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_ring_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -461,7 +542,6 @@ namespace dimorphics_dataset
             var edges = subsequence_master_atoms.Where(a => a.monomer_ring_edges != null).SelectMany(a => a.monomer_ring_edges).ToList();
             var nodes = subsequence_master_atoms.Where(a => a.monomer_ring_nodes != null).SelectMany(a => a.monomer_ring_nodes).ToList();
 
-
             // node features
 
             foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
@@ -470,58 +550,123 @@ namespace dimorphics_dataset
                 {
                     var nodes_a = nodes.Where(a => alphabet_group.group_amino_acids.Contains(a.Residue1, StringComparison.InvariantCulture)).ToList();
 
-
                     var feats = new List<feature_info>();
 
-
                     var degrees = nodes_a.Select(a => a.Degree).ToArray();
-                    var degrees_ds = descriptive_stats.get_stat_values(degrees, nameof(degrees));
-                    var degrees_ds_e = descriptive_stats.encode(degrees_ds);
-                    var degrees_ds_e_f = degrees_ds_e.Select(a => new feature_info()
+                    var degrees_ds = descriptive_stats.get_stat_values(
+                        degrees,
+                        $@"",
+                        nameof(degrees),
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_degrees,
+                        distance: descriptive_stats_encoding_options.dse_distances_ring_degrees,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_degrees,
+                        abs: descriptive_stats_encoding_options.dse_abs_ring_degrees,
+                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_degrees
+                    );
+
+                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_degrees)
                     {
-                        alphabet = alphabet.name,
-                        dimension = 3,
-                        category = $"ring_nodes",
-                        source = source.ToString(),
-                        group = $"ring_nodes_{nameof(degrees)}_{alphabet.name}",
-                        member = a.member_id + "_" + alphabet_group.group_name,
-                        perspective = a.perspective_id,
-                        feature_value = a.perspective_value
-                    }).ToList();
-                    feats.AddRange(degrees_ds_e_f);
+                        var degrees_ds_e = degrees_ds.encode(
+                            dse_options,
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_degrees,
+                            distance: descriptive_stats_encoding_options.dse_distances_ring_degrees,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_degrees,
+                            abs: descriptive_stats_encoding_options.dse_abs_ring_degrees,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_ring_degrees
+                        );
+
+                        var degrees_ds_e_f = degrees_ds_e.Select(ds_stat => new feature_info()
+                        {
+                            alphabet = alphabet.name,
+                            stats = dse_options.options_name,
+                            dimension = 3,
+                            category = $@"ring_nodes",
+                            source = $@"{source}",
+                            group = $@"{ds_stat.group_id}_ring_nodes_{nameof(degrees)}_{alphabet.name}",
+                            member = $@"{ds_stat.member_id}_{alphabet_group.group_name}",
+                            perspective = ds_stat.perspective_id,
+                            feature_value = ds_stat.perspective_value
+                        }).ToList();
+                        feats.AddRange(degrees_ds_e_f);
+                    }
+
 
                     var rapdf = nodes_a.Select(a => a.Rapdf).ToArray();
-                    var rapdf_ds = descriptive_stats.get_stat_values(rapdf, nameof(rapdf));
-                    var rapdf_ds_e = descriptive_stats.encode(rapdf_ds);
-                    var rapdf_ds_e_f = rapdf_ds_e.Select(a => new feature_info()
+                    var rapdf_ds = descriptive_stats.get_stat_values(
+                        rapdf,
+                        $@"",
+                        nameof(rapdf),
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_rapdf,
+                        distance: descriptive_stats_encoding_options.dse_distances_ring_rapdf,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_rapdf,
+                        abs: descriptive_stats_encoding_options.dse_abs_ring_rapdf,
+                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_rapdf
+                    );
+
+                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_rapdf)
                     {
-                        alphabet = alphabet.name,
-                        dimension = 3,
-                        category = $"ring_nodes",
-                        source = source.ToString(),
-                        group = $"ring_nodes_{nameof(rapdf)}_{alphabet.name}",
-                        member = a.member_id + "_" + alphabet_group.group_name,
-                        perspective = a.perspective_id,
-                        feature_value = a.perspective_value
-                    }).ToList();
-                    feats.AddRange(rapdf_ds_e_f);
+                        var rapdf_ds_e = rapdf_ds.encode(
+                            dse_options,
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_rapdf,
+                            distance: descriptive_stats_encoding_options.dse_distances_ring_rapdf,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_rapdf,
+                            abs: descriptive_stats_encoding_options.dse_abs_ring_rapdf,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_ring_rapdf
+                        );
+
+                        var rapdf_ds_e_f = rapdf_ds_e.Select(ds_stat => new feature_info()
+                        {
+                            alphabet = alphabet.name,
+                            stats = dse_options.options_name,
+                            dimension = 3,
+                            category = $@"ring_nodes",
+                            source = $@"{source}",
+                            group = $@"{ds_stat.group_id}_ring_nodes_{nameof(rapdf)}_{alphabet.name}",
+                            member = $@"{ds_stat.member_id}_{alphabet_group.group_name}",
+                            perspective = ds_stat.perspective_id,
+                            feature_value = ds_stat.perspective_value
+                        }).ToList();
+                        feats.AddRange(rapdf_ds_e_f);
+                    }
+
 
                     var tap = nodes_a.Select(a => a.Tap).ToArray();
-                    var tap_ds = descriptive_stats.get_stat_values(tap, nameof(tap));
-                    var tap_ds_e = descriptive_stats.encode(tap_ds);
-                    var tap_ds_e_f = tap_ds_e.Select(a => new feature_info()
-                    {
-                        alphabet = alphabet.name,
-                        dimension = 3,
-                        category = $"ring_nodes",
-                        source = source.ToString(),
-                        group = $"ring_nodes_{nameof(tap)}_{alphabet.name}",
-                        member = a.member_id + "_" + alphabet_group.group_name,
-                        perspective = a.perspective_id,
-                        feature_value = a.perspective_value
-                    }).ToList();
-                    feats.AddRange(tap_ds_e_f);
+                    var tap_ds = descriptive_stats.get_stat_values(
+                        tap,
+                        $@"",
+                        nameof(tap),
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_tap,
+                        distance: descriptive_stats_encoding_options.dse_distances_ring_tap,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_tap,
+                        abs: descriptive_stats_encoding_options.dse_abs_ring_tap,
+                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_tap
+                        );
 
+                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_tap)
+                    {
+                        var tap_ds_e = tap_ds.encode(
+                            dse_options,
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_tap,
+                            distance: descriptive_stats_encoding_options.dse_distances_ring_tap,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_tap,
+                            abs: descriptive_stats_encoding_options.dse_abs_ring_tap,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_ring_tap
+                        );
+
+                        var tap_ds_e_f = tap_ds_e.Select(ds_stat => new feature_info()
+                        {
+                            alphabet = alphabet.name,
+                            stats = dse_options.options_name,
+                            dimension = 3,
+                            category = $@"ring_nodes",
+                            source = $@"{source}",
+                            group = $@"{ds_stat.group_id}_ring_nodes_{nameof(tap)}_{alphabet.name}",
+                            member = $@"{ds_stat.member_id}_{alphabet_group.group_name}",
+                            perspective = ds_stat.perspective_id,
+                            feature_value = ds_stat.perspective_value
+                        }).ToList();
+                        feats.AddRange(tap_ds_e_f);
+                    }
 
 
 
@@ -536,17 +681,17 @@ namespace dimorphics_dataset
 
             var dir_types = new[]
             {
-                "MC", "SC", "all"
+                $@"MC", $@"SC", $@"all"
             };
             var bond_types = new[]
             {
-                "HBOND",
-                "IONIC",
-                "PICATION",
-                "PIPISTACK",
-                "SSBOND",
-                "VDW",
-                "all"
+                $@"HBOND",
+                $@"IONIC",
+                $@"PICATION",
+                $@"PIPISTACK",
+                $@"SSBOND",
+                $@"VDW",
+                $@"all"
             };
 
             foreach (var alphabet in feature_calcs.aa_alphabets_inc_overall)
@@ -555,7 +700,7 @@ namespace dimorphics_dataset
                 {
                     foreach (var bond_type in bond_types)
                     {
-                        var bonds = edges.Where(a => bond_type == "all" || a.Interaction.interaction_type == bond_type)
+                        var bonds = edges.Where(a => bond_type == $@"all" || a.Interaction.interaction_type == bond_type)
                             .ToList();
 
                         bonds = bonds.Where(a => alphabet_group.group_amino_acids.Contains(a.NodeId1.amino_acid1, StringComparison.InvariantCulture)).ToList();
@@ -563,87 +708,146 @@ namespace dimorphics_dataset
                         foreach (var dir_type1 in dir_types)
                         {
                             var bonds1 = bonds
-                                .Where(a => dir_type1 == "all" || a.Interaction.subtype_node1 == dir_type1)
+                                .Where(a => dir_type1 == $@"all" || a.Interaction.subtype_node1 == dir_type1)
                                 .ToList();
 
                             foreach (var dir_type2 in dir_types)
                             {
-                                var bonds2 = bonds1
-                                    .Where(a => dir_type2 == "all" || a.Interaction.subtype_node2 == dir_type2)
-                                    .ToList();
-
-                                var count = bonds2.Count;
-
-                                var distances = bonds2.Select(a => a.Distance).ToArray();
-                                var distances_ds = descriptive_stats.get_stat_values(distances, nameof(distances));
-                                var distnaces_ds_e = descriptive_stats.encode(distances_ds);
-
-                                var angles = bonds2.Where(a => a.Angle != null).Select(a => a.Angle.Value).ToArray();
-                                var angles_ds = descriptive_stats.get_stat_values(angles, nameof(angles));
-                                var angles_ds_e = descriptive_stats.encode(angles_ds);
-
-                                var energies = bonds2.Select(a => a.Energy).ToArray();
-                                var energies_ds = descriptive_stats.get_stat_values(energies, nameof(energies));
-                                var energies_ds_e = descriptive_stats.encode(energies_ds);
-
                                 var feats = new List<feature_info>();
 
+                                var bonds2 = bonds1
+                                    .Where(a => dir_type2 == $@"all" || a.Interaction.subtype_node2 == dir_type2)
+                                    .ToList();
+
+                                var distances = bonds2.Select(a => a.Distance).ToArray();
+                                var distances_ds = descriptive_stats.get_stat_values(
+                                    distances,
+                                    $@"",
+                                    nameof(distances),
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_distances,
+                                    distance: descriptive_stats_encoding_options.dse_distances_ring_distances,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_distances,
+                                    abs: descriptive_stats_encoding_options.dse_abs_ring_distances,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_ring_distances
+                                );
+
+                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_distances)
+                                {
+                                    var distnaces_ds_e = distances_ds.encode(
+                                        dse_options,
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_distances,
+                                        distance: descriptive_stats_encoding_options.dse_distances_ring_distances,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_distances,
+                                        abs: descriptive_stats_encoding_options.dse_abs_ring_distances,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_distances
+                                    );
+
+                                    var distances_ds_e_f = distnaces_ds_e.Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = alphabet.name,
+                                        stats = dse_options.options_name,
+                                        dimension = 3,
+                                        category = $@"ring_edges",
+                                        source = $@"{source}",
+                                        group = $@"{ds_stat.group_id}_ring_edges_{nameof(distances)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
+                                        member = $"{ds_stat.member_id}_{alphabet_group.group_name}",
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+                                    feats.AddRange(distances_ds_e_f);
+                                }
+
+                                var angles = bonds2.Where(a => a.Angle != null).Select(a => a.Angle.Value).ToArray();
+                                var angles_ds = descriptive_stats.get_stat_values(
+                                    angles,
+                                    $@"",
+                                    nameof(angles),
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_angles,
+                                    distance: descriptive_stats_encoding_options.dse_distances_ring_angles,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_angles,
+                                    abs: descriptive_stats_encoding_options.dse_abs_ring_angles,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_ring_angles
+                                );
+
+                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_angles)
+                                {
+                                    var angles_ds_e = angles_ds.encode(
+                                        dse_options,
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_angles,
+                                        distance: descriptive_stats_encoding_options.dse_distances_ring_angles,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_angles,
+                                        abs: descriptive_stats_encoding_options.dse_abs_ring_angles,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_angles
+                                    );
+
+                                    var angles_ds_e_f = angles_ds_e.Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = alphabet.name,
+                                        stats = dse_options.options_name,
+                                        dimension = 3,
+                                        category = $@"ring_edges",
+                                        source = $@"{source}",
+                                        group = $@"{ds_stat.group_id}_ring_edges_{nameof(angles)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
+                                        member = $"{ds_stat.member_id}_{alphabet_group.group_name}",
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+                                    feats.AddRange(angles_ds_e_f);
+                                }
+
+                                var energies = bonds2.Select(a => a.Energy).ToArray();
+                                var energies_ds = descriptive_stats.get_stat_values(
+                                    energies,
+                                    $@"",
+                                    nameof(energies),
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_energies,
+                                    distance: descriptive_stats_encoding_options.dse_distances_ring_energies,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_energies,
+                                    abs: descriptive_stats_encoding_options.dse_abs_ring_energies,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_ring_energies
+                                );
+
+                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_ring_energies)
+                                {
+                                    var energies_ds_e = energies_ds.encode(
+                                        dse_options,
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_ring_energies,
+                                        distance: descriptive_stats_encoding_options.dse_distances_ring_energies,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_ring_energies,
+                                        abs: descriptive_stats_encoding_options.dse_abs_ring_energies,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_ring_energies
+                                    );
+
+                                    var energies_ds_e_f = energies_ds_e.Select(ds_stat => new feature_info()
+                                    {
+                                        alphabet = alphabet.name,
+                                        stats = dse_options.options_name,
+                                        dimension = 3,
+                                        category = $@"ring_edges",
+                                        source = $@"{source}",
+                                        group = $@"{ds_stat.group_id}_ring_edges_{nameof(energies)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
+                                        member = $@"{ds_stat.member_id}_{alphabet_group.group_name}",
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
+                                    }).ToList();
+
+                                    feats.AddRange(energies_ds_e_f);
+                                }
+
+                                var count = bonds2.Count;
                                 var count_f = new feature_info()
                                 {
                                     alphabet = alphabet.name,
+                                    stats = $@"",//dse_options.options_name,
                                     dimension = 3,
-                                    category = "ring_edges",
-                                    source = source.ToString(),
-                                    @group = $"ring_edges_{nameof(count)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
-                                    member = "count" + "_" + alphabet_group.group_name,
-                                    perspective = "default",
+                                    category = $@"ring_edges",
+                                    source = $@"{source}",
+                                    @group = $@"ring_edges_{nameof(count)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
+                                    member = $@"count_{alphabet_group.group_name}",
+                                    perspective = $@"default",
                                     feature_value = count
                                 };
                                 feats.Add(count_f);
-
-                                var distances_ds_e_f = distnaces_ds_e.Select(a => new feature_info()
-                                {
-                                    alphabet = alphabet.name,
-                                    dimension = 3,
-                                    category = $"ring_edges",
-                                    source = source.ToString(),
-                                    group = $"ring_edges_{nameof(distances)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
-                                    member = a.member_id + "_" + alphabet_group.group_name,
-                                    perspective = a.perspective_id,
-                                    feature_value = a.perspective_value
-                                }).ToList();
-                                feats.AddRange(distances_ds_e_f);
-
-
-                                var angles_ds_e_f = angles_ds_e.Select(a => new feature_info()
-                                {
-                                    alphabet = alphabet.name,
-                                    dimension = 3,
-                                    category = $"ring_edges",
-                                    source = source.ToString(),
-                                    group = $"ring_edges_{nameof(angles)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
-                                    member = a.member_id + "_" + alphabet_group.group_name,
-                                    perspective = a.perspective_id,
-                                    feature_value = a.perspective_value
-                                }).ToList();
-                                feats.AddRange(angles_ds_e_f);
-
-
-                                var energies_ds_e_f = energies_ds_e.Select(a => new feature_info()
-                                {
-                                    alphabet = alphabet.name,
-                                    dimension = 3,
-                                    category = $"ring_edges",
-                                    source = source.ToString(),
-                                    group = $"ring_edges_{nameof(energies)}_{bond_type}_{dir_type1}_{dir_type2}_{alphabet.name}",
-                                    member = a.member_id + "_" + alphabet_group.group_name,
-                                    perspective = a.perspective_id,
-                                    feature_value = a.perspective_value
-                                }).ToList();
-                                feats.AddRange(energies_ds_e_f);
-
-
-
 
                                 features.AddRange(feats);
                             }
@@ -655,7 +859,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_ring_classification_data_template == null)
             {
-                subsequence_classification_data_templates._calculate_ring_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._calculate_ring_classification_data_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
             }
 
             return features;
@@ -664,7 +868,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_foldx_classification_data(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_foldx_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_foldx_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
             if (scd == null)
             {
@@ -678,7 +882,7 @@ namespace dimorphics_dataset
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template == null)
                     {
                         subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template = calculate_foldx_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.interface_region, source);
-                        subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template == null)
@@ -688,7 +892,7 @@ namespace dimorphics_dataset
 
                     var template = subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template.Select(a => new feature_info(a)
                     {
-                        source = source.ToString(),
+                        source = $@"{source}",
                         feature_value = 0
                     }).ToList();
 
@@ -699,7 +903,7 @@ namespace dimorphics_dataset
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template == null)
                     {
                         subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template = calculate_foldx_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.nh_flank_region, source);
-                        subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template == null)
@@ -709,7 +913,7 @@ namespace dimorphics_dataset
 
                     var template = subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_2d_template.Select(a => new feature_info(a)
                     {
-                        source = source.ToString(),
+                        source = $@"{source}",
                         feature_value = 0
                     }).ToList();
 
@@ -720,7 +924,7 @@ namespace dimorphics_dataset
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template == null)
                     {
                         subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template = calculate_foldx_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.nh_contact_region, source);
-                        subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template == null)
@@ -730,7 +934,7 @@ namespace dimorphics_dataset
 
                     var template = subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template.Select(a => new feature_info(a)
                     {
-                        source = source.ToString(),
+                        source = $@"{source}",
                         feature_value = 0
                     }).ToList();
 
@@ -741,7 +945,7 @@ namespace dimorphics_dataset
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template == null)
                     {
                         subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template = calculate_foldx_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.chain_region, source);
-                        subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template == null)
@@ -751,7 +955,7 @@ namespace dimorphics_dataset
 
                     var template = subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template.Select(a => new feature_info(a)
                     {
-                        source = source.ToString(),
+                        source = $@"{source}",
                         feature_value = 0
                     }).ToList();
 
@@ -774,10 +978,10 @@ namespace dimorphics_dataset
 
             info_foldx.energy_differences foldx_energy_differences = source switch
             {
-                enum_protein_data_source.interface_3d => scd.interface_region.foldx_energy_differences, 
-                enum_protein_data_source.neighbourhood_2d => scd.nh_flank_region.foldx_energy_differences, 
-                enum_protein_data_source.neighbourhood_3d => scd.nh_contact_region.foldx_energy_differences, 
-                enum_protein_data_source.chain_3d => scd.chain_region.foldx_energy_differences, 
+                enum_protein_data_source.interface_3d => scd.interface_region.foldx_energy_differences,
+                enum_protein_data_source.neighbourhood_2d => scd.nh_flank_region.foldx_energy_differences,
+                enum_protein_data_source.neighbourhood_3d => scd.nh_contact_region.foldx_energy_differences,
+                enum_protein_data_source.chain_3d => scd.chain_region.foldx_energy_differences,
                 _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
             };
 
@@ -789,18 +993,18 @@ namespace dimorphics_dataset
             //var foldx_residues_aa_mutable = info_foldx.foldx_residues_aa_mutable;
 
 
-            //var amino_acids = "ARNDCQEGHILKMFPSTWYV";
+            //var amino_acids = $@"ARNDCQEGHILKMFPSTWYV";
             //var foldx_amino_acids = string.Join("", foldx_residues_aa_mutable.Select(a => a.foldx_aa_code1).Distinct().ToList());
             //var foldx_specific_amino_acids = string.Join("",foldx_amino_acids.Except(amino_acids).ToList());
 
             //var alphabets = feature_calcs.aa_alphabets.ToList();
             var aa_alphabets_inc_overall_foldx = feature_calcs.aa_alphabets_inc_overall_foldx.ToList();
-            //alphabets.Add((-1, "Overall", new List<string>() { foldx_amino_acids }));
-            //alphabets = alphabets.Where(a => !String.Equals(a.name, "Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            //alphabets.Add((-1, $@"Overall", new List<string>() { foldx_amino_acids }));
+            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
             //alphabets = alphabets.Where(a => a.groups.Count <= 4).ToList();
 
             //var foldx_alphabets = feature_calcs.aa_alphabets.ToList();
-            //foldx_alphabets.Add((-1, "Overall", new List<string>() { foldx_amino_acids }));
+            //foldx_alphabets.Add((-1, $@"Overall", new List<string>() { foldx_amino_acids }));
 
             // todo: check if the interface, neighbourhood and protein features are separately named or have identical names (problem!)
 
@@ -830,28 +1034,49 @@ namespace dimorphics_dataset
                             var items = sq.items.Where(a => alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
                             var items_ddg = items.Select(a => a.ddg).ToArray();
 
+                            var items_ddg_ds = descriptive_stats.get_stat_values(
+                                items_ddg,
+                                $@"",
+                                $@"{alphabet_group.group_name}",
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_ala,
+                                distance: descriptive_stats_encoding_options.dse_distances_foldx_ala,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_ala,
+                                abs: descriptive_stats_encoding_options.dse_abs_foldx_ala,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_foldx_ala
+                            );
 
-                            var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg, $"{alphabet_group.group_name}");
-                            var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                            var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_ala)
                             {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"{foldx_cmd}",
-                                source = source.ToString(),
-                                @group = $@"{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
-                                member = $@"{sq_index}_{a.member_id}",
-                                perspective = a.perspective_id,
-                                feature_value = a.perspective_value
-                            }).ToList();
-                            foldx_ala_scan_feats.AddRange(items_ddg_ds_encoded_features);
+                                var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                    dse_options,
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_ala,
+                                    distance: descriptive_stats_encoding_options.dse_distances_foldx_ala,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_ala,
+                                    abs: descriptive_stats_encoding_options.dse_abs_foldx_ala,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_foldx_ala
+                                );
+
+                                var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"{foldx_cmd}",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                }).ToList();
+                                foldx_ala_scan_feats.AddRange(items_ddg_ds_encoded_features);
+                            }
                         }
                     }
                 }
 
                 features.AddRange(foldx_ala_scan_feats);
 
-                
+
 
             }
 
@@ -887,7 +1112,7 @@ namespace dimorphics_dataset
                             foreach (var g_row_original_foldx_amino_acid_alphabet_group in alphabet.groups)
                             {
                                 // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
-                                //if (foldx_specific_amino_acids.All(a => "" + a != g_row_original_amino_acid))
+                                //if (foldx_specific_amino_acids.All(a => $@"" + a != g_row_original_amino_acid))
                                 {
                                     // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
                                     var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
@@ -895,20 +1120,42 @@ namespace dimorphics_dataset
 
                                     //if (items == null || items.Count == 0) throw new Exception(); // just to test
 
-                                    var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}");
-                                    var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                    var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                    var items_ddg_ds = descriptive_stats.get_stat_values(
+                                        items_ddg,
+                                        $@"",
+                                        $@"{g_row_original_foldx_amino_acid_alphabet_group.group_name}",
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan1,
+                                        distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan1,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan1,
+                                        abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan1,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan1
+                                    );
+
+                                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_pos_scan1)
                                     {
-                                        alphabet = alphabet.name,
-                                        dimension = 3,
-                                        category = $@"{foldx_cmd}",
-                                        source = source.ToString(),
-                                        @group = $@"{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
-                                        member = $@"{sq_index}_{a.member_id}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
-                                    }).ToList();
-                                    foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                        var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                            dse_options,
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan1,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan1,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan1,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan1,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan1
+                                        );
+
+                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
+                                            member = $@"{sq_index}_{ds_stat.member_id}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+                                        foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                    }
                                 }
 
                                 // columns: compare by mutation amino acids
@@ -919,20 +1166,42 @@ namespace dimorphics_dataset
                                     var items_ddg = items.Select(a => a.ddg).ToArray();
 
 
-                                    var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg, $"{g_col_foldx_amino_acid_alphabet_group.group_name}");
-                                    var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                    var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                    var items_ddg_ds = descriptive_stats.get_stat_values(
+                                        items_ddg,
+                                        $@"",
+                                        $@"{g_col_foldx_amino_acid_alphabet_group.group_name}",
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan2,
+                                        distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan2,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan2,
+                                        abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan2,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan2
+                                    );
+
+                                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_pos_scan2)
                                     {
-                                        alphabet = alphabet.name,
-                                        dimension = 3,
-                                        category = $@"{foldx_cmd}",
-                                        source = source.ToString(),
-                                        @group = $@"{foldx_cmd}_mutants_{sq.name}_{alphabet.name}",
-                                        member = $@"{sq_index}_{a.member_id}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
-                                    }).ToList();
-                                    foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                        var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                            dse_options,
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan2,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan2,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan2,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan2,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan2
+                                        );
+
+                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_{foldx_cmd}_mutants_{sq.name}_{alphabet.name}",
+                                            member = $@"{sq_index}_{ds_stat.member_id}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+                                        foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                    }
                                 }
 
                                 // matrix row:column code: compare by cross-reference of original amino acids and mutation amino acids
@@ -943,20 +1212,42 @@ namespace dimorphics_dataset
                                     var items_ddg = items.Select(a => a.ddg).ToArray();
 
 
-                                    var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}_{g_col_mutant_foldx_amino_acid_alphabet_group.group_name}");
-                                    var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                    var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                    var items_ddg_ds = descriptive_stats.get_stat_values(
+                                        items_ddg,
+                                        $@"",
+                                        $@"{g_row_original_foldx_amino_acid_alphabet_group.group_name}_{g_col_mutant_foldx_amino_acid_alphabet_group.group_name}",
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan3,
+                                        distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan3,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan3,
+                                        abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan3,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan3
+                                    );
+
+                                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_pos_scan3)
                                     {
-                                        alphabet = alphabet.name,
-                                        dimension = 3,
-                                        category = $"{foldx_cmd}",
-                                        source = source.ToString(),
-                                        @group = $"{foldx_cmd}_{sq.name}_{alphabet.name}",
-                                        member = $@"{sq_index}_{a.member_id}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
-                                    }).ToList();
-                                    foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                        var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                            dse_options,
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_pos_scan3,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_pos_scan3,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_pos_scan3,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_pos_scan3,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_pos_scan3
+                                        );
+
+                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_{foldx_cmd}_{sq.name}_{alphabet.name}",
+                                            member = $@"{sq_index}_{ds_stat.member_id}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+                                        foldx_pos_feats.AddRange(items_ddg_ds_encoded_features);
+                                    }
                                 }
                             }
                         }
@@ -966,7 +1257,7 @@ namespace dimorphics_dataset
 
                     features.AddRange(foldx_pos_feats);
 
-                    
+
                 }
             }
 
@@ -1022,41 +1313,64 @@ namespace dimorphics_dataset
 
                                     foreach (var items_ddg in items_ddg_list)
                                     {
-                                        var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_col_foldx_amino_acid.group_name}");
-                                        var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
-                                        {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_mutants_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);//1
-                                                                                                            //fx3c = items_ddg_ds_encoded_features_separated.Count;
+                                        var items_ddg_ds = descriptive_stats.get_stat_values(
+                                            items_ddg.values,
+                                            $@"",
+                                            $@"{g_col_foldx_amino_acid.group_name}",
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan1,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan1,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan1,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan1,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan1
+                                        );
 
-                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_bm_pos_scan1)
                                         {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_mutants_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features); //1
-                                                                                                   //fx3d = items_ddg_ds_encoded_features.Count;
+                                            var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                                dse_options,
+                                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan1,
+                                                distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan1,
+                                                interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan1,
+                                                abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan1,
+                                                rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan1
+                                            );
+
+                                            var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_mutants_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);//1
+                                                                                                                //fx3c = items_ddg_ds_encoded_features_separated.Count;
+
+                                            var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_mutants_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features); //1
+                                                                                                       //fx3d = items_ddg_ds_encoded_features.Count;
+                                        }
                                     }
                                     //io_proxy.WriteLine($@"c = {fx3c}, d = {fx3d}");
                                 }
 
                                 // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
-                                //if (foldx_specific_amino_acids.All(a => "" + a != g_row_original_amino_acid))
+                                //if (foldx_specific_amino_acids.All(a => $@"" + a != g_row_original_amino_acid))
                                 {
                                     // bugged
 
@@ -1075,36 +1389,58 @@ namespace dimorphics_dataset
 
                                     foreach (var items_ddg in items_ddg_list)
                                     {
-                                        var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}");
-                                        var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
-                                        {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_sequence_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
-                                        //fx3a = items_ddg_ds_encoded_features_separated.Count;
+                                        var items_ddg_ds = descriptive_stats.get_stat_values(
+                                            items_ddg.values,
+                                            $@"",
+                                            $@"{g_row_original_foldx_amino_acid_alphabet_group.group_name}",
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan2,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan2,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan2,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan2,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan2
+                                        );
 
-                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_bm_pos_scan2)
                                         {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
-                                        //fx3b = items_ddg_ds_encoded_features.Count;
+                                            var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                                dse_options,
+                                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan2,
+                                                distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan2,
+                                                interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan2,
+                                                abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan2,
+                                                rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan2
+                                            );
 
+                                            var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_sequence_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                            //fx3a = items_ddg_ds_encoded_features_separated.Count;
+
+                                            var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_sequence_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
+                                            //fx3b = items_ddg_ds_encoded_features.Count;
+                                        }
                                     }
                                     //io_proxy.WriteLine($@"a = {fx3a}, b = {fx3b}");
                                 }
@@ -1125,37 +1461,59 @@ namespace dimorphics_dataset
 
                                     foreach (var items_ddg in items_ddg_list)
                                     {
-                                        var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_row_original_foldx_amino_acid_alphabet_group.group_name}_{g_col_mutant_foldx_amino_acid_alphabet_group.group_name}");
-                                        var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
+                                        var items_ddg_ds = descriptive_stats.get_stat_values(
+                                            items_ddg.values,
+                                            $@"",
+                                            $@"{g_row_original_foldx_amino_acid_alphabet_group.group_name}_{g_col_mutant_foldx_amino_acid_alphabet_group.group_name}",
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan3,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan3,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan3,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan3,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan3
+                                        );
+
+                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_bm_pos_scan3)
                                         {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
-                                        //fx3e = items_ddg_ds_encoded_features_separated.Count;
+                                            var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                                dse_options,
+                                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_pos_scan3,
+                                                distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_pos_scan3,
+                                                interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_pos_scan3,
+                                                abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_pos_scan3,
+                                                rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_pos_scan3
+                                            );
 
-                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
-                                        {
-                                            alphabet = alphabet.name,
-                                            dimension = 3,
-                                            category = $@"{foldx_cmd}",
-                                            source = source.ToString(),
-                                            @group = $@"{foldx_cmd}_{sq.name}_{alphabet.name}",
-                                            member = $@"{sq_index}_{items_ddg.energy_name}_{a.member_id}",
-                                            perspective = a.perspective_id,
-                                            feature_value = a.perspective_value
-                                        }).ToList();
+                                            var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_{items_ddg.energy_name}_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                            //fx3e = items_ddg_ds_encoded_features_separated.Count;
 
-                                        foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
-                                        //fx3f = items_ddg_ds_encoded_features.Count;
+                                            var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                            {
+                                                alphabet = alphabet.name,
+                                                stats = dse_options.options_name,
+                                                dimension = 3,
+                                                category = $@"{foldx_cmd}",
+                                                source = $@"{source}",
+                                                @group = $@"{ds_stat.group_id}_{foldx_cmd}_{sq.name}_{alphabet.name}",
+                                                member = $@"{sq_index}_{items_ddg.energy_name}_{ds_stat.member_id}",
+                                                perspective = ds_stat.perspective_id,
+                                                feature_value = ds_stat.perspective_value
+                                            }).ToList();
 
+                                            foldx_bm_ps_feats.AddRange(items_ddg_ds_encoded_features);
+                                            //fx3f = items_ddg_ds_encoded_features.Count;
+                                        }
                                     }
 
                                     //io_proxy.WriteLine($@"e = {fx3e}, f = {fx3f}");
@@ -1169,7 +1527,7 @@ namespace dimorphics_dataset
 
                     features.AddRange(foldx_bm_ps_feats);
 
-                    
+
                 }
             }
 
@@ -1182,7 +1540,7 @@ namespace dimorphics_dataset
 
                     // note: there is no way to split this data - it is 1 data point per interface
 
-                    var foldx_cmd = "foldx_bm_if_sub";
+                    var foldx_cmd = $@"foldx_bm_if_sub";
                     var foldx_bm_if_sub_feats = new List<feature_info>();
 
 
@@ -1199,7 +1557,7 @@ namespace dimorphics_dataset
                         foreach (var g_row_mutant_foldx_amino_acid_alphabet_group in alphabet.groups)
                         {
                             // rows: compare by original amino acids (compact seq of len L to 20..31 AA) note: position scan doesn't stick to the 20 standard AA
-                            //if (foldx_specific_amino_acids.All(a => "" + a != g_row_original_amino_acid))
+                            //if (foldx_specific_amino_acids.All(a => $@"" + a != g_row_original_amino_acid))
                             {
                                 // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
                                 var items = foldx_bm_if_sub.Where(a => g_row_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.First().mutant_foldx_amino_acid1, StringComparison.InvariantCulture)).ToList();
@@ -1216,33 +1574,56 @@ namespace dimorphics_dataset
                                 {
 
 
-                                    var items_ddg_ds = descriptive_stats.get_stat_values(items_ddg.values, $"{g_row_mutant_foldx_amino_acid_alphabet_group.group_name}");
-                                    var items_ddg_ds_encoded = descriptive_stats.encode(items_ddg_ds);
-                                    var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(a => new feature_info()
-                                    {
-                                        alphabet = alphabet.name,
-                                        dimension = 3,
-                                        category = $"{foldx_cmd}",
-                                        source = source.ToString(),
-                                        group = $"{foldx_cmd}_mutant_{items_ddg.energy_name}_{alphabet.name}",
-                                        member = $"{items_ddg.energy_name}_{a.member_id}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
-                                    }).ToList();
-                                    foldx_bm_if_sub_feats.AddRange(items_ddg_ds_encoded_features_separated);
+                                    var items_ddg_ds = descriptive_stats.get_stat_values(
+                                        items_ddg.values,
+                                        $@"",
+                                        $@"{g_row_mutant_foldx_amino_acid_alphabet_group.group_name}",
+                                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_sr1,
+                                        distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_sr1,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_sr1,
+                                        abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_sr1,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_sr1
+                                    );
 
-                                    var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(a => new feature_info()
+                                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_foldx_bm_sr1)
                                     {
-                                        alphabet = alphabet.name,
-                                        dimension = 3,
-                                        category = $"{foldx_cmd}",
-                                        source = source.ToString(),
-                                        group = $"{foldx_cmd}_mutant_{alphabet.name}",
-                                        member = $"{items_ddg.energy_name}_{a.member_id}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
-                                    }).ToList();
-                                    foldx_bm_if_sub_feats.AddRange(items_ddg_ds_encoded_features);
+                                        var items_ddg_ds_encoded = items_ddg_ds.encode(
+                                            dse_options,
+                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_foldx_bm_sr1,
+                                            distance: descriptive_stats_encoding_options.dse_distances_foldx_bm_sr1,
+                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_foldx_bm_sr1,
+                                            abs: descriptive_stats_encoding_options.dse_abs_foldx_bm_sr1,
+                                            rescale: descriptive_stats_encoding_options.dse_rescale_foldx_bm_sr1
+                                        );
+
+                                        var items_ddg_ds_encoded_features_separated = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = $@"{source}",
+                                            group = $@"{ds_stat.group_id}_{foldx_cmd}_mutant_{items_ddg.energy_name}_{alphabet.name}",
+                                            member = $@"{items_ddg.energy_name}_{ds_stat.member_id}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+                                        foldx_bm_if_sub_feats.AddRange(items_ddg_ds_encoded_features_separated);
+
+                                        var items_ddg_ds_encoded_features = items_ddg_ds_encoded.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 3,
+                                            category = $@"{foldx_cmd}",
+                                            source = $@"{source}",
+                                            group = $@"{ds_stat.group_id}_{foldx_cmd}_mutant_{alphabet.name}",
+                                            member = $@"{items_ddg.energy_name}_{ds_stat.member_id}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+                                        foldx_bm_if_sub_feats.AddRange(items_ddg_ds_encoded_features);
+                                    }
                                 }
                             }
                         }
@@ -1259,21 +1640,21 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                    subsequence_classification_data_templates._calculate_foldx_classification_data_subsequence_3d_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 }
             }
             else if (source == enum_protein_data_source.neighbourhood_3d)
             {
                 if (subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                    subsequence_classification_data_templates._calculate_foldx_classification_data_neighbourhood_3d_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 }
             }
             else if (source == enum_protein_data_source.chain_3d)
             {
                 if (subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template == null)
                 {
-                    subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                    subsequence_classification_data_templates._calculate_foldx_classification_data_protein_3d_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 }
             }
 
@@ -1283,7 +1664,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_sequence_geometry_classification_data(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_sequence_geometry_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_sequence_geometry_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             // note: cannot use PDB length data, because that leaks information.
@@ -1293,7 +1674,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = calculate_sequence_geometry_classification_data(subsequence_classification_data_templates._template_scd, subsequence_classification_data_templates._template_scd.interface_region, source);
-                    subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template == null)
@@ -1303,7 +1684,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -1317,89 +1698,93 @@ namespace dimorphics_dataset
             var subseq_len = (double)subsequence.Length;
             var pdb_len = (double)pdb_sequence.Length;
             var subseq_len_relative_to_pdb_len = (double)(pdb_len == 0 ? 0d : (double)subseq_len / (double)pdb_len);
-            
+
             var middle_subseq_res = region.res_ids[region.res_ids.Count / 2];
-            
+
             var middle_subseq_res_pdb_index = (scd.chain_region.master_atoms == null || scd.chain_region.master_atoms.Count == 0) ? 0d : scd.chain_region.master_atoms.FindIndex(a => a.residue_index == middle_subseq_res.residue_index);
             var middle_subseq_res_pdb_index_pct = (middle_subseq_res_pdb_index == -1 || scd.chain_region.master_atoms == null || pdb_len - 1 == 0) ? 0d : ((double)(middle_subseq_res_pdb_index) / (double)pdb_len - 1); // note: pct pos isn't correct with (index+1), must be (len-1)
-            
 
-                var length_features = new List<feature_info>();
 
-                var category = "length_sequence";
-                var alphabet = "Overall";
+            var length_features = new List<feature_info>();
 
-                var x1 = new feature_info()
-                {
-                    alphabet = alphabet,
-                    dimension = 1,
-                    category = category,
-                    source = source.ToString(),
-                    group = "length_subsequence_abs",
-                    member = "length_subsequence_abs",
-                    perspective = "default",
-                    feature_value = subseq_len
-                };
+            var category = $@"length_sequence";
+            var alphabet = $@"Overall";
 
-                length_features.Add(x1);
+            var x1 = new feature_info()
+            {
+                alphabet = alphabet,
+                stats = "",
+                dimension = 1,
+                category = category,
+                source = $@"{source}",
+                group = $@"length_subsequence_abs",
+                member = $@"length_subsequence_abs",
+                perspective = $@"default",
+                feature_value = subseq_len
+            };
 
-                
-                    var x2a = new feature_info()
-                    {
-                        alphabet = alphabet,
-                        dimension = 1,
-                        category = category,
-                        source = source.ToString(),
-                        group = "length_subsequence_rel_pdb",
-                        member = "length_subsequence_rel_pdb",
-                        perspective = "default",
-                        feature_value = subseq_len_relative_to_pdb_len
-                    };
-                    length_features.Add(x2a);
-                
+            length_features.Add(x1);
 
-                
-                
-                    var x3a = new feature_info()
-                    {
-                        alphabet = alphabet,
-                        dimension = 1,
-                        category = category,
-                        source = source.ToString(),
-                        group = "length_pdb",
-                        member = "length_pdb",
-                        perspective = "default",
-                        feature_value = pdb_len
-                    };
-                    length_features.Add(x3a);
-            
 
-                    var x4a = new feature_info()
-                    {
-                        alphabet = alphabet,
-                        dimension = 1,
-                        category = category,
-                        source = source.ToString(),
-                        group = "sequence_position_rel_pdb",
-                        member = "sequence_position_rel_pdb",
-                        perspective = "default",
-                        feature_value = middle_subseq_res_pdb_index_pct
-                    };
-                    length_features.Add(x4a);
-                
+            var x2a = new feature_info()
+            {
+                alphabet = alphabet,
+                stats = "",
+                dimension = 1,
+                category = category,
+                source = $@"{source}",
+                group = $@"length_subsequence_rel_pdb",
+                member = $@"length_subsequence_rel_pdb",
+                perspective = $@"default",
+                feature_value = subseq_len_relative_to_pdb_len
+            };
+            length_features.Add(x2a);
 
-                var all_length_features = length_features.Select(a => new feature_info(a)
-                {
-                    @group = "length_all"
-                }).ToList();
 
-                features.AddRange(length_features);
-                features.AddRange(all_length_features);
-            
+
+
+            var x3a = new feature_info()
+            {
+                alphabet = alphabet,
+                stats = "",
+                dimension = 1,
+                category = category,
+                source = $@"{source}",
+                group = $@"length_pdb",
+                member = $@"length_pdb",
+                perspective = $@"default",
+                feature_value = pdb_len
+            };
+            length_features.Add(x3a);
+
+
+            var x4a = new feature_info()
+            {
+                alphabet = alphabet,
+                stats = "",
+                dimension = 1,
+                category = category,
+                source = $@"{source}",
+                group = $@"sequence_position_rel_pdb",
+                member = $@"sequence_position_rel_pdb",
+                perspective = $@"default",
+                feature_value = middle_subseq_res_pdb_index_pct
+            };
+            length_features.Add(x4a);
+
+
+            var all_length_features = length_features.Select(a => new feature_info(a)
+            {
+                @group = $@"length_all"
+            }).ToList();
+
+            features.AddRange(length_features);
+            features.AddRange(all_length_features);
+
 
             if (subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template == null)
             {
-                subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._calculate_sequence_geometry_classification_data_template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
             }
 
             return features;
@@ -1410,25 +1795,25 @@ namespace dimorphics_dataset
             var keywords = new List<(string name, string[] list)>
             {
                 // energy terms
-                ("energy", new[] { "thermodynamic", "thermodynamics", "thermal", "energy", "gibbs", "solvation", "entropy", "entropies", "energies", "pka", "pk", "ph", "heat", "temperature", "dg", "ddg", "delta-g", "delta g" }),
+                ("energy", new[] { $@"thermodynamic", $@"thermodynamics", $@"thermal", $@"energy", $@"gibbs", $@"solvation", $@"entropy", $@"entropies", $@"energies", $@"pka", $@"pk", $@"ph", $@"heat", $@"temperature", $@"dg", $@"ddg", $@"delta-g", $@"delta g" }),
                 // charge terms
-                ("charge", new[] { "charge", "polarity", "polar", "charged", "positive", "negative", "electric", "electricity", "electrostatic" }),
+                ("charge", new[] { $@"charge", $@"polarity", $@"polar", $@"charged", $@"positive", $@"negative", $@"electric", $@"electricity", $@"electrostatic" }),
                 // interaction terms
-                ("interaction", new[] { "interaction", "interactions", "attraction", "affinity", "contact", "contacts", "complex", "complexation", "bind", "bond", "bonding", "binding", "bonded", "partner", "partnered", "partnering", "interaction", "intramolecular", "intermolecular", "vdw", "van der waals", "electrostatic", "statics", "hydrogen", "hbond" }),
+                ("interaction", new[] { $@"interaction", $@"interactions", $@"attraction", $@"affinity", $@"contact", $@"contacts", $@"complex", $@"complexation", $@"bind", $@"bond", $@"bonding", $@"binding", $@"bonded", $@"partner", $@"partnered", $@"partnering", $@"interaction", $@"intramolecular", $@"intermolecular", $@"vdw", $@"van der waals", $@"electrostatic", $@"statics", $@"hydrogen", $@"hbond" }),
                 // burial/exposed keywords
-                ("accessibility", new[] { "buried", "burial", "exposed", "exposure", "hidden", "accessibility", "accessible", "surface", "surfacial", "solvation", "solvent" }),
+                ("accessibility", new[] { $@"buried", $@"burial", $@"exposed", $@"exposure", $@"hidden", $@"accessibility", $@"accessible", $@"surface", $@"surfacial", $@"solvation", $@"solvent" }),
                 // unordered regions keywords
-                ("disorder", new[] { "unordered", "disorder", "randomness", "random coil", "random region", "coil", "terminal", "ambiguous", "conformational change" }),
+                ("disorder", new[] { $@"unordered", $@"disorder", $@"randomness", $@"random coil", $@"random region", $@"coil", $@"terminal", $@"ambiguous", $@"conformational change" }),
                 // beta-strand keywords
-                ("strand", new[] { "strand", "sheet", "beta-strand", "beta-sheet", "strand-strand", "sheet-sheet" }),
+                ("strand", new[] { $@"strand", $@"sheet", $@"beta-strand", $@"beta-sheet", $@"strand-strand", $@"sheet-sheet" }),
                 // coil keywords
-                ("coil", new[] { "coil", "random coil", "unstructured", "unordered", "coiled coil", "terminal coil", "coil-coil", "coil-strand", "coil-helix", "starnd-coil", "helix-coil" }),
+                ("coil", new[] { $@"coil", $@"random coil", $@"unstructured", $@"unordered", $@"coiled coil", $@"terminal coil", $@"coil-coil", $@"coil-strand", $@"coil-helix", $@"starnd-coil", $@"helix-coil" }),
                 // all secondary structure keywords
-                ("ss", new[] { "transformation", "conversion", "conformation", "structure", "helix", "helice", "helical", "coil", "coiled", "helix", "strand", "sheet", "ss", "sec struct", "secondary structure" }),
+                ("ss", new[] { $@"transformation", $@"conversion", $@"conformation", $@"structure", $@"helix", $@"helice", $@"helical", $@"coil", $@"coiled", $@"helix", $@"strand", $@"sheet", $@"ss", $@"sec struct", $@"secondary structure" }),
                 // hydrophobicity keywords
-                ("hydrophocity", new[] { "hydropathy", "hydrophobe", "hydrophilathy", "hydrophobicity", "hydrophobic", "hydrophil", "hydrophile", "hydrophilic", "hydrophicility" }),
+                ("hydrophocity", new[] { $@"hydropathy", $@"hydrophobe", $@"hydrophilathy", $@"hydrophobicity", $@"hydrophobic", $@"hydrophil", $@"hydrophile", $@"hydrophilic", $@"hydrophicility" }),
                 // composition keywords
-                ("composition", new[] { "composition", "propensity", "distribution", "frequency" })
+                ("composition", new[] { $@"composition", $@"propensity", $@"distribution", $@"frequency" })
             };
 
             List<(string name, List<info_aaindex.info_aaindex_entry> list)> aaindices_subsections = keywords.Select(a =>
@@ -1442,37 +1827,37 @@ namespace dimorphics_dataset
 
             // from a paper... which one?
             var dna_binding = new string[] {
-            "CHOP780202", "GEIM800106", "PALJ810107", "ZIMJ680104",
-            "CIDH920103", "KANM800102", "QIAN880123", "AURR980120",
-            "CIDH920105", "KLEP840101", "RACS770103", "MUNV940103",
-            "FAUJ880109", "KRIW710101", "RADA880108", "NADH010104",
-            "FAUJ880111", "LIFS790101", "ROSM880102", "NADH010106",
-            "FINA910104", "MEEJ800101", "SWER830101", "GUYH850105",
-            "GEIM800104", "OOBM770102", "ZIMJ680102", "MIYS990104"};
+            $@"CHOP780202", $@"GEIM800106", $@"PALJ810107", $@"ZIMJ680104",
+            $@"CIDH920103", $@"KANM800102", $@"QIAN880123", $@"AURR980120",
+            $@"CIDH920105", $@"KLEP840101", $@"RACS770103", $@"MUNV940103",
+            $@"FAUJ880109", $@"KRIW710101", $@"RADA880108", $@"NADH010104",
+            $@"FAUJ880111", $@"LIFS790101", $@"ROSM880102", $@"NADH010106",
+            $@"FINA910104", $@"MEEJ800101", $@"SWER830101", $@"GUYH850105",
+            $@"GEIM800104", $@"OOBM770102", $@"ZIMJ680102", $@"MIYS990104"};
             aaindices_subsections.Add((nameof(dna_binding), info_aaindex.aaindex_entries.Where(a => dna_binding.Contains(a.H_Accession_Number)).ToList()));
 
             // from a paper... which one?
-            var zernike = new string[] { "BLAM930101", "BIOV880101", "MAXF760101", "TSAJ990101", "NAKH920108", "CEDJ970104", "LIFS790101", "MIYS990104", };
+            var zernike = new string[] { $@"BLAM930101", $@"BIOV880101", $@"MAXF760101", $@"TSAJ990101", $@"NAKH920108", $@"CEDJ970104", $@"LIFS790101", $@"MIYS990104", };
             aaindices_subsections.Add((nameof(zernike), info_aaindex.aaindex_entries.Where(a => zernike.Contains(a.H_Accession_Number)).ToList()));
 
             //An Ensemble Method for Predicting Subnuclear Localizations from Primary Protein Structures
-            var subnuclear = new string[] { "BULH740101", "BULH740102", "PONP800106", "PONP800104", "PONP800105", "PONP800106", "MANP780101", "EISD840101", "JOND750101", "HOPT810101", "PARJ860101", "JANJ780101", "PONP800107", "CHOC760102", "ROSG850101", "ROSG850102", "BHAR880101", "KARP850101", "KARP850102", "KARP850103", "JANJ780102", "JANJ780103", "LEVM780101", "LEVM780102", "LEVM780103", "GRAR740102", "GRAR740103", "MCMT640101", "PONP800108", "KYTJ820101", };
+            var subnuclear = new string[] { $@"BULH740101", $@"BULH740102", $@"PONP800106", $@"PONP800104", $@"PONP800105", $@"PONP800106", $@"MANP780101", $@"EISD840101", $@"JOND750101", $@"HOPT810101", $@"PARJ860101", $@"JANJ780101", $@"PONP800107", $@"CHOC760102", $@"ROSG850101", $@"ROSG850102", $@"BHAR880101", $@"KARP850101", $@"KARP850102", $@"KARP850103", $@"JANJ780102", $@"JANJ780103", $@"LEVM780101", $@"LEVM780102", $@"LEVM780103", $@"GRAR740102", $@"GRAR740103", $@"MCMT640101", $@"PONP800108", $@"KYTJ820101", };
             aaindices_subsections.Add((nameof(subnuclear), info_aaindex.aaindex_entries.Where(a => subnuclear.Contains(a.H_Accession_Number)).ToList()));
 
             //Identification of properties important to protein aggregation using feature selection
-            var aggregation = new string[] { "CASG920101", "GUYH850101", "LEVM780102", "PALJ810111", "PONP800105", "PONP800107", "PRAM820103", "PRAM900103", "RICJ880117", "ROBB760110", "ROSM880105", "ROSM880105", "VENT840101", "VHEG790101", "WILM950102", "ZIMJ680101", };
+            var aggregation = new string[] { $@"CASG920101", $@"GUYH850101", $@"LEVM780102", $@"PALJ810111", $@"PONP800105", $@"PONP800107", $@"PRAM820103", $@"PRAM900103", $@"RICJ880117", $@"ROBB760110", $@"ROSM880105", $@"ROSM880105", $@"VENT840101", $@"VHEG790101", $@"WILM950102", $@"ZIMJ680101", };
             aaindices_subsections.Add((nameof(aggregation), info_aaindex.aaindex_entries.Where(a => aggregation.Contains(a.H_Accession_Number)).ToList()));
 
             //Prediction of Protein–Protein Interaction with Pairwise Kernel Support Vector Machine
-            var ppi = new string[] { "LEWP710101", "QIAN880138", "NADH010104", "NAGK730103", "AURR980116" };
+            var ppi = new string[] { $@"LEWP710101", $@"QIAN880138", $@"NADH010104", $@"NAGK730103", $@"AURR980116" };
             aaindices_subsections.Add((nameof(ppi), info_aaindex.aaindex_entries.Where(a => ppi.Contains(a.H_Accession_Number)).ToList()));
 
             //Characterizing informative sequence descriptors and predicting binding affinities of heterodimeric protein complexes
-            var affinity = new string[] { "GUYH850105", "SNEP660104", "RACS820113", "MITS020101", "MAXF760103", "CIDH920104", "AURR980119", "TANS770103", "CHOP780101", "PALJ810107", "QIAN880116", "PALJ810110", "TAKK010101", };
+            var affinity = new string[] { $@"GUYH850105", $@"SNEP660104", $@"RACS820113", $@"MITS020101", $@"MAXF760103", $@"CIDH920104", $@"AURR980119", $@"TANS770103", $@"CHOP780101", $@"PALJ810107", $@"QIAN880116", $@"PALJ810110", $@"TAKK010101", };
             aaindices_subsections.Add((nameof(affinity), info_aaindex.aaindex_entries.Where(a => affinity.Contains(a.H_Accession_Number)).ToList()));
 
             // Intersection of the values from papers
-            var intersection = new string[] { "PALJ810107", "NADH010104", "LIFS790101", "GUYH850105", "MIYS990104", "PONP800106", "PONP800105", "PONP800107", "LEVM780102", "ROSM880105", };
+            var intersection = new string[] { $@"PALJ810107", $@"NADH010104", $@"LIFS790101", $@"GUYH850105", $@"MIYS990104", $@"PONP800106", $@"PONP800105", $@"PONP800107", $@"LEVM780102", $@"ROSM880105", };
             aaindices_subsections.Add((nameof(intersection), info_aaindex.aaindex_entries.Where(a => intersection.Contains(a.H_Accession_Number)).ToList()));
 
             // Union of the values from papers
@@ -1485,7 +1870,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_aa_index_classification_data(string complete_sequence, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_aa_index_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_aa_index_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
 
@@ -1494,7 +1879,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_aa_index_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_aa_index_classification_data_template = calculate_aa_index_classification_data("AAA", source);
-                    subsequence_classification_data_templates._calculate_aa_index_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_aa_index_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_aa_index_classification_data_template == null)
@@ -1504,7 +1889,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_aa_index_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -1513,14 +1898,14 @@ namespace dimorphics_dataset
 
             var aaindices_subsections = subsequence_classification_data_templates._aaindex_subset_templates;
 
-            
+
 
             var sequences = new List<(string name, string sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(feature_calcs.split_sequence(complete_sequence).Select(a => ($@"split", a)).ToList());
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
-            //alphabets.Add((-1, "Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
+            //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
             alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
             alphabets = alphabets.Where(a => a.groups.Count <= 5).ToList();
 
@@ -1547,49 +1932,72 @@ namespace dimorphics_dataset
                                 var seq_aaindex_values_limited = seq_aaindex_values.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => a.value).ToArray();
 
 
-                                var ds_values = descriptive_stats.get_stat_values(seq_aaindex_values_limited, "");
+                                var ds_values = descriptive_stats.get_stat_values(
+                                    seq_aaindex_values_limited,
+                                    $@"",
+                                    $@"",
+                                    presorted: false, 
+                                    interval: descriptive_stats_encoding_options.dse_intervals_aa_index,
+                                    distance: descriptive_stats_encoding_options.dse_distances_aa_index,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_aa_index,
+                                    abs: descriptive_stats_encoding_options.dse_abs_aa_index,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_aa_index
+                                );
 
-                                var e_ds_values = descriptive_stats.encode(ds_values);
-
-
-                                if (string.Equals(aaindexes.name, "all", StringComparison.InvariantCultureIgnoreCase))
+                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_aa_index)
                                 {
-                                    var f_e_ds_values1 = e_ds_values.Select(a => new feature_info()
+                                    var e_ds_values = ds_values.encode(
+                                        dse_options,
+                                        presorted: false, 
+                                        interval: descriptive_stats_encoding_options.dse_intervals_aa_index,
+                                        distance: descriptive_stats_encoding_options.dse_distances_aa_index,
+                                        interquartile: descriptive_stats_encoding_options.dse_interquartile_aa_index,
+                                        abs: descriptive_stats_encoding_options.dse_abs_aa_index,
+                                        rescale: descriptive_stats_encoding_options.dse_rescale_aa_index
+                                    );
+
+
+                                    if (string.Equals(aaindexes.name, $@"all", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        var f_e_ds_values1 = e_ds_values.Select(ds_stat => new feature_info()
+                                        {
+                                            alphabet = alphabet.name,
+                                            stats = dse_options.options_name,
+                                            dimension = 1,
+                                            category = $@"aaindex_{aaindexes.name}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_aaindex_{aaindexes.name}_{sq.name}_{aaindex_entry.H_Accession_Number}_{alphabet.name}",
+                                            member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}_{aaindex_entry.H_Accession_Number}",
+                                            perspective = ds_stat.perspective_id,
+                                            feature_value = ds_stat.perspective_value
+                                        }).ToList();
+
+                                        //if (f_e_ds_values1.Count <= max_features)
+
+                                        result.AddRange(f_e_ds_values1);
+                                    }
+
+                                    var f_e_ds_values2 = e_ds_values.Select(ds_stat => new feature_info()
                                     {
                                         alphabet = alphabet.name,
+                                        stats = dse_options.options_name,
                                         dimension = 1,
                                         category = $@"aaindex_{aaindexes.name}",
-                                        source = source.ToString(),
-                                        @group = $@"aaindex_{aaindexes.name}_{sq.name}_{aaindex_entry.H_Accession_Number}_{alphabet.name}",
-                                        member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}_{aaindex_entry.H_Accession_Number}",
-                                        perspective = a.perspective_id,
-                                        feature_value = a.perspective_value
+                                        source = $@"{source}",
+                                        @group = $@"{ds_stat.group_id}_aaindex_{aaindexes.name}_{sq.name}_{alphabet.name}",
+                                        member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}_{aaindex_entry.H_Accession_Number}",
+                                        perspective = ds_stat.perspective_id,
+                                        feature_value = ds_stat.perspective_value
                                     }).ToList();
 
-                                    //if (f_e_ds_values1.Count <= max_features)
+                                    //if (alphabet.name == $@"Overall")
+                                    //{
+                                    //  io_proxy.WriteLine();
+                                    //}
 
-                                    result.AddRange(f_e_ds_values1);
+                                    //if (f_e_ds_values2.Count <= max_features)
+                                    result.AddRange(f_e_ds_values2);
                                 }
-
-                                var f_e_ds_values2 = e_ds_values.Select(a => new feature_info()
-                                {
-                                    alphabet = alphabet.name,
-                                    dimension = 1,
-                                    category = $@"aaindex_{aaindexes.name}",
-                                    source = source.ToString(),
-                                    @group = $@"aaindex_{aaindexes.name}_{sq.name}_{alphabet.name}",
-                                    member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}_{aaindex_entry.H_Accession_Number}",
-                                    perspective = a.perspective_id,
-                                    feature_value = a.perspective_value
-                                }).ToList();
-
-                                //if (alphabet.name == "Overall")
-                                //{
-                                //  io_proxy.WriteLine();
-                                //}
-
-                                //if (f_e_ds_values2.Count <= max_features)
-                                result.AddRange(f_e_ds_values2);
                             }
                         }
                     }
@@ -1598,7 +2006,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_aa_index_classification_data_template == null)
             {
-                var template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = result.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_aa_index_classification_data_template = template;
             }
 
@@ -1608,7 +2016,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_chain_dna_binding_prediction_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_chain_dna_binding_prediction_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_chain_dna_binding_prediction_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             //if (!source.Contains("protein") || !source.Contains("1d"))
@@ -1624,7 +2032,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template = calculate_chain_dna_binding_prediction_data(subsequence_classification_data_templates._template_scd.chain_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template == null)
@@ -1634,7 +2042,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -1658,13 +2066,14 @@ namespace dimorphics_dataset
             {
                 var f1 = new feature_info()
                 {
-                    alphabet = "Overall",
+                    alphabet = $@"Overall",
+                    stats = "",
                     dimension = 1,
-                    category = "dna_binding",
-                    source = source.ToString(),
-                    @group = $"dna_binding_{prob.name}",
-                    member = $"{prob.name}",
-                    perspective = "default",
+                    category = $@"dna_binding",
+                    source = $@"{source}",
+                    @group = $@"dna_binding_{prob.name}",
+                    member = $@"{prob.name}",
+                    perspective = $@"default",
                     feature_value = prob.value,
                 };
 
@@ -1672,13 +2081,14 @@ namespace dimorphics_dataset
 
                 var f2 = new feature_info()
                 {
-                    alphabet = "Overall",
+                    alphabet = $@"Overall",
+                    stats = "",
                     dimension = 1,
-                    category = "dna_binding",
-                    source = source.ToString(),
-                    @group = $"dna_binding_all",
-                    member = $"{prob.name}",
-                    perspective = "default",
+                    category = $@"dna_binding",
+                    source = $@"{source}",
+                    @group = $@"dna_binding_all",
+                    member = $@"{prob.name}",
+                    perspective = $@"default",
                     feature_value = prob.value,
                 };
 
@@ -1688,7 +2098,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template == null)
             {
-                var template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = result.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_dna_binding_prediction_data_template = template;
 
             }
@@ -1700,7 +2110,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_intrinsically_unordered_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)//)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_intrinsically_unordered_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_intrinsically_unordered_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
@@ -1708,7 +2118,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template = calculate_intrinsically_unordered_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template == null)
@@ -1718,7 +2128,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -1732,7 +2142,7 @@ namespace dimorphics_dataset
             sequences.AddRange(feature_calcs.split_sequence(subsequence_master_atoms).Select(a => ($@"split", a)).ToList());
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
-            //alphabets.Add((-1, "Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
+            //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
             alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
@@ -1751,75 +2161,163 @@ namespace dimorphics_dataset
                         var glob_list = iup.Select(a => a.glob_type_score).ToArray();
                         var anchor2_list = iup.Select(a => a.anchor2_score).ToArray();
 
-                        var ds_short_list = descriptive_stats.get_stat_values(short_list, $@"iup_short");
-                        var ds_long_list = descriptive_stats.get_stat_values(long_list, $@"iup_long");
-                        var ds_glob_list = descriptive_stats.get_stat_values(glob_list, $@"iup_glob");
-                        var ds_anchor2_list = descriptive_stats.get_stat_values(anchor2_list, $@"iup_anchor2");
+                        var ds_short_list = descriptive_stats.get_stat_values(
+                            short_list,
+                            $@"",
+                            $@"iup_short",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_short,
+                            distance: descriptive_stats_encoding_options.dse_distances_iud_short,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_short,
+                            abs: descriptive_stats_encoding_options.dse_abs_iud_short,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_iud_short
+                        );
 
-                        var e_ds_short_list = descriptive_stats.encode(ds_short_list);
-                        var e_ds_long_list = descriptive_stats.encode(ds_long_list);
-                        var e_ds_glob_list = descriptive_stats.encode(ds_glob_list);
-                        var e_ds_anchor2_list = descriptive_stats.encode(ds_anchor2_list);
-
-                        var f_e_ds_short_list = e_ds_short_list.Select(a => new feature_info()
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_iud_short)
                         {
-                            alphabet = alphabet.name,
-                            dimension = 1,
-                            category = $@"iup",
-                            source = source.ToString(),
-                            @group = $@"iup_{sq.name}_short_{alphabet.name}",
-                            member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
+                            var e_ds_short_list = ds_short_list.encode(
 
-                        /*if (f_e_ds_short_list.Count <= max_features)*/
-                        alphabet_result.AddRange(f_e_ds_short_list);
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_short,
+                                distance: descriptive_stats_encoding_options.dse_distances_iud_short,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_short,
+                                abs: descriptive_stats_encoding_options.dse_abs_iud_short,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_iud_short
+                            );
 
-                        var f_e_ds_long_list = e_ds_long_list.Select(a => new feature_info()
+                            var f_e_ds_short_list = e_ds_short_list.Select(ds_stat => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                stats = dse_options.options_name,
+                                dimension = 1,
+                                category = $@"iup",
+                                source = $@"{source}",
+                                @group = $@"{ds_stat.group_id}_iup_{sq.name}_short_{alphabet.name}",
+                                member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}",
+                                perspective = ds_stat.perspective_id,
+                                feature_value = ds_stat.perspective_value
+                            }).ToList();
+
+                            /*if (f_e_ds_short_list.Count <= max_features)*/
+                            alphabet_result.AddRange(f_e_ds_short_list);
+                        }
+
+                        var ds_long_list = descriptive_stats.get_stat_values(
+                            long_list,
+                            $@"",
+                            $@"iup_long",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_long,
+                            distance: descriptive_stats_encoding_options.dse_distances_iud_long,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_long,
+                            abs: descriptive_stats_encoding_options.dse_abs_iud_long,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_iud_long
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_iud_long)
                         {
-                            alphabet = alphabet.name,
-                            dimension = 1,
-                            category = $@"iup",
-                            source = source.ToString(),
-                            @group = $@"iup_{sq.name}_long_{alphabet.name}",
-                            member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
+                            var e_ds_long_list = ds_long_list.encode(
 
-                        /*if (f_e_ds_long_list.Count <= max_features)*/
-                        alphabet_result.AddRange(f_e_ds_long_list);
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_long,
+                                distance: descriptive_stats_encoding_options.dse_distances_iud_long,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_long,
+                                abs: descriptive_stats_encoding_options.dse_abs_iud_long,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_iud_long
+                            );
 
-                        var f_e_ds_glob_list = e_ds_glob_list.Select(a => new feature_info()
+                            var f_e_ds_long_list = e_ds_long_list.Select(ds_stat => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                stats = dse_options.options_name,
+                                dimension = 1,
+                                category = $@"iup",
+                                source = $@"{source}",
+                                @group = $@"{ds_stat.group_id}_iup_{sq.name}_long_{alphabet.name}",
+                                member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}",
+                                perspective = ds_stat.perspective_id,
+                                feature_value = ds_stat.perspective_value
+                            }).ToList();
+
+                            /*if (f_e_ds_long_list.Count <= max_features)*/
+                            alphabet_result.AddRange(f_e_ds_long_list);
+                        }
+
+                        var ds_glob_list = descriptive_stats.get_stat_values(
+                            glob_list,
+                            $@"",
+                            $@"iup_glob",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_glob,
+                            distance: descriptive_stats_encoding_options.dse_distances_iud_glob,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_glob,
+                            abs: descriptive_stats_encoding_options.dse_abs_iud_glob,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_iud_glob
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_iud_glob)
                         {
-                            alphabet = alphabet.name,
-                            dimension = 1,
-                            category = $@"iup",
-                            source = source.ToString(),
-                            @group = $@"iup_{sq.name}_glob_{alphabet.name}",
-                            member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
+                            var e_ds_glob_list = ds_glob_list.encode(
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_iud_glob,
+                                distance: descriptive_stats_encoding_options.dse_distances_iud_glob,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_iud_glob,
+                                abs: descriptive_stats_encoding_options.dse_abs_iud_glob,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_iud_glob
+                                    );
 
-                        /*if (f_e_ds_glob_list.Count <= max_features)*/
-                        alphabet_result.AddRange(f_e_ds_glob_list);
+                            var f_e_ds_glob_list = e_ds_glob_list.Select(ds_stat => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                stats = dse_options.options_name,
+                                dimension = 1,
+                                category = $@"iup",
+                                source = $@"{source}",
+                                @group = $@"{ds_stat.group_id}_iup_{sq.name}_glob_{alphabet.name}",
+                                member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}",
+                                perspective = ds_stat.perspective_id,
+                                feature_value = ds_stat.perspective_value
+                            }).ToList();
 
-                        var f_e_ds_anchor_list = e_ds_anchor2_list.Select(a => new feature_info()
+                            /*if (f_e_ds_glob_list.Count <= max_features)*/
+                            alphabet_result.AddRange(f_e_ds_glob_list);
+                        }
+
+                        var ds_anchor2_list = descriptive_stats.get_stat_values(
+                            anchor2_list,
+                            $@"",
+                            $@"iup_anchor2",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_anchor2,
+                            distance: descriptive_stats_encoding_options.dse_distances_anchor2,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_anchor2,
+                            abs: descriptive_stats_encoding_options.dse_abs_anchor2,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_anchor2
+                        );
+
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_anchor2)
                         {
-                            alphabet = alphabet.name,
-                            dimension = 1,
-                            category = $@"iup",
-                            source = source.ToString(),
-                            @group = $@"iup_{sq.name}_anchor2_{alphabet.name}",
-                            member = $@"{sq_index}_{alphabet_group.group_name}_{a.member_id}",
-                            perspective = a.perspective_id,
-                            feature_value = a.perspective_value
-                        }).ToList();
+                            var e_ds_anchor2_list = ds_anchor2_list.encode(
+                                dse_options,
+                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_anchor2,
+                                distance: descriptive_stats_encoding_options.dse_distances_anchor2,
+                                interquartile: descriptive_stats_encoding_options.dse_interquartile_anchor2,
+                                abs: descriptive_stats_encoding_options.dse_abs_anchor2,
+                                rescale: descriptive_stats_encoding_options.dse_rescale_anchor2
+                                );
 
-                        /*if (f_e_ds_anchor_list.Count <= max_features)*/
-                        alphabet_result.AddRange(f_e_ds_anchor_list);
+                            var f_e_ds_anchor_list = e_ds_anchor2_list.Select(ds_stat => new feature_info()
+                            {
+                                alphabet = alphabet.name,
+                                stats = dse_options.options_name,
+                                dimension = 1,
+                                category = $@"iup",
+                                source = $@"{source}",
+                                @group = $@"{ds_stat.group_id}_iup_{sq.name}_anchor2_{alphabet.name}",
+                                member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}",
+                                perspective = ds_stat.perspective_id,
+                                feature_value = ds_stat.perspective_value
+                            }).ToList();
+
+                            /*if (f_e_ds_anchor_list.Count <= max_features)*/
+                            alphabet_result.AddRange(f_e_ds_anchor_list);
+                        }
                     }
 
                     var all = alphabet_result.Select(a => new feature_info(a) { @group = $@"iup_{sq.name}_all_{alphabet.name}", }).ToList();
@@ -1834,7 +2332,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template == null)
             {
-                var template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = result.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_intrinsically_unordered_data_template = template;
 
             }
@@ -1846,12 +2344,17 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_blast_pssm_classification_data(info_blast_pssm_options blast_pssm_options, /*subsequence_classification_data scd,*/ List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_blast_pssm_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_blast_pssm_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
+            const string module_name = nameof(subsequence_classification_data_methods);
+            const string method_name = nameof(calculate_blast_pssm_classification_data);
+
             if (blast_pssm_options == null)
             {
                 throw new ArgumentNullException(nameof(blast_pssm_options));
             }
+
+            var distance_transform_max_lag = 5;
 
             var use_databases = new List<(string, bool)>()
             {
@@ -1867,14 +2370,12 @@ namespace dimorphics_dataset
                 ("blast_pssm_uniref90_local_default", blast_pssm_options.db_ur90_local_def),
             };
 
-
-
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
                 if (subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template = calculate_blast_pssm_classification_data(blast_pssm_options, subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template == null)
@@ -1884,7 +2385,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -1906,44 +2407,44 @@ namespace dimorphics_dataset
             var features = new List<feature_info>();
 
 
-            var ds_options_list = new List<descriptive_stats.descriptive_stats_encoding_options>();
+            //var ds_options_list = new List<descriptive_stats_encoding_options>();
 
-            if (blast_pssm_options.encode_min)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.min), false) { min = true });
-            }
+            //if (blast_pssm_options.encode_min)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.min), false) { min = true });
+            //}
 
-            if (blast_pssm_options.encode_max)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.max), false) { max = true });
-            }
+            //if (blast_pssm_options.encode_max)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.max), false) { max = true });
+            //}
 
-            if (blast_pssm_options.encode_mean)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.mean_arithmetic), false) { mean_arithmetic = true });
-            }
+            //if (blast_pssm_options.encode_mean)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.mean_arithmetic), false) { mean_arithmetic = true });
+            //}
 
-            if (blast_pssm_options.encode_mean_sd)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.mean_arithmetic), false) { mean_arithmetic = true, dev_standard = true });
-            }
+            //if (blast_pssm_options.encode_mean_sd)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.mean_arithmetic), false) { mean_arithmetic = true, dev_standard = true });
+            //}
 
-            if (blast_pssm_options.encode_median)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.median_q2), false) { median_q2 = true, mad_median_q2 = true });
-            }
+            //if (blast_pssm_options.encode_median)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.median_q2), false) { median_q2 = true, mad_median_q2 = true });
+            //}
 
-            if (blast_pssm_options.encode_mode)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.mode), false) { mode = true, mad_mode = true });
-            }
+            //if (blast_pssm_options.encode_mode)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.mode), false) { mode = true, mad_mode = true });
+            //}
 
-            if (blast_pssm_options.encode_range)
-            {
-                ds_options_list.Add(new descriptive_stats.descriptive_stats_encoding_options(nameof(descriptive_stats.range), false) { range = true });
-            }
+            //if (blast_pssm_options.encode_range)
+            //{
+            //    ds_options_list.Add(new descriptive_stats_encoding_options(nameof(descriptive_stats.range), false) { range = true });
+            //}
 
-            var tasks2 = new List<Task<(string database, string alphabet_name, string sequence_name, string pssm_encoding_name, List<(string member_id, string perspective_id, double perspective_value)> pssm400DT)>>();
+            var tasks2 = new List<Task<(string database, string alphabet_name, string stats_name, string sequence_name, string pssm_encoding_name, List<(string group_id, string member_id, string perspective_id, double perspective_value)> pssm400DT)>>();
 
 
             for (var _sq_index = 0; _sq_index < sequences.Count; _sq_index++)
@@ -2037,7 +2538,7 @@ namespace dimorphics_dataset
 
                                 case enum_pssm_value_type.distances:
                                     if (!blast_pssm_options.encode_distance_vector) continue;
-                                    continue;
+                                    break; //continue;?
 
                                 case enum_pssm_value_type.intervals:
                                     if (!blast_pssm_options.encode_interval_vector) continue;
@@ -2048,171 +2549,140 @@ namespace dimorphics_dataset
 
                             var pssm_value_type_str = pssm_value_type.ToString();
 
-                            foreach (var _ds_options in ds_options_list)
+                            //foreach (var _ds_options in ds_options_list)
+                            //{
+                            //var ds_options = _ds_options;
+
+                            var tasks1 = new List<Task>();
+
+                            List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm20col_values_alphabets = null;
+                            List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm20row_values_alphabets = null;
+                            List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm210_values_alphabets = null;
+                            List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm400_values_alphabets = null;
+
+
+                            List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm20colDT_values_alphabets = null;
+                            List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm210DT_values_alphabets = null;
+                            List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm400DT_values_alphabets = null;
+
+
+                            var task_pssm20col_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20col(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+                            var task_pssm20row_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20row(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+                            var task_pssm210_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_210 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector210(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+                            var task_pssm400_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_400 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector400(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+
+
+                            if (task_pssm20col_values_alphabets != null) tasks1.Add(task_pssm20col_values_alphabets);
+                            if (task_pssm20row_values_alphabets != null) tasks1.Add(task_pssm20row_values_alphabets);
+                            if (task_pssm210_values_alphabets != null) tasks1.Add(task_pssm210_values_alphabets);
+                            if (task_pssm400_values_alphabets != null) tasks1.Add(task_pssm400_values_alphabets);
+
+
+
+
+                            var task_pssm20colDT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20col_DT(pssm_matrix, distance_transform_max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+                            var task_pssm210DT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_210 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector210_DT(pssm_matrix, distance_transform_max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+                            var task_pssm400DT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_400 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector400_DT(pssm_matrix, distance_transform_max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
+
+                            if (task_pssm20colDT_values_alphabets != null) tasks1.Add(task_pssm20colDT_values_alphabets);
+                            if (task_pssm210DT_values_alphabets != null) tasks1.Add(task_pssm210DT_values_alphabets);
+                            if (task_pssm400DT_values_alphabets != null) tasks1.Add(task_pssm400DT_values_alphabets);
+
+                            //Task.WaitAll(tasks.ToArray<Task>());
+                            program.wait_tasks(tasks1.ToArray<Task>(), module_name, method_name);
+
+                            pssm20col_values_alphabets = task_pssm20col_values_alphabets?.Result;
+                            pssm20row_values_alphabets = task_pssm20row_values_alphabets?.Result;
+                            pssm210_values_alphabets = task_pssm210_values_alphabets?.Result;
+                            pssm400_values_alphabets = task_pssm400_values_alphabets?.Result;
+
+
+                            pssm20colDT_values_alphabets = task_pssm20colDT_values_alphabets?.Result;
+                            pssm210DT_values_alphabets = task_pssm210DT_values_alphabets?.Result;
+                            pssm400DT_values_alphabets = task_pssm400DT_values_alphabets?.Result;
+
+
+                            if (blast_pssm_options.make_standard_encoding)
                             {
-                                var ds_options = _ds_options;
-
-                                var tasks = new List<Task>();
-
-                                List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm20col_values_alphabets = null;
-                                List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm20row_values_alphabets = null;
-                                List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm210_values_alphabets = null;
-                                List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm400_values_alphabets = null;
-
-
-                                List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm20colDT_values_alphabets = null;
-                                List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm210DT_values_alphabets = null;
-                                List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm400DT_values_alphabets = null;
-
-
-                                var task_pssm20col_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20col(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-                                var task_pssm20row_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20row(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-                                var task_pssm210_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_210 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector210(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-                                var task_pssm400_values_alphabets = !blast_pssm_options.make_standard_encoding || !blast_pssm_options.size_400 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector400(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-
-
-                                if (task_pssm20col_values_alphabets != null) tasks.Add(task_pssm20col_values_alphabets);
-                                if (task_pssm20row_values_alphabets != null) tasks.Add(task_pssm20row_values_alphabets);
-                                if (task_pssm210_values_alphabets != null) tasks.Add(task_pssm210_values_alphabets);
-                                if (task_pssm400_values_alphabets != null) tasks.Add(task_pssm400_values_alphabets);
-
-
-                                var max_lag = 5;
-
-                                var task_pssm20colDT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_20 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector20col_DT(pssm_matrix, max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-                                var task_pssm210DT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_210 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector210_DT(pssm_matrix, max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-                                var task_pssm400DT_values_alphabets = !blast_pssm_options.make_distance_transform || !blast_pssm_options.size_400 ? null : Task.Run(() => { return info_blast_pssm.pssm_to_vector400_DT(pssm_matrix, max_lag, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_parts, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector); });
-
-                                if (task_pssm20colDT_values_alphabets != null) tasks.Add(task_pssm20colDT_values_alphabets);
-                                if (task_pssm210DT_values_alphabets != null) tasks.Add(task_pssm210DT_values_alphabets);
-                                if (task_pssm400DT_values_alphabets != null) tasks.Add(task_pssm400DT_values_alphabets);
-
-                                //Task.WaitAll(tasks.ToArray<Task>());
-                                program.wait_tasks(tasks.ToArray<Task>(), nameof(subsequence_classification_data), nameof(calculate_blast_pssm_classification_data));
-
-                                pssm20col_values_alphabets = task_pssm20col_values_alphabets?.Result;
-                                pssm20row_values_alphabets = task_pssm20row_values_alphabets?.Result;
-                                pssm210_values_alphabets = task_pssm210_values_alphabets?.Result;
-                                pssm400_values_alphabets = task_pssm400_values_alphabets?.Result;
-
-
-                                pssm20colDT_values_alphabets = task_pssm20colDT_values_alphabets?.Result;
-                                pssm210DT_values_alphabets = task_pssm210DT_values_alphabets?.Result;
-                                pssm400DT_values_alphabets = task_pssm400DT_values_alphabets?.Result;
-
-
-                                if (blast_pssm_options.make_standard_encoding)
+                                if (blast_pssm_options.size_1)
                                 {
-                                    if (blast_pssm_options.size_1)
+                                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm1_ds)
                                     {
                                         var t1 = Task.Run(() =>
                                         {
                                             var pssm1_values = info_blast_pssm.pssm_to_vector1(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector);
-                                                //if (normalise_encoding) pssm1_values = pssm.normalise_array(pssm1_values);
-                                                var pssm1_ds = descriptive_stats.get_stat_values(pssm1_values, $"{sq_index}_pssm1_all_{ds_options.options_name}");
+                                            //if (normalise_encoding) pssm1_values = pssm.normalise_array(pssm1_values);
+                                            var pssm1_ds = descriptive_stats.get_stat_values(
+                                                pssm1_values,
+                                                $@"",
+                                                $@"{sq_index}_pssm1_all_{dse_options.options_name}",
+                                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm1_ds,
+                                                distance: descriptive_stats_encoding_options.dse_distances_pssm1_ds,
+                                                interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm1_ds,
+                                                abs: descriptive_stats_encoding_options.dse_abs_pssm1_ds,
+                                                rescale: descriptive_stats_encoding_options.dse_rescale_pssm1_ds
+                                            );
 
-                                            var pssm1 = descriptive_stats.encode(pssm1_ds, ds_options);
+                                            var pssm1 = pssm1_ds.encode(
+                                                dse_options,
+                                                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm1_ds,
+                                                distance: descriptive_stats_encoding_options.dse_distances_pssm1_ds,
+                                                interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm1_ds,
+                                                abs: descriptive_stats_encoding_options.dse_abs_pssm1_ds,
+                                                rescale: descriptive_stats_encoding_options.dse_rescale_pssm1_ds
+                                            );
 
-                                                //if (pssm1.Count > max_features) pssm1 = null;
+                                            //if (pssm1.Count > max_features) pssm1 = null;
 
-                                                return (database, "Overall", sq.name, $"{nameof(pssm1)}_{normalisation_method_str}_{pssm_value_type_str}", pssm1);
+                                            return (database, $@"Overall", dse_options.options_name, sq.name, $@"{nameof(pssm1)}_{normalisation_method_str}_{pssm_value_type_str}", pssm1);
                                         });
 
                                         tasks2.Add(t1);
                                     }
                                 }
+                            }
 
-                                foreach (var _alphabet in alphabets)
+                            foreach (var _alphabet in alphabets)
+                            {
+                                var alphabet = _alphabet;
+
+                                if (blast_pssm_options.make_standard_encoding)
                                 {
-                                    var alphabet = _alphabet;
-
-                                    if (blast_pssm_options.make_standard_encoding)
+                                    if (blast_pssm_options.size_20)
                                     {
-                                        if (blast_pssm_options.size_20)
+                                        if (pssm20col_values_alphabets != null && pssm20col_values_alphabets.Count > 0)
                                         {
-                                            if (pssm20col_values_alphabets != null && pssm20col_values_alphabets.Count > 0)
-                                            {
-                                                var pssm20col_values = pssm20col_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+                                            var pssm20col_values = pssm20col_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
 
-                                                if (pssm20col_values != null && pssm20col_values.Count > 0) // && pssm20col_values.Count <= max_features)
+                                            if (pssm20col_values != null && pssm20col_values.Count > 0) // && pssm20col_values.Count <= max_features)
+                                            {
+                                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm20col_ds)
                                                 {
                                                     var t = Task.Run(() =>
                                                     {
-                                                        var pssm20col_ds = pssm20col_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm20_c{a.col_aa}_{ds_options.options_name}")).ToList();
-                                                        var pssm20col = pssm20col_ds.SelectMany(a => a.encode(ds_options)).ToList();
+                                                        var pssm20col_ds = pssm20col_values.Select(a => descriptive_stats.get_stat_values(
+                                                            a.values,
+                                                            $@"",
+                                                            $@"{sq_index}_pssm20_c{a.col_aa}_{dse_options.options_name}",
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20col_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm20col_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20col_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm20col_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm20col_ds
+                                                        )).ToList();
 
-                                                            //if (pssm20col.Count > max_features) pssm20col = null;
+                                                        var pssm20col = pssm20col_ds.SelectMany(a => a.encode(
+                                                            dse_options,
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20col_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm20col_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20col_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm20col_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm20col_ds
+                                                            )).ToList();
 
-                                                            return (database, alphabet.name, sq.name, $"{nameof(pssm20col)}_{normalisation_method_str}_{pssm_value_type_str}", pssm20col);
-                                                    });
+                                                        //if (pssm20col.Count > max_features) pssm20col = null;
 
-                                                    tasks2.Add(t);
-                                                }
-                                            }
-                                        }
-
-                                        if (blast_pssm_options.size_20)
-                                        {
-                                            if (pssm20row_values_alphabets != null && pssm20row_values_alphabets.Count > 0)
-                                            {
-                                                var pssm20row_values = pssm20row_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
-
-                                                if (pssm20row_values != null && pssm20row_values.Count > 0) // && pssm20row_values.Count <= max_features)
-                                                {
-                                                    var t = Task.Run(() =>
-                                                    {
-                                                        var pssm20row_ds = pssm20row_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm20_r{a.row_aa}_{ds_options.options_name}")).ToList();
-                                                        var pssm20row = pssm20row_ds.SelectMany(a => a.encode(ds_options)).ToList();
-
-                                                            //if (pssm20row.Count > max_features) pssm20row = null;
-
-                                                            return (database, alphabet.name, sq.name, $"{nameof(pssm20row)}_{normalisation_method_str}_{pssm_value_type_str}", pssm20row);
-                                                    });
-
-                                                    tasks2.Add(t);
-                                                }
-                                            }
-                                        }
-
-                                        if (blast_pssm_options.size_210)
-                                        {
-                                            if (pssm210_values_alphabets != null && pssm210_values_alphabets.Count > 0)
-                                            {
-                                                var pssm210_values = pssm210_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
-
-                                                if (pssm210_values != null && pssm210_values.Count > 0) // && pssm210_values.Count <= max_features)
-                                                {
-                                                    var t = Task.Run(() =>
-                                                    {
-                                                        var pssm210_ds = pssm210_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm210_c{a.col_aa}_r{a.row_aa}_{ds_options.options_name}")).ToList();
-                                                        var pssm210 = pssm210_ds.SelectMany(a => a.encode(ds_options)).ToList();
-
-                                                            //if (pssm210.Count > max_features) pssm210 = null;
-
-                                                            return (database, alphabet.name, sq.name, $"{nameof(pssm210)}_{normalisation_method_str}_{pssm_value_type_str}", pssm210);
-                                                    });
-
-                                                    tasks2.Add(t);
-                                                }
-                                            }
-                                        }
-
-                                        if (blast_pssm_options.size_400)
-                                        {
-                                            if (pssm400_values_alphabets != null && pssm400_values_alphabets.Count > 0)
-                                            {
-                                                var pssm400_values = pssm400_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
-
-                                                if (pssm400_values != null && pssm400_values.Count > 0) // && pssm400_values.Count <= max_features)
-                                                {
-                                                    var t = Task.Run(() =>
-                                                    {
-                                                        var pssm400_ds = pssm400_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm400_c{a.col_aa}_r{a.row_aa}_{ds_options.options_name}")).ToList();
-                                                        var pssm400 = pssm400_ds.SelectMany(a => a.encode(ds_options)).ToList();
-
-                                                            //if (pssm400.Count > max_features) pssm400 = null;
-
-                                                            return (database, alphabet.name, sq.name, $"{nameof(pssm400)}_{normalisation_method_str}_{pssm_value_type_str}", pssm400);
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm20col)}_{normalisation_method_str}_{pssm_value_type_str}", pssm20col);
                                                     });
 
                                                     tasks2.Add(t);
@@ -2221,34 +2691,183 @@ namespace dimorphics_dataset
                                         }
                                     }
 
-
-                                    if (blast_pssm_options.make_distance_transform)
+                                    if (blast_pssm_options.size_20)
                                     {
-                                        if (blast_pssm_options.size_20)
+                                        if (pssm20row_values_alphabets != null && pssm20row_values_alphabets.Count > 0)
                                         {
-                                            if (pssm20colDT_values_alphabets != null && pssm20colDT_values_alphabets.Count > 0)
+                                            var pssm20row_values = pssm20row_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+
+                                            if (pssm20row_values != null && pssm20row_values.Count > 0) // && pssm20row_values.Count <= max_features)
                                             {
-                                                var pssm20colDT_values_groups = pssm20colDT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
-
-                                                if (pssm20colDT_values_groups != null && pssm20colDT_values_groups.Count > 0)
+                                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm20row_ds)
                                                 {
-                                                    foreach (var _pssm20colDT_values_group in pssm20colDT_values_groups)
+                                                    var t = Task.Run(() =>
                                                     {
-                                                        var pssm20colDT_values_group = _pssm20colDT_values_group;
+                                                        var pssm20row_ds = pssm20row_values.Select(a => descriptive_stats.get_stat_values(
+                                                            a.values,
+                                                            $@"",
+                                                            $@"{sq_index}_pssm20_r{a.row_aa}_{dse_options.options_name}",
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20row_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm20row_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20row_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm20row_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm20row_ds
+                                                        )).ToList();
 
-                                                        var pssm20colDT_lag = pssm20colDT_values_group.Key;
-                                                        var pssm20colDT_values = pssm20colDT_values_group.ToList();
+                                                        var pssm20row = pssm20row_ds.SelectMany(a => a.encode(
+                                                            dse_options,
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20row_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm20row_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20row_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm20row_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm20row_ds
+                                                        )).ToList();
 
-                                                        if (pssm20colDT_values.Count > 0) // && pssm20colDT_values.Count <= max_features)
+                                                        //if (pssm20row.Count > max_features) pssm20row = null;
+
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm20row)}_{normalisation_method_str}_{pssm_value_type_str}", pssm20row);
+                                                    });
+
+                                                    tasks2.Add(t);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (blast_pssm_options.size_210)
+                                    {
+                                        if (pssm210_values_alphabets != null && pssm210_values_alphabets.Count > 0)
+                                        {
+                                            var pssm210_values = pssm210_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+
+                                            if (pssm210_values != null && pssm210_values.Count > 0) // && pssm210_values.Count <= max_features)
+                                            {
+                                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm210_ds)
+                                                {
+                                                    var t = Task.Run(() =>
+                                                    {
+                                                        var pssm210_ds = pssm210_values.Select(a => descriptive_stats.get_stat_values(
+                                                            a.values,
+                                                            $@"",
+                                                            $@"{sq_index}_pssm210_c{a.col_aa}_r{a.row_aa}_{dse_options.options_name}",
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm210_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm210_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm210_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm210_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm210_ds
+                                                        )).ToList();
+
+                                                        var pssm210 = pssm210_ds.SelectMany(a => a.encode(
+                                                            dse_options,
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm210_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm210_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm210_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm210_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm210_ds
+                                                        )).ToList();
+
+                                                        //if (pssm210.Count > max_features) pssm210 = null;
+
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm210)}_{normalisation_method_str}_{pssm_value_type_str}", pssm210);
+                                                    });
+
+                                                    tasks2.Add(t);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (blast_pssm_options.size_400)
+                                    {
+                                        if (pssm400_values_alphabets != null && pssm400_values_alphabets.Count > 0)
+                                        {
+                                            var pssm400_values = pssm400_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+
+                                            if (pssm400_values != null && pssm400_values.Count > 0) // && pssm400_values.Count <= max_features)
+                                            {
+                                                foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm400_ds)
+                                                {
+                                                    var t = Task.Run(() =>
+                                                    {
+                                                        var pssm400_ds = pssm400_values.Select(a => descriptive_stats.get_stat_values(
+                                                            a.values,
+                                                            $@"",
+                                                            $@"{sq_index}_pssm400_c{a.col_aa}_r{a.row_aa}_{dse_options.options_name}",
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm400_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm400_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm400_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm400_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm400_ds
+                                                        )).ToList();
+
+                                                        var pssm400 = pssm400_ds.SelectMany(a => a.encode(
+                                                            dse_options,
+                                                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm400_ds,
+                                                            distance: descriptive_stats_encoding_options.dse_distances_pssm400_ds,
+                                                            interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm400_ds,
+                                                            abs: descriptive_stats_encoding_options.dse_abs_pssm400_ds,
+                                                            rescale: descriptive_stats_encoding_options.dse_rescale_pssm400_ds
+                                                        )).ToList();
+
+                                                        //if (pssm400.Count > max_features) pssm400 = null;
+
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm400)}_{normalisation_method_str}_{pssm_value_type_str}", pssm400);
+                                                    });
+
+                                                    tasks2.Add(t);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                                if (blast_pssm_options.make_distance_transform)
+                                {
+                                    if (blast_pssm_options.size_20)
+                                    {
+                                        if (pssm20colDT_values_alphabets != null && pssm20colDT_values_alphabets.Count > 0)
+                                        {
+                                            var pssm20colDT_values_groups = pssm20colDT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+
+                                            if (pssm20colDT_values_groups != null && pssm20colDT_values_groups.Count > 0)
+                                            {
+                                                foreach (var _pssm20colDT_values_group in pssm20colDT_values_groups)
+                                                {
+                                                    var pssm20colDT_values_group = _pssm20colDT_values_group;
+
+                                                    var pssm20colDT_lag = pssm20colDT_values_group.Key;
+                                                    var pssm20colDT_values = pssm20colDT_values_group.ToList();
+
+                                                    if (pssm20colDT_values.Count > 0) // && pssm20colDT_values.Count <= max_features)
+                                                    {
+                                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm20colDT_ds)
                                                         {
                                                             var t = Task.Run(() =>
                                                             {
-                                                                var pssm20colDT_ds = pssm20colDT_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm20colDT_lag{pssm20colDT_lag}_c{a.col_aa}_rx_{ds_options.options_name}")).ToList();
-                                                                var pssm20colDT = pssm20colDT_ds.SelectMany(a => a.encode(ds_options)).ToList();
+                                                                var pssm20colDT_ds = pssm20colDT_values.Select(a => descriptive_stats.get_stat_values(
+                                                                    a.values,
+                                                                    $@"",
+                                                                    $@"{sq_index}_pssm20colDT_lag{pssm20colDT_lag}_c{a.col_aa}_rx_{dse_options.options_name}",
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20colDT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm20colDT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20colDT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm20colDT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm20colDT_ds
+                                                                )).ToList();
 
-                                                                    //if (pssm20colDT.Count > max_features) pssm20colDT = null;
+                                                                var pssm20colDT = pssm20colDT_ds.SelectMany(a => a.encode(
+                                                                    dse_options,
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm20colDT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm20colDT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm20colDT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm20colDT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm20colDT_ds
+                                                                    )).ToList();
 
-                                                                    return (database, alphabet.name, sq.name, $"{nameof(pssm20colDT)}_lag{pssm20colDT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm20colDT);
+                                                                //if (pssm20colDT.Count > max_features) pssm20colDT = null;
+
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm20colDT)}_lag{pssm20colDT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm20colDT);
                                                             });
                                                             tasks2.Add(t);
                                                         }
@@ -2256,31 +2875,51 @@ namespace dimorphics_dataset
                                                 }
                                             }
                                         }
+                                    }
 
-                                        if (blast_pssm_options.size_210)
+                                    if (blast_pssm_options.size_210)
+                                    {
+                                        if (pssm210DT_values_alphabets != null && pssm210DT_values_alphabets.Count > 0)
                                         {
-                                            if (pssm210DT_values_alphabets != null && pssm210DT_values_alphabets.Count > 0)
+                                            var pssm210DT_values_groups = pssm210DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+
+                                            if (pssm210DT_values_groups != null && pssm210DT_values_groups.Count > 0)
                                             {
-                                                var pssm210DT_values_groups = pssm210DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
-
-                                                if (pssm210DT_values_groups != null && pssm210DT_values_groups.Count > 0)
+                                                foreach (var _pssm210DT_values_group in pssm210DT_values_groups)
                                                 {
-                                                    foreach (var _pssm210DT_values_group in pssm210DT_values_groups)
-                                                    {
-                                                        var pssm210DT_values_group = _pssm210DT_values_group;
+                                                    var pssm210DT_values_group = _pssm210DT_values_group;
 
-                                                        var pssm210DT_lag = pssm210DT_values_group.Key;
-                                                        var pssm210DT_values = pssm210DT_values_group.ToList();
-                                                        if (pssm210DT_values.Count > 0) // && pssm210DT_values.Count <= max_features)
+                                                    var pssm210DT_lag = pssm210DT_values_group.Key;
+                                                    var pssm210DT_values = pssm210DT_values_group.ToList();
+                                                    if (pssm210DT_values.Count > 0) // && pssm210DT_values.Count <= max_features)
+                                                    {
+                                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm210DT_ds)
                                                         {
                                                             var t = Task.Run(() =>
                                                             {
-                                                                var pssm210DT_ds = pssm210DT_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm210DT_lag{pssm210DT_lag}_c{a.col_aa}_r{a.row_aa}_{ds_options.options_name}")).ToList();
-                                                                var pssm210DT = pssm210DT_ds.SelectMany(a => a.encode(ds_options)).ToList();
+                                                                var pssm210DT_ds = pssm210DT_values.Select(a => descriptive_stats.get_stat_values(
+                                                                    a.values,
+                                                                    $@"",
+                                                                    $@"{sq_index}_pssm210DT_lag{pssm210DT_lag}_c{a.col_aa}_r{a.row_aa}_{dse_options.options_name}",
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm210DT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm210DT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm210DT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm210DT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm210DT_ds
+                                                                )).ToList();
 
-                                                                    //if (pssm210DT.Count > max_features) pssm210DT = null;
+                                                                var pssm210DT = pssm210DT_ds.SelectMany(a => a.encode(
+                                                                    dse_options,
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm210DT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm210DT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm210DT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm210DT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm210DT_ds
+                                                                )).ToList();
 
-                                                                    return (database, alphabet.name, sq.name, $"{nameof(pssm210DT)}_lag{pssm210DT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm210DT);
+                                                                //if (pssm210DT.Count > max_features) pssm210DT = null;
+
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm210DT)}_lag{pssm210DT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm210DT);
                                                             });
 
                                                             tasks2.Add(t);
@@ -2289,31 +2928,51 @@ namespace dimorphics_dataset
                                                 }
                                             }
                                         }
+                                    }
 
-                                        if (blast_pssm_options.size_400)
+                                    if (blast_pssm_options.size_400)
+                                    {
+                                        if (pssm400DT_values_alphabets != null && pssm400DT_values_alphabets.Count > 0)
                                         {
-                                            if (pssm400DT_values_alphabets != null && pssm400DT_values_alphabets.Count > 0)
+                                            var pssm400DT_values_groups = pssm400DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+
+                                            if (pssm400DT_values_groups != null && pssm400DT_values_groups.Count > 0)
                                             {
-                                                var pssm400DT_values_groups = pssm400DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
-
-                                                if (pssm400DT_values_groups != null && pssm400DT_values_groups.Count > 0)
+                                                foreach (var _pssm400DT_values_group in pssm400DT_values_groups)
                                                 {
-                                                    foreach (var _pssm400DT_values_group in pssm400DT_values_groups)
-                                                    {
-                                                        var pssm400DT_values_group = _pssm400DT_values_group;
-                                                        var pssm400DT_lag = pssm400DT_values_group.Key;
-                                                        var pssm400DT_values = pssm400DT_values_group.ToList();
+                                                    var pssm400DT_values_group = _pssm400DT_values_group;
+                                                    var pssm400DT_lag = pssm400DT_values_group.Key;
+                                                    var pssm400DT_values = pssm400DT_values_group.ToList();
 
-                                                        if (pssm400DT_values.Count > 0) // && pssm400DT_values.Count <= max_features)
+                                                    if (pssm400DT_values.Count > 0) // && pssm400DT_values.Count <= max_features)
+                                                    {
+                                                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_pssm400DT_ds)
                                                         {
                                                             var t = Task.Run(() =>
                                                             {
-                                                                var pssm400DT_ds = pssm400DT_values.Select(a => descriptive_stats.get_stat_values(a.values, $"{sq_index}_pssm400DT_lag{pssm400DT_lag}_c{a.col_aa}_r{a.row_aa}_{ds_options.options_name}")).ToList();
-                                                                var pssm400DT = pssm400DT_ds.SelectMany(a => a.encode(ds_options)).ToList();
+                                                                var pssm400DT_ds = pssm400DT_values.Select(a => descriptive_stats.get_stat_values(
+                                                                    a.values,
+                                                                    $@"",
+                                                                    $@"{sq_index}_pssm400DT_lag{pssm400DT_lag}_c{a.col_aa}_r{a.row_aa}_{dse_options.options_name}",
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm400DT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm400DT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm400DT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm400DT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm400DT_ds
+                                                                )).ToList();
 
-                                                                    //if (pssm400DT.Count > max_features) pssm400DT = null;
+                                                                var pssm400DT = pssm400DT_ds.SelectMany(a => a.encode(
+                                                                    dse_options,
+                                                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_pssm400DT_ds,
+                                                                    distance: descriptive_stats_encoding_options.dse_distances_pssm400DT_ds,
+                                                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_pssm400DT_ds,
+                                                                    abs: descriptive_stats_encoding_options.dse_abs_pssm400DT_ds,
+                                                                    rescale: descriptive_stats_encoding_options.dse_rescale_pssm400DT_ds
+                                                                )).ToList();
 
-                                                                    return (database, alphabet.name, sq.name, $"{nameof(pssm400DT)}_lag{pssm400DT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm400DT);
+                                                                //if (pssm400DT.Count > max_features) pssm400DT = null;
+
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, $@"{nameof(pssm400DT)}_lag{pssm400DT_lag}_{normalisation_method_str}_{pssm_value_type_str}", pssm400DT);
                                                             });
 
                                                             tasks2.Add(t);
@@ -2325,38 +2984,40 @@ namespace dimorphics_dataset
                                     }
                                 }
                             }
+                            //}
                         }
                     }
                 }
             }
 
-            var pssm_list = new List<(string database, string alphabet, string sequence_name, string pssm_encoding_name, List<(string member_id, string perspective_id, double perspective_value)> values)>();
+            var pssm_list = new List<(string database, string alphabet, string stats_name, string sequence_name, string pssm_encoding_name, List<(string group_id, string member_id, string perspective_id, double perspective_value)> values)>();
 
             if (tasks2 != null && tasks2.Count > 0)
             {
                 //Task.WaitAll(tasks2.ToArray<Task>());
-                program.wait_tasks(tasks2.ToArray<Task>(), nameof(subsequence_classification_data), nameof(calculate_blast_pssm_classification_data));
+                program.wait_tasks(tasks2.ToArray<Task>(), module_name, method_name);
 
                 var result = tasks2.Select(a => a.Result).ToList();
 
                 pssm_list.AddRange(result);
             }
 
-            foreach ((string database, string alphabet, string sequence_name, string pssm_encoding_name, List<(string member_id, string perspective_id, double perspective_value)> values) x in pssm_list)
+            foreach ((string database, string alphabet, string stats_name, string sequence_name, string pssm_encoding_name, List<(string group_id, string member_id, string perspective_id, double perspective_value)> values) x in pssm_list)
             {
                 if (x.values == null || x.values.Count == 0) continue;
 
                 //if (x.values.Count > max_features) continue;
 
-                foreach ((string member_id, string perspective_id, double perspective_value) y in x.values)
+                foreach ((string group_id, string member_id, string perspective_id, double perspective_value) y in x.values)
                 {
                     features.Add(new feature_info()
                     {
                         alphabet = x.alphabet,
+                        stats = x.stats_name,
                         dimension = 1,
-                        category = $"blast_pssm",
-                        source = source.ToString(),
-                        group = $"{x.database}_{x.sequence_name}_{x.alphabet}_{x.pssm_encoding_name}",
+                        category = $@"blast_pssm",
+                        source = $@"{source}",
+                        group = $@"{x.database}_{x.sequence_name}_{x.alphabet}_{x.pssm_encoding_name}",
                         member = y.member_id,
                         perspective = y.perspective_id,
                         feature_value = y.perspective_value
@@ -2366,21 +3027,21 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_blast_pssm_classification_data_template = template;
             }
 
 
             //var g = features.Select(a => a.@group).Distinct().Count();
 
-            //io_proxy.WriteLine("blast pssm features: " + features.Count + " groups: " + g);
+            //io_proxy.WriteLine("blast pssm features: " + features.Count + $@" groups: " + g);
             return features;
         }
 
         internal static List<feature_info> calculate_sasa_classification_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_sasa_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_sasa_classification_data)}(List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
@@ -2388,7 +3049,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_sasa_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_sasa_classification_data_template = calculate_sasa_classification_data(subsequence_classification_data_templates._template_scd.interface_region.master_atoms, source);
-                    subsequence_classification_data_templates._calculate_sasa_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_sasa_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_sasa_classification_data_template == null)
@@ -2398,7 +3059,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_sasa_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -2414,8 +3075,8 @@ namespace dimorphics_dataset
 
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
-            //alphabets.Add((-1, "Overall", new List<string>() { "ARNDCQEGHILKMFPSTWYV" }));
-            //alphabets = alphabets.Where(a => !String.Equals(a.name, "Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
+            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
             for (var _sq_index = 0; _sq_index < sequences.Count; _sq_index++)
             {
@@ -2461,26 +3122,26 @@ namespace dimorphics_dataset
                         var all =
                             new List<(string algo, string abs_or_rel, string sasa_type, double[] values, descriptive_stats ds_values)>
                             {
-                                ("L", "abs", "all_atoms", all_atoms_abs_L, descriptive_stats.get_stat_values(all_atoms_abs_L, nameof(all_atoms_abs_L))),
-                                ("L", "abs", "all_polar", all_polar_abs_L, descriptive_stats.get_stat_values(all_polar_abs_L, nameof(all_polar_abs_L))),
-                                ("L", "abs", "main_chain", main_chain_abs_L, descriptive_stats.get_stat_values(main_chain_abs_L, nameof(main_chain_abs_L))),
-                                ("L", "abs", "total_side", total_side_abs_L, descriptive_stats.get_stat_values(total_side_abs_L, nameof(total_side_abs_L))),
-                                ("L", "abs", "non_polar", non_polar_abs_L, descriptive_stats.get_stat_values(non_polar_abs_L, nameof(non_polar_abs_L))),
-                                ("L", "rel", "all_atoms", all_atoms_rel_L, descriptive_stats.get_stat_values(all_atoms_rel_L, nameof(all_atoms_rel_L))),
-                                ("L", "rel", "all_polar", all_polar_rel_L, descriptive_stats.get_stat_values(all_polar_rel_L, nameof(all_polar_rel_L))),
-                                ("L", "rel", "main_chain", main_chain_rel_L, descriptive_stats.get_stat_values(main_chain_rel_L, nameof(main_chain_rel_L))),
-                                ("L", "rel", "total_side", total_side_rel_L, descriptive_stats.get_stat_values(total_side_rel_L, nameof(total_side_rel_L))),
-                                ("L", "rel", "non_polar", non_polar_rel_L, descriptive_stats.get_stat_values(non_polar_rel_L, nameof(non_polar_rel_L))),
-                                ("S", "abs", "all_atoms", all_atoms_abs_S, descriptive_stats.get_stat_values(all_atoms_abs_S, nameof(all_atoms_abs_S))),
-                                ("S", "abs", "all_polar", all_polar_abs_S, descriptive_stats.get_stat_values(all_polar_abs_S, nameof(all_polar_abs_S))),
-                                ("S", "abs", "main_chain", main_chain_abs_S, descriptive_stats.get_stat_values(main_chain_abs_S, nameof(main_chain_abs_S))),
-                                ("S", "abs", "total_side", total_side_abs_S, descriptive_stats.get_stat_values(total_side_abs_S, nameof(total_side_abs_S))),
-                                ("S", "abs", "non_polar", non_polar_abs_S, descriptive_stats.get_stat_values(non_polar_abs_S, nameof(non_polar_abs_S))),
-                                ("S", "rel", "all_atoms", all_atoms_rel_S, descriptive_stats.get_stat_values(all_atoms_rel_S, nameof(all_atoms_rel_S))),
-                                ("S", "rel", "all_polar", all_polar_rel_S, descriptive_stats.get_stat_values(all_polar_rel_S, nameof(all_polar_rel_S))),
-                                ("S", "rel", "main_chain", main_chain_rel_S, descriptive_stats.get_stat_values(main_chain_rel_S, nameof(main_chain_rel_S))),
-                                ("S", "rel", "total_side", total_side_rel_S, descriptive_stats.get_stat_values(total_side_rel_S, nameof(total_side_rel_S))),
-                                ("S", "rel", "non_polar", non_polar_rel_S, descriptive_stats.get_stat_values(non_polar_rel_S, nameof(non_polar_rel_S)))
+                                ("L", $@"abs", $@"all_atoms", all_atoms_abs_L, descriptive_stats.get_stat_values(all_atoms_abs_L, $@"",nameof(all_atoms_abs_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"abs", $@"all_polar", all_polar_abs_L, descriptive_stats.get_stat_values(all_polar_abs_L, $@"",nameof(all_polar_abs_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"abs", $@"main_chain", main_chain_abs_L, descriptive_stats.get_stat_values(main_chain_abs_L, $@"",nameof(main_chain_abs_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"abs", $@"total_side", total_side_abs_L, descriptive_stats.get_stat_values(total_side_abs_L, $@"",nameof(total_side_abs_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"abs", $@"non_polar", non_polar_abs_L, descriptive_stats.get_stat_values(non_polar_abs_L,$@"", nameof(non_polar_abs_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"rel", $@"all_atoms", all_atoms_rel_L, descriptive_stats.get_stat_values(all_atoms_rel_L, $@"",nameof(all_atoms_rel_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"rel", $@"all_polar", all_polar_rel_L, descriptive_stats.get_stat_values(all_polar_rel_L, $@"",nameof(all_polar_rel_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"rel", $@"main_chain", main_chain_rel_L, descriptive_stats.get_stat_values(main_chain_rel_L,$@"", nameof(main_chain_rel_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"rel", $@"total_side", total_side_rel_L, descriptive_stats.get_stat_values(total_side_rel_L, $@"",nameof(total_side_rel_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("L", $@"rel", $@"non_polar", non_polar_rel_L, descriptive_stats.get_stat_values(non_polar_rel_L,$@"", nameof(non_polar_rel_L), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"abs", $@"all_atoms", all_atoms_abs_S, descriptive_stats.get_stat_values(all_atoms_abs_S,$@"", nameof(all_atoms_abs_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"abs", $@"all_polar", all_polar_abs_S, descriptive_stats.get_stat_values(all_polar_abs_S,$@"", nameof(all_polar_abs_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"abs", $@"main_chain", main_chain_abs_S, descriptive_stats.get_stat_values(main_chain_abs_S,$@"", nameof(main_chain_abs_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"abs", $@"total_side", total_side_abs_S, descriptive_stats.get_stat_values(total_side_abs_S,$@"", nameof(total_side_abs_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"abs", $@"non_polar", non_polar_abs_S, descriptive_stats.get_stat_values(non_polar_abs_S,$@"", nameof(non_polar_abs_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"rel", $@"all_atoms", all_atoms_rel_S, descriptive_stats.get_stat_values(all_atoms_rel_S,$@"", nameof(all_atoms_rel_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"rel", $@"all_polar", all_polar_rel_S, descriptive_stats.get_stat_values(all_polar_rel_S,$@"", nameof(all_polar_rel_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"rel", $@"main_chain", main_chain_rel_S, descriptive_stats.get_stat_values(main_chain_rel_S,$@"", nameof(main_chain_rel_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"rel", $@"total_side", total_side_rel_S, descriptive_stats.get_stat_values(total_side_rel_S, $@"",nameof(total_side_rel_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
+                                ("S", $@"rel", $@"non_polar", non_polar_rel_S, descriptive_stats.get_stat_values(non_polar_rel_S, $@"",nameof(non_polar_rel_S), presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all, distance: descriptive_stats_encoding_options.dse_distances_sasa_all, interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all, abs: descriptive_stats_encoding_options.dse_abs_sasa_all, rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all)),
                             };
 
                         foreach (var x in all.GroupBy(a => (a.algo, a.abs_or_rel)).ToList())
@@ -2490,28 +3151,39 @@ namespace dimorphics_dataset
 
                             var group_list = x.ToList(); // e.g. list of all 'S' & 'rel
 
-                            var e = group_list.Select(a => descriptive_stats.encode(a.ds_values)).ToList();
-
-                            var f = e.SelectMany(a => a.Select(b => new feature_info()
+                            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_sasa_all)
                             {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"sasa",
-                                source = source.ToString(),
-                                @group = $@"sasa_{sq.name}_{algo}_{abs_or_rel}_{alphabet.name}",
-                                member = $@"{sq_index}_{b.member_id}_{alphabet_group.group_name}",
-                                perspective = b.perspective_id,
-                                feature_value = b.perspective_value
-                            })).ToList();
+                                var e = group_list.Select(a => a.ds_values.encode(
+                                    dse_options,
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_sasa_all,
+                                    distance: descriptive_stats_encoding_options.dse_distances_sasa_all,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_sasa_all,
+                                    abs: descriptive_stats_encoding_options.dse_abs_sasa_all,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_sasa_all
+                                )).ToList();
 
-                            /*if (f.Count <= max_features)*/
-                            features.AddRange(f);
+                                var f = e.SelectMany(a => a.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"sasa",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_sasa_{sq.name}_{algo}_{abs_or_rel}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}_{alphabet_group.group_name}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                })).ToList();
 
-                            if (abs_or_rel == $@"abs") all_abs.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
-                            if (abs_or_rel == $@"rel") all_rel.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
-                            if (algo == $@"L") all_algorithm_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
-                            if (algo == $@"S") all_algorithm_s.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
-                            all_rel_abs_s_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{alphabet.name}" }).ToList());
+                                /*if (f.Count <= max_features)*/
+                                features.AddRange(f);
+
+                                if (abs_or_rel == $@"abs") all_abs.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
+                                if (abs_or_rel == $@"rel") all_rel.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
+                                if (algo == $@"L") all_algorithm_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
+                                if (algo == $@"S") all_algorithm_s.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
+                                all_rel_abs_s_l.AddRange(f.Select(a => new feature_info(a) {                    @group = $@"sasa_{sq.name}_all_{alphabet.name}" }).ToList());
+                            }
                         }
                     }
 
@@ -2530,7 +3202,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_sasa_classification_data_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_sasa_classification_data_template = template;
             }
 
@@ -2541,7 +3213,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_tortuosity_classification_data(List<atom> subsequence_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_tortuosity_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_tortuosity_classification_data)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
 
@@ -2550,7 +3222,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_tortuosity_classification_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = calculate_tortuosity_classification_data(subsequence_classification_data_templates._template_scd.interface_region.atoms, source);
-                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_tortuosity_classification_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_tortuosity_classification_data_template == null)
@@ -2560,7 +3232,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_tortuosity_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -2568,7 +3240,7 @@ namespace dimorphics_dataset
             }
 
             var features = new List<feature_info>();
-            var bb = new string[] { "N", "CA", "C", "O" };
+            var bb = new string[] { $@"N", $@"CA", $@"C", $@"O" };
 
             // measure tortuosity for each atom type... maybe there is additional information or CA isn't actually the best choice.
             for (var at_index = -2; at_index < feature_calcs.atom_types.Length; at_index++)
@@ -2578,8 +3250,8 @@ namespace dimorphics_dataset
 
                 var subsequence_master_atoms = at_index == -2 ? subsequence_atoms.Where(a => bb.Contains(a.atom_type)).ToList() : atom.select_amino_acid_master_atoms(null, subsequence_atoms, atom_type);
 
-                if (at_index == -1) { atom_type = "CA_def"; }
-                else if (at_index == -2) { atom_type = "MCBB"; }
+                if (at_index == -1) { atom_type = $@"CA_def"; }
+                else if (at_index == -2) { atom_type = $@"MCBB"; }
 
                 var sequences = new List<(string name, List<atom> sequence)>();
                 sequences.Add(($@"unsplit", subsequence_master_atoms));
@@ -2606,21 +3278,22 @@ namespace dimorphics_dataset
                     {
                         foreach (var alphabet_group in alphabet.groups)
                         {
-                            var sq = (name: sq_all.name, sequence: sq_all.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList() ?? new List<atom>());
+                            var sq = (
+                                name: sq_all.name,
+                                sequence: sq_all.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)
+                                ).ToList() ?? new List<atom>());
 
                             var tortuosity1 = atom.measure_tortuosity1(sq.sequence);
-
                             var tortuosity2 = atom.measure_tortuosity2(sq.sequence);
 
-
                             // tortuosity 1
-
                             var x0 = new feature_info()
                             {
                                 alphabet = alphabet.name,
+                                stats = $@"",//dse_options.options_name,
                                 dimension = 3,
                                 category = $@"geometry",
-                                source = source.ToString(),
+                                source = $@"{source}",
                                 @group = $@"geometry_{sq.name}_tortuosity1_{atom_type}_{alphabet.name}",
                                 member = $@"{sq_index}_default_{alphabet_group.group_name}",
                                 perspective = $@"default",
@@ -2628,30 +3301,15 @@ namespace dimorphics_dataset
                             };
                             feats.Add(x0);
 
-                            // tortuosity 2
-                            var tortuosity2_tortuosity_stat_values_encoded =
-                                descriptive_stats.encode(tortuosity2.tortuosity_stat_values);
-                            var x1 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
-                            {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"geometry",
-                                source = source.ToString(),
-                                @group = $@"geometry_{sq.name}_tortuosity2_{atom_type}_{alphabet.name}",
-                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                                perspective = a.perspective_id,
-                                feature_value = a.perspective_value
-                            }).ToList();
-                            feats.AddRange(x1);
-
                             // tort 1 and tort 2
 
                             var x2 = new feature_info()
                             {
                                 alphabet = alphabet.name,
+                                stats = $@"",//dse_options.options_name,
                                 dimension = 3,
                                 category = $@"geometry",
-                                source = source.ToString(),
+                                source = $@"{source}",
                                 @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{atom_type}_{alphabet.name}",
                                 member = $@"{sq_index}_{nameof(tortuosity1)}_{alphabet_group.group_name}",
                                 perspective = $@"default",
@@ -2659,26 +3317,14 @@ namespace dimorphics_dataset
                             };
                             feats.Add(x2);
 
-                            var x3 = tortuosity2_tortuosity_stat_values_encoded.Select(a => new feature_info()
-                            {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"geometry",
-                                source = source.ToString(),
-                                @group = $@"geometry_{sq.name}_tortuosity1_and_tortuosity2_{atom_type}_{alphabet.name}",
-                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                                perspective = a.perspective_id,
-                                feature_value = a.perspective_value
-                            }).ToList();
-                            feats.AddRange(x3);
-
                             // displacement length (global)
                             var x4 = new feature_info()
                             {
                                 alphabet = alphabet.name,
+                                stats = $@"",//dse_options.options_name,
                                 dimension = 3,
                                 category = $@"geometry",
-                                source = source.ToString(),
+                                source = $@"{source}",
                                 @group = $@"geometry_{sq.name}_displacement_3d_global_{atom_type}_{alphabet.name}",
                                 member = $@"{sq_index}_default_{alphabet_group.group_name}",
                                 perspective = $@"default",
@@ -2690,9 +3336,10 @@ namespace dimorphics_dataset
                             var x5 = new feature_info()
                             {
                                 alphabet = alphabet.name,
+                                stats = $@"",//dse_options.options_name,
                                 dimension = 3,
                                 category = $@"geometry",
-                                source = source.ToString(),
+                                source = $@"{source}",
                                 @group = $@"geometry_{sq.name}_peptide_length_3d_global_{atom_type}_{alphabet.name}",
                                 member = $@"{sq_index}_default_{alphabet_group.group_name}",
                                 perspective = $@"default",
@@ -2700,37 +3347,102 @@ namespace dimorphics_dataset
                             };
                             feats.Add(x5);
 
-                            // average displacement length (local)
-                            var tortuosity2_displacements_encoded =
-                                descriptive_stats.encode(tortuosity2.displacement_stat_values);
-                            var x6 = tortuosity2_displacements_encoded.Select(a => new feature_info()
+                            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_tortuosity2_stat_values)
                             {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"geometry",
-                                source = source.ToString(),
-                                @group = $@"geometry_{sq.name}_displacement_3d_local_{atom_type}_{alphabet.name}",
-                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                                perspective = a.perspective_id,
-                                feature_value = a.perspective_value
-                            }).ToList();
-                            feats.AddRange(x6);
+                                // tortuosity 2
+                                var tortuosity2_tortuosity_stat_values_encoded = tortuosity2.tortuosity_stat_values.encode(
+                                    dse_options,
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_stat_values,
+                                    distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_stat_values,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_stat_values,
+                                    abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_stat_values,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_stat_values
+                                );
 
-                            // average curve length (local)
-                            var tortuosity2_curves_encoded = descriptive_stats.encode(tortuosity2.curve_stat_values);
-                            var x7 = tortuosity2_curves_encoded.Select(a => new feature_info()
+                                var x1 = tortuosity2_tortuosity_stat_values_encoded.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"geometry",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_geometry_{sq.name}_tortuosity2_{atom_type}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}_{alphabet_group.group_name}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                }).ToList();
+                                feats.AddRange(x1);
+
+                                var x3 = tortuosity2_tortuosity_stat_values_encoded.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"geometry",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_geometry_{sq.name}_tortuosity1_and_tortuosity2_{atom_type}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}_{alphabet_group.group_name}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                }).ToList();
+                                feats.AddRange(x3);
+                            }
+
+
+                            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_tortuosity2_displacement)
                             {
-                                alphabet = alphabet.name,
-                                dimension = 3,
-                                category = $@"geometry",
-                                source = source.ToString(),
-                                @group = $@"geometry_{sq.name}_peptide_length_3d_local_{atom_type}_{alphabet.name}",
-                                member = $@"{sq_index}_{a.member_id}_{alphabet_group.group_name}",
-                                perspective = a.perspective_id,
-                                feature_value = a.perspective_value
-                            }).ToList();
-                            feats.AddRange(x7);
+                                // average displacement length (local)
+                                var tortuosity2_displacements_encoded = tortuosity2.displacement_stat_values.encode(
+                                    dse_options,
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_displacement,
+                                    distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_displacement,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_displacement,
+                                    abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_displacement,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_displacement
+                                );
 
+                                var x6 = tortuosity2_displacements_encoded.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"geometry",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_geometry_{sq.name}_displacement_3d_local_{atom_type}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}_{alphabet_group.group_name}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                }).ToList();
+                                feats.AddRange(x6);
+                            }
+
+                            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_tortuosity2_curves)
+                            {
+                                // average curve length (local)
+                                var tortuosity2_curves_encoded = tortuosity2.curve_stat_values.encode(
+                                    dse_options,
+                                    presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_curves,
+                                    distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_curves,
+                                    interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_curves,
+                                    abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_curves,
+                                    rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_curves
+                                );
+
+                                var x7 = tortuosity2_curves_encoded.Select(ds_stat => new feature_info()
+                                {
+                                    alphabet = alphabet.name,
+                                    stats = dse_options.options_name,
+                                    dimension = 3,
+                                    category = $@"geometry",
+                                    source = $@"{source}",
+                                    @group = $@"{ds_stat.group_id}_geometry_{sq.name}_peptide_length_3d_local_{atom_type}_{alphabet.name}",
+                                    member = $@"{sq_index}_{ds_stat.member_id}_{alphabet_group.group_name}",
+                                    perspective = ds_stat.perspective_id,
+                                    feature_value = ds_stat.perspective_value
+                                }).ToList();
+
+                                feats.AddRange(x7);
+                            }
                             //if (sq.name.StartsWith("pdb_unsplit"))
                             //{
                             //    pdb_unsplit_features = feats;
@@ -2742,7 +3454,7 @@ namespace dimorphics_dataset
                             //
                             //    var rel_feats = feats.Select((a, i) => new feature_info(a)
                             //    {
-                            //        @group = a.@group.Replace($"geometry_{sq.name}", $"geometry_rel_{sq.name}"),
+                            //        @group = a.@group.Replace($@"geometry_{sq.name}", $@"geometry_rel_{sq.name}"),
                             //        feature_value = pdb_unsplit_features[i].feature_value != 0 ? a.feature_value / pdb_unsplit_features[i].feature_value : 0
                             //    }).ToList();
                             //
@@ -2759,7 +3471,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_tortuosity_classification_data_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_tortuosity_classification_data_template = template;
             }
 
@@ -2813,14 +3525,14 @@ namespace dimorphics_dataset
                         * /
 
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_aa_aa_distances_classification_data)}List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_aa_aa_distances_classification_data)}List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
             {
                 if (subsequence_classification_data_templates._calculate_aa_aa_distances_classification_data_template == null) throw new Exception();
 
-                var template = subsequence_classification_data_templates._calculate_aa_aa_distances_classification_data_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._calculate_aa_aa_distances_classification_data_template.Select(a => new feature_info(a) { source = $@"{source}", feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -2848,16 +3560,22 @@ namespace dimorphics_dataset
 
                         var dist_list = aa_distances.Where(a => (group1.group_amino_acids.Contains(a.aa1,StringComparison.InvariantCulture) && group2.group_amino_acids.Contains(a.aa2, StringComparison.InvariantCulture)) || (group1.group_amino_acids.Contains(a.aa2, StringComparison.InvariantCulture) && group2.group_amino_acids.Contains(a.aa1, StringComparison.InvariantCulture))).Select(a => a.distance).ToArray();
 
-                        var ds = descriptive_stats.get_stat_values(dist_list, $"{group1.group_name}_{group2.group_name}");
-                        var dse = descriptive_stats.encode(ds);
+                        var ds = descriptive_stats.get_stat_values(dist_list, $@"{group1.group_name}_{group2.group_name}");
+                        var dse = descriptive_stats.encode(
+        
+                        descriptive_stats_encoding_options.dse_options_xxxxx,
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_xxxxx,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_xxxxx
+                            
+        );
 
-                        var f = dse.Select(a => new feature_info()
+                        var f = dse.Select(ds_stat => new feature_info()
                         {
-                            alphabet = alphabet.name,
-                            dimension = 3,
-                            category = "aa_to_aa_distances",
-                            source = source.ToString(),
-                            @group = $@"aa_to_aa_distances_{alphabet.name}",
+                            alphabet = alphabet.name, stats = dse_options.options_name,
+                            stats = "", dimension = 3,
+                            category = $@"aa_to_aa_distances",
+                            source = $@"{source}",
+                            @group = $@"{ds_stat.group_id}_aa_to_aa_distances_{alphabet.name}",
                             member = a.member_id,
                             perspective = a.perspective_id,
                             feature_value = a.perspective_value,
@@ -2873,7 +3591,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_aa_aa_distances_classification_data_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_aa_aa_distances_classification_data_template = template;
             }
 
@@ -2899,7 +3617,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._calculate_atom_distances_data_template == null)
                 {
                     subsequence_classification_data_templates._calculate_atom_distances_data_template = calculate_atom_distances_classification_data(subsequence_classification_data_templates._template_scd.interface_region.atoms, subsequence_classification_data_templates._template_scd.nh_contact_region.atoms, subsequence_classification_data_templates._template_scd.chain_region.atoms);
-                    subsequence_classification_data_templates._calculate_atom_distances_data_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                    subsequence_classification_data_templates._calculate_atom_distances_data_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._calculate_atom_distances_data_template == null)
@@ -2909,7 +3627,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_atom_distances_data_template.Select(a => new feature_info(a)
                 {
-                    //source = source.ToString(),
+                    //source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -2917,10 +3635,10 @@ namespace dimorphics_dataset
             }
 
             var result = new List<feature_info>();
-            //var atom_types = feature_calcs.atom_types.Union(new[] { "all" }).ToList();
-            var bb = new string[] { "N", "CA", "C", "O" };
+            //var atom_types = feature_calcs.atom_types.Union(new[] { $@"all" }).ToList();
+            var bb = new string[] { $@"N", $@"CA", $@"C", $@"O" };
 
-            var atom_types = bb.Union(new[] { "all" }).ToList();
+            var atom_types = bb.Union(new[] { $@"all" }).ToList();
 
 
 
@@ -2942,8 +3660,8 @@ namespace dimorphics_dataset
             {
                 var protein_area1 = protein_areas[protein_area_index1];
                 var protein_area1_sequences = new List<(string name, List<atom> atoms)>();
-                protein_area1_sequences.Add(($"{protein_area1.name}_unsplit", protein_area1.atoms));
-                protein_area1_sequences.AddRange(feature_calcs.split_sequence(protein_area1.atoms.GroupBy(a => a.residue_index).ToList()).Select(a => a.SelectMany(b => b.ToList()).ToList()).Select(a => ($"{protein_area1.name}_split", a)).ToList());
+                protein_area1_sequences.Add(($@"{protein_area1.name}_unsplit", protein_area1.atoms));
+                protein_area1_sequences.AddRange(feature_calcs.split_sequence(protein_area1.atoms.GroupBy(a => a.residue_index).ToList()).Select(a => a.SelectMany(b => b.ToList()).ToList()).Select(a => ($@"{protein_area1.name}_split", a)).ToList());
 
                 foreach (var protein_area1_sequence in protein_area1_sequences)
                 {
@@ -2956,8 +3674,8 @@ namespace dimorphics_dataset
 
                         var protein_area2 = protein_areas[protein_area_index2];
                         var protein_area2_sequences = new List<(string name, List<atom> atoms)>();
-                        protein_area2_sequences.Add(($"{protein_area2.name}_unsplit", protein_area2.atoms));
-                        protein_area2_sequences.AddRange(feature_calcs.split_sequence(protein_area2.atoms.GroupBy(a => a.residue_index).ToList()).Select(a => a.SelectMany(b => b.ToList()).ToList()).Select(a => ($"{protein_area2.name}_split", a)).ToList());
+                        protein_area2_sequences.Add(($@"{protein_area2.name}_unsplit", protein_area2.atoms));
+                        protein_area2_sequences.AddRange(feature_calcs.split_sequence(protein_area2.atoms.GroupBy(a => a.residue_index).ToList()).Select(a => a.SelectMany(b => b.ToList()).ToList()).Select(a => ($@"{protein_area2.name}_split", a)).ToList());
 
                         foreach (var protein_area2_sequence in protein_area2_sequences)
                         {
@@ -2996,8 +3714,8 @@ namespace dimorphics_dataset
 
                     var r2 = atom_types_pairs./*AsParallel().*/SelectMany(atom_type_pair =>
                     {
-                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (atom_type_pair.atom_type1 == "all" ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
-                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (atom_type_pair.atom_type2 == "all" ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
+                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (atom_type_pair.atom_type1 == $@"all" ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
+                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (atom_type_pair.atom_type2 == $@"all" ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
 
 
                         var ret = new List<feature_info>();
@@ -3010,9 +3728,9 @@ namespace dimorphics_dataset
                             var indexes2 = protein_area2_sequence_filtered_filtered.atoms.Select(a => a.intramolecular_contact_table_index).ToList();
 
                             var same = indexes1.Intersect(indexes2).Count();
-                                //var tableA = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_ref_table;
-                                //var tableB = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_table;
-                                var tableC = area_pairs.atoms_both.FirstOrDefault()?.intramolecular_contact_table ?? null;
+                        //var tableA = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_ref_table;
+                        //var tableB = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_table;
+                        var tableC = area_pairs.atoms_both.FirstOrDefault()?.intramolecular_contact_table ?? null;
 
                             if (area_pairs.atoms_both != null && area_pairs.atoms_both.Count > 0)
                             {
@@ -3034,8 +3752,8 @@ namespace dimorphics_dataset
                                 vol = len_x * len_y * len_z;
 
 
-                                    // i1,i2 and i2,i1 should be the same, because it is the same distance matrix (not separate matrices for each protein area).
-                                    var q = (indexes1.Count * indexes2.Count) - same;
+                            // i1,i2 and i2,i1 should be the same, because it is the same distance matrix (not separate matrices for each protein area).
+                            var q = (indexes1.Count * indexes2.Count) - same;
 
                                 if (q > 0)
                                 {
@@ -3068,76 +3786,98 @@ namespace dimorphics_dataset
                         var name7 = atom_type_pair.atom_type2;
 
 
-                            //foreach (var dist_range in dist_ranges)
-                            //{
-                            var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
-                        var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(".", "-", StringComparison.InvariantCulture)}A";
+                    //foreach (var dist_range in dist_ranges)
+                    //{
+                    var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(".", $@"-", StringComparison.InvariantCulture)}A";
+                        var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(".", $@"-", StringComparison.InvariantCulture)}A";
 
-                            //io_proxy.WriteLine($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
+                    //io_proxy.WriteLine($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
 
-                            var dist_filt = (atom_type_pair.min_dist == 0 && atom_type_pair.max_dist == 0) ? distances : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).ToArray() ?? null);
-                        var distances_ds = descriptive_stats.get_stat_values(dist_filt, $@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}");
-                        var distances_ds_e = descriptive_stats.encode(distances_ds);
+                    var dist_filt = (atom_type_pair.min_dist == 0 && atom_type_pair.max_dist == 0) ? distances : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).ToArray() ?? null);
+                        var distances_ds = descriptive_stats.get_stat_values(
+                            dist_filt,
+                            $@"",
+                            $@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_atom_distances,
+                            distance: descriptive_stats_encoding_options.dse_distances_atom_distances,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_atom_distances,
+                            abs: descriptive_stats_encoding_options.dse_abs_atom_distances,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_atom_distances
+                        );
 
-                            // area, alphabet, alphabet group 1&2, atom type1&2
-                            var distances_ds_e_f = distances_ds_e.Select(a => new feature_info()
+                        foreach (var dse_options in descriptive_stats_encoding_options.dse_options_atom_distances)
                         {
-                            alphabet = alphabet_group_pair.name,
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = $@"atom_distances",
-                            @group = $@"atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                            member = $@"{a.member_id}",
-                            perspective = $@"{a.perspective_id}",
-                            feature_value = a.perspective_value
-                        }).ToList();
+                            var distances_ds_e = distances_ds.encode(
+                            dse_options,
+                            presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_atom_distances,
+                            distance: descriptive_stats_encoding_options.dse_distances_atom_distances,
+                            interquartile: descriptive_stats_encoding_options.dse_interquartile_atom_distances,
+                            abs: descriptive_stats_encoding_options.dse_abs_atom_distances,
+                            rescale: descriptive_stats_encoding_options.dse_rescale_atom_distances
+                            );
+
+                        // area, alphabet, alphabet group 1&2, atom type1&2
+                        var distances_ds_e_f = distances_ds_e.Select(ds_stat => new feature_info()
+                            {
+                                alphabet = alphabet_group_pair.name,
+                                stats = dse_options.options_name,
+                                dimension = 3,
+                                source = area_pairs.name1,
+                                category = $@"atom_distances",
+                                @group = $@"{ds_stat.group_id}_atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                                member = $@"{ds_stat.member_id}",
+                                perspective = $@"{ds_stat.perspective_id}",
+                                feature_value = ds_stat.perspective_value
+                            }).ToList();
 
 
-                        var counts_ds_e_f = new feature_info()
-                        {
-                            alphabet = alphabet_group_pair.name,
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = $@"atom_counts",
-                            @group = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                            member = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                            perspective = $@"countm",
-                            feature_value = dist_filt?.Length ?? 0d
-                        };
+                            var counts_ds_e_f = new feature_info()
+                            {
+                                alphabet = alphabet_group_pair.name,
+                                stats = "",
+                                dimension = 3,
+                                source = area_pairs.name1,
+                                category = $@"atom_counts",
+                                @group = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                                member = $@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                                perspective = $@"countm",
+                                feature_value = dist_filt?.Length ?? 0d
+                            };
 
 
-                        var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
-                        var density_ds_e_f = new feature_info()
-                        {
-                            alphabet = alphabet_group_pair.name,
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = $@"atom_density",
-                            @group = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                            member = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
-                            perspective = $@"density",
-                            feature_value = density
-                        };
+                            var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
+                            var density_ds_e_f = new feature_info()
+                            {
+                                alphabet = alphabet_group_pair.name,
+                                stats = "",
+                                dimension = 3,
+                                source = area_pairs.name1,
+                                category = $@"atom_density",
+                                @group = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                                member = $@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}",
+                                perspective = $@"density",
+                                feature_value = density
+                            };
 
 
 
-                        ret.Add(counts_ds_e_f);
-                        ret.Add(density_ds_e_f);
-                        ret.AddRange(distances_ds_e_f);
+                            ret.Add(counts_ds_e_f);
+                            ret.Add(density_ds_e_f);
+                            ret.AddRange(distances_ds_e_f);
+                        }
 
+                    //}
 
-                            //}
-
-                            lock (_done_lock)
+                    lock (_done_lock)
                         {
                             done++;
                         }
 
-                            //var time_each = (double)done / (double)sw.Elapsed.Ticks;
-                            //var eta_ticks = (long) (time_each * (total - done));
-                            //var ts = TimeSpan.FromTicks(eta_ticks);
-                            //[ average {time_each:0.0000000000} ticks ] [ eta {ts:dd\:hh\:mm\:ss\.fff} ]
-                            io_proxy.WriteLine($@"{done} / {total} [ {(((double)done / (double)total) * 100):0.00} ]", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
+                    //var time_each = (double)done / (double)sw.Elapsed.Ticks;
+                    //var eta_ticks = (long) (time_each * (total - done));
+                    //var ts = TimeSpan.FromTicks(eta_ticks);
+                    //[ average {time_each:0.0000000000} ticks ] [ eta {ts:dd\:hh\:mm\:ss\.fff} ]
+                    io_proxy.WriteLine($@"{done} / {total} [ {((total > 0 ? (double)done / (double)total : 0d) * 100):0.00} ]", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
 
                         return ret;
                     }).ToList();
@@ -3153,7 +3893,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_atom_distances_data_template == null)
             {
-                var template = result.Select(a => new feature_info(a) { /*source = "",*/ feature_value = 0 }).ToList();
+                var template = result.Select(a => new feature_info(a) { /*source = $@"",*/ feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_atom_distances_data_template = template;
             }
 
@@ -3165,7 +3905,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_intramolecular_classification_data(List<atom> subsequence_master_atoms, enum_protein_data_source source)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_intramolecular_classification_data)}List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_intramolecular_classification_data)}List<Atom> subsequence_master_atoms, enum_protein_data_source source);");
 #endif
 
             if (subsequence_master_atoms == null || subsequence_master_atoms.Count == 0)
@@ -3174,7 +3914,7 @@ namespace dimorphics_dataset
 
                 var template = subsequence_classification_data_templates._calculate_intramolecular_classification_data_template.Select(a => new feature_info(a)
                 {
-                    source = source.ToString(),
+                    source = $@"{source}",
                     feature_value = 0
                 }).ToList();
 
@@ -3191,24 +3931,30 @@ namespace dimorphics_dataset
 
             // average number of intra-molecular contacts per atom
             var x = subsequence_master_atoms.Select(a => (double)(a.contact_map_intramolecular?.Count ?? 0)).ToArray();
-            var intramolecular_contact_count = descriptive_stats.get_stat_values(x, "intramolecular_contact_count");
+            var intramolecular_contact_count = descriptive_stats.get_stat_values(x, $@"intramolecular_contact_count");
 
             // average distance between intra-molecular contacts
             var y = subsequence_master_atoms.Where(a => a.contact_map_intramolecular != null && a.contact_map_intramolecular.Count > 0).SelectMany(a => a.contact_map_intramolecular.Select(b => b.distance).ToList()).ToArray();
-            var intramolecular_contact_distance = descriptive_stats.get_stat_values(y, "intramolecular_contact_distance");
+            var intramolecular_contact_distance = descriptive_stats.get_stat_values(y, $@"intramolecular_contact_distance");
 
             if (make_contact_distance_features)
             {
-                var intramolecular_contact_distance_encoded = descriptive_stats.encode(intramolecular_contact_distance);
+                var intramolecular_contact_distance_encoded = descriptive_stats.encode(intramolecular_contact_distance,
+        
+                        descriptive_stats_encoding_options.dse_options_xxxxx,
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_xxxxx,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_xxxxx
+                            
+        );
 
-                var x0 = intramolecular_contact_distance_encoded.Select(a => new feature_info()
+                var x0 = intramolecular_contact_distance_encoded.Select(ds_stat => new feature_info()
                 {
-                    alphabet = "Overall",
-                    dimension = 3,
-                    category = "geometry",
+                    alphabet = $@"Overall",
+                    stats = "", dimension = 3,
+                    category = $@"geometry",
 
-                    source = source.ToString(),
-                    group = $"geometry_{nameof(intramolecular_contact_distance)}",
+                    source = $@"{source}",
+                    group = $@"{ds_stat.group_id}_geometry_{nameof(intramolecular_contact_distance)}",
                     member = a.member_id,
                     perspective = a.perspective_id,
                     feature_value = a.perspective_value
@@ -3217,14 +3963,14 @@ namespace dimorphics_dataset
 
                 if (make_contact_distance_features && make_contact_count_features)
                 {
-                    var x1 = intramolecular_contact_distance_encoded.Select(a => new feature_info()
+                    var x1 = intramolecular_contact_distance_encoded.Select(ds_stat => new feature_info()
                     {
-                        alphabet = "Overall",
-                        dimension = 3,
-                        category = "geometry",
+                        alphabet = $@"Overall",
+                        stats = "", dimension = 3,
+                        category = $@"geometry",
 
-                        source = source.ToString(),
-                        group = "geometry_intramolecular_contact_count_and_distance",
+                        source = $@"{source}",
+                        group = $@"{ds_stat.group_id}_geometry_intramolecular_contact_count_and_distance",
                         member = a.member_id,
                         perspective = a.perspective_id,
                         feature_value = a.perspective_value
@@ -3235,15 +3981,21 @@ namespace dimorphics_dataset
 
             if (make_contact_count_features)
             {
-                var intramolecular_contact_count_encoded = descriptive_stats.encode(intramolecular_contact_count);
-                var x0 = intramolecular_contact_count_encoded.Select(a => new feature_info()
+                var intramolecular_contact_count_encoded = descriptive_stats.encode(intramolecular_contact_count,
+        
+                        descriptive_stats_encoding_options.dse_options_xxxxx,
+                        presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_xxxxx,
+                        interquartile: descriptive_stats_encoding_options.dse_interquartile_xxxxx
+                            
+        );
+                var x0 = intramolecular_contact_count_encoded.Select(ds_stat => new feature_info()
                 {
-                    alphabet = "Overall",
-                    dimension = 3,
-                    category = "geometry",
+                    alphabet = $@"Overall",
+                    stats = "", dimension = 3,
+                    category = $@"geometry",
 
-                    source = source.ToString(),
-                    group = "geometry_" + nameof(intramolecular_contact_count),
+                    source = $@"{source}",
+                    group = $@"{ds_stat.group_id}_geometry_" + nameof(intramolecular_contact_count),
                     member = a.member_id,
                     perspective = a.perspective_id,
                     feature_value = a.perspective_value
@@ -3253,14 +4005,14 @@ namespace dimorphics_dataset
 
                 if (make_contact_distance_features && make_contact_count_features)
                 {
-                    var x1 = intramolecular_contact_count_encoded.Select(a => new feature_info()
+                    var x1 = intramolecular_contact_count_encoded.Select(ds_stat => new feature_info()
                     {
-                        alphabet = "Overall",
-                        dimension = 3,
-                        category = "geometry",
+                        alphabet = $@"Overall",
+                        stats = "", dimension = 3,
+                        category = $@"geometry",
 
-                        source = source.ToString(),
-                        group = "geometry_intramolecular_contact_count_and_distance",
+                        source = $@"{source}",
+                        group = $@"{ds_stat.group_id}_geometry_intramolecular_contact_count_and_distance",
                         member = a.member_id,
                         perspective = a.perspective_id,
                         feature_value = a.perspective_value
@@ -3272,7 +4024,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._calculate_intramolecular_classification_data_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_intramolecular_classification_data_template = template;
             }
 
@@ -3285,7 +4037,7 @@ namespace dimorphics_dataset
 
         internal static bool check_headers(List<feature_info> feats)
         {
-            var header_list_str_dupe_check = feats.Select((a, i) => $"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            var header_list_str_dupe_check = feats.Select((a, i) => $@"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
             var header_list_str_dupe_check_distinct = header_list_str_dupe_check.Distinct().ToList();
 
             var no_duplicates = header_list_str_dupe_check_distinct.Count == header_list_str_dupe_check.Count;
@@ -3295,7 +4047,7 @@ namespace dimorphics_dataset
             var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.AsParallel().AsOrdered().Select(a =>
                 (header: a, count: header_list_str_dupe_check.Count(b => b == a))).Where(a => a.count > 1).OrderByDescending(a => a.count).ToList();
 
-            header_list_str_dupe_check_distinct_count.ForEach(a => io_proxy.WriteLine($"Duplicate header: {a.header} ({a.count})", nameof(subsequence_classification_data), nameof(check_headers)));
+            header_list_str_dupe_check_distinct_count.ForEach(a => io_proxy.WriteLine($@"Duplicate header: {a.header} ({a.count})", nameof(subsequence_classification_data), nameof(check_headers)));
 
             return false;
         }
@@ -3303,7 +4055,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_classification_data_1d(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_classification_data_1d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_classification_data_1d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_1d feature_types_1d);");
 #endif
 
             //var features_1d = new List<feature_info>();
@@ -3316,7 +4068,7 @@ namespace dimorphics_dataset
 
             if (feature_types_1d != null)
             {
-                if (feature_types_1d.pse_aac_sequence_classification_data)
+                if (feature_types_1d.pse_aac)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3328,13 +4080,13 @@ namespace dimorphics_dataset
                             motifs_binary = true,
                             dipeptides = true,
                             dipeptides_binary = true,
-                                //saac = true,
-                                //saac_binary = true,
-                                average_seq_position = true,
+                    //saac = true,
+                    //saac_binary = true,
+                    average_seq_position = true,
                             average_dipeptide_distance = true,
                         };
 
-                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 1, "aa", "aa", region.aa_sequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
+                        var pse_aac_sequence_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 1, $@"aa", $@"aa", region.aa_sequence, enum_seq_type.amino_acid_sequence, aa_seq_pse_aac_options);
 
 
                         if (!check_headers(pse_aac_sequence_classification_data))
@@ -3360,13 +4112,13 @@ namespace dimorphics_dataset
                 }
                 //
 
-                if (feature_types_1d.sable_classification_data)
+                if (feature_types_1d.sable)
                 {
                     var task = Task.Run(() =>
                     {
                         var sable_sequence_classification_data = calculate_sable_sequence_classification_data(region.master_atoms, source);
 
-                            if (!check_headers(sable_sequence_classification_data))
+                        if (!check_headers(sable_sequence_classification_data))
                         {
                             throw new Exception($@"duplicate headers in {sable_sequence_classification_data}");
                         }
@@ -3419,7 +4171,7 @@ namespace dimorphics_dataset
                 //    tasks.Add(task);
                 //}
 
-                if (feature_types_1d.blast_pssm_subsequence_classification_data)
+                if (feature_types_1d.blast_pssm)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3450,15 +4202,15 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_1d.aa_index_classification_data)
+                if (feature_types_1d.aaindex)
                 {
                     var task = Task.Run(() =>
                     {
                         var aa_index_classification_data = calculate_aa_index_classification_data(region.aa_sequence, source);
-                            //features_1d.AddRange(aa_index_classification_data);
+                //features_1d.AddRange(aa_index_classification_data);
 
 
-                            if (!check_headers(aa_index_classification_data))
+                if (!check_headers(aa_index_classification_data))
                         {
                             throw new Exception($@"duplicate headers in {aa_index_classification_data}");
                         }
@@ -3480,15 +4232,15 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_1d.sequence_geometry_classification_data)
+                if (feature_types_1d.geometry)
                 {
                     var task = Task.Run(() =>
                     {
                         var sequence_geometry_classification_data = calculate_sequence_geometry_classification_data(scd, region, source);
-                            //features_1d.AddRange(sequence_geometry_classification_data);
+                //features_1d.AddRange(sequence_geometry_classification_data);
 
 
-                            if (!check_headers(sequence_geometry_classification_data))
+                if (!check_headers(sequence_geometry_classification_data))
                         {
                             throw new Exception($@"duplicate headers in {sequence_geometry_classification_data}");
                         }
@@ -3510,15 +4262,15 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_1d.intrinsically_unordered_data)
+                if (feature_types_1d.iupred2a)
                 {
                     var task = Task.Run(() =>
                     {
                         var intrinsically_unordered_data = calculate_intrinsically_unordered_data(region.master_atoms, source);
-                            //features_1d.AddRange(intrinsically_unordered_data);
+                //features_1d.AddRange(intrinsically_unordered_data);
 
 
-                            if (!check_headers(intrinsically_unordered_data))
+                if (!check_headers(intrinsically_unordered_data))
                         {
                             throw new Exception($@"duplicate headers in {intrinsically_unordered_data}");
                         }
@@ -3541,15 +4293,15 @@ namespace dimorphics_dataset
                 }
 
 
-                if (feature_types_1d.dna_binding_prediction_data)
+                if (feature_types_1d.stackdppred)
                 {
                     var task = Task.Run(() =>
                     {
                         var dna_binding_prediction_data = calculate_chain_dna_binding_prediction_data(region.master_atoms, source);
-                            //features_1d.AddRange(dna_binding_prediction_data);
+                //features_1d.AddRange(dna_binding_prediction_data);
 
 
-                            if (!check_headers(dna_binding_prediction_data))
+                if (!check_headers(dna_binding_prediction_data))
                         {
                             throw new Exception($@"duplicate headers in {dna_binding_prediction_data}");
                         }
@@ -3579,14 +4331,14 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var alphabet_name = "Overall";
+                        var alphabet_name = $@"Overall";
                         var r_peptides_data = subsequence_classification_data_r_methods.call_r_peptides(region.aa_sequence/*, alphabet_name, source*/); //r_peptides.get_values(seq);
-                        
-                        r_peptides_data.ForEach(a =>
-                        {
-                            a.source = source.ToString();
-                            a.alphabet = alphabet_name;
-                        });
+
+                r_peptides_data.ForEach(a =>
+                {
+                    a.source = source.ToString();
+                    a.alphabet = alphabet_name;
+                });
 
 
                         if (!check_headers(r_peptides_data))
@@ -3617,14 +4369,14 @@ namespace dimorphics_dataset
                 {
                     var task = Task.Run(() =>
                     {
-                        var alphabet_name = "Overall";
+                        var alphabet_name = $@"Overall";
                         var r_protr_data = subsequence_classification_data_r_methods.call_r_protr(region.aa_sequence/*, alphabet_name, source*/); //r_protr.get_values(seq);
 
-                        r_protr_data.ForEach(a =>
-                        {
-                            a.source = source.ToString();
-                            a.alphabet = alphabet_name;
-                        });
+                r_protr_data.ForEach(a =>
+                {
+                    a.source = source.ToString();
+                    a.alphabet = alphabet_name;
+                });
 
                         if (!check_headers(r_protr_data))
                         {
@@ -3668,7 +4420,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_classification_data_2d(/*subsequence_classification_data scd,*/ subsequence_classification_data_region region, enum_protein_data_source source, int max_features, feature_types_2d feature_types_2d)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_classification_data_2d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_2d feature_types_2d);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_classification_data_2d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_2d feature_types_2d);");
 #endif
             var module_name = nameof(subsequence_classification_data);
             var method_name = nameof(calculate_classification_data_2d);
@@ -3683,7 +4435,7 @@ namespace dimorphics_dataset
 
             if (feature_types_2d != null)
             {
-                if (feature_types_2d.mpsa_classification_data_subsequence)
+                if (feature_types_2d.mpsa)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3733,7 +4485,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_classification_data_3d(subsequence_classification_data scd, subsequence_classification_data_region region, enum_protein_data_source source, int max_features, feature_types_3d feature_types_3d)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_classification_data_3d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_3d feature_types_3d);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_classification_data_3d)}(subsequence_classification_data scd, List<Atom> subsequence_master_atoms, enum_protein_data_source source, int max_features, feature_types_3d feature_types_3d);");
 #endif
 
             var tasks = new List<Task<List<feature_info>>>();
@@ -3761,7 +4513,7 @@ namespace dimorphics_dataset
                 //    }
                 //}
 
-                if (feature_types_3d.pse_ssc_dssp_classification_data)
+                if (feature_types_3d.pse_ssc_dssp)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3773,14 +4525,14 @@ namespace dimorphics_dataset
                             motifs_binary = true,
                             dipeptides = true,
                             dipeptides_binary = true,
-                                //saac = true,
-                                //saac_binary = true,
-                                average_seq_position = true,
+                    //saac = true,
+                    //saac_binary = true,
+                    average_seq_position = true,
                             average_dipeptide_distance = true,
                         };
 
-                        // todo: check if this dssp should be 7 or 3
-                        var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 3, "dssp_monomer", "dssp_monomer", region.dssp_monomer, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
+                // todo: check if this dssp should be 7 or 3
+                var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 3, $@"dssp_monomer", $@"dssp_monomer", region.dssp_monomer, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
 
 
                         if (!check_headers(pse_ssc_dssp_classification_data)) throw new Exception("duplicate headers");
@@ -3802,7 +4554,7 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_3d.foldx_classification_data)
+                if (feature_types_3d.foldx)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3848,7 +4600,7 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_3d.ring_classification_data)
+                if (feature_types_3d.ring)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3877,7 +4629,7 @@ namespace dimorphics_dataset
                     tasks.Add(task);
                 }
 
-                if (feature_types_3d.sasa_classification_data)
+                if (feature_types_3d.sasa)
                 {
                     var task = Task.Run(() =>
                     {
@@ -3908,7 +4660,7 @@ namespace dimorphics_dataset
 
                 }
 
-                if (feature_types_3d.tortuosity_classification_data)
+                if (feature_types_3d.tortuosity)
                 {
                     var task = Task.Run(() =>
                     {
@@ -4068,13 +4820,13 @@ namespace dimorphics_dataset
 
         //            if (!as_dist) continue;
 
-        //            var dist_name = $"{(as_dist ? "dist" : "count")}_{(as_sqrt ? "sqrt" : "normal")}";
+        //            var dist_name = $@"{(as_dist ? $@"dist" : $@"count")}_{(as_sqrt ? $@"sqrt" : $@"normal")}";
 
 
         //            foreach (ss_types ss_type in Enum.GetValues(typeof(ss_types)))
         //            {
         //                var ss_type_name = Enum.GetName(typeof(ss_types), ss_type)?.ToLowerInvariant();
-        //                string ss_seq = "";
+        //                string ss_seq = $@"";
 
         //                if (ss_type == ss_types.DSSP)
         //                {
@@ -4096,14 +4848,14 @@ namespace dimorphics_dataset
         //                if (make_dssp_feature && (ss_type == ss_types.DSSP || ss_type == ss_types.DSSP3))
         //                {
         //                    var ss_distribution = feature_calcs.ss_distribution(ss_seq, as_sqrt, as_dist, ss_type);
-        //                    var xf = ss_distribution.Select(a => { return new feature_info() { alphabet = "Overall", dimension = 3, category = "dssp", source = source, @group = $"{nameof(ss_distribution)}_{ss_type_name}_{dist_name}", member = a.ss_type.ToString(CultureInfo.InvariantCulture), perspective = $@"default", feature_value = a.value }; }).ToList();
+        //                    var xf = ss_distribution.Select(a => { return new feature_info() { alphabet = $@"Overall", stats = "", dimension = 3, category = $@"dssp", source = source, @group = $@"{ds_stat.group_id}_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}", member = a.ss_type.ToString(CultureInfo.InvariantCulture), perspective = $@"default", feature_value = a.value }; }).ToList();
         //                    if (xf.Count <= max_features) row_features.AddRange(xf);
         //                }
 
         //                if (make_stride_feature && (ss_type == ss_types.STRIDE || ss_type == ss_types.STRIDE3))
         //                {
         //                    var ss_distribution = feature_calcs.ss_distribution(ss_seq, as_sqrt, as_dist, ss_type);
-        //                    var xf = ss_distribution.Select(a => new feature_info() { alphabet = "Overall", dimension = 3, source = source, category = "stride", group = $"{nameof(ss_distribution)}_{ss_type_name}_{dist_name}", member = a.ss_type.ToString(CultureInfo.InvariantCulture), perspective = $@"default", feature_value = a.value }).ToList();
+        //                    var xf = ss_distribution.Select(ds_stat => new feature_info() { alphabet = $@"Overall", stats = "", dimension = 3, source = source, category = $@"stride", group = $@"{ds_stat.group_id}_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}", member = a.ss_type.ToString(CultureInfo.InvariantCulture), perspective = $@"default", feature_value = a.value }).ToList();
         //                    if (xf.Count <= max_features) row_features.AddRange(xf);
 
         //                }
@@ -4113,7 +4865,7 @@ namespace dimorphics_dataset
 
         //    if (calculate_dssp_and_stride_subsequence_classification_data_template == null)
         //    {
-        //        var template = row_features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+        //        var template = row_features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
         //        calculate_dssp_and_stride_subsequence_classification_data_template = template;
         //    }
 
@@ -4126,7 +4878,7 @@ namespace dimorphics_dataset
         //        internal static List<feature_info> calculate_dssp_and_stride_protein_classification_data(bool make_dssp_feature, bool make_stride_feature, enum_protein_data_source source, subsequence_classification_data subsequence_classification_data)
         //        {
         //#if DEBUG
-        //            //if (program.verbose_debug) Program.WriteLine($"{nameof(calculate_dssp_and_stride_protein_classification_data)}(bool make_dssp_feature, bool make_stride_feature, enum_protein_data_source source, subsequence_classification_data subsequence_classification_data);");
+        //            //if (program.verbose_debug) Program.WriteLine($@"{nameof(calculate_dssp_and_stride_protein_classification_data)}(bool make_dssp_feature, bool make_stride_feature, enum_protein_data_source source, subsequence_classification_data subsequence_classification_data);");
         //#endif
 
         //            if (subsequence_classification_data.subsequence_master_atoms == null || subsequence_classification_data.subsequence_master_atoms.Count == 0)
@@ -4135,7 +4887,7 @@ namespace dimorphics_dataset
 
         //                var template = calculate_dssp_and_stride_protein_classification_data_template.Select(a => new feature_info(a)
         //                {
-        //                    source = source.ToString(),
+        //                    source = $@"{source}",
         //                    feature_value = 0
         //                }).ToList();
 
@@ -4161,13 +4913,13 @@ namespace dimorphics_dataset
 
         //                    if (!as_dist) continue;
 
-        //                    var dist_name = $"{(as_dist ? "dist" : "count")}_{(as_sqrt ? "sqrt" : "normal")}";
+        //                    var dist_name = $@"{(as_dist ? $@"dist" : $@"count")}_{(as_sqrt ? $@"sqrt" : $@"normal")}";
 
 
         //                    foreach (ss_types ss_type in Enum.GetValues(typeof(ss_types)))
         //                    {
         //                        var ss_type_name = Enum.GetName(typeof(ss_types), ss_type)?.ToLowerInvariant();
-        //                        string ss_seq = "";
+        //                        string ss_seq = $@"";
 
         //                        if (ss_type == ss_types.DSSP)
         //                        {
@@ -4193,11 +4945,11 @@ namespace dimorphics_dataset
 
         //                                new feature_info()
         //                                {
-        //                                    alphabet = "Overall",
-        //                                    dimension = 3,
-        //                                    category = "dssp_monomer",
-        //                                    source = source.ToString(),
-        //                                    @group = $"dssp_monomer_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}",
+        //                                    alphabet = $@"Overall",
+        //                                    stats = "", dimension = 3,
+        //                                    category = $@"dssp_monomer",
+        //                                    source = $@"{source}",
+        //                                    @group = $@"{ds_stat.group_id}_dssp_monomer_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}",
         //                                    member = a.ss_type.ToString(CultureInfo.InvariantCulture),
         //                                    perspective = $@"default",
         //                                    feature_value = a.value
@@ -4213,11 +4965,11 @@ namespace dimorphics_dataset
         //                            var ss_distribution_feats = ss_distribution.Select(a =>
         //                                new feature_info()
         //                                {
-        //                                    alphabet = "Overall",
-        //                                    dimension = 3,
-        //                                    source = source.ToString(),
-        //                                    category = "stride_monomer",
-        //                                    group = $"stride_monomer_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}",
+        //                                    alphabet = $@"Overall",
+        //                                    stats = "", dimension = 3,
+        //                                    source = $@"{source}",
+        //                                    category = $@"stride_monomer",
+        //                                    group = $@"{ds_stat.group_id}_stride_monomer_{nameof(ss_distribution)}_{ss_type_name}_{dist_name}",
         //                                    member = a.ss_type.ToString(CultureInfo.InvariantCulture),
         //                                    perspective = $@"default",
         //                                    feature_value = a.value
@@ -4232,7 +4984,7 @@ namespace dimorphics_dataset
 
         //            if (calculate_dssp_and_stride_protein_classification_data_template == null)
         //            {
-        //                var template = row_features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+        //                var template = row_features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
         //                calculate_dssp_and_stride_protein_classification_data_template = template;
         //            }
 
@@ -4250,7 +5002,7 @@ namespace dimorphics_dataset
         internal static List<feature_info> calculate_aa_or_ss_sequence_classification_data(enum_protein_data_source source, int dimension, string category_prefix, string group_prefix, string sequence, enum_seq_type seq_type, pse_aac_options pse_aac_options)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calculate_aa_or_ss_sequence_classification_data)}(enum_protein_data_source source, string category_prefix, string group_prefix, string sequence, feature_calcs.seq_type seq_type, feature_calcs.pse_aac_options pse_aac_options);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calculate_aa_or_ss_sequence_classification_data)}(enum_protein_data_source source, string category_prefix, string group_prefix, string sequence, feature_calcs.seq_type seq_type, feature_calcs.pse_aac_options pse_aac_options);");
 #endif
             if (pse_aac_options == null)
             {
@@ -4263,8 +5015,8 @@ namespace dimorphics_dataset
                 {
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template == null)
                     {
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, "ALG", seq_type, pse_aac_options);
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, $@"ALG", seq_type, pse_aac_options);
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template == null)
@@ -4272,7 +5024,7 @@ namespace dimorphics_dataset
                         throw new Exception();
                     }
 
-                    var template = subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
+                    var template = subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template.Select(a => new feature_info(a) { source = $@"{source}", feature_value = 0 }).ToList();
 
                     return template;
                 }
@@ -4281,8 +5033,8 @@ namespace dimorphics_dataset
                 {
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template == null)
                     {
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, "HEC", seq_type, pse_aac_options);
-                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template.ForEach(a => { a.source = ""; a.feature_value = 0; });
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template = calculate_aa_or_ss_sequence_classification_data(source, dimension, category_prefix, group_prefix, $@"HEC", seq_type, pse_aac_options);
+                        subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template.ForEach(a => { a.source = $@""; a.feature_value = 0; });
                     }
 
                     if (subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template == null)
@@ -4290,7 +5042,7 @@ namespace dimorphics_dataset
                         throw new Exception();
                     }
 
-                    var template = subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template.Select(a => new feature_info(a) { source = source.ToString(), feature_value = 0 }).ToList();
+                    var template = subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template.Select(a => new feature_info(a) { source = $@"{source}", feature_value = 0 }).ToList();
 
                     return template;
                 }
@@ -4313,7 +5065,7 @@ namespace dimorphics_dataset
                     if (!as_dist) continue;// skip non-dist (i.e. total count) for now, as it doesn't seem to add much value (if any)
                     if (as_sqrt) continue; // skip sqrt for now, as it doesn't seem to add much value (if any)
 
-                    var dist_name = $"{(as_dist ? "dist" : "count")}_{(as_sqrt ? "sqrt" : "normal")}";
+                    var dist_name = $@"{(as_dist ? $@"dist" : $@"count")}_{(as_sqrt ? $@"sqrt" : $@"normal")}";
 
                     var seqs = new List<(string name, string sequence)>();
                     seqs.Add(("unsplit", sequence));
@@ -4354,9 +5106,10 @@ namespace dimorphics_dataset
                                             var f = new feature_info()
                                             {
                                                 alphabet = alphabet_name,
+                                                stats = "",
                                                 dimension = dimension,
                                                 category = $@"{category_prefix}_{d.name}",
-                                                source = source.ToString(),
+                                                source = $@"{source}",
                                                 @group = $@"{group_prefix}_{sq.name}_{d.name}_{(distance + 1)}_{alphabet_name}_{dist_name}",
                                                 member = $@"{sq_index}_{aa_to_aa}_{item.name}",
                                                 perspective = $@"default",
@@ -4402,10 +5155,10 @@ namespace dimorphics_dataset
                                         var x7 = order_context_vj.y.Select(x => new feature_info()
                                         {
                                             alphabet = alphabet_name,
-                                            dimension = 1,
+                                            stats = "", dimension = 1,
                                             category = $@"{category_prefix}_{d.name}",
-                                            source = source.ToString(),
-                                            @group = $@"{group_prefix}_{sq.name}_{d.name}_{order_context_vj.x}_{alphabet_name}_{dist_name}_{index}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_{group_prefix}_{sq.name}_{d.name}_{order_context_vj.x}_{alphabet_name}_{dist_name}_{index}",
                                             member = $@"{sq_index}_{x.name}",
                                             perspective = $@"default",
                                             feature_value = x.value
@@ -4443,9 +5196,10 @@ namespace dimorphics_dataset
                                             var f = new feature_info()
                                             {
                                                 alphabet = alphabet_name,
+                                                stats = "",
                                                 dimension = dimension,
                                                 category = $@"{category_prefix}_{m.name}",
-                                                source = source.ToString(),
+                                                source = $@"{source}",
                                                 @group = $@"{group_prefix}_{sq.name}_{m.name}_{(motif_length + 1)}_{alphabet_name}_{dist_name}",
                                                 member = $@"{sq_index}_{aa_motif_index}_{item.name}",
                                                 perspective = $@"default",
@@ -4488,10 +5242,10 @@ namespace dimorphics_dataset
                                         var x7 = motifs_vj.y.Select(x => new feature_info()
                                         {
                                             alphabet = alphabet_name,
-                                            dimension = 1,
+                                            stats = "", dimension = 1,
                                             category = $@"{category_prefix}_{m.name}",
-                                            source = source.ToString(),
-                                            @group = $@"{group_prefix}_{sq.name}_{m.name}_{motifs_vj.x}_{alphabet_name}_{dist_name}_{index}",
+                                            source = $@"{source}",
+                                            @group = $@"{ds_stat.group_id}_{group_prefix}_{sq.name}_{m.name}_{motifs_vj.x}_{alphabet_name}_{dist_name}_{index}",
                                             member = $@"{sq_index}_{x.name}",
                                             perspective = $@"default",
                                             feature_value = x.value
@@ -4515,10 +5269,10 @@ namespace dimorphics_dataset
                             //        var x2 = s.saac.Select(x => new feature_info()
                             //        {
                             //            alphabet = alphabet_name,
-                            //            dimension = 1,
+                            //            stats = "", dimension = 1,
                             //            category = $@"{category_prefix}_{s.name}",
-                            //            source = source.ToString(),
-                            //            group = $@"{group_prefix}_{s.name}_{alphabet_name}_{dist_name}",
+                            //            source = $@"{source}",
+                            //            group = $@"{ds_stat.group_id}_{group_prefix}_{s.name}_{alphabet_name}_{dist_name}",
                             //            member = $@"{sq_index}_{x.name}",
                             //            perspective = $@"default",
                             //            feature_value = x.value
@@ -4540,9 +5294,10 @@ namespace dimorphics_dataset
                                     var x3 = o.oaac.Select(x => new feature_info()
                                     {
                                         alphabet = alphabet_name,
+                                        stats = "",
                                         dimension = dimension,
                                         category = $@"{category_prefix}_{o.name}",
-                                        source = source.ToString(),
+                                        source = $@"{source}",
                                         @group = $@"{group_prefix}_{sq.name}_{o.name}_{alphabet_name}_{dist_name}",
                                         member = $@"{sq_index}_{x.name}",
                                         perspective = $@"default",
@@ -4559,9 +5314,10 @@ namespace dimorphics_dataset
                                 var x5 = average_seq_positions.Select(x => new feature_info()
                                 {
                                     alphabet = alphabet_name,
+                                    stats = "",
                                     dimension = dimension,
                                     category = $@"{category_prefix}_{nameof(average_seq_positions)}",
-                                    source = source.ToString(),
+                                    source = $@"{source}",
                                     @group = $@"{group_prefix}_{sq.name}_{nameof(average_seq_positions)}_{alphabet_name}_{dist_name}",
                                     member = $@"{sq_index}_{x.name}",
                                     perspective = $@"default",
@@ -4576,9 +5332,10 @@ namespace dimorphics_dataset
                                 var x6 = average_dipeptide_distance.Select(x => new feature_info()
                                 {
                                     alphabet = alphabet_name,
+                                    stats = "",
                                     dimension = dimension,
                                     category = $@"{category_prefix}_{nameof(average_dipeptide_distance)}",
-                                    source = source.ToString(),
+                                    source = $@"{source}",
                                     @group = $@"{group_prefix}_{sq.name}_{nameof(average_dipeptide_distance)}_{alphabet_name}_{dist_name}",
                                     member = $@"{sq_index}_{x.name}",
                                     perspective = $@"default",
@@ -4594,14 +5351,14 @@ namespace dimorphics_dataset
 
             if (seq_type == enum_seq_type.amino_acid_sequence && subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_aa_template = template;
             }
 
 
             if (seq_type == enum_seq_type.secondary_structure_sequence && subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template == null)
             {
-                var template = features.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                var template = features.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
                 subsequence_classification_data_templates._calculate_aa_or_ss_sequence_classification_data_ss_template = template;
             }
 
@@ -4630,12 +5387,12 @@ namespace dimorphics_dataset
         //        motifs_binary = true,
         //    };
         //
-        //    var features = aa_sequences.Select(aa_seq => (aa_seq, x: calculate_aa_or_ss_sequence_classification_data(source, "aa", "aa", aa_seq.subsequence_aa_seq, feature_calcs.seq_type.amino_acid_sequence, pse_aac_options, max_features))).ToList();
+        //    var features = aa_sequences.Select(aa_seq => (aa_seq, x: calculate_aa_or_ss_sequence_classification_data(source, $@"aa", $@"aa", aa_seq.subsequence_aa_seq, feature_calcs.seq_type.amino_acid_sequence, pse_aac_options, max_features))).ToList();
         //
         //    var class_id_feature = new feature_info()
         //    {
         //        alphabet = null,
-        //        dimension = 0,
+        //        stats = "", dimension = 0,
         //        category = nameof(class_id),
         //        source = nameof(class_id),
         //        group = nameof(class_id),
@@ -4670,7 +5427,7 @@ namespace dimorphics_dataset
 
                 var copy_without_sd_perspectives = groups_with_std_dev.Where(a => a.perspective != nameof(descriptive_stats.dev_standard)).Select(a => new feature_info(a)
                 {
-                    @group = $"{a.@group}_nosd"
+                    @group = $@"{a.@group}_nosd"
                 }).ToList();
 
                 features.AddRange(copy_without_sd_perspectives);
@@ -4682,14 +5439,15 @@ namespace dimorphics_dataset
 
 
         internal static List<feature_info> encode_subsequence_classification_data_row(
+            cmd_params p,
             subsequence_classification_data scd,
-            int max_features,
-            feature_types feature_types)
+            int max_features
+            )
         {
-            if (feature_types == null)
-            {
-                throw new ArgumentNullException(nameof(feature_types));
-            }
+            //if (feature_types == null)
+            //{
+            //    throw new ArgumentNullException(nameof(feature_types));
+            //}
 
             if (scd == null)
             {
@@ -4697,7 +5455,7 @@ namespace dimorphics_dataset
             }
 
             //#if DEBUG
-            //            //if (program.verbose_debug) io.WriteLine($"{nameof(encode_subsequence_classification_data_row)}(sdc, max_features, feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d)");
+            //            //if (program.verbose_debug) io.WriteLine($@"{nameof(encode_subsequence_classification_data_row)}(sdc, max_features, feature_types_subsequence_1d, feature_types_neighbourhood_1d, feature_types_protein_1d, feature_types_subsequence_3d, feature_types_neighbourhood_3d, feature_types_protein_3d)");
             //#endif
             var check_num_features_consistency = true;
 
@@ -4724,11 +5482,11 @@ namespace dimorphics_dataset
 
             // 1d
 
-            if (feature_types?.feature_types_interface_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_1d_interface?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
-                    subsequence_1d_classification_data = calculate_classification_data_1d(scd, scd.interface_region, enum_protein_data_source.interface_1d, max_features, feature_types.feature_types_interface_1d);
+                    subsequence_1d_classification_data = calculate_classification_data_1d(scd, scd.interface_region, enum_protein_data_source.interface_1d, max_features, p.feature_types_1d_interface);
 
                     if (max_features > 0)
                     {
@@ -4745,16 +5503,16 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_neighbourhood_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_1d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
                     if (scd.nh_flank_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    neighbourhood_1d_classification_data = calculate_classification_data_1d(scd, scd.nh_flank_region, enum_protein_data_source.neighbourhood_1d, max_features, feature_types.feature_types_neighbourhood_1d);
+                    neighbourhood_1d_classification_data = calculate_classification_data_1d(scd, scd.nh_flank_region, enum_protein_data_source.neighbourhood_1d, max_features, p.feature_types_1d_neighbourhood);
 
                     if (max_features > 0)
                     {
@@ -4771,16 +5529,16 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_chain_1d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_1d_chain?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
                     if (scd.chain_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 1d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    protein_1d_classification_data = calculate_classification_data_1d(scd, scd.chain_region, enum_protein_data_source.chain_1d, max_features, feature_types.feature_types_chain_1d);
+                    protein_1d_classification_data = calculate_classification_data_1d(scd, scd.chain_region, enum_protein_data_source.chain_1d, max_features, p.feature_types_1d_chain);
 
                     if (max_features > 0)
                     {
@@ -4799,11 +5557,11 @@ namespace dimorphics_dataset
 
             // 2d
 
-            if (feature_types?.feature_types_interface_2d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_2d_interface?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
-                    subsequence_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.interface_region, enum_protein_data_source.interface_2d, max_features, feature_types.feature_types_interface_2d);
+                    subsequence_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.interface_region, enum_protein_data_source.interface_2d, max_features, p.feature_types_2d_interface);
 
                     if (max_features > 0)
                     {
@@ -4820,16 +5578,16 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_neighbourhood_2d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_2d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
                     if (scd.nh_flank_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 2d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 2d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    neighbourhood_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.nh_flank_region, enum_protein_data_source.neighbourhood_2d, max_features, feature_types.feature_types_neighbourhood_2d);
+                    neighbourhood_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.nh_flank_region, enum_protein_data_source.neighbourhood_2d, max_features, p.feature_types_2d_neighbourhood);
 
                     if (max_features > 0)
                     {
@@ -4846,16 +5604,16 @@ namespace dimorphics_dataset
                 tasks.Add(task);
             }
 
-            if (feature_types?.feature_types_chain_2d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_2d_chain?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
                     if (scd.chain_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 2d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 2d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    protein_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.chain_region, enum_protein_data_source.chain_2d, max_features, feature_types.feature_types_chain_2d);
+                    protein_2d_classification_data = calculate_classification_data_2d(/*scd,*/ scd.chain_region, enum_protein_data_source.chain_2d, max_features, p.feature_types_2d_chain);
 
                     if (max_features > 0)
                     {
@@ -4874,12 +5632,12 @@ namespace dimorphics_dataset
 
             // 3d
 
-            if (feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_3d_interface?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
 
-                    subsequence_3d_classification_data = calculate_classification_data_3d(scd, scd.interface_region, enum_protein_data_source.interface_3d, max_features, feature_types.feature_types_interface_3d);
+                    subsequence_3d_classification_data = calculate_classification_data_3d(scd, scd.interface_region, enum_protein_data_source.interface_3d, max_features, p.feature_types_3d_interface);
 
                     if (max_features > 0)
                     {
@@ -4897,17 +5655,17 @@ namespace dimorphics_dataset
 
             }
 
-            if (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_3d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
             {
 
                 var task = Task.Run(() =>
                 {
                     if (scd.nh_contact_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d neighbourhood data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    neighbourhood_3d_classification_data = calculate_classification_data_3d(scd, scd.nh_contact_region, enum_protein_data_source.neighbourhood_3d, max_features, feature_types.feature_types_neighbourhood_3d);
+                    neighbourhood_3d_classification_data = calculate_classification_data_3d(scd, scd.nh_contact_region, enum_protein_data_source.neighbourhood_3d, max_features, p.feature_types_3d_neighbourhood);
 
                     if (max_features > 0)
                     {
@@ -4925,16 +5683,16 @@ namespace dimorphics_dataset
 
             }
 
-            if (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false)
+            if (p?.feature_types_3d_chain?.key_value_list()?.Any(a => a.value) ?? false)
             {
                 var task = Task.Run(() =>
                 {
                     if (scd.chain_region.atoms.Count == 0)
                     {
-                        io_proxy.WriteLine($"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
+                        io_proxy.WriteLine($@"Warning: {scd.pdb_id}{scd.chain_id} (class {scd.class_id} {scd.class_name}) has no 3d protein data", nameof(subsequence_classification_data), nameof(encode_subsequence_classification_data_row));
                     }
 
-                    protein_3d_classification_data = calculate_classification_data_3d(scd, scd.chain_region, enum_protein_data_source.chain_3d, max_features, feature_types.feature_types_chain_3d);
+                    protein_3d_classification_data = calculate_classification_data_3d(scd, scd.chain_region, enum_protein_data_source.chain_3d, max_features, p.feature_types_3d_chain);
 
                     if (max_features > 0)
                     {
@@ -4952,20 +5710,18 @@ namespace dimorphics_dataset
             }
 
 
-            if ((feature_types?.feature_types_interface_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                (feature_types?.feature_types_neighbourhood_3d?.AsArray()?.Any(a => a.value) ?? false) ||
-                (feature_types?.feature_types_chain_3d?.AsArray()?.Any(a => a.value) ?? false))
+            if ((p?.feature_types_3d_interface?.key_value_list()?.Any(a => a.value) ?? false) ||
+                (p?.feature_types_3d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false) ||
+                (p?.feature_types_3d_chain?.key_value_list()?.Any(a => a.value) ?? false))
             {
                 var task = Task.Run(() =>
                 {
                     var calculate_atom_distances_classification_data_result =
                         calculate_atom_distances_classification_data
                         (
-                            feature_types.feature_types_interface_3d?.intramolecular_classification_data ?? false ? scd.interface_region.atoms : null,
-
-                            feature_types.feature_types_neighbourhood_3d?.intramolecular_classification_data ?? false ? scd.nh_contact_region.atoms : null,
-
-                            feature_types.feature_types_chain_3d?.intramolecular_classification_data ?? false ? scd.chain_region.atoms : null
+                            p.feature_types_3d_interface?.intramolecular ?? false ? scd.interface_region.atoms : null,
+                            p.feature_types_3d_neighbourhood?.intramolecular ?? false ? scd.nh_contact_region.atoms : null,
+                            p.feature_types_3d_chain?.intramolecular ?? false ? scd.chain_region.atoms : null
                         );
 
                     if (max_features > 0)

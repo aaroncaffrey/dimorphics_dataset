@@ -8,6 +8,7 @@ namespace dimorphics_dataset
     public class feature_info
     {
         public string alphabet;
+        public string stats;
         public int dimension;
         public string category;
         public string source;
@@ -21,14 +22,15 @@ namespace dimorphics_dataset
 
         }
 
-        public feature_info(string csv_line, int csv_offset=0)
+        public feature_info(string csv_line, int csv_offset = 0)
         {
             if (csv_line == null) throw new ArgumentNullException(nameof(csv_line));
 
             var x = csv_line.Split(',');
-            
+
             var ix = csv_offset;
             alphabet = x[ix++];
+            stats = x[ix++];
             dimension = int.Parse(x[ix++], NumberStyles.Integer, CultureInfo.InvariantCulture);
             category = x[ix++];
             source = x[ix++];
@@ -39,7 +41,7 @@ namespace dimorphics_dataset
 
             //"alphabet,dim?,1,r_peptides,,r_peptides_aIndex,r_peptides_aIndex,default,0"
             //var j = 0;
-            
+
             //var start = 0;
             //var len = 0;
             //for (var i = 0; i <= csv_line.Length; i++)
@@ -81,6 +83,7 @@ namespace dimorphics_dataset
             }
 
             this.alphabet = feature_info.alphabet;
+            this.stats = feature_info.stats;
             this.dimension = feature_info.dimension;
             this.category = feature_info.category;
             this.source = feature_info.source;
@@ -92,7 +95,9 @@ namespace dimorphics_dataset
 
         public bool validate()
         {
-            var ok = (!string.IsNullOrWhiteSpace(alphabet) &&
+            var ok = (
+                !string.IsNullOrWhiteSpace(alphabet) &&
+                !string.IsNullOrWhiteSpace(stats) &&
                 (dimension >= 0 && dimension <= 3) &&
                 !string.IsNullOrWhiteSpace(source) &&
                 !string.IsNullOrWhiteSpace(group) &&
@@ -108,6 +113,7 @@ namespace dimorphics_dataset
             var data = new List<(string key, string value)>
             {
                 (nameof(alphabet), alphabet),
+                (nameof(stats), stats),
                 (nameof(dimension), dimension.ToString(CultureInfo.InvariantCulture)),
                 (nameof(category), category),
                 (nameof(source), source),
@@ -127,7 +133,7 @@ namespace dimorphics_dataset
 
         public string key_value_list_hr()
         {
-            //var header_list_str_c = header_list.Select((a, fid) => $"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            //var header_list_str_c = header_list.Select((a, fid) => $@"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
 
             var data = AsArray();
 
@@ -146,13 +152,13 @@ namespace dimorphics_dataset
         {
             //var header_list = feature_list.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
 
-            List<string> headers = new List<string> {$@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}"};
-            headers.AddRange(feature_list.Select((a, fid) => $"{fid},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+            List<string> headers = new List<string> { $@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.stats)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}" };
+            headers.AddRange(feature_list.Select((a, fid) => $@"{fid},{a.alphabet},{a.stats},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
 
             return headers;
 
             // check for duplicately named features
-            //var header_list_str = header_list.Select((a, fid) => $"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            //var header_list_str = header_list.Select((a, fid) => $@"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
             //var dupes = find_duplicate_strings(header_list_str);
             //if (dupes != null && dupes.Count > 0)
             //{
@@ -161,7 +167,7 @@ namespace dimorphics_dataset
 
             //var header_list_str_c = new List<string>();
             //header_list_str_c.Add($@"fid,{nameof(subsequence_classification_data.feature_info.alphabet)},{nameof(subsequence_classification_data.feature_info.dimension)},{nameof(subsequence_classification_data.feature_info.category)},{nameof(subsequence_classification_data.feature_info.source)},{nameof(subsequence_classification_data.feature_info.@group)},{nameof(subsequence_classification_data.feature_info.member)},{nameof(subsequence_classification_data.feature_info.perspective)}");
-            //header_list_str_c.AddRange(header_list.Select((a, fid) => $"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+            //header_list_str_c.AddRange(header_list.Select((a, fid) => $@"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
 
             //return header_list_str_c;
         }

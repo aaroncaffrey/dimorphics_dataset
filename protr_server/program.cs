@@ -10,7 +10,7 @@ namespace protr_server
         private static Random random = new Random();
         internal static string random_peptide(int length)
         {
-            const string chars = "ACDEFGHIKLMNPQRSTVWY";
+            const string chars = $@"ACDEFGHIKLMNPQRSTVWY";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
@@ -20,9 +20,9 @@ namespace protr_server
             {
                 var peptide = random_peptide(length);
 
-                var x = r_protr.get_values(0, "datasource", "Overall", peptide);
+                var x = r_protr.get_values(0, $@"datasource", $@"Overall", peptide);
 
-                io_proxy.WriteLine("input size: " + length + ", output size: " + x.Count);
+                io_proxy.WriteLine("input size: " + length + $@", output size: " + x.Count);
                 foreach (var a in x)
                 {
                     //io_proxy.WriteLine(a.ToString());
@@ -51,8 +51,8 @@ namespace protr_server
             var arg_index = 0;
 
             var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, CultureInfo.InvariantCulture);
-            var alphabet_name = "";//args[arg_index++];
-            var source_name = "";//args[arg_index++];
+            var alphabet_name = $@"";//args[arg_index++];
+            var source_name = $@"";//args[arg_index++];
             var sequence = args[arg_index++];
 
             var x = r_protr.get_values(call_count, source_name, alphabet_name, sequence);

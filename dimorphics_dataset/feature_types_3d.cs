@@ -1,59 +1,91 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace dimorphics_dataset
 {
     internal class feature_types_3d
     {
-        internal bool pse_ssc_dssp_classification_data;
+        internal enum_protein_data_source pds;
+
+        internal bool pse_ssc_dssp;
         //internal bool dssp_dist_classification_data = false;
-        internal bool foldx_classification_data;
-        internal bool ring_classification_data;
-        internal bool sasa_classification_data;
-        internal bool tortuosity_classification_data;
-        internal bool intramolecular_classification_data;
+        internal bool foldx;
+        internal bool ring;
+        internal bool sasa;
+        internal bool tortuosity;
+        internal bool intramolecular;
         //internal bool atom_distance_classification_data = false;
         //internal bool aa_aa_distances = false;
 
-        internal feature_types_3d()
+        public feature_types_3d()
         {
-
-        }
-        internal feature_types_3d(bool enable)
-        {
-            pse_ssc_dssp_classification_data = enable;
-            //dssp_dist_classification_data = enable;
-            foldx_classification_data = enable;
-            ring_classification_data = enable;
-            sasa_classification_data = enable;
-            tortuosity_classification_data = enable;
-            intramolecular_classification_data = enable;
-            //atom_distance_classification_data = enable;
-            //aa_aa_distances = enable;
+            
         }
 
-        internal List<(string key, bool value)> AsArray()
+        internal feature_types_3d(enum_protein_data_source pds, bool? enable = null)
+        {
+            if (pds == enum_protein_data_source.interface_3d) { }
+            else if (pds == enum_protein_data_source.neighbourhood_3d) { }
+            else if (pds == enum_protein_data_source.chain_3d) { }
+            else throw new Exception();
+
+            this.pds = pds;
+
+            if (enable != null) set_enable(enable.Value);
+        }
+
+        internal void set_enable(bool enable, string name = null)
+        {
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(pse_ssc_dssp), StringComparison.InvariantCultureIgnoreCase)) pse_ssc_dssp = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(foldx), StringComparison.InvariantCultureIgnoreCase)) foldx = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(ring), StringComparison.InvariantCultureIgnoreCase)) ring = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(sasa), StringComparison.InvariantCultureIgnoreCase)) sasa = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(tortuosity), StringComparison.InvariantCultureIgnoreCase)) tortuosity = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(intramolecular), StringComparison.InvariantCultureIgnoreCase)) intramolecular = enable;
+
+        }
+
+        internal void set_enable((bool enable, string name)[] items)
+        {
+            foreach (var item in items)
+            {
+                set_enable(item.enable, item.name);
+            }
+        }
+
+        internal static readonly string[] keys = new string[]
+            {
+               nameof(pse_ssc_dssp    ),
+               nameof(foldx           ),
+               nameof(ring            ),
+               nameof(sasa            ),
+               nameof(tortuosity      ),
+               nameof(intramolecular  )
+            }.OrderBy(a => a).ToArray();
+
+        internal List<(string key, bool value)> key_value_list()
         {
             var data = new List<(string key, bool value)>()
-                {
-                    ( nameof(pse_ssc_dssp_classification_data         ),  pse_ssc_dssp_classification_data                ) ,
-                    ( nameof(foldx_classification_data         ),  foldx_classification_data              ) ,
-                    ( nameof(ring_classification_data         ),  ring_classification_data              ) ,
-                    ( nameof(sasa_classification_data         ),  sasa_classification_data              ) ,
-                    ( nameof(tortuosity_classification_data         ),  tortuosity_classification_data             ) ,
-                    ( nameof(intramolecular_classification_data         ),  intramolecular_classification_data              ) ,
-                    //( nameof(atom_distance_classification_data         ),  atom_distance_classification_data              ) ,
-                    //( nameof(aa_aa_distances         ),  aa_aa_distances               ) ,
-                };
+            {
+                ( nameof(pse_ssc_dssp         ),  pse_ssc_dssp                ) ,
+                ( nameof(foldx         ),  foldx              ) ,
+                ( nameof(ring         ),  ring              ) ,
+                ( nameof(sasa         ),  sasa              ) ,
+                ( nameof(tortuosity         ),  tortuosity             ) ,
+                ( nameof(intramolecular         ),  intramolecular              ) ,
+                //( nameof(atom_distance_classification_data         ),  atom_distance_classification_data              ) ,
+                //( nameof(aa_aa_distances         ),  aa_aa_distances               ) ,
+            }.OrderBy(a => a.key).ThenBy(a => a.value).ToList();
 
             return data;
         }
 
         internal string key_value_list_hr()
         {
-            var data = AsArray();
+            var data = key_value_list();
 
-            var ret = $@"({string.Join(", ", data.Select(a => $"{a.key} = {a.value}").ToList())})";
+            var ret = $@"({string.Join($@", ", data.Select(a => $@"{a.key} = {a.value}").ToList())})";
 
             return ret;
         }

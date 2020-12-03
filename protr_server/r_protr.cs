@@ -24,7 +24,7 @@ namespace protr_server
                 lock (_key_lock)
                 {
                     _key++;
-                    return $"{nameof(r_protr)}_{_id}_{_key}";
+                    return $@"{nameof(r_protr)}_{_id}_{_key}";
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace protr_server
                     library(protr)
                 ";
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -65,7 +65,7 @@ namespace protr_server
                     {
                         if (_template_get_values == null)
                         {
-                            _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                            _template_get_values = get_values(id, source, alphabet_name, $@"ALG");
                             _template_get_values = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
                         }
 
@@ -98,256 +98,256 @@ namespace protr_server
 
                     var features = new List<feature_info>();
 
-                    var ret_extractAPAAC_f = ret_extractAPAAC.Select(a => new feature_info()
+                    var ret_extractAPAAC_f = ret_extractAPAAC.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{a.lambda}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{ds_stat.lambda}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(a => new feature_info()
+                    var ret_extractBLOSUM_f = ret_extractBLOSUM.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{a.submat}_{a.k}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{ds_stat.submat}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractCTDC_f = ret_extractCTDC.Select(a => new feature_info()
+                    var ret_extractCTDC_f = ret_extractCTDC.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractCTDD_f = ret_extractCTDD.Select(a => new feature_info()
+                    var ret_extractCTDD_f = ret_extractCTDD.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractCTDT_f = ret_extractCTDT.Select(a => new feature_info()
+                    var ret_extractCTDT_f = ret_extractCTDT.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractCTriad_f = ret_extractCTriad.Select(a => new feature_info()
+                    var ret_extractCTriad_f = ret_extractCTriad.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(a => new feature_info()
+                    var ret_extractCTriadClass_f = ret_extractCTriadClass.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractDC_f = ret_extractDC.Select(a => new feature_info()
+                    var ret_extractDC_f = ret_extractDC.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractDescScales_f = ret_extractDescScales.Select(a => new feature_info()
+                    var ret_extractDescScales_f = ret_extractDescScales.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{a.propmat}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{ds_stat.propmat}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractFAScales_f = ret_extractFAScales.Select(a => new feature_info()
+                    var ret_extractFAScales_f = ret_extractFAScales.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{a.factors}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{ds_stat.factors}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractGeary_f = ret_extractGeary.Select(a => new feature_info()
+                    var ret_extractGeary_f = ret_extractGeary.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{ds_stat.nlag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractMDSScales_f = ret_extractMDSScales.Select(a => new feature_info()
+                    var ret_extractMDSScales_f = ret_extractMDSScales.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{a.k}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractMoran_f = ret_extractMoran.Select(a => new feature_info()
+                    var ret_extractMoran_f = ret_extractMoran.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{ds_stat.nlag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(a => new feature_info()
+                    var ret_extractMoreauBroto_f = ret_extractMoreauBroto.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{ds_stat.nlag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractPAAC_f = ret_extractPAAC.Select(a => new feature_info()
+                    var ret_extractPAAC_f = ret_extractPAAC.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{a.lambda}_{a.w}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{ds_stat.lambda}_{ds_stat.w}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractProtFP_f = ret_extractProtFP.Select(a => new feature_info()
+                    var ret_extractProtFP_f = ret_extractProtFP.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(a => new feature_info()
+                    var ret_extractProtFPGap_f = ret_extractProtFPGap.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractQSO_f = ret_extractQSO.Select(a => new feature_info()
+                    var ret_extractQSO_f = ret_extractQSO.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{a.nlag}_{a.w}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{ds_stat.nlag}_{ds_stat.w}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractSOCN_f = ret_extractSOCN.Select(a => new feature_info()
+                    var ret_extractSOCN_f = ret_extractSOCN.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{a.nlag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{ds_stat.nlag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractScales_f = ret_extractScales.Select(a => new feature_info()
+                    var ret_extractScales_f = ret_extractScales.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
-                    var ret_extractScalesGap_f = ret_extractScalesGap.Select(a => new feature_info()
+                    var ret_extractScalesGap_f = ret_extractScalesGap.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
+                        stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{a.pc}_{a.lag}_{alphabet_name}".Replace(".", "_", StringComparison.InvariantCulture),
-                        member = $@"{a.name}".Replace(".", "_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(".", $@"_", StringComparison.InvariantCulture),
+                        member = $@"{ds_stat.name}".Replace(".", $@"_", StringComparison.InvariantCulture),
                         perspective = $@"default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
                     // todo: replace '.'s in names
@@ -378,7 +378,7 @@ namespace protr_server
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
+                        var template = features.Select(a => new feature_info(a) { alphabet = $@"", source = $@"", feature_value = 0 }).ToList();
                         _template_get_values = template;
                     }
 
@@ -409,12 +409,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_last), lambda_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -424,16 +424,16 @@ namespace protr_server
                 {
                     var f = nameof(extractAPAAC);
                     var k = Key;
-                    var v = $"{f}_v{k}";
-                    var ai = ""; //"[[1]]";
+                    var v = $@"{f}_v{k}";
+                    var ai = $@""; //"[[1]]";
 
-                    var evaluate = engine.Evaluate($"{v} <- {f}({nameof(x)} = \"{x}\", {nameof(lambda)} = {lambda})");
-                    var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                    //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                    //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                    //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                    var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                    var rm = engine.Evaluate($"rm({v})");
+                    var evaluate = engine.Evaluate($@"{v} <- {f}({nameof(x)} = ""{x}"", {nameof(lambda)} = {lambda})");
+                    var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                    //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                    //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                    //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                    var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                    var rm = engine.Evaluate($@"rm({v})");
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -477,19 +477,19 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var submats = new string[]
                 {
-                    "AABLOSUM45", "AABLOSUM50", "AABLOSUM62", "AABLOSUM80", "AABLOSUM100", "AAPAM30", "AAPAM40",
-                    "AAPAM70", "AAPAM120", "AAPAM250"
+                    $@"AABLOSUM45", $@"AABLOSUM50", $@"AABLOSUM62", $@"AABLOSUM80", $@"AABLOSUM100", $@"AAPAM30", $@"AAPAM40",
+                    $@"AAPAM70", $@"AAPAM120", $@"AAPAM250"
                 };
 
                 var k_first = 5;
@@ -503,12 +503,12 @@ namespace protr_server
                         for (var k = k_first; k <= k_last; k++)
                         {
                             var fn_name = nameof(extractBLOSUM);
-                            var vr_name = $"{fn_name}_v{Key}";
-                            var ar_ix = ""; //"[[1]]";
+                            var vr_name = $@"{fn_name}_v{Key}";
+                            var ar_ix = $@""; //"[[1]]";
 
                             var evaluate =
                                 engine.Evaluate(
-                                    $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(submat)} = ""{submat}"", {nameof(k)} = {k}, {nameof(lag)} = {lag})");
+                                    $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(submat)} = $@""{submat}"", {nameof(k)} = {k}, {nameof(lag)} = {lag})");
                             var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                             //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                             //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -548,20 +548,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractCTDC);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = ""; //"[[1]]";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@""; //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
+                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -596,20 +596,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractCTDD);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = ""; //"[[1]]";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@""; //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
+                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -647,20 +647,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractCTDT);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = ""; //"[[1]]";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@""; //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
+                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -695,20 +695,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractCTriad);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = "";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@"";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
+                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -744,23 +744,23 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractCTriadClass);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = "";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@"";
 
-                var aaclass = $"{fn_name}_v{Key}";
+                var aaclass = $@"{fn_name}_v{Key}";
 
-                var evaluate1 = engine.Evaluate($@"{aaclass} <- list( c(""G"", ""A"", ""S"", ""T"", ""P"", ""D"", ""C""), c(""N"", ""V"", ""E"", ""Q"", ""I"", ""L""), c(""M"", ""H"", ""K"", ""F"", ""R"", ""Y"", ""W"") )");
-                var evaluate2 = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(aaclass)} = {aaclass})");
+                var evaluate1 = engine.Evaluate($@"{aaclass} <- list( c(""G"", $@""A"", $@""S"", $@""T"", $@""P"", $@""D"", $@""C""), c(""N"", $@""V"", $@""E"", $@""Q"", $@""I"", $@""L""), c(""M"", $@""H"", $@""K"", $@""F"", $@""R"", $@""Y"", $@""W"") )");
+                var evaluate2 = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(aaclass)} = {aaclass})");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -795,20 +795,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractDC);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = ""; //"[[1]]";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@""; //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
+                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")");
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
                 //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
@@ -858,25 +858,25 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var propmats = new string[]
                 {
-                    "AAMOE2D", "AAMOE3D", "AACPSA", "AADescAll", "AA2DACOR", "AA3DMoRSE", "AAACF", "AABurden", "AAConn",
-                    "AAConst", "AAEdgeAdj", "AAEigIdx", "AAFGC", "AAGeom", "AAGETAWAY", "AAInfo", "AAMolProp",
-                    "AARandic", "AARDF", "AATopo", "AATopoChg", "AAWalk", "AAWHIM"
+                    $@"AAMOE2D", $@"AAMOE3D", $@"AACPSA", $@"AADescAll", $@"AA2DACOR", $@"AA3DMoRSE", $@"AAACF", $@"AABurden", $@"AAConn",
+                    $@"AAConst", $@"AAEdgeAdj", $@"AAEigIdx", $@"AAFGC", $@"AAGeom", $@"AAGETAWAY", $@"AAInfo", $@"AAMolProp",
+                    $@"AARandic", $@"AARDF", $@"AATopo", $@"AATopoChg", $@"AAWalk", $@"AAWHIM"
                 };
 
-                var index = "NULL";
-                var silent = "FALSE";
-                var scale = "TRUE";
+                var index = $@"NULL";
+                var silent = $@"FALSE";
+                var scale = $@"TRUE";
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -892,12 +892,12 @@ namespace protr_server
 
 
                             var fn_name = nameof(extractDescScales);
-                            var vr_name = $"{fn_name}_v{Key}";
-                            var ar_ix = ""; //"[[1]]";
+                            var vr_name = $@"{fn_name}_v{Key}";
+                            var ar_ix = $@""; //"[[1]]";
 
-                            var vr_name_output = $"{fn_name}_v{Key}";
+                            var vr_name_output = $@"{fn_name}_v{Key}";
 
-                            var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = ""{propmat}"", {nameof(index)} = {index}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                            var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(propmat)} = $@""{propmat}"", {nameof(index)} = {index}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
 
                             var evaluate = engine.Evaluate(cmd);
                             var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
@@ -916,7 +916,7 @@ namespace protr_server
                             {
                                 var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                                var pca_row_label = string.Join(" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                                var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                                 var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
 
                                 pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -967,19 +967,19 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(factors_first), factors_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(factors_last), factors_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var silent = "FALSE";
-                var scale = "TRUE";
+                var silent = $@"FALSE";
+                var scale = $@"TRUE";
 
                 var list = new List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)>();
 
@@ -988,14 +988,14 @@ namespace protr_server
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
                         var fn_name = nameof(extractFAScales);
-                        var vr_name = $"{fn_name}_v{Key}";
-                        var ar_ix = "";
+                        var vr_name = $@"{fn_name}_v{Key}";
+                        var ar_ix = $@"";
 
-                        var vr_name_tprops = $"{fn_name}_v{Key}";
-                        var vr_name_output = $"{fn_name}_v{Key}";
+                        var vr_name_tprops = $@"{fn_name}_v{Key}";
+                        var vr_name_output = $@"{fn_name}_v{Key}";
 
                         var cmd1 = $@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]"; // select a set of topological descriptors
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}(x = ""{x}"", propmat = {vr_name_tprops}, {nameof(factors)} = {factors}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}(x = $@""{x}"", propmat = {vr_name_tprops}, {nameof(factors)} = {factors}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
@@ -1020,7 +1020,7 @@ namespace protr_server
 
                         var factors_col_labels = values_output[22].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         var factors_rows = values_output.Skip(23).Take(3).Select(a => a.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).ToList();
-                        var factors_row_labels = factors_rows.Select(a => string.Join(" ", a.Take(a.Length - factors_col_labels.Length).ToList())).ToList();
+                        var factors_row_labels = factors_rows.Select(a => string.Join($@" ", a.Take(a.Length - factors_col_labels.Length).ToList())).ToList();
                         var factors_row_values = factors_rows.Select(a => a.Skip(a.Length - factors_col_labels.Length).Select(b => double.Parse(b, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList()).ToList();
 
                         var factors_list = new List<(string row_name, string col_name, double value)>();
@@ -1064,12 +1064,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1078,13 +1078,13 @@ namespace protr_server
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
                     var fn_name = nameof(extractGeary);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = "";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@"";
 
-                    var props = $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = "NULL";
+                    var props = $@"c(""CIDH920105"", $@""BHAR880101"", $@""CHAM820101"", $@""CHAM820102"", $@""CHOC760101"", $@""BIGC670101"", $@""CHAM810101"", $@""DAYM780201"")";
+                    var customprops = $@"NULL";
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1134,26 +1134,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)>();
 
                 var fn_name = nameof(extractMDSScales);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = "";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@"";
 
-                var vr_name_tprops = $"{fn_name}_v{Key}";
-                var vr_name_output = $"{fn_name}_v{Key}";
+                var vr_name_tprops = $@"{fn_name}_v{Key}";
+                var vr_name_output = $@"{fn_name}_v{Key}";
 
-                var scale = "TRUE";
-                var silent = "FALSE";
+                var scale = $@"TRUE";
+                var silent = $@"FALSE";
 
                 var k_first = 5;
                 var k_last = 5;
@@ -1163,7 +1163,7 @@ namespace protr_server
                     for (var k = k_first; k <= k_last; k++)
                     {
                         var cmd1 = $@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", propmat = {vr_name_tprops}, {nameof(k)} = {k}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", propmat = {vr_name_tprops}, {nameof(k)} = {k}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
                         var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
@@ -1207,12 +1207,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1221,15 +1221,15 @@ namespace protr_server
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
                     var fn_name = nameof(extractMoran);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = ""; //"[[1]]";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@""; //"[[1]]";
 
                     var props =
-                        $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"",""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = "NULL";
+                        $@"c(""CIDH920105"", $@""BHAR880101"", $@""CHAM820101"",""CHAM820102"", $@""CHOC760101"", $@""BIGC670101"", $@""CHAM810101"", $@""DAYM780201"")";
+                    var customprops = $@"NULL";
 
                     var cmd =
-                        $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                        $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1268,12 +1268,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1282,16 +1282,16 @@ namespace protr_server
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
                     var fn_name = nameof(extractMoran);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = ""; //"[[1]]";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@""; //"[[1]]";
 
 
                     var props =
-                        $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"",""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = "NULL";
+                        $@"c(""CIDH920105"", $@""BHAR880101"", $@""CHAM820101"",""CHAM820102"", $@""CHOC760101"", $@""BIGC670101"", $@""CHAM810101"", $@""DAYM780201"")";
+                    var customprops = $@"NULL";
 
                     var cmd =
-                        $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                        $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1343,13 +1343,13 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lamda_last), lamda_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1358,13 +1358,13 @@ namespace protr_server
                 for (var lambda = lambda_first; lambda <= lamda_last; lambda++)
                 {
                     var fn_name = nameof(extractPAAC);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = "";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@"";
 
-                    var props = $@"c(""Hydrophobicity"", ""Hydrophilicity"", ""SideChainMass"")";
-                    var customprops = "NULL";
+                    var props = $@"c(""Hydrophobicity"", $@""Hydrophilicity"", $@""SideChainMass"")";
+                    var customprops = $@"NULL";
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(lambda)} = {lambda},  {nameof(w)} = {w}, {nameof(customprops)} = {customprops})";
+                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(props)} = {props}, {nameof(lambda)} = {lambda},  {nameof(w)} = {w}, {nameof(customprops)} = {customprops})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1400,10 +1400,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1417,10 +1417,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1434,10 +1434,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1468,20 +1468,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)>();
 
-                var index = "c(160:165, 258:296)";
-                var scale = "TRUE";
-                var silent = "FALSE";
+                var index = $@"c(160:165, 258:296)";
+                var scale = $@"TRUE";
+                var silent = $@"FALSE";
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1492,12 +1492,12 @@ namespace protr_server
                     for (var pc = pc_first; pc <= pc_last; pc++)
                     {
                         var fn_name = nameof(extractProtFP);
-                        var vr_name = $"{fn_name}_v{Key}";
-                        var vr_name_output = $"{fn_name}_v{Key}";
-                        var ar_ix = "";
+                        var vr_name = $@"{fn_name}_v{Key}";
+                        var vr_name_output = $@"{fn_name}_v{Key}";
+                        var ar_ix = $@"";
 
 
-                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
                         var evaluate = engine.Evaluate(cmd);
                         var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                         //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1515,7 +1515,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join(" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1566,20 +1566,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)>();
 
-                var index = "c(160:165, 258:296)";
-                var scale = "TRUE";
-                var silent = "FALSE";
+                var index = $@"c(160:165, 258:296)";
+                var scale = $@"TRUE";
+                var silent = $@"FALSE";
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1590,12 +1590,12 @@ namespace protr_server
                     for (var pc = pc_first; pc <= pc_last; pc++)
                     {
                         var fn_name = nameof(extractProtFPGap);
-                        var vr_name = $"{fn_name}_v{Key}";
-                        var vr_name_output = $"{fn_name}_v{Key}";
-                        var ar_ix = "";
+                        var vr_name = $@"{fn_name}_v{Key}";
+                        var vr_name_output = $@"{fn_name}_v{Key}";
+                        var ar_ix = $@"";
 
 
-                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
                         var evaluate = engine.Evaluate(cmd);
                         var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                         //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
@@ -1613,7 +1613,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join(" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1661,13 +1661,13 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1676,10 +1676,10 @@ namespace protr_server
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
                     var fn_name = nameof(extractQSO);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = "";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@"";
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag},  {nameof(w)} = {w})";
+                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(nlag)} = {nlag},  {nameof(w)} = {w})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
@@ -1728,12 +1728,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1742,10 +1742,10 @@ namespace protr_server
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
                     var fn_name = nameof(extractSOCN);
-                    var vr_name = $"{fn_name}_v{Key}";
-                    var ar_ix = "";
+                    var vr_name = $@"{fn_name}_v{Key}";
+                    var ar_ix = $@"";
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag})";
+                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(nlag)} = {nlag})";
                     var evaluate = engine.Evaluate(cmd);
                     var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                     var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
@@ -1795,17 +1795,17 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var scale = "TRUE";
-                var silent = "FALSE";
+                var scale = $@"TRUE";
+                var silent = $@"FALSE";
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1818,15 +1818,15 @@ namespace protr_server
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
                         var fn_name = nameof(extractScales);
-                        var vr_name = $"{fn_name}_v{Key}";
-                        var ar_ix = ""; //"[[1]]";
+                        var vr_name = $@"{fn_name}_v{Key}";
+                        var ar_ix = $@""; //"[[1]]";
 
-                        var vr_name_ = $"{fn_name}_v{Key}";
-                        var vr_name_output = $"{fn_name}_v{Key}";
-                        var propmat = $"{fn_name}_v{Key}";
+                        var vr_name_ = $@"{fn_name}_v{Key}";
+                        var vr_name_output = $@"{fn_name}_v{Key}";
+                        var propmat = $@"{fn_name}_v{Key}";
 
                         var cmd1 = $@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
@@ -1847,7 +1847,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join(" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1897,17 +1897,17 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var scale = "TRUE";
-                var silent = "FALSE";
+                var scale = $@"TRUE";
+                var silent = $@"FALSE";
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1920,15 +1920,15 @@ namespace protr_server
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
                         var fn_name = nameof(extractScalesGap);
-                        var vr_name = $"{fn_name}_v{Key}";
-                        var ar_ix = ""; //"[[1]]";
+                        var vr_name = $@"{fn_name}_v{Key}";
+                        var ar_ix = $@""; //"[[1]]";
 
-                        var vr_name_ = $"{fn_name}_v{Key}";
-                        var vr_name_output = $"{fn_name}_v{Key}";
-                        var propmat = $"{fn_name}_v{Key}";
+                        var vr_name_ = $@"{fn_name}_v{Key}";
+                        var vr_name_output = $@"{fn_name}_v{Key}";
+                        var propmat = $@"{fn_name}_v{Key}";
 
                         var cmd1 = $@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = $@""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
@@ -1949,7 +1949,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join(" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1986,20 +1986,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? ""),
+                (nameof(engine), engine?.ToString() ?? $@""),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $"{a.key} = \"{a.value}\"").ToList())})");
+            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
                 var fn_name = nameof(extractTC);
-                var vr_name = $"{fn_name}_v{Key}";
-                var ar_ix = "";
+                var vr_name = $@"{fn_name}_v{Key}";
+                var ar_ix = $@"";
 
-                var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")";
+                var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = $@""{x}"")";
                 var evaluate = engine.Evaluate(cmd);
                 var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
                 var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();

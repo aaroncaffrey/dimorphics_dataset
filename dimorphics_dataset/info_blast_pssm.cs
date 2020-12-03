@@ -10,7 +10,7 @@ namespace dimorphics_dataset
 {
     internal static class info_blast_pssm
     {
-        internal static string run_psi_blast_get_pssm(string seq_filename, string pssm_filename, string blast_database, string database_folder, int num_iterations = 1, string evalue = "0.1", string inclusion_ethresh = "0.1", bool remote = true, bool run = false)
+        internal static string run_psi_blast_get_pssm(string seq_filename, string pssm_filename, string blast_database, string database_folder, int num_iterations = 1, string evalue = @"0.1", string inclusion_ethresh = @"0.1", bool remote = true, bool run = false)
         {
 
             //run_psi_blast_get_pssm: stdout: Database: Non - redundant UniProtKB / SwissProt sequences
@@ -24,7 +24,7 @@ namespace dimorphics_dataset
 
 
             //psiblast_args.Add($@"-query query/{Path.GetFileName(seq_filename)}");
-            //psiblast_args.Add($@"-db ""c:\blast\bin\db\{blast_database}""");
+            //psiblast_args.Add($@"-db $@""c:\blast\bin\db\{blast_database}""");
 
 
             // get pssm for each globin
@@ -34,7 +34,7 @@ namespace dimorphics_dataset
 
             var psiblast_args = new List<string>
             {
-                $@"-query ""{seq_filename}""",
+                $@"-query $@""{seq_filename}""",
                 $@"-db {(remote ? blast_database : Path.Combine(database_folder, blast_database))}",
                 $@"-evalue={evalue}",
                 $@"-inclusion_ethresh={inclusion_ethresh}",
@@ -58,8 +58,8 @@ namespace dimorphics_dataset
             var start = new ProcessStartInfo
             {
                 FileName = psiblast_exe_filename,
-                WorkingDirectory = Path.GetDirectoryName(psiblast_exe_filename) ?? "",
-                Arguments = string.Join(" ", psiblast_args),
+                WorkingDirectory = Path.GetDirectoryName(psiblast_exe_filename) ?? $@"",
+                Arguments = string.Join($@" ", psiblast_args),
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -70,13 +70,13 @@ namespace dimorphics_dataset
             if (run)
             {
 
-                io_proxy.WriteLine($"{nameof(run_psi_blast_get_pssm)}: run: \"{start.FileName}\" {start.Arguments}", nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
+                io_proxy.WriteLine($@"{nameof(run_psi_blast_get_pssm)}: run: ""{start.FileName}"" {start.Arguments}", nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
 
                 using var process = Process.Start(start);
 
                 if (process == null)
                 {
-                    throw new Exception($"{nameof(run_psi_blast_get_pssm)}: {nameof(process)} is null");
+                    throw new Exception($@"{nameof(run_psi_blast_get_pssm)}: {nameof(process)} is null");
                 }
 
 
@@ -85,7 +85,7 @@ namespace dimorphics_dataset
                     var stdout = reader.ReadToEnd();
                     if (!string.IsNullOrWhiteSpace(stdout))
                     {
-                        stdout = ("\r\n" + stdout).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
+                        stdout = $"\r\n{stdout}".Replace($"\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
                         io_proxy.WriteLine(stdout, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
                     }
                 }
@@ -96,7 +96,7 @@ namespace dimorphics_dataset
 
                     if (!string.IsNullOrWhiteSpace(stderr))
                     {
-                        stderr = ("\r\n" + stderr).Replace("\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
+                        stderr = $"\r\n{stderr}".Replace($"\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
                         io_proxy.WriteLine(stderr, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
                     }
                 }
@@ -104,7 +104,7 @@ namespace dimorphics_dataset
                 process.WaitForExit();
             }
 
-            return $"{start.FileName} {start.Arguments}";
+            return $@"{start.FileName} {start.Arguments}";
 
         }
 
@@ -243,7 +243,7 @@ namespace dimorphics_dataset
             var pssm_end_index = line_list.IndexOf("");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 
-            line_list[0] = "ID AA " + line_list[0] + " W1 W2";
+            line_list[0] = $@"ID AA {line_list[0]} W1 W2";
 
 
 
@@ -290,23 +290,23 @@ namespace dimorphics_dataset
 
         //internal static List<(int id, string name, List<string> groups)> alphabets = new List<(int id, string name, List<string> groups)>()
         //{
-        //    (0, "Normal",new List<string>(){
-        //        "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V"
+        //    (0, $@"Normal",new List<string>(){
+        //        $@"A", $@"R", $@"N", $@"D", $@"C", $@"Q", $@"E", $@"G", $@"H", $@"I", $@"L", $@"K", $@"M", $@"F", $@"P", $@"S", $@"T", $@"W", $@"Y", $@"V"
         //    }),
-        //    (1, "Physicochemical",new List<string>(){
-        //        "AVFPMILW", "DE", "RK", "STYHCNGQ"
+        //    (1, $@"Physicochemical",new List<string>(){
+        //        $@"AVFPMILW", $@"DE", $@"RK", $@"STYHCNGQ"
         //    }),
-        //    (2, "Hydrophobicity",new List<string>(){
-        //        "AGILPV", "FYW", "DENQRHSTK", "CM"
+        //    (2, $@"Hydrophobicity",new List<string>(){
+        //        $@"AGILPV", $@"FYW", $@"DENQRHSTK", $@"CM"
         //    }),
-        //    (3, "UniProtKb",new List<string>(){
-        //        "LAGVIP", "DE", "ST", "RKH", "FYW", "NQ", "CM"
+        //    (3, $@"UniProtKb",new List<string>(){
+        //        $@"LAGVIP", $@"DE", $@"ST", $@"RKH", $@"FYW", $@"NQ", $@"CM"
         //    }),
-        //    (4, "PdbSum",new List<string>(){
-        //        "HKR", "DE", "STNQ", "AVLIM", "FYW", "PG", "C"
+        //    (4, $@"PdbSum",new List<string>(){
+        //        $@"HKR", $@"DE", $@"STNQ", $@"AVLIM", $@"FYW", $@"PG", $@"C"
         //    }),
-        //    (5, "Venn",new List<string>(){
-        //        "ILV", "TS", "AGCS", "VPAGCSTDN", "NQ", "HKR", "DE", "CSTNQDEHKRYW", "ILVAMFGP", "DEHKR", "ILVACTMFYWHK", "FYWH", "MC"
+        //    (5, $@"Venn",new List<string>(){
+        //        $@"ILV", $@"TS", $@"AGCS", $@"VPAGCSTDN", $@"NQ", $@"HKR", $@"DE", $@"CSTNQDEHKRYW", $@"ILVAMFGP", $@"DEHKR", $@"ILVACTMFYWHK", $@"FYWH", $@"MC"
         //    })
         //};
 
@@ -338,7 +338,7 @@ namespace dimorphics_dataset
         {
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string col_aa, double[] values)> x)>();
 
@@ -392,7 +392,7 @@ namespace dimorphics_dataset
         {
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)>();
 
@@ -499,7 +499,7 @@ namespace dimorphics_dataset
             // note: it doesn't make sense to have DT for 20row
 
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, double[] values)> x)>();
 
@@ -549,7 +549,7 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)>();
 
@@ -605,7 +605,7 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)>();
 
@@ -698,7 +698,7 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, double[] values)>)>();
 
@@ -757,7 +757,7 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
-            //var cols = "ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
+            //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)>)>();
 

@@ -361,29 +361,29 @@ namespace dimorphics_dataset
 
                 switch (recordCode)
                 {
-                    case "REM":
+                    case @"REM":
                         record = new Stride_Remark(columnFormatLine); break;
-                    case "HDR":
+                    case @"HDR":
                         record = new Stride_Header(columnFormatLine); break;
-                    case "CMP":
+                    case @"CMP":
                         record = new Stride_Compound(columnFormatLine); break;
-                    case "SRC":
+                    case @"SRC":
                         record = new Stride_Receptor(columnFormatLine); break;
-                    case "AUT":
+                    case @"AUT":
                         record = new Stride_StructureAuthors(columnFormatLine); break;
-                    case "CHN":
+                    case @"CHN":
                         record = new Stride_Chain(columnFormatLine); break;
-                    case "SEQ":
+                    case @"SEQ":
                         record = new Stride_AminoAcidSequence(columnFormatLine); break;
-                    case "STR":
+                    case @"STR":
                         record = new Stride_SecondaryStructure(columnFormatLine); break;
-                    case "LOC":
+                    case @"LOC":
                         record = new Stride_LocationOfSecondaryStructureElements(columnFormatLine); break;
-                    case "ASG":
+                    case @"ASG":
                         record = new Stride_DetailedSecondaryStructureAssignments(columnFormatLine); break;
-                    case "DNR":
+                    case @"DNR":
                         record = new Stride_LigandDonorReside(columnFormatLine); break;
-                    case "ACC":
+                    case @"ACC":
                         record = new Stride_AcceptorResidue(columnFormatLine); break;
                     default:
                         //record = new Stride_Record(columnFormatLine);

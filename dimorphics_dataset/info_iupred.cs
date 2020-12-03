@@ -31,7 +31,7 @@ namespace dimorphics_dataset
                 ("glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
             };
 
-            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith("#", StringComparison.InvariantCulture) && "0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
+            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith("#", StringComparison.InvariantCulture) && $@"0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
             {
 
                 var x= b.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
@@ -48,9 +48,9 @@ namespace dimorphics_dataset
 
                 var first = list.First();
 
-                var long_type_score = list.First(b => b.type == "long").score;
-                var short_type_score = list.First(b => b.type == "short").score;
-                var glob_type_score = list.First(b => b.type == "glob").score;
+                var long_type_score = list.First(b => b.type == $@"long").score;
+                var short_type_score = list.First(b => b.type == $@"short").score;
+                var glob_type_score = list.First(b => b.type == $@"glob").score;
                 var anchor2_score = first.anchor2;
 
                 return (first.line_index, short_type_score, long_type_score, glob_type_score, anchor2_score);

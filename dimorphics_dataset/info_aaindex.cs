@@ -40,8 +40,8 @@ namespace dimorphics_dataset
         //    var result = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
 
         //    var alphabets = feature_calcs.aa_alphabets.ToList();
-        //    alphabets.Add((-1,"Overall",new List<string>() { "ARNDCQEGHILKMFPSTWYV" }));
-        //    alphabets = alphabets.Where(a => !String.Equals(a.name, "Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+        //    alphabets.Add((-1,"Overall",new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
+        //    alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
         //    foreach (var alphabet in alphabets)
         //    {
@@ -59,7 +59,7 @@ namespace dimorphics_dataset
         //                var result2 = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
         //                foreach (var alphabet_sequence in alphabet_sequences)
         //                {
-        //                    var name = $"{a.H_Accession_Number}_{alphabet.name}_{group.name}";
+        //                    var name = $@"{a.H_Accession_Number}_{alphabet.name}_{group.name}";
 
         //                    if (string.IsNullOrWhiteSpace(alphabet_sequence))
         //                    {
@@ -123,8 +123,8 @@ namespace dimorphics_dataset
             var lines = io_proxy.ReadAllLines(aaindex1_file, nameof(info_aaindex), nameof(Load));
             info_aaindex_entry entry=null;
             
-            var i_amino_acid_order = "";
-            var lastcode = "";
+            var i_amino_acid_order = $@"";
+            var lastcode = $@"";
             for (var lines_index = 0; lines_index < lines.Length; lines_index++)
             {
                 var line = lines[lines_index];
@@ -133,16 +133,16 @@ namespace dimorphics_dataset
                 if (string.IsNullOrWhiteSpace(code)) code = lastcode;
                 lastcode = code;
                 if (line.Length == 1) continue;
-                if (code == "//" || entry == null || lines_index == 0)
+                if (code == $@"//" || entry == null || lines_index == 0)
                 {
                     if (lines_index >= lines.Length - 2) break;
                     entry = new info_aaindex_entry();
                     result.Add(entry);
-                    i_amino_acid_order = "";
-                    if (code == "//")
+                    i_amino_acid_order = $@"";
+                    if (code == $@"//")
                     {
-                        lastcode = "";
-                        code = "";
+                        lastcode = $@"";
+                        code = $@"";
                     }
                 }
 
@@ -151,39 +151,39 @@ namespace dimorphics_dataset
 
                 switch (code)
                 {
-                    case "H":
+                    case @"H":
                         if (!string.IsNullOrEmpty(entry.H_Accession_Number)) entry.H_Accession_Number += Environment.NewLine;
                         entry.H_Accession_Number += line_data;
                         break;
-                    case "D":
+                    case @"D":
 
                         if (!string.IsNullOrEmpty(entry.D_Data_Description)) entry.D_Data_Description += Environment.NewLine;
                         entry.D_Data_Description += line_data;
                         break;
-                    case "R":
+                    case @"R":
 
                         if (!string.IsNullOrEmpty(entry.R_PMID)) entry.R_PMID += Environment.NewLine;
                         entry.R_PMID += line_data;
                         break;
-                    case "A":
+                    case @"A":
 
                         if (!string.IsNullOrEmpty(entry.A_Authors)) entry.A_Authors += Environment.NewLine;
                         entry.A_Authors += line_data;
                         break;
-                    case "T":
+                    case @"T":
 
                         if (!string.IsNullOrEmpty(entry.T_Title_Of_Article)) entry.T_Title_Of_Article += Environment.NewLine;
                         entry.T_Title_Of_Article += line_data;
                         break;
-                    case "J":
+                    case @"J":
 
                         if (!string.IsNullOrEmpty(entry.J_Journal_Reference)) entry.J_Journal_Reference += Environment.NewLine;
                         entry.J_Journal_Reference += line_data;
                         break;
 
-                    case "*":
+                    case @"*":
                         break;
-                    case "C":
+                    case @"C":
                         var c = line_data.Split(new char[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
                         while (c.Count > 0)
                         {
@@ -192,10 +192,10 @@ namespace dimorphics_dataset
                         }
 
                         break;
-                    case "I":
+                    case @"I":
                         if (string.IsNullOrWhiteSpace(i_amino_acid_order))
                         {
-                            //if (entry.H_Accession_Number == "OOBM770105")
+                            //if (entry.H_Accession_Number == $@"OOBM770105")
                             //{
                             //    Program.WriteLine();
                             //}
@@ -243,7 +243,7 @@ namespace dimorphics_dataset
                 // make overall average from normalised data
                 var x = result.SelectMany(a => a.I_Amino_Acid_Index_Data_Normalised).GroupBy(a => a.amino_acid).Select(a => (amino_acid:a.Key, index_value:a.Select(b=>b.index_value).Average())).ToList();
 
-                var aaindex_overall_average_str = "aaindex_overall_average";
+                var aaindex_overall_average_str = $@"aaindex_overall_average";
                 var aaindex_overall_average = new info_aaindex_entry()
                 {
                     A_Authors = aaindex_overall_average_str,

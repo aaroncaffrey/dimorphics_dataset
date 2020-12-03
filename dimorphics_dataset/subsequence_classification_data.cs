@@ -43,6 +43,7 @@ namespace dimorphics_dataset
             {
                 throw new Exception("Number must be divisible by both 2 and 3");
             }
+            
 
             var interface_atoms_array_indexes = interface_region.master_atoms.Select(a => chain_region.master_atoms.IndexOf(a)).Where(a => a != -1).ToList();
             var start_array_index = interface_atoms_array_indexes.Min(); // first res_id in interface or subseq
@@ -111,26 +112,27 @@ namespace dimorphics_dataset
         {
             var comment_headers = new List<string>
             {
-                "row_index",
-                "unique_id", 
-                $"{nameof(instance_meta_data.pdb_id)}",
-                $"{nameof(instance_meta_data.chain_id)}", 
-                $"{nameof(instance_meta_data.dimer_type)}", 
-                $"{nameof(instance_meta_data.class_id)}", 
-                $"{nameof(instance_meta_data.class_name)}", 
-                $"{nameof(instance_meta_data.parallelism)}", 
-                $"{nameof(instance_meta_data.symmetry_mode)}"
+                $@"row_index",
+                $@"{nameof(instance_meta_data.pdb_id)}",
+                $@"{nameof(instance_meta_data.chain_id)}", 
+                $@"{nameof(instance_meta_data.dimer_type)}", 
+                $@"{nameof(instance_meta_data.class_id)}", 
+                $@"{nameof(instance_meta_data.class_name)}", 
+                $@"{nameof(instance_meta_data.parallelism)}", 
+                $@"{nameof(instance_meta_data.symmetry_mode)}"
             };
 
             foreach (var region in instance_meta_data.get_regions())
             {
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.aa_sequence.Length)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.aa_sequence)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.res_ids)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp3_monomer)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp3_multimer)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_monomer)}");
-                comment_headers.Add($"{region.region_name}_{nameof(region.region.dssp_multimer)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.unique_id)}");
+
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.aa_sequence.Length)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.aa_sequence)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.res_ids)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp3_monomer)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp3_multimer)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp_monomer)}");
+                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp_multimer)}");
                 comment_headers.AddRange(region.region?.ss_predictions?.Select(a => $@"{region.region_name}_{a.format}").ToList() ?? new List<string>());
             }
 
@@ -146,26 +148,27 @@ namespace dimorphics_dataset
             var if_region = regions.First(a => a.region_name == nameof(interface_region));
 
             row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
-            // -1Z1Y2AA34Y35K36A37
-            row_comments.Add($"{instance_meta_data.class_id:+#;-#;+0}{instance_meta_data.pdb_id}{instance_meta_data.chain_id}{(string.Join(" ", if_region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $"{(char.IsDigit(a.i_code) ? "i" : "")}{a.i_code}" : "")}").ToList()))}");
 
-            row_comments.Add($"{instance_meta_data.pdb_id}");
-            row_comments.Add($"{instance_meta_data.chain_id}");
-            row_comments.Add($"{instance_meta_data.dimer_type}");
-            row_comments.Add($"{instance_meta_data.class_id}");
-            row_comments.Add($"{instance_meta_data.class_name}");
-            row_comments.Add($"{instance_meta_data.parallelism}");
-            row_comments.Add($"{instance_meta_data.symmetry_mode}");
+            row_comments.Add($@"{instance_meta_data.pdb_id}");
+            row_comments.Add($@"{instance_meta_data.chain_id}");
+            row_comments.Add($@"{instance_meta_data.dimer_type}");
+            row_comments.Add($@"{instance_meta_data.class_id:+#;-#;+0}");
+            row_comments.Add($@"{instance_meta_data.class_name}");
+            row_comments.Add($@"{instance_meta_data.parallelism}");
+            row_comments.Add($@"{instance_meta_data.symmetry_mode}");
 
             foreach (var region in regions)
             {
-                row_comments.Add($"{region.region.aa_sequence.Length}");
-                row_comments.Add($"{region.region.aa_sequence}");
-                row_comments.Add($"{string.Join(" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $"{(char.IsDigit(a.i_code) ? "i" : "")}{a.i_code}" : "")}").ToList())}");
-                row_comments.Add($"{region.region.dssp3_monomer}");
-                row_comments.Add($"{region.region.dssp3_multimer}");
-                row_comments.Add($"{region.region.dssp_monomer}");
-                row_comments.Add($"{region.region.dssp_multimer}");
+                
+                row_comments.Add($@"{region.region.unique_id()}");
+
+                row_comments.Add($@"{region.region.aa_sequence.Length}");
+                row_comments.Add($@"{region.region.aa_sequence}");
+                row_comments.Add($@"{string.Join($@" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*"i"*/"" : $@"")}{a.i_code}" : $@"")}").ToList())}");
+                row_comments.Add($@"{region.region.dssp3_monomer}");
+                row_comments.Add($@"{region.region.dssp3_multimer}");
+                row_comments.Add($@"{region.region.dssp_monomer}");
+                row_comments.Add($@"{region.region.dssp_multimer}");
                 row_comments.AddRange(region.region?.ss_predictions?.Select(a => a.prediction).ToList() ?? new List<string>());
             }
 

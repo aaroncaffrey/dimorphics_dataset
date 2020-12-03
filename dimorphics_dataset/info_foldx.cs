@@ -40,10 +40,10 @@ namespace dimorphics_dataset
 
         private static readonly object file_write_lock = new object();
 
-        internal static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = "all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
+        internal static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = @"all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(calc_energy_differences)}(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run);");
 #endif
 
             //var nh_first_res_id = res_ids.Min(a => a.residue_index);
@@ -82,17 +82,17 @@ namespace dimorphics_dataset
             {
                 lock (file_write_lock)
                 {
-                    var fn1 = Path.Combine($@"{foldx_folder}", $"foldx_calc_ala_scanning_{source.ToString()}.bat.skip");
-                    io_proxy.AppendAllLines(fn1, new[] {$@"if not exist ""{result.foldx_ala_scanning_result_subsequence.wait_filename}"" {result.foldx_ala_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
+                    var fn1 = Path.Combine($@"{foldx_folder}", $@"foldx_calc_ala_scanning_{source.ToString()}.bat.skip");
+                    io_proxy.AppendAllLines(fn1, new[] {$@"if not exist $@""{result.foldx_ala_scanning_result_subsequence.wait_filename}"" {result.foldx_ala_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                    var fn2 = Path.Combine($@"{foldx_folder}", $"foldx_calc_position_scanning_{source.ToString()}.bat");
-                    io_proxy.AppendAllLines(fn2, new[] {$@"if not exist ""{result.foldx_position_scanning_result_subsequence.wait_filename}"" {result.foldx_position_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
+                    var fn2 = Path.Combine($@"{foldx_folder}", $@"foldx_calc_position_scanning_{source.ToString()}.bat");
+                    io_proxy.AppendAllLines(fn2, new[] {$@"if not exist $@""{result.foldx_position_scanning_result_subsequence.wait_filename}"" {result.foldx_position_scanning_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                    var fn3 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat");
-                    io_proxy.AppendAllLines(fn3, new[] {$@"if not exist ""{result.foldx_buildmodel_position_scan_result_subsequence.wait_filename}"" {result.foldx_buildmodel_position_scan_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
+                    var fn3 = Path.Combine($@"{foldx_folder}", $@"foldx_calc_buildmodel_position_scan_{source.ToString()}.bat");
+                    io_proxy.AppendAllLines(fn3, new[] {$@"if not exist $@""{result.foldx_buildmodel_position_scan_result_subsequence.wait_filename}"" {result.foldx_buildmodel_position_scan_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
 
-                    var fn4 = Path.Combine($@"{foldx_folder}", $"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat");
-                    io_proxy.AppendAllLines(fn4, new[] {$@"if not exist ""{result.foldx_buildmodel_subsequence_mutant_result_subsequence.wait_filename}"" {result.foldx_buildmodel_subsequence_mutant_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
+                    var fn4 = Path.Combine($@"{foldx_folder}", $@"foldx_calc_buildmodel_subsequence_mutant_{source.ToString()}.bat");
+                    io_proxy.AppendAllLines(fn4, new[] {$@"if not exist $@""{result.foldx_buildmodel_subsequence_mutant_result_subsequence.wait_filename}"" {result.foldx_buildmodel_subsequence_mutant_result_subsequence.cmd_line}"}, nameof(info_foldx), nameof(load_calc_energy_differences));
                 }
             }
 
@@ -174,58 +174,58 @@ namespace dimorphics_dataset
                     List<(int index, string full_name, string foldx_aa_code3, char foldx_aa_code1, string standard_aa_code3, char standard_aa_code1, bool is_mutable, string residue_type)>()
                     { // add MSE/MSA ?? the special MET substitute
 
-                        (00, "glycine", "GLY", 'G', "GLY", 'G', true, "standard aa"),
-                        (01, "alanine", "ALA", 'A', "ALA", 'A', true, "standard aa"),
-                        (02, "leucine", "LEU", 'L', "LEU", 'L', true, "standard aa"),
-                        (03, "valine", "VAL", 'V', "VAL", 'V', true, "standard aa"),
-                        (04, "isoleucine", "ILE", 'I', "ILE", 'I', true, "standard aa"),
-                        (05, "proline", "PRO", 'P', "PRO", 'P', true, "standard aa"),
-                        (06, "arginine", "ARG", 'R', "ARG", 'R', true, "standard aa"),
-                        (07, "threonine", "THR", 'T', "THR", 'T', true, "standard aa"),
-                        (08, "serine", "SER", 'S', "SER", 'S', true, "standard aa"),
-                        (09, "cysteine", "CYS", 'C', "CYS", 'C', true, "standard aa"),
-                        (10, "methionine", "MET", 'M', "MET", 'M', true, "methionine"),
-                        (11, "lysine", "LYS", 'K', "LYS", 'K', true, "standard aa"),
-                        (12, "glutamic", "GLU", 'E', "GLU", 'E', true, "standard aa"),
-                        (13, "glutamine", "GLN", 'Q', "GLN", 'Q', true, "standard aa"),
-                        (14, "aspartic", "ASP", 'D', "ASP", 'D', true, "standard aa"),
-                        (15, "asparagine", "ASN", 'N', "ASN", 'N', true, "standard aa"),
-                        (16, "tryptophane", "TRP", 'W', "TRP", 'W', true, "standard aa"),
-                        (17, "tyrosine", "TYR", 'Y', "TYR", 'Y', true, "standard aa"),
-                        (18, "phenylalanine", "PHE", 'F', "PHE", 'F', true, "standard aa"),
-                        (19, "histidine", "HIS", 'H', "HIS", 'H', true, "standard aa"),
-                        (20, "phoshoporylated threonine", "PTR", 'y', "THR", 'T', true, "phoshoporylated threonine"),
-                        (21, "phosphorylated tyrosine", "TPO", 'p',  "TYR", 'Y', true, "phosphorylated tyrosine"),
-                        (22, "phosphorylated serine", "SEP", 's', "SER", 'S', true, "phosphorylated serine"),
-                        (23, "hydroxiproline", "HYP", 'h', "PRO", 'P', true, "hydroxiproline"),
-                        (24, "sulfotyrosine", "TYS", 'z', "TYR", 'Y', true, "sulfotyrosine"),
-                        (25, "monomethylated lysine", "MLZ", 'k', "LYS", 'K', true, "monomethylated lysine"),
-                        (26, "dimethylated lysine", "MLY", 'm', "LYS", 'K', true, "dimethylated lysine"),
-                        (27, "trimethylated lysine", "M3L", 'l', "LYS", 'K', true, "trimethylated lysine"),
-                        (28, "charged ND1 histidine", "H1S", 'o', "HIS", 'H', true, "charged ND1 histidine"),
-                        (29, "charged NE2 histidine", "H2S", 'e', "HIS", 'H', true, "charged NE2 histidine"),
-                        (30, "neutral histidine", "H3S", 'f', "HIS", 'H', true, "neutral histidine"),
-                        (31, "adenosine", "A", 'a', "A", 'a', true, "adenosine"),
-                        (32, "guanosine", "G", 'g', "G", 'g', true, "guanosine"),
-                        (33, "cytosine", "C", 'c', "C", 'c', true, "cytosine"),
-                        (34, "thymidine", "T", 't',"T", 't', true, "thymidine"),
-                        (35, "6-methylated adenosine", "6MA", 'b', "6MA", 'b', true, "6-methylated adenosine"),
-                        (36, "5-methylated cytosine", "5CM", 'd', "5CM", 'd', true, "5-methylated cytosine"),
-                        (37, "adenosine triphosphate", "ATP", ' ', "ATP", ' ', false, "adenosine triphosphate"),
-                        (38, "adenosine diphosphate", "ADP", ' ', "ADP", ' ', false, "adenosine diphosphate"),
-                        (39, "guanosine triphosphate", "GTP", ' ', "GTP", ' ', false, "guanosine triphosphate"),
-                        (40, "guanosine diphosphate", "GDP", ' ',"GDP", ' ', false, "guanosine diphosphate"),
-                        (41, "dioctadecylglycerol-3-phosphatidyl-choline", "LIP", ' ',"LIP", ' ', false, "dioctadecylglycerol-3-phosphatidyl-choline"),
-                        (42, "calcium", "CA", ' ',"CA", ' ', false, "calcium"),
-                        (43, "magnesium", "MG", ' ',"MG", ' ', false, "magnesium"),
-                        (44, "manganese", "MN", ' ',"MN", ' ', false, "manganese"),
-                        (45, "sodium", "NA", ' ',"NA", ' ', false, "sodium"),
-                        (46, "zinc", "ZN", ' ',"ZN", ' ', false, "zinc"),
-                        (47, "iron", "FE", ' ',"FE", ' ', false, "iron"),
-                        (48, "copper", "CU", ' ',"CU", ' ', false, "copper"),
-                        (49, "cobalt", "CO", ' ',"CO", ' ', false, "cobalt"),
-                        (50, "potasium", "K", ' ',"K", ' ', false, "potasium"),
-                        (51, "water", "HOH", ' ',"HOH", ' ', false, "water"),
+                        (00, $@"glycine", $@"GLY", 'G', $@"GLY", 'G', true, $@"standard aa"),
+                        (01, $@"alanine", $@"ALA", 'A', $@"ALA", 'A', true, $@"standard aa"),
+                        (02, $@"leucine", $@"LEU", 'L', $@"LEU", 'L', true, $@"standard aa"),
+                        (03, $@"valine", $@"VAL", 'V', $@"VAL", 'V', true, $@"standard aa"),
+                        (04, $@"isoleucine", $@"ILE", 'I', $@"ILE", 'I', true, $@"standard aa"),
+                        (05, $@"proline", $@"PRO", 'P', $@"PRO", 'P', true, $@"standard aa"),
+                        (06, $@"arginine", $@"ARG", 'R', $@"ARG", 'R', true, $@"standard aa"),
+                        (07, $@"threonine", $@"THR", 'T', $@"THR", 'T', true, $@"standard aa"),
+                        (08, $@"serine", $@"SER", 'S', $@"SER", 'S', true, $@"standard aa"),
+                        (09, $@"cysteine", $@"CYS", 'C', $@"CYS", 'C', true, $@"standard aa"),
+                        (10, $@"methionine", $@"MET", 'M', $@"MET", 'M', true, $@"methionine"),
+                        (11, $@"lysine", $@"LYS", 'K', $@"LYS", 'K', true, $@"standard aa"),
+                        (12, $@"glutamic", $@"GLU", 'E', $@"GLU", 'E', true, $@"standard aa"),
+                        (13, $@"glutamine", $@"GLN", 'Q', $@"GLN", 'Q', true, $@"standard aa"),
+                        (14, $@"aspartic", $@"ASP", 'D', $@"ASP", 'D', true, $@"standard aa"),
+                        (15, $@"asparagine", $@"ASN", 'N', $@"ASN", 'N', true, $@"standard aa"),
+                        (16, $@"tryptophane", $@"TRP", 'W', $@"TRP", 'W', true, $@"standard aa"),
+                        (17, $@"tyrosine", $@"TYR", 'Y', $@"TYR", 'Y', true, $@"standard aa"),
+                        (18, $@"phenylalanine", $@"PHE", 'F', $@"PHE", 'F', true, $@"standard aa"),
+                        (19, $@"histidine", $@"HIS", 'H', $@"HIS", 'H', true, $@"standard aa"),
+                        (20, $@"phoshoporylated threonine", $@"PTR", 'y', $@"THR", 'T', true, $@"phoshoporylated threonine"),
+                        (21, $@"phosphorylated tyrosine", $@"TPO", 'p',  $@"TYR", 'Y', true, $@"phosphorylated tyrosine"),
+                        (22, $@"phosphorylated serine", $@"SEP", 's', $@"SER", 'S', true, $@"phosphorylated serine"),
+                        (23, $@"hydroxiproline", $@"HYP", 'h', $@"PRO", 'P', true, $@"hydroxiproline"),
+                        (24, $@"sulfotyrosine", $@"TYS", 'z', $@"TYR", 'Y', true, $@"sulfotyrosine"),
+                        (25, $@"monomethylated lysine", $@"MLZ", 'k', $@"LYS", 'K', true, $@"monomethylated lysine"),
+                        (26, $@"dimethylated lysine", $@"MLY", 'm', $@"LYS", 'K', true, $@"dimethylated lysine"),
+                        (27, $@"trimethylated lysine", $@"M3L", 'l', $@"LYS", 'K', true, $@"trimethylated lysine"),
+                        (28, $@"charged ND1 histidine", $@"H1S", 'o', $@"HIS", 'H', true, $@"charged ND1 histidine"),
+                        (29, $@"charged NE2 histidine", $@"H2S", 'e', $@"HIS", 'H', true, $@"charged NE2 histidine"),
+                        (30, $@"neutral histidine", $@"H3S", 'f', $@"HIS", 'H', true, $@"neutral histidine"),
+                        (31, $@"adenosine", $@"A", 'a', $@"A", 'a', true, $@"adenosine"),
+                        (32, $@"guanosine", $@"G", 'g', $@"G", 'g', true, $@"guanosine"),
+                        (33, $@"cytosine", $@"C", 'c', $@"C", 'c', true, $@"cytosine"),
+                        (34, $@"thymidine", $@"T", 't',"T", 't', true, $@"thymidine"),
+                        (35, $@"6-methylated adenosine", $@"6MA", 'b', $@"6MA", 'b', true, $@"6-methylated adenosine"),
+                        (36, $@"5-methylated cytosine", $@"5CM", 'd', $@"5CM", 'd', true, $@"5-methylated cytosine"),
+                        (37, $@"adenosine triphosphate", $@"ATP", ' ', $@"ATP", ' ', false, $@"adenosine triphosphate"),
+                        (38, $@"adenosine diphosphate", $@"ADP", ' ', $@"ADP", ' ', false, $@"adenosine diphosphate"),
+                        (39, $@"guanosine triphosphate", $@"GTP", ' ', $@"GTP", ' ', false, $@"guanosine triphosphate"),
+                        (40, $@"guanosine diphosphate", $@"GDP", ' ',"GDP", ' ', false, $@"guanosine diphosphate"),
+                        (41, $@"dioctadecylglycerol-3-phosphatidyl-choline", $@"LIP", ' ',"LIP", ' ', false, $@"dioctadecylglycerol-3-phosphatidyl-choline"),
+                        (42, $@"calcium", $@"CA", ' ',"CA", ' ', false, $@"calcium"),
+                        (43, $@"magnesium", $@"MG", ' ',"MG", ' ', false, $@"magnesium"),
+                        (44, $@"manganese", $@"MN", ' ',"MN", ' ', false, $@"manganese"),
+                        (45, $@"sodium", $@"NA", ' ',"NA", ' ', false, $@"sodium"),
+                        (46, $@"zinc", $@"ZN", ' ',"ZN", ' ', false, $@"zinc"),
+                        (47, $@"iron", $@"FE", ' ',"FE", ' ', false, $@"iron"),
+                        (48, $@"copper", $@"CU", ' ',"CU", ' ', false, $@"copper"),
+                        (49, $@"cobalt", $@"CO", ' ',"CO", ' ', false, $@"cobalt"),
+                        (50, $@"potasium", $@"K", ' ',"K", ' ', false, $@"potasium"),
+                        (51, $@"water", $@"HOH", ' ',"HOH", ' ', false, $@"water"),
                     };
 
         internal static readonly List<(int index, string full_name, string foldx_aa_code3, char foldx_aa_code1, string standard_aa_code3, char standard_aa_code1, bool is_mutable, string residue_type)>
@@ -236,7 +236,7 @@ namespace dimorphics_dataset
         internal static string[] read_all_lines_until_success(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"{nameof(read_all_lines_until_success)}(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10);");
+            //if (program.verbose_debug) io.WriteLine($@"{nameof(read_all_lines_until_success)}(string wait_file, int max_tries = int.MaxValue, int delay_ms = 10);");
 #endif
 
             var file_accessed = false;
@@ -245,7 +245,7 @@ namespace dimorphics_dataset
 
             while (!file_accessed)
             {
-                if (access_attempt_count >= max_tries) throw new IOException($"File could not be accessed \"{wait_file}\"");
+                if (access_attempt_count >= max_tries) throw new IOException($@"File could not be accessed ""{wait_file}""");
 
                 access_attempt_count++;
 
@@ -305,7 +305,7 @@ namespace dimorphics_dataset
             }
 
             var foldx_exe = $@"{foldx_folder}foldx.exe";
-            var pdb_file = $"{pdb_folder}{Path.GetFileNameWithoutExtension(pdb_file_id)}.pdb";
+            var pdb_file = $@"{pdb_folder}{Path.GetFileNameWithoutExtension(pdb_file_id)}.pdb";
 
 
             var lock_code = string.Join("_", new string[] { pdb_file_id, foldx_command, foldx_args, wait_filename, lock_code_local });
@@ -349,12 +349,12 @@ namespace dimorphics_dataset
             }
 
             var foldx_args2 = foldx_args;
-            if (!foldx_args2.Contains("--command=", StringComparison.InvariantCulture)) { foldx_args2 += $" --command={foldx_command}"; }
-            if (!foldx_args2.Contains("--pdb=", StringComparison.InvariantCulture)) { foldx_args2 += $" --pdb={Path.GetFileName(pdb_file)}"; }
-            if (!foldx_args2.Contains("--pdb-dir=", StringComparison.InvariantCulture)) { foldx_args2 += $" --pdb-dir=\"{Path.GetDirectoryName(pdb_file) ?? "."}\""; }
-            if (!foldx_args2.Contains("--out-pdb=", StringComparison.InvariantCulture) && !string.Equals(foldx_command, "RepairPDB", StringComparison.InvariantCultureIgnoreCase)) { foldx_args2 += $" --out-pdb=false"; }
+            if (!foldx_args2.Contains("--command=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --command={foldx_command}"; }
+            if (!foldx_args2.Contains("--pdb=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --pdb={Path.GetFileName(pdb_file)}"; }
+            if (!foldx_args2.Contains("--pdb-dir=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --pdb-dir=""{Path.GetDirectoryName(pdb_file) ?? $@"."}"""; }
+            if (!foldx_args2.Contains("--out-pdb=", StringComparison.InvariantCulture) && !string.Equals(foldx_command, $@"RepairPDB", StringComparison.InvariantCultureIgnoreCase)) { foldx_args2 += $@" --out-pdb=false"; }
 
-            var start = new ProcessStartInfo { FileName = foldx_exe, WorkingDirectory = Path.GetDirectoryName(foldx_exe) ?? "", Arguments = foldx_args2, UseShellExecute = false, CreateNoWindow = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            var start = new ProcessStartInfo { FileName = foldx_exe, WorkingDirectory = Path.GetDirectoryName(foldx_exe) ?? $@"", Arguments = foldx_args2, UseShellExecute = false, CreateNoWindow = false, RedirectStandardOutput = true, RedirectStandardError = true };
             var cmd_line = $@"""{start.FileName}"" {start.Arguments}";
 
             if (string.IsNullOrWhiteSpace(wait_filename) || !File.Exists(wait_filename) || new FileInfo(wait_filename).Length <= 0)
@@ -365,34 +365,34 @@ namespace dimorphics_dataset
 
                     //lock (program._console_lock)
                     //{
-                        io_proxy.WriteLine($"{nameof(call_foldx)}: run: \"{start.FileName}\" {start.Arguments}");
+                        io_proxy.WriteLine($@"{nameof(call_foldx)}: run: ""{start.FileName}"" {start.Arguments}");
                     //}
 
                     using (var process = Process.Start(start))
                     {
-                        if (process == null) throw new Exception($"{nameof(call_foldx)}: {nameof(process)} is null");
+                        if (process == null) throw new Exception($@"{nameof(call_foldx)}: {nameof(process)} is null");
 
 
                         using (var reader = process.StandardOutput)
                         {
                             var stdout = reader.ReadToEnd();
-                            stdout = stdout.Replace("\r\n", "\r\nstdout: ", StringComparison.InvariantCulture);
+                            stdout = stdout.Replace($"\r\n", $"\r\n{nameof(stdout)}: ", StringComparison.InvariantCulture);
                             if (!string.IsNullOrWhiteSpace(stdout))
                             {
                                 //lock (program._console_lock)
                                 //{
-                                    io_proxy.WriteLine($"{nameof(stdout)}: {stdout}");
+                                    io_proxy.WriteLine($@"{nameof(stdout)}: {stdout}");
                                 //}
                             }
 
                             var stderr = process.StandardError.ReadToEnd();
-                            stderr = stderr.Replace("\r\n", "\r\nstderr: ", StringComparison.InvariantCulture);
+                            stderr = stderr.Replace($"\r\n", $"\r\n{nameof(stderr)}: ", StringComparison.InvariantCulture);
 
                             if (!string.IsNullOrWhiteSpace(stderr))
                             {
                                 //lock (program._console_lock)
                                 //{
-                                    io_proxy.WriteLine($"{nameof(call_foldx)}: {stderr}");
+                                    io_proxy.WriteLine($@"{nameof(call_foldx)}: {stderr}");
                                 //}
                             }
                         }
@@ -437,7 +437,7 @@ namespace dimorphics_dataset
         internal static string foldx_repair_pdb(string pdb_id, bool run, string pdb_folder = null, string repair_folder = null)
         {
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"foldx_repair_pdb(pdb_id = \"{pdb_id}\")");
+            //if (program.verbose_debug) io.WriteLine($@"foldx_repair_pdb(pdb_id = ""{pdb_id}"")");
 #endif
             if (string.IsNullOrWhiteSpace(pdb_folder))
             {
@@ -446,7 +446,7 @@ namespace dimorphics_dataset
 
             if (string.IsNullOrWhiteSpace(repair_folder))
             {
-                repair_folder = Path.Combine(program.data_root_folder, "foldx", "pdb");
+                repair_folder = Path.Combine(program.data_root_folder, $@"foldx", $@"pdb");
             }
 
             var pdb_file =        Path.Combine($@"{pdb_folder}", $@"{Path.GetFileNameWithoutExtension(pdb_id)}.pdb");
@@ -454,8 +454,8 @@ namespace dimorphics_dataset
 
             if (File.Exists(pdb_file_repair) && new FileInfo(pdb_file_repair).Length > 0) return pdb_file_repair;
 
-            var foldx_cmd = "RepairPDB";
-            var foldx_args = $"--output-dir=\"{Path.GetDirectoryName(pdb_file) ?? "."}\"";
+            var foldx_cmd = $@"RepairPDB";
+            var foldx_args = $@"--output-dir=""{Path.GetDirectoryName(pdb_file) ?? $@"."}""";
             var call_foldx_result = call_foldx(pdb_id, foldx_cmd, foldx_args, pdb_file_repair, pdb_id, run, pdb_folder);
 
             return pdb_file_repair;
@@ -472,13 +472,13 @@ namespace dimorphics_dataset
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"load_foldx_buildmodel_position_scan(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($@"load_foldx_buildmodel_position_scan(pdb_id = ""{pdb_id}"", chain_id = ""{chain_id}"", res_ids = ""{res_ids}"")");
 #endif
 
-            if (res_ids == null || res_ids.Count == 0) return ("", "", null);
+            if (res_ids == null || res_ids.Count == 0) return ("", $@"", null);
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
-            var lock_code = $"bm_ps_{pdb_id}{chain_id}{string.Join("_", res_ids)}";
+            var lock_code = $@"bm_ps_{pdb_id}{chain_id}{string.Join("_", res_ids)}";
 
             var foldx_mutation_positions_data = new List<string>();
 
@@ -507,18 +507,18 @@ namespace dimorphics_dataset
 
                     mutation_positions_data.Add(mp_data);
 
-                    var mp = $"{mp_data.original_amino_acid}{mp_data.chain_id}{mp_data.residue_index}{mp_data.mutant_foldx_amino_acid1};";
+                    var mp = $@"{mp_data.original_amino_acid}{mp_data.chain_id}{mp_data.residue_index}{mp_data.mutant_foldx_amino_acid1};";
                     foldx_mutation_positions_data.Add(mp);
                 }
             }
 
-            var first_amino_acid = $"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
-            var last_amino_acid = $"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
+            var first_amino_acid = $@"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
+            var last_amino_acid = $@"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
             var reside_index_sum = res_ids.Select(a => a.residue_index).Sum();
 
             
 
-            var mutant_list_file = Path.Combine(foldx_folder, "bm_ps", $@"individual_list_bm_ps_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
+            var mutant_list_file = Path.Combine(foldx_folder, $@"bm_ps", $@"individual_list_bm_ps_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
 
             if (write_list)
             {
@@ -530,12 +530,12 @@ namespace dimorphics_dataset
                 }
             }
 
-            var foldx_cmd = $"BuildModel";
+            var foldx_cmd = $@"BuildModel";
             var foldx_output_pdb = false;
             var foldx_number_of_runs = 1;
-            var output_file_tag = $"bm_ps_{pdb_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}";
-            var wait_filename = Path.Combine(foldx_folder, "bm_ps", $"Dif_{output_file_tag}_{pdb_id}.fxout");
-            var foldx_args = $"--mutant-file={mutant_list_file} --numberOfRuns={foldx_number_of_runs} --out-pdb={foldx_output_pdb} --output-file={output_file_tag}";
+            var output_file_tag = $@"bm_ps_{pdb_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}";
+            var wait_filename = Path.Combine(foldx_folder, $@"bm_ps", $@"Dif_{output_file_tag}_{pdb_id}.fxout");
+            var foldx_args = $@"--mutant-file={mutant_list_file} --numberOfRuns={foldx_number_of_runs} --out-pdb={foldx_output_pdb} --output-file={output_file_tag}";
 
             var foldx_result_1 = call_foldx(pdb_id, foldx_cmd, foldx_args, wait_filename, lock_code, run);
             var cmd_line = foldx_result_1.cmd_line;
@@ -624,17 +624,17 @@ namespace dimorphics_dataset
         {
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
-            if (res_ids == null || res_ids.Count == 0) return ("", "", null);
+            if (res_ids == null || res_ids.Count == 0) return ("", $@"", null);
 
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"load_foldx_buildmodel_subsequence_mutant(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($@"load_foldx_buildmodel_subsequence_mutant(pdb_id = ""{pdb_id}"", chain_id = ""{chain_id}"", res_ids = ""{res_ids}"")");
 #endif
             // FoldX --command=BuildModel --pdb=BM.pdb --mutant-file=individual_list.txt
             // individual_list.txt = e.g. FA39L,FB39L; (res_aa, chain, res_num, mutant_aa)
 
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
-            var lock_code = $"bm_if_subs_{pdb_id}{chain_id}{string.Join("_", res_ids)}";
+            var lock_code = $@"bm_if_subs_{pdb_id}{chain_id}{string.Join("_", res_ids)}";
 
             var mutation_positions_data = new List<List<(char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3)>>();
             var foldx_mutation_positions_data = new List<string>();
@@ -644,16 +644,16 @@ namespace dimorphics_dataset
                 var mp_data = res_ids.Select(a => (original_amino_acid1:a.amino_acid, chain_id:chain_id, residue_index:a.residue_index, mutant_foldx_amino_acid1:mutant_amino_acid.foldx_aa_code1, mutant_foldx_amino_acid3:mutant_amino_acid.foldx_aa_code3, mutant_standard_amino_acid1:mutant_amino_acid.standard_aa_code1, mutant_standard_amino_acid3:mutant_amino_acid.standard_aa_code3)).ToList();
                 mutation_positions_data.Add(mp_data);
 
-                var mp = $"{string.Join(",", mp_data.Select(a => $"{a.original_amino_acid1}{a.chain_id}{a.residue_index}{a.mutant_foldx_amino_acid1}").ToList())};";
+                var mp = $@"{string.Join(",", mp_data.Select(a => $@"{a.original_amino_acid1}{a.chain_id}{a.residue_index}{a.mutant_foldx_amino_acid1}").ToList())};";
 
                 foldx_mutation_positions_data.Add(mp);
             }
 
-            var first_amino_acid = $"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
-            var last_amino_acid = $"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
+            var first_amino_acid = $@"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
+            var last_amino_acid = $@"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
             var reside_index_sum = res_ids.Select(a => a.residue_index).Sum();
 
-            var mutant_list_file = Path.Combine( foldx_folder, "bm_if_subs", $@"individual_list_bm_if_subs_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
+            var mutant_list_file = Path.Combine( foldx_folder, $@"bm_if_subs", $@"individual_list_bm_if_subs_{pdb_id}{chain_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}.txt");
 
 
             if (save_list)
@@ -666,13 +666,13 @@ namespace dimorphics_dataset
                 }
             }
 
-            var foldx_cmd = $"BuildModel";
+            var foldx_cmd = $@"BuildModel";
             var foldx_output_pdb = false;
             var foldx_number_of_runs = 1;
-            var output_file_tag = $"bm_if_subs_{pdb_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}";
-            var wait_filename = Path.Combine(foldx_folder, "bm_if_subs", $@"Dif_{output_file_tag}_{pdb_id}.fxout");
+            var output_file_tag = $@"bm_if_subs_{pdb_id}_{first_amino_acid}_{last_amino_acid}_{reside_index_sum}";
+            var wait_filename = Path.Combine(foldx_folder, $@"bm_if_subs", $@"Dif_{output_file_tag}_{pdb_id}.fxout");
 
-            var foldx_args = $"--mutant-file={mutant_list_file} --numberOfRuns={foldx_number_of_runs} --out-pdb={foldx_output_pdb} --output-file={output_file_tag}";
+            var foldx_args = $@"--mutant-file={mutant_list_file} --numberOfRuns={foldx_number_of_runs} --out-pdb={foldx_output_pdb} --output-file={output_file_tag}";
 
             var foldx_result_1 = call_foldx(pdb_id, foldx_cmd, foldx_args, wait_filename, lock_code, run);
             var cmd_line = foldx_result_1.cmd_line;
@@ -853,11 +853,11 @@ namespace dimorphics_dataset
         {
             //    var (pdb_id, chain_id, res_ids) = interface_residues;
 #if DEBUG
-            ////if (program.verbose_debug) Program.WriteLine($"load_foldx_ala_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            ////if (program.verbose_debug) Program.WriteLine($@"load_foldx_ala_scanning(pdb_id = ""{pdb_id}"", chain_id = ""{chain_id}"", res_ids = ""{res_ids}"")");
 #endif
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            //if (res_ids == null || res_ids.Count == 0) return ("", "", null);
+            //if (res_ids == null || res_ids.Count == 0) return ("", $@"", null);
 
             var wait_filename = Path.Combine(foldx_folder,"ala_scan",$@"{pdb_id}_AS.fxout");
 
@@ -865,20 +865,20 @@ namespace dimorphics_dataset
 
 
 
-            //var cmd_line = "";
+            //var cmd_line = $@"";
 
 
             //if (!File.Exists(wait_filename))
             //{
 
-            //var first_amino_acid = $"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
-            //var last_amino_acid = $"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
+            //var first_amino_acid = $@"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
+            //var last_amino_acid = $@"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
             //var reside_index_sum = res_ids.Select(a => a.residue_index).Sum();
 
-            var lock_code = $"{pdb_id}{chain_id}{(res_ids != null ? string.Join("_", res_ids) : "")}";
+            var lock_code = $@"{pdb_id}{chain_id}{(res_ids != null ? string.Join("_", res_ids) : $@"")}";
 
-            var foldx_cmd = $"AlaScan";
-            var foldx_args = ""; //$"--output-file={file_tag}";
+            var foldx_cmd = $@"AlaScan";
+            var foldx_args = $@""; //$@"--output-file={file_tag}";
 
             var call_foldx_result_1 = call_foldx(pdb_id, foldx_cmd, foldx_args, wait_filename, lock_code, run);
             var cmd_line = call_foldx_result_1.cmd_line;
@@ -947,26 +947,26 @@ namespace dimorphics_dataset
             var (pdb_id, chain_id, res_ids) = interface_residues;
 
 #if DEBUG
-            //if (program.verbose_debug) io.WriteLine($"load_foldx_position_scanning(pdb_id = \"{pdb_id}\", chain_id = \"{chain_id}\", res_ids = \"{res_ids}\")");
+            //if (program.verbose_debug) io.WriteLine($@"load_foldx_position_scanning(pdb_id = ""{pdb_id}"", chain_id = ""{chain_id}"", res_ids = ""{res_ids}"")");
 #endif
 
-            if (res_ids == null || res_ids.Count == 0) return ("", "", null);
+            if (res_ids == null || res_ids.Count == 0) return ("", $@"", null);
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            var lock_code = $"{pdb_id}{chain_id}{string.Join("_", res_ids)}";
+            var lock_code = $@"{pdb_id}{chain_id}{string.Join("_", res_ids)}";
 
-            var first_amino_acid = $"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
-            var last_amino_acid = $"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
+            var first_amino_acid = $@"{res_ids.First().amino_acid}{res_ids.First().residue_index}";
+            var last_amino_acid = $@"{res_ids.Last().amino_acid}{res_ids.Last().residue_index}";
             var reside_index_sum = res_ids.Select(a => a.residue_index).Sum();
 
             var mutation_code = 'd';
-            var mutation_position_ids = res_ids.Select(a => $"{a.amino_acid}{chain_id}{a.residue_index}{mutation_code}").ToList();
-            var mutation_positions = $"{string.Join(",", mutation_position_ids)}";
-            var file_tag = $"{pdb_id}_{mutation_position_ids.First()}_{mutation_position_ids.Last()}_{reside_index_sum}";
-            var wait_filename = Path.Combine(foldx_folder, "ps", $@"PS_{file_tag}_scanning_output.txt");
-            var foldx_cmd = $"PositionScan";
-            var foldx_args = $"--positions={mutation_positions} --output-file={file_tag}";
+            var mutation_position_ids = res_ids.Select(a => $@"{a.amino_acid}{chain_id}{a.residue_index}{mutation_code}").ToList();
+            var mutation_positions = $@"{string.Join(",", mutation_position_ids)}";
+            var file_tag = $@"{pdb_id}_{mutation_position_ids.First()}_{mutation_position_ids.Last()}_{reside_index_sum}";
+            var wait_filename = Path.Combine(foldx_folder, $@"ps", $@"PS_{file_tag}_scanning_output.txt");
+            var foldx_cmd = $@"PositionScan";
+            var foldx_args = $@"--positions={mutation_positions} --output-file={file_tag}";
 
             var call_foldx_result_1 = call_foldx(pdb_id, foldx_cmd, foldx_args, wait_filename, lock_code, run);
             var call_foldx_result = call_foldx_result_1.data;

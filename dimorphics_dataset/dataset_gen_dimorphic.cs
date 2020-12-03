@@ -10,37 +10,37 @@ namespace dimorphics_dataset
     {
         internal static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
         {
-            var class_name_in_file = "";
+            var class_name_in_file = $@"";
             var include_host_coil = false;
             var full_protein_seq = false;
 
             switch (strand_type)
             {
                 case enum_substructure_type.dimorphic:
-                    class_name_in_file = "Single";
+                    class_name_in_file = $@"Single";
                     break;
 
                 case enum_substructure_type.dimorphic_coil:
-                    class_name_in_file = "Single";
+                    class_name_in_file = $@"Single";
                     include_host_coil = true;
                     break;
 
                 case enum_substructure_type.standard_strand:
-                    class_name_in_file = "Multiple";
+                    class_name_in_file = $@"Multiple";
                     break;
 
                 case enum_substructure_type.standard_strand_coil:
-                    class_name_in_file = "Multiple";
+                    class_name_in_file = $@"Multiple";
                     include_host_coil = true;
                     break;
 
                 case enum_substructure_type.dimorphic_full_protein_sequence:
-                    class_name_in_file = "Single";
+                    class_name_in_file = $@"Single";
                     full_protein_seq = true;
                     break;
 
                 case enum_substructure_type.standard_strand_full_protein_sequence:
-                    class_name_in_file = "Multiple";
+                    class_name_in_file = $@"Multiple";
                     full_protein_seq = true;
                     break;
 
@@ -253,7 +253,7 @@ namespace dimorphics_dataset
                     throw new Exception("Not correct position");
                 }
 
-                var dimorphic_dssp3 = "";
+                var dimorphic_dssp3 = $@"";
 
                 for (var i = other_strand_array_index; i < other_strand_array_index + other_strand_seq.Length; i++)
                 {
@@ -264,18 +264,18 @@ namespace dimorphics_dataset
                     other_pdb_chain_master_atoms[i].is_strand_interface_atom = 1;
                     other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_strand_interface_atom = 1);
 
-                    if (string.Equals(other_class_name, "Single", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, "Dimorphic", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(other_class_name, $@"Single", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, $@"Dimorphic", StringComparison.InvariantCultureIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_dimorphic_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_dimorphic_strand_interface_atom = 1);
                         dimorphic_dssp3 += other_pdb_chain_master_atoms[i].monomer_dssp3;
                     }
-                    else if (string.Equals(other_class_name, "Multiple", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, "Standard", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(other_class_name, $@"Multiple", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, $@"Standard", StringComparison.InvariantCultureIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_standard_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_standard_strand_interface_atom = 1);
                     }
-                    else if (string.Equals(other_class_name, "Hybrid", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(other_class_name, $@"Hybrid", StringComparison.InvariantCultureIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_hybrid_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_hybrid_strand_interface_atom = 1);
@@ -309,7 +309,7 @@ namespace dimorphics_dataset
             //var dimorphic_sequence_centre = (double)(dimorphic_sequence_first + dimorphic_sequence_last) / (double)2;
             //var dimorphic_sequence_length = dimorphic_seq.Length;
 
-            var shc_sequence_before = "";
+            var shc_sequence_before = $@"";
             var shc_start_array_index = strand_sequence_first_index;
 
             if (include_host_coil)
@@ -331,7 +331,7 @@ namespace dimorphics_dataset
             //if (dhc_start_array_index == -1) dhc_start_array_index = 0;
 
 
-            var shc_sequence_after = "";
+            var shc_sequence_after = $@"";
 
             var shc_end_array_index = strand_sequence_last_index;
 
@@ -363,8 +363,8 @@ namespace dimorphics_dataset
                 shc_start_array_index = 0;
                 shc_end_array_index = pdb_chain_master_atoms.Count - 1;
                 strand_seq = string.Join("", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
-                shc_sequence_before = "";
-                shc_sequence_after = "";
+                shc_sequence_before = $@"";
+                shc_sequence_after = $@"";
             }
 
             //var shc_subsequence_atoms = pdb_chain_atoms.Where(a => shc_subsequence_master_atoms.Any(b => a.pdb_id == b.pdb_id && a.chain_id == b.chain_id && a.residue_index == b.residue_index && a.i_code == b.i_code)).ToList();
@@ -395,8 +395,8 @@ namespace dimorphics_dataset
                 symmetry_mode = symmetry_mode,
                 res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                 aa_subsequence = shc_sequence,
-                //aa_before = "",
-                //aa_after = "",
+                //aa_before = $@"",
+                //aa_after = $@"",
                 //aa_protein = strand_protein
             };
 

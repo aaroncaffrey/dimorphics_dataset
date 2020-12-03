@@ -10,26 +10,35 @@ namespace dimorphics_dataset
     {
         private static readonly object _console_lock = new object();
 
-        internal static void WriteLine(string text = "", string module_name = "", string function_name = "", bool use_lock = false)
+        internal static void WriteLine(string text = @"", string module_name = @"", string function_name = @"", bool use_lock = false)
         {
+            void write(string text)
+            {
+                if (string.IsNullOrEmpty(text)) Console.WriteLine();
+                else
+                {
+                    var pid = Environment.ProcessId;
+                    var thread_id = Thread.CurrentThread.ManagedThreadId;
+                    var task_id = Task.CurrentId ?? 0;
+
+                    Console.WriteLine($@"{DateTime.Now:G} {pid:000000}.{thread_id:000000}.{task_id:000000} {module_name}.{function_name} -> {text}");
+                }
+            }
+
             if (!program.verbose) return;
 
             try
             {
-                var pid = Environment.ProcessId;
-                var thread_id = Thread.CurrentThread.ManagedThreadId;
-                var task_id = Task.CurrentId ?? 0;
-
                 if (use_lock)
                 {
                     lock (_console_lock)
                     {
-                        Console.WriteLine($@"{DateTime.Now:G} {pid:000000}.{thread_id:000000}.{task_id:000000} {module_name}.{function_name} -> {text}");
+                        write(text);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($@"{DateTime.Now:G} {pid:000000}.{thread_id:000000}.{task_id:000000} {module_name}.{function_name} -> {text}");
+                    write(text);
                 }
             }
             catch (Exception)
@@ -40,7 +49,7 @@ namespace dimorphics_dataset
 
         internal static void CreateDirectory(string filename)//, string module_name, string function_name)
         {
-            //program.WriteLine($"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
+            //program.WriteLine($@"{module_name}.{function_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
 
             var dir = Path.GetDirectoryName(filename);
 
@@ -56,7 +65,7 @@ namespace dimorphics_dataset
 
         internal static string[] ReadAllLines(string filename, string module_name="", string function_name="")
         {
-            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(ReadAllLines));
+            io_proxy.WriteLine($@"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(ReadAllLines));
 
             while (true)
             {
@@ -76,7 +85,7 @@ namespace dimorphics_dataset
 
         internal static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
-            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllLines));
+            io_proxy.WriteLine($@"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllLines));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -97,7 +106,7 @@ namespace dimorphics_dataset
 
         internal static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name="", string function_name="")
         {
-            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllLines));
+            io_proxy.WriteLine($@"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllLines));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -118,7 +127,7 @@ namespace dimorphics_dataset
 
         internal static void AppendAllText(string filename, string text, string module_name="", string function_name="")
         {
-            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllText));
+            io_proxy.WriteLine($@"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllText));
 
             CreateDirectory(filename);//, module_name, function_name);
 
@@ -139,7 +148,7 @@ namespace dimorphics_dataset
 
         internal static void WriteAllText(string filename, string text, string module_name="", string function_name="")
         {
-            io_proxy.WriteLine($"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllText));
+            io_proxy.WriteLine($@"{module_name}.{function_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllText));
 
             CreateDirectory(filename);//, module_name, function_name);
 

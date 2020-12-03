@@ -58,7 +58,7 @@ namespace dimorphics_dataset
                     (aa_seq: a, features: call_r_protr(a))).ToList();
                 var r_protr_csv = r_protr_results.SelectMany(a =>
                         a.features.Select(b =>
-                            $"{a.aa_seq},{String.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
+                            $@"{a.aa_seq},{String.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
                     .ToList();
                 io_proxy.WriteAllLines($@"e:\dataset\r_protr_cache.csv", r_protr_csv);
             }
@@ -68,7 +68,7 @@ namespace dimorphics_dataset
                     (aa_seq: a, features: call_r_peptides(a))).ToList();
                 var r_peptides_csv = r_peptides_results.SelectMany(a =>
                         a.features.Select(b =>
-                            $"{a.aa_seq},{String.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
+                            $@"{a.aa_seq},{String.Join(",", b.AsArray(true).Select(c => c.value).ToList())}").ToList())
                     .ToList();
                 io_proxy.WriteAllLines($@"e:\dataset\r_peptides_cache.csv", r_peptides_csv);
             }
@@ -93,7 +93,7 @@ namespace dimorphics_dataset
 
             var equal = aa_seqs[0].SequenceEqual(aa_seqs[1]);
 
-            io_proxy.WriteLine("SequenceEqual: " + equal);
+            io_proxy.WriteLine($"SequenceEqual: {equal}");
 
             Console.WriteLine();
 
@@ -116,7 +116,7 @@ namespace dimorphics_dataset
                 var z = new feature_info()
                 {
                     alphabet = x[1],
-                    dimension = Int32.Parse(x[2], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
+                    stats = "", dimension = Int32.Parse(x[2], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
                     category = x[3],
                     source = x[4],
                     @group = x[5],
@@ -157,7 +157,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
                     subsequence_classification_data_templates._peptides_data_template = call_r_peptides("ALG"/*, alphabet_name, source*/);
-                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { /*a.source = "";*/ a.feature_value = 0; });
+                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { /*a.source = $@"";*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._peptides_data_template == null)
@@ -166,7 +166,7 @@ namespace dimorphics_dataset
                 }
 
 
-                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString(),*/ feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = $@"{source}",*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -201,13 +201,13 @@ namespace dimorphics_dataset
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\peptides_server", StringComparison.InvariantCulture)), Path.GetFileName(this_exe).Replace("dimorphics_dataset", "peptides_server", StringComparison.InvariantCulture));
+            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\peptides_server", StringComparison.InvariantCulture)), Path.GetFileName(this_exe).Replace("dimorphics_dataset", $@"peptides_server", StringComparison.InvariantCulture));
 
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                //Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
-                Arguments = $"{call_count} {sequence}",
+                //Arguments = $@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = $@"{call_count} {sequence}",
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -271,7 +271,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._peptides_data_template == null)
             {
-                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { /*source = "",*/ feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { /*source = $@"",*/ feature_value = 0 }).ToList();
             }
 
             //result.ForEach(a =>
@@ -304,7 +304,7 @@ namespace dimorphics_dataset
                 if (subsequence_classification_data_templates._protr_data_template == null)
                 {
                     subsequence_classification_data_templates._protr_data_template = call_r_protr("ALG"/*, alphabet_name, source*/);
-                    subsequence_classification_data_templates._protr_data_template.ForEach(a => {/* a.source = "";*/ a.feature_value = 0; });
+                    subsequence_classification_data_templates._protr_data_template.ForEach(a => {/* a.source = $@"";*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._protr_data_template == null)
@@ -312,7 +312,7 @@ namespace dimorphics_dataset
                     throw new Exception();
                 }
 
-                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = source.ToString(),*/ feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = $@"{source}",*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -346,13 +346,13 @@ namespace dimorphics_dataset
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\protr_server", StringComparison.InvariantCulture)), Path.GetFileName(this_exe).Replace("dimorphics_dataset", "protr_server", StringComparison.InvariantCulture));
+            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\protr_server", StringComparison.InvariantCulture)), Path.GetFileName(this_exe).Replace("dimorphics_dataset", $@"protr_server", StringComparison.InvariantCulture));
 
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                //Arguments = $"{call_count} {alphabet_name} {source.ToString()} {sequence}",
-                Arguments = $"{call_count} {sequence}",
+                //Arguments = $@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = $@"{call_count} {sequence}",
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -419,7 +419,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._protr_data_template == null)
             {
-                subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = "", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
             }
 
             //result.ForEach(a =>

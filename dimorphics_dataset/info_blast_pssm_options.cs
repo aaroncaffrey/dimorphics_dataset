@@ -19,13 +19,13 @@
         internal bool encode_interval_vector = true; // false
 
         // separate groups with the following statistics:
-        internal bool encode_min;
-        internal bool encode_max;
-        internal bool encode_mean = true;
-        internal bool encode_mean_sd;
-        internal bool encode_median;
-        internal bool encode_mode;
-        internal bool encode_range;
+        //internal bool encode_min;
+        //internal bool encode_max;
+        //internal bool encode_mean = true;
+        //internal bool encode_mean_sd;
+        //internal bool encode_median;
+        //internal bool encode_mode;
+        //internal bool encode_range;
 
         // encoding size (when using standard AA alphabet) - e.g. 20x20 = 400 could be 4x4 = 16 for reduced alphabet
         internal bool size_1 = true;
@@ -63,13 +63,13 @@
             encode_interval_vector = value;
 
 
-            encode_min = value;
-            encode_max = value;
-            encode_mean = value;
-            encode_mean_sd = value;
-            encode_median = value;
-            encode_mode = value;
-            encode_range = value;
+            //encode_min = value;
+            //encode_max = value;
+            //encode_mean = value;
+            //encode_mean_sd = value;
+            //encode_median = value;
+            //encode_mode = value;
+            //encode_range = value;
 
 
             size_1 = value;

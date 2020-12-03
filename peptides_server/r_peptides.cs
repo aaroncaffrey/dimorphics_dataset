@@ -49,7 +49,7 @@ namespace peptides_server
                     if (!exists(""AAdata"")) data(AAdata)
                 ";
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -67,7 +67,7 @@ namespace peptides_server
                     {
                         if (_template_get_values == null)
                         {
-                            _template_get_values = get_values(id, source, alphabet_name, "ALG");
+                            _template_get_values = get_values(id, source, alphabet_name, $@"ALG");
                             _template_get_values = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
                         }
 
@@ -87,10 +87,10 @@ namespace peptides_server
                     var autoCorrelation_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCorrelation(engine, sequence, c, b, true))).ToList()).ToList();
                     var autoCovariance_result_list = autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop: b, lag: c, value: autoCovariance(engine, sequence, c, b, true))).ToList()).ToList();
                     var blosumIndices_result = blosumIndices(engine, sequence);
-                    blosumIndices_result.Add((-1, "Average", blosumIndices_result.Average(a => a.value)));
+                    blosumIndices_result.Add((-1, $@"Average", blosumIndices_result.Average(a => a.value)));
                     var boman_result = boman(engine, sequence);
                     var charge_result_list = pKscales.SelectMany(a => Enumerable.Range(ph_start, (ph_end - ph_start) + 1).Select(b => (ph: b, scale: a, value: charge(engine, sequence, b, a))).ToList()).ToList();
-                    charge_result_list.AddRange(charge_result_list.GroupBy(a => a.scale).Select(a => (ph: -1, scale: $"{a.Key}_average", value: a.Select(b => b.value).Average())).ToList());
+                    charge_result_list.AddRange(charge_result_list.GroupBy(a => a.scale).Select(a => (ph: -1, scale: $@"{a.Key}_average", value: a.Select(b => b.value).Average())).ToList());
                     var crossCovariance_result_list = autoCorrelation_properties.SelectMany(a => autoCorrelation_properties.SelectMany(b => Enumerable.Range(lag_start, (lag_end - lag_start) + 1).Select(c => (prop1: a, prop2: b, lag: c, value: crossCovariance(engine, sequence, c, a, b, true))).ToList()).ToList()).ToList();
                     var crucianiProperties_result = crucianiProperties(engine, sequence); //3
                     var fasgaiVectors_result = fasgaiVectors(engine, sequence); //6
@@ -99,7 +99,7 @@ namespace peptides_server
                     var instaIndex_result = instaIndex(engine, sequence);
                     var kideraFactors_result = kideraFactors(engine, sequence); //10
                     List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)> membpos_result = membpos(engine, sequence);
-                    membpos_result.Add((row: -1, Pwp: "", H: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.H), uH: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.uH), MembPosValue: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.MembPosValue), MembPos: ""));
+                    membpos_result.Add((row: -1, Pwp: $@"", H: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.H), uH: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.uH), MembPosValue: membpos_result.Count == 0 ? 0 : membpos_result.Average(a => a.MembPosValue), MembPos: $@""));
                     var mswhimScores_result = mswhimScores(engine, sequence); //3
                     var mw_result = mw(engine, sequence);
                     var pI_result = pI(engine, sequence);
@@ -114,299 +114,299 @@ namespace peptides_server
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(aIndex)}",
-                        member = $"{nameof(r_peptides)}_{nameof(aIndex)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(aIndex)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(aIndex)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(aIndex_result)
                     });
 
                     autoCorrelation_result_list.ForEach(autoCorrelation_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(autoCorrelation)}",
-                        member = $"{nameof(r_peptides)}_{nameof(autoCorrelation)}_{autoCorrelation_result.prop}_lag{autoCorrelation_result.lag}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(autoCorrelation)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(autoCorrelation)}_{autoCorrelation_result.prop}_lag{autoCorrelation_result.lag}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(autoCorrelation_result.value)
                     }));
 
                     autoCovariance_result_list.ForEach(autoCovariance_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(autoCovariance)}",
-                        member = $"{nameof(r_peptides)}_{nameof(autoCovariance)}_{autoCovariance_result.prop}_lag{autoCovariance_result.lag}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(autoCovariance)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(autoCovariance)}_{autoCovariance_result.prop}_lag{autoCovariance_result.lag}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(autoCovariance_result.value)
                     }));
 
-                    features.AddRange(blosumIndices_result.Select(a => new feature_info()
+                    features.AddRange(blosumIndices_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(blosumIndices)}",
-                        member = $"{nameof(r_peptides)}_{nameof(blosumIndices)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(blosumIndices)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(blosumIndices)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(boman)}",
-                        member = $"{nameof(r_peptides)}_{nameof(boman)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(boman)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(boman)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(boman_result)
                     });
 
                     charge_result_list.ForEach(charge_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(charge)}",
-                        member = $"{nameof(r_peptides)}_{nameof(charge)}_{charge_result.scale}_ph{charge_result.ph}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(charge)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(charge)}_{charge_result.scale}_ph{charge_result.ph}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(charge_result.value)
                     }));
 
                     crossCovariance_result_list.ForEach(crossCovariance_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(crossCovariance)}",
-                        member = $"{nameof(r_peptides)}_{nameof(crossCovariance)}_{crossCovariance_result.prop1}_{crossCovariance_result.prop2}_lag{crossCovariance_result.lag}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(crossCovariance)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(crossCovariance)}_{crossCovariance_result.prop1}_{crossCovariance_result.prop2}_lag{crossCovariance_result.lag}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(crossCovariance_result.value)
                     }));
 
-                    features.AddRange(crucianiProperties_result.Select(a => new feature_info()
+                    features.AddRange(crucianiProperties_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(crucianiProperties)}",
-                        member = $"{nameof(r_peptides)}_{nameof(crucianiProperties)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(crucianiProperties)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(crucianiProperties)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
-                    features.AddRange(fasgaiVectors_result.Select(a => new feature_info()
+                    features.AddRange(fasgaiVectors_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(fasgaiVectors)}",
-                        member = $"{nameof(r_peptides)}_{nameof(fasgaiVectors)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(fasgaiVectors)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(fasgaiVectors)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(hmoment)}",
-                        member = $"{nameof(r_peptides)}_{nameof(hmoment)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(hmoment)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(hmoment)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(hmoment_result)
                     });
 
                     hydrophobicity_result_list.ForEach(hydrophobicity_result => features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(hydrophobicity)}",
-                        member = $"{nameof(r_peptides)}_{nameof(hydrophobicity)}_{hydrophobicity_result.scale}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(hydrophobicity)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(hydrophobicity)}_{hydrophobicity_result.scale}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(hydrophobicity_result.value)
                     }));
 
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(instaIndex)}",
-                        member = $"{nameof(r_peptides)}_{nameof(instaIndex)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(instaIndex)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(instaIndex)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(instaIndex_result)
                     });
 
-                    features.AddRange(kideraFactors_result.Select(a => new feature_info()
+                    features.AddRange(kideraFactors_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(kideraFactors)}",
-                        member = $"{nameof(r_peptides)}_{nameof(kideraFactors)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(kideraFactors)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(kideraFactors)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
 
-                    //features.AddRange(membpos_result_av.Select(a => new feature_info()
+                    //features.AddRange(membpos_result_av.Select(ds_stat => new feature_info()
                     //{
                     //    alphabet = alpha_name,
-                    //    dimension = 1,
-                    //    category = $"{nameof(r_peptides)}",
+                    //    stats = "", dimension = 1,
+                    //    category = $@"{nameof(r_peptides)}",
                     //    source = source,
-                    //    @group = $"{nameof(r_peptides)}_{nameof(membpos)}",
-                    //    member = $"{nameof(r_peptides)}_{nameof(membpos)}_{a.name}",
-                    //    perspective = "default",
+                    //    @group = $@"{ds_stat.group_id}_{nameof(r_peptides)}_{nameof(membpos)}",
+                    //    member = $@"{nameof(r_peptides)}_{nameof(membpos)}_{a.name}",
+                    //    perspective = $@"default",
                     //    feature_value = descriptive_stats.fix_double(a.value)
                     //}).ToList());
 
-                    features.AddRange(mswhimScores_result.Select(a => new feature_info()
+                    features.AddRange(mswhimScores_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(mswhimScores)}",
-                        member = $"{nameof(r_peptides)}_{nameof(mswhimScores)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(mswhimScores)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(mswhimScores)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(mw)}",
-                        member = $"{nameof(r_peptides)}_{nameof(mw)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(mw)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(mw)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(mw_result)
                     });
 
                     features.Add(new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(pI)}",
-                        member = $"{nameof(r_peptides)}_{nameof(pI)}",
-                        perspective = "default",
+                        @group = $@"{nameof(r_peptides)}_{nameof(pI)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(pI)}",
+                        perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(pI_result)
                     });
 
-                    features.AddRange(protFP_result.Select(a => new feature_info()
+                    features.AddRange(protFP_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(protFP)}",
-                        member = $"{nameof(r_peptides)}_{nameof(protFP)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(protFP)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(protFP)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
-                    features.AddRange(stScales_result.Select(a => new feature_info()
+                    features.AddRange(stScales_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(stScales)}",
-                        member = $"{nameof(r_peptides)}_{nameof(stScales)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(stScales)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(stScales)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
-                    features.AddRange(tScales_result.Select(a => new feature_info()
+                    features.AddRange(tScales_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(tScales)}",
-                        member = $"{nameof(r_peptides)}_{nameof(tScales)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(tScales)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(tScales)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
-                    features.AddRange(vhseScales_result.Select(a => new feature_info()
+                    features.AddRange(vhseScales_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(vhseScales)}",
-                        member = $"{nameof(r_peptides)}_{nameof(vhseScales)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(vhseScales)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(vhseScales)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
-                    features.AddRange(zScales_result.Select(a => new feature_info()
+                    features.AddRange(zScales_result.Select(ds_stat => new feature_info()
                     {
                         alphabet = alphabet_name,
-                        dimension = 1,
-                        category = $"{nameof(r_peptides)}",
+                        stats = "", dimension = 1,
+                        category = $@"{nameof(r_peptides)}",
                         source = source,
-                        @group = $"{nameof(r_peptides)}_{nameof(zScales)}",
-                        member = $"{nameof(r_peptides)}_{nameof(zScales)}_{a.index}_{a.name}",
-                        perspective = "default",
-                        feature_value = descriptive_stats.fix_double(a.value)
+                        @group = $@"{nameof(r_peptides)}_{nameof(zScales)}",
+                        member = $@"{nameof(r_peptides)}_{nameof(zScales)}_{ds_stat.index}_{ds_stat.name}",
+                        perspective = $@"default",
+                        feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList());
 
 
-                    //io_proxy.WriteLine($"{nameof(aaComp_result)} = {string.Join(",", aaComp_result)}");
-                    //io_proxy.WriteLine($"{nameof(aaDescriptors_result)} = {string.Join(",", aaDescriptors_result)}");
-                    //io_proxy.WriteLine($"{nameof(aIndex_result)} = {string.Join(",", aIndex_result)}");
-                    //io_proxy.WriteLine($"{nameof(autoCorrelation_result)} = {string.Join(",", autoCorrelation_result)}");
-                    //io_proxy.WriteLine($"{nameof(autoCovariance_result)} = {string.Join(",", autoCovariance_result)}");
-                    //io_proxy.WriteLine($"{nameof(blosumIndices_result)} = {string.Join(",", blosumIndices_result)}");
-                    //io_proxy.WriteLine($"{nameof(boman_result)} = {string.Join(",", boman_result)}");
-                    //io_proxy.WriteLine($"{nameof(charge_result)} = {string.Join(",", charge_result)}");
-                    //io_proxy.WriteLine($"{nameof(crossCovariance_result)} = {string.Join(",", crossCovariance_result)}");
-                    //io_proxy.WriteLine($"{nameof(crucianiProperties_result)} = {string.Join(",", crucianiProperties_result)}");
-                    //io_proxy.WriteLine($"{nameof(fasgaiVectors_result)} = {string.Join(",", fasgaiVectors_result)}");
-                    //io_proxy.WriteLine($"{nameof(hmoment_result)} = {string.Join(",", hmoment_result)}");
-                    //io_proxy.WriteLine($"{nameof(hydrophobicity_result)} = {string.Join(",", hydrophobicity_result)}");
-                    //io_proxy.WriteLine($"{nameof(instaIndex_result)} = {string.Join(",", instaIndex_result)}");
-                    //io_proxy.WriteLine($"{nameof(kideraFactors_result)} = {string.Join(",", kideraFactors_result)}");
-                    //io_proxy.WriteLine($"{nameof(lengthpep_result)} = {string.Join(",", lengthpep_result)}");
-                    //io_proxy.WriteLine($"{nameof(membpos_result)} = {string.Join(",", membpos_result)}");
-                    //io_proxy.WriteLine($"{nameof(mswhimScores_result)} = {string.Join(",", mswhimScores_result)}");
-                    //io_proxy.WriteLine($"{nameof(mw_result)} = {string.Join(",", mw_result)}");
-                    //io_proxy.WriteLine($"{nameof(pI_result)} = {string.Join(",", pI_result)}");
-                    //io_proxy.WriteLine($"{nameof(protFP_result)} = {string.Join(",", protFP_result)}");
-                    //io_proxy.WriteLine($"{nameof(stScales_result)} = {string.Join(",", stScales_result)}");
-                    //io_proxy.WriteLine($"{nameof(tScales_result)} = {string.Join(",", tScales_result)}");
-                    //io_proxy.WriteLine($"{nameof(vhseScales_result)} = {string.Join(",", vhseScales_result)}");
-                    //io_proxy.WriteLine($"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
+                    //io_proxy.WriteLine($@"{nameof(aaComp_result)} = {string.Join(",", aaComp_result)}");
+                    //io_proxy.WriteLine($@"{nameof(aaDescriptors_result)} = {string.Join(",", aaDescriptors_result)}");
+                    //io_proxy.WriteLine($@"{nameof(aIndex_result)} = {string.Join(",", aIndex_result)}");
+                    //io_proxy.WriteLine($@"{nameof(autoCorrelation_result)} = {string.Join(",", autoCorrelation_result)}");
+                    //io_proxy.WriteLine($@"{nameof(autoCovariance_result)} = {string.Join(",", autoCovariance_result)}");
+                    //io_proxy.WriteLine($@"{nameof(blosumIndices_result)} = {string.Join(",", blosumIndices_result)}");
+                    //io_proxy.WriteLine($@"{nameof(boman_result)} = {string.Join(",", boman_result)}");
+                    //io_proxy.WriteLine($@"{nameof(charge_result)} = {string.Join(",", charge_result)}");
+                    //io_proxy.WriteLine($@"{nameof(crossCovariance_result)} = {string.Join(",", crossCovariance_result)}");
+                    //io_proxy.WriteLine($@"{nameof(crucianiProperties_result)} = {string.Join(",", crucianiProperties_result)}");
+                    //io_proxy.WriteLine($@"{nameof(fasgaiVectors_result)} = {string.Join(",", fasgaiVectors_result)}");
+                    //io_proxy.WriteLine($@"{nameof(hmoment_result)} = {string.Join(",", hmoment_result)}");
+                    //io_proxy.WriteLine($@"{nameof(hydrophobicity_result)} = {string.Join(",", hydrophobicity_result)}");
+                    //io_proxy.WriteLine($@"{nameof(instaIndex_result)} = {string.Join(",", instaIndex_result)}");
+                    //io_proxy.WriteLine($@"{nameof(kideraFactors_result)} = {string.Join(",", kideraFactors_result)}");
+                    //io_proxy.WriteLine($@"{nameof(lengthpep_result)} = {string.Join(",", lengthpep_result)}");
+                    //io_proxy.WriteLine($@"{nameof(membpos_result)} = {string.Join(",", membpos_result)}");
+                    //io_proxy.WriteLine($@"{nameof(mswhimScores_result)} = {string.Join(",", mswhimScores_result)}");
+                    //io_proxy.WriteLine($@"{nameof(mw_result)} = {string.Join(",", mw_result)}");
+                    //io_proxy.WriteLine($@"{nameof(pI_result)} = {string.Join(",", pI_result)}");
+                    //io_proxy.WriteLine($@"{nameof(protFP_result)} = {string.Join(",", protFP_result)}");
+                    //io_proxy.WriteLine($@"{nameof(stScales_result)} = {string.Join(",", stScales_result)}");
+                    //io_proxy.WriteLine($@"{nameof(tScales_result)} = {string.Join(",", tScales_result)}");
+                    //io_proxy.WriteLine($@"{nameof(vhseScales_result)} = {string.Join(",", vhseScales_result)}");
+                    //io_proxy.WriteLine($@"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
                     //io_proxy.WriteLine("");
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new feature_info(a) { alphabet = "", source = "", feature_value = 0 }).ToList();
+                        var template = features.Select(a => new feature_info(a) { alphabet = $@"", source = $@"", feature_value = 0 }).ToList();
                         _template_get_values = template;
                     }
 
@@ -420,7 +420,7 @@ namespace peptides_server
         ///
         /// This function was originally written by Alan Bleasby (ajb@ebi.ac.uk) for the EMBOSS package. Further information: http://emboss.sourceforge.net/apps/cvs/emboss/apps/pepstats.html
         ///
-        /// Rice, Peter, Ian Longden, and Alan Bleasby. "EMBOSS: the European molecular biology open software suite." Trends in genetics 16.6 (2000): 276-277.
+        /// Rice, Peter, Ian Longden, and Alan Bleasby. $@"EMBOSS: the European molecular biology open software suite." Trends in genetics 16.6 (2000): 276-277.
         /// </summary>
         /// <param name="seq">An amino-acid sequence</param>
         /// <returns>
@@ -446,13 +446,13 @@ namespace peptides_server
             {
                 var f = nameof(aaComp);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var rownames = engine.Evaluate($"rownames({v}[[1]])").AsCharacter();
-                //var colnames = engine.Evaluate($"colnames({v}[[1]])").AsCharacter();
-                var values = engine.Evaluate($"{v}[[1]]").AsNumericMatrix();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var rownames = engine.Evaluate($@"rownames({v}[[1]])").AsCharacter();
+                //var colnames = engine.Evaluate($@"colnames({v}[[1]])").AsCharacter();
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumericMatrix();
+                var rm = engine.Evaluate($@"rm({v})");
 
 
                 var list = new List<(int row, string rowname, double count, double value)>();
@@ -515,18 +515,18 @@ namespace peptides_server
             {
                 var f = nameof(aaDescriptors);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
 
-                var colnames = engine.Evaluate($"colnames({v})").AsCharacter();
-                var values = engine.Evaluate($"{v}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var colnames = engine.Evaluate($@"colnames({v})").AsCharacter();
+                var values = engine.Evaluate($@"{v}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var list = new List<(int row, string rowname, int col, string colname, double value)>();
 
                 var total_rows = seq.Length;
-                var total_cols = values.Length / seq.Length;
+                var total_cols = seq.Length > 0 ? values.Length / seq.Length : 0;
 
                 var i = 0;
 
@@ -538,7 +538,7 @@ namespace peptides_server
 
 
 
-                        var x = (r, "", c, colnames[i], values[i]);
+                        var x = (r, $@"", c, colnames[i], values[i]);
 
                         list.Add(x);
 
@@ -565,12 +565,12 @@ namespace peptides_server
             {
                 var f = nameof(aIndex);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
 
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -739,13 +739,13 @@ namespace peptides_server
 
                 var f = nameof(autoCorrelation);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
+                var aadata = engine.Evaluate($@"if (!exists(""AAdata"")) data(AAdata)");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(sequence = ""{seq}"", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -776,13 +776,13 @@ namespace peptides_server
 
                 var f = nameof(autoCovariance);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
+                var aadata = engine.Evaluate($@"if (!exists(""AAdata"")) data(AAdata)");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(sequence = ""{seq}"", lag = {lag}, property = AAdata{property}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -806,16 +806,16 @@ namespace peptides_server
             {
                 var f = nameof(blosumIndices);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, double value)>();
 
@@ -846,12 +846,12 @@ namespace peptides_server
             {
                 var f = nameof(boman);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
 
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -862,7 +862,7 @@ namespace peptides_server
 
         internal static string[] pKscales = new string[]
         {
-            "Bjellqvist", "Dawson", "EMBOSS", "Lehninger", "Murray", "Rodwell", "Sillero", "Solomon", "Stryer"
+            $@"Bjellqvist", $@"Dawson", $@"EMBOSS", $@"Lehninger", $@"Murray", $@"Rodwell", $@"Sillero", $@"Solomon", $@"Stryer"
         };
 
 
@@ -891,9 +891,9 @@ namespace peptides_server
         /// </summary>
         /// <param name="seq">An amino-acids sequence</param>
         /// <param name="pH">A pH value</param>
-        /// <param name="pKscale">A character string specifying the pKa scale to be used; must be one of "Bjellqvist", "Dawson", "EMBOSS", "Lehninger", "Murray", "Rodwell", "Sillero", "Solomon" or "Stryer"</param>
+        /// <param name="pKscale">A character string specifying the pKa scale to be used; must be one of $@"Bjellqvist", $@"Dawson", $@"EMBOSS", $@"Lehninger", $@"Murray", $@"Rodwell", $@"Sillero", $@"Solomon" or $@"Stryer"</param>
         /// <returns></returns>
-        internal static double charge(REngine engine, string seq, double pH = 7, string pKscale = "Lehninger")
+        internal static double charge(REngine engine, string seq, double pH = 7, string pKscale = @"Lehninger")
         {
             if (engine == null || string.IsNullOrWhiteSpace(seq) || string.IsNullOrWhiteSpace(pKscale)) return default;
 
@@ -903,11 +903,11 @@ namespace peptides_server
 
                 var f = nameof(charge);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\", pH = {pH}, pKscale = \"{pKscale}\")");
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"", pH = {pH}, pKscale = ""{pKscale}"")");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -941,13 +941,13 @@ namespace peptides_server
 
                 var f = nameof(crossCovariance);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var aadata = engine.Evaluate("if (!exists(\"AAdata\")) data(AAdata)");
-                var evaluate = engine.Evaluate($"{v} <- {f}(sequence = \"{seq}\", lag = {lag}, property1 = AAdata{property1}, property2 = AAdata{property2}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
+                var aadata = engine.Evaluate($@"if (!exists(""AAdata"")) data(AAdata)");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(sequence = ""{seq}"", lag = {lag}, property1 = AAdata{property1}, property2 = AAdata{property2}, center = {center.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})");
 
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -976,27 +976,27 @@ namespace peptides_server
             {
                 var f = nameof(crucianiProperties);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, string description, double value)>();
 
                 for (var i = 0; i < names.Length; i++)
                 {
                     var name = names[i];
-                    var desc = "";
+                    var desc = $@"";
 
-                    if (name == "PP1") desc = "Polarity";
-                    else if (name == "PP2") desc = "Hydrophobicity";
-                    else if (name == "PP3") desc = "H-bonding";
+                    if (name == $@"PP1") desc = $@"Polarity";
+                    else if (name == $@"PP2") desc = $@"Hydrophobicity";
+                    else if (name == $@"PP3") desc = $@"H-bonding";
 
                     var x = (i, names[i], desc, values[i]);
                     result.Add(x);
@@ -1037,30 +1037,30 @@ namespace peptides_server
             {
                 var f = nameof(fasgaiVectors);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, string description, double value)>();
 
                 for (var i = 0; i < names.Length; i++)
                 {
                     var name = names[i];
-                    var desc = "";
+                    var desc = $@"";
 
-                    if (name == "F1") desc = "Hydrophobicity index";
-                    else if (name == "F2") desc = "Alpha and turn propensities";
-                    else if (name == "F3") desc = "Bulky properties";
-                    else if (name == "F4") desc = "Compositional characteristic index";
-                    else if (name == "F5") desc = "Local flexibility";
-                    else if (name == "F6") desc = "Electronic properties";
+                    if (name == $@"F1") desc = $@"Hydrophobicity index";
+                    else if (name == $@"F2") desc = $@"Alpha and turn propensities";
+                    else if (name == $@"F3") desc = $@"Bulky properties";
+                    else if (name == $@"F4") desc = $@"Compositional characteristic index";
+                    else if (name == $@"F5") desc = $@"Local flexibility";
+                    else if (name == $@"F6") desc = $@"Electronic properties";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1092,11 +1092,11 @@ namespace peptides_server
 
                 var f = nameof(hmoment);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\", angle = {angle}, window = {window})");
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"", angle = {angle}, window = {window})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1108,7 +1108,7 @@ namespace peptides_server
 
         internal static string[] hydrophobicity_scales = new string[]
         {
-            "Aboderin", "AbrahamLeo", "Argos", "BlackMould", "BullBreese", "Casari", "Chothia", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg", "Engelman", "Fasman", "Fauchere", "Goldsack", "Guy", "HoppWoods", "Janin", "Jones", "Juretic", "Kidera", "Kuhn", "KyteDoolittle", "Levitt", "Manavalan", "Miyazawa", "Parker", "Ponnuswamy", "Prabhakaran", "Rao", "Rose", "Roseman", "Sweet", "Tanford", "Welling", "Wilson", "Wolfenden", "Zimmerman", "interfaceScale_pH8", "interfaceScale_pH2", "octanolScale_pH8", "octanolScale_pH2", "oiScale_pH8", "oiScale_pH2"
+            $@"Aboderin", $@"AbrahamLeo", $@"Argos", $@"BlackMould", $@"BullBreese", $@"Casari", $@"Chothia", $@"Cid", $@"Cowan3.4", $@"Cowan7.5", $@"Eisenberg", $@"Engelman", $@"Fasman", $@"Fauchere", $@"Goldsack", $@"Guy", $@"HoppWoods", $@"Janin", $@"Jones", $@"Juretic", $@"Kidera", $@"Kuhn", $@"KyteDoolittle", $@"Levitt", $@"Manavalan", $@"Miyazawa", $@"Parker", $@"Ponnuswamy", $@"Prabhakaran", $@"Rao", $@"Rose", $@"Roseman", $@"Sweet", $@"Tanford", $@"Welling", $@"Wilson", $@"Wolfenden", $@"Zimmerman", $@"interfaceScale_pH8", $@"interfaceScale_pH2", $@"octanolScale_pH8", $@"octanolScale_pH2", $@"oiScale_pH8", $@"oiScale_pH2"
         };
 
         /// <summary>
@@ -1159,14 +1159,14 @@ namespace peptides_server
         /// Kawashima, S., Ogata, H., and Kanehisa, M.; AAindex: amino acid index database. Nucleic Acids Res. 27, 368-369 (1999).
         /// Kawashima, S. and Kanehisa, M.; AAindex: amino acid index database. Nucleic Acids Res. 28, 374 (2000).
         /// Kawashima, S., Pokarowski, P., Pokarowska, M., Kolinski, A., Katayama, T., and Kanehisa, M.; AAindex: amino acid index database, progress report 2008. Nucleic Acids Res. 36, D202-D205 (2008).
-        /// White, Stephen (2006-06-29). "Experimentally Determined Hydrophobicity Scales". University of California, Irvine. Retrieved 2017-05-25
+        /// White, Stephen (2006-06-29). $@"Experimentally Determined Hydrophobicity Scales". University of California, Irvine. Retrieved 2017-05-25
         ///
         /// https://rdrr.io/cran/Peptides/man/hydrophobicity.html
         /// </summary>
         /// <param name="seq">An amino-acids sequence</param>
-        /// <param name="scale">A character string specifying the hydophobicity scale to be used; must be one of "Aboderin", "AbrahamLeo", "Argos", "BlackMould", "BullBreese", "Casari", "Chothia", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg", "Engelman", "Fasman", "Fauchere", "Goldsack", "Guy", "HoppWoods", "Janin", "Jones", "Juretic", "Kidera", "Kuhn", "KyteDoolittle", "Levitt", "Manavalan", "Miyazawa", "Parker", "Ponnuswamy", "Prabhakaran", "Rao", "Rose", "Roseman", "Sweet", "Tanford", "Welling", "Wilson", "Wolfenden", "Zimmerman", "interfaceScale_pH8", "interfaceScale_pH2", "octanolScale_pH8", "octanolScale_pH2", "oiScale_pH8" or "oiScale_pH2".</param>
+        /// <param name="scale">A character string specifying the hydophobicity scale to be used; must be one of $@"Aboderin", $@"AbrahamLeo", $@"Argos", $@"BlackMould", $@"BullBreese", $@"Casari", $@"Chothia", $@"Cid", $@"Cowan3.4", $@"Cowan7.5", $@"Eisenberg", $@"Engelman", $@"Fasman", $@"Fauchere", $@"Goldsack", $@"Guy", $@"HoppWoods", $@"Janin", $@"Jones", $@"Juretic", $@"Kidera", $@"Kuhn", $@"KyteDoolittle", $@"Levitt", $@"Manavalan", $@"Miyazawa", $@"Parker", $@"Ponnuswamy", $@"Prabhakaran", $@"Rao", $@"Rose", $@"Roseman", $@"Sweet", $@"Tanford", $@"Welling", $@"Wilson", $@"Wolfenden", $@"Zimmerman", $@"interfaceScale_pH8", $@"interfaceScale_pH2", $@"octanolScale_pH8", $@"octanolScale_pH2", $@"oiScale_pH8" or $@"oiScale_pH2".</param>
         /// <returns>The computed GRAVY index for a given amino-acid sequence</returns>
-        internal static double hydrophobicity(REngine engine, string seq, string scale = "KyteDoolittle")
+        internal static double hydrophobicity(REngine engine, string seq, string scale = @"KyteDoolittle")
         {
             if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
 
@@ -1176,12 +1176,12 @@ namespace peptides_server
 
                 var f = nameof(hydrophobicity);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(scale)} = \"{scale}\")";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"", {nameof(scale)} = ""{scale}"")";
                 var evaluate = engine.Evaluate(eval_cmd);
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1194,7 +1194,7 @@ namespace peptides_server
         /// <summary>
         /// This function calculates the instability index proposed by Guruprasad (1990). This index predicts the stability of a protein based on its amino acid composition, a protein whose instability index is smaller than 40 is predicted as stable, a value above 40 predicts that the protein may be unstable.
         ///
-        /// Guruprasad K, Reddy BV, Pandit MW (1990). "Correlation between stability of a protein and its dipeptide composition: a novel approach for predicting in vivo stability of a protein from its primary sequence". Protein Eng. 4 (2): 155 - 61. doi:10.1093/protein/4.2.155
+        /// Guruprasad K, Reddy BV, Pandit MW (1990). $@"Correlation between stability of a protein and its dipeptide composition: a novel approach for predicting in vivo stability of a protein from its primary sequence". Protein Eng. 4 (2): 155 - 61. doi:10.1093/protein/4.2.155
         ///
         /// https://rdrr.io/cran/Peptides/man/instaIndex.html
         /// </summary>
@@ -1208,14 +1208,14 @@ namespace peptides_server
             {
                 var f = nameof(instaIndex);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
                 if (seq.Length <= 2) return 0;
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\")";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"")";
                 var evaluate = engine.Evaluate(eval_cmd);
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1254,33 +1254,33 @@ namespace peptides_server
             {
                 var f = nameof(kideraFactors);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, string description, double value)>();
 
                 for (var i = 0; i < names.Length; i++)
                 {
                     var name = names[i];
-                    var desc = "";
-                    if (name == "KF1") desc = "Helix/bend preference";
-                    else if (name == "KF2") desc = "Side-chain size";
-                    else if (name == "KF3") desc = "Extended structure preference";
-                    else if (name == "KF4") desc = "Hydrophobicity";
-                    else if (name == "KF5") desc = "Double-bend preference";
-                    else if (name == "KF6") desc = "Partial specific volume";
-                    else if (name == "KF7") desc = "Flat extended preference";
-                    else if (name == "KF8") desc = "Occurrence in alpha region";
-                    else if (name == "KF9") desc = "pK-C";
-                    else if (name == "KF10") desc = "Surrounding hydrophobicity";
+                    var desc = $@"";
+                    if (name == $@"KF1") desc = $@"Helix/bend preference";
+                    else if (name == $@"KF2") desc = $@"Side-chain size";
+                    else if (name == $@"KF3") desc = $@"Extended structure preference";
+                    else if (name == $@"KF4") desc = $@"Hydrophobicity";
+                    else if (name == $@"KF5") desc = $@"Double-bend preference";
+                    else if (name == $@"KF6") desc = $@"Partial specific volume";
+                    else if (name == $@"KF7") desc = $@"Flat extended preference";
+                    else if (name == $@"KF8") desc = $@"Occurrence in alpha region";
+                    else if (name == $@"KF9") desc = $@"pK-C";
+                    else if (name == $@"KF10") desc = $@"Surrounding hydrophobicity";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1308,12 +1308,12 @@ namespace peptides_server
             {
                 var f = nameof(lengthpep);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\")";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"")";
                 var evaluate = engine.Evaluate(eval_cmd);
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1328,7 +1328,7 @@ namespace peptides_server
         ///
         /// Eisenberg et al. (1982) found a correlation between hydrophobicity and hydrophobic moment that defines the protein section as globular, transmembrane or superficial. The function calculates the hydrophobicity (H) and hydrophobic moment (uH) based on the standardized scale of Eisenberg (1984) using windows of 11 amino acids for calculate the theoretical fragment type.
         /// 
-        /// Eisenberg, David. "Three-dimensional structure of membrane and surface proteins." Annual review of biochemistry 53.1 (1984): 595-623.
+        /// Eisenberg, David. $@"Three-dimensional structure of membrane and surface proteins." Annual review of biochemistry 53.1 (1984): 595-623.
         /// 
         /// D. Eisenberg, R. M. Weiss, and T. C. Terwilliger. The helical hydrophobic moment: A measure of the amphiphilicity of a helix. Nature, 299(5881):371-374, 1982. [p7, 8]
         ///
@@ -1347,23 +1347,23 @@ namespace peptides_server
 
                 var f = nameof(membpos);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(angle)} = {angle})";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"", {nameof(angle)} = {angle})";
 
                 var evaluate = engine.Evaluate(eval_cmd);
 
-                //var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})").AsCharacter();
-                var rownames = engine.Evaluate($"rownames({v}{ai})").AsCharacter();
-                //var colnames = engine.Evaluate($"colnames({v}{ai})").AsCharacter();
+                //var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})").AsCharacter();
+                var rownames = engine.Evaluate($@"rownames({v}{ai})").AsCharacter();
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})").AsCharacter();
 
-                var values_Pep = engine.Evaluate($"{v}{ai}[[\"Pep\"]]").AsCharacter();
-                var values_H = engine.Evaluate($"{v}{ai}[[\"H\"]]").AsNumeric();
-                var values_uH = engine.Evaluate($"{v}{ai}[[\"uH\"]]").AsNumeric();
-                var values_MembPos = engine.Evaluate($"{v}{ai}[[\"MembPos\"]]").AsCharacter();
-                var rm = engine.Evaluate($"rm({v})");
+                var values_Pep = engine.Evaluate($@"{v}{ai}[[""Pep""]]").AsCharacter();
+                var values_H = engine.Evaluate($@"{v}{ai}[[""H""]]").AsNumeric();
+                var values_uH = engine.Evaluate($@"{v}{ai}[[""uH""]]").AsNumeric();
+                var values_MembPos = engine.Evaluate($@"{v}{ai}[[""MembPos""]]").AsCharacter();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var list = new List<(int row, string Pwp, double H, double uH, double MembPosValue, string MembPos)>();
 
@@ -1372,9 +1372,9 @@ namespace peptides_server
                     var MembPos = values_MembPos[r];
                     var MembPosValue = 0.5;
 
-                    if (MembPos == "Globular") MembPosValue = 0.5;
-                    else if (MembPos == "Surface") MembPosValue = 1.0;
-                    else if (MembPos == "Transmembrane") MembPosValue = 0.0;
+                    if (MembPos == $@"Globular") MembPosValue = 0.5;
+                    else if (MembPos == $@"Surface") MembPosValue = 1.0;
+                    else if (MembPos == $@"Transmembrane") MembPosValue = 0.0;
 
 
                     var x = (r, values_Pep[r], values_H[r], values_uH[r], MembPosValue, MembPos);
@@ -1403,16 +1403,16 @@ namespace peptides_server
             {
                 var f = nameof(mswhimScores);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, double value)>();
 
@@ -1453,12 +1453,12 @@ namespace peptides_server
 
                 var f = nameof(mw);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(monoisotopic)} = {monoisotopic.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"", {nameof(monoisotopic)} = {monoisotopic.ToString(CultureInfo.InvariantCulture).ToUpperInvariant()})";
                 var evaluate = engine.Evaluate(eval_cmd);
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1477,9 +1477,9 @@ namespace peptides_server
         /// https://rdrr.io/cran/Peptides/man/pI.html
         /// </summary>
         /// <param name="seq">An amino-acids sequence</param>
-        /// <param name="pKscale">A character string specifying the pK scale to be used; must be one of "Bjellqvist", "EMBOSS", "Murray", "Sillero", "Solomon", "Stryer", "Lehninger", "Dawson" or "Rodwell"</param>
+        /// <param name="pKscale">A character string specifying the pK scale to be used; must be one of $@"Bjellqvist", $@"EMBOSS", $@"Murray", $@"Sillero", $@"Solomon", $@"Stryer", $@"Lehninger", $@"Dawson" or $@"Rodwell"</param>
         /// <returns></returns>
-        internal static double pI(REngine engine, string seq, string pKscale = "EMBOSS")
+        internal static double pI(REngine engine, string seq, string pKscale = @"EMBOSS")
         {
             if (engine == null || string.IsNullOrWhiteSpace(seq)) return default;
 
@@ -1489,12 +1489,12 @@ namespace peptides_server
 
                 var f = nameof(pI);
                 var k = Key;
-                var v = $"{f}_v{k}";
+                var v = $@"{f}_v{k}";
 
-                var eval_cmd = $"{v} <- {f}({nameof(seq)} = \"{seq}\", {nameof(pKscale)} = \"{pKscale}\")";
+                var eval_cmd = $@"{v} <- {f}({nameof(seq)} = ""{seq}"", {nameof(pKscale)} = ""{pKscale}"")";
                 var evaluate = engine.Evaluate(eval_cmd);
-                var values = engine.Evaluate($"{v}[[1]]").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var values = engine.Evaluate($@"{v}[[1]]").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = values.First();
 
@@ -1520,16 +1520,16 @@ namespace peptides_server
             {
                 var f = nameof(protFP);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, double value)>();
 
@@ -1564,16 +1564,16 @@ namespace peptides_server
             {
                 var f = nameof(stScales);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, double value)>();
 
@@ -1608,16 +1608,16 @@ namespace peptides_server
             {
                 var f = nameof(tScales);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, double value)>();
 
@@ -1657,16 +1657,16 @@ namespace peptides_server
             {
                 var f = nameof(vhseScales);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, string description, double value)>();
 
@@ -1674,15 +1674,15 @@ namespace peptides_server
                 {
                     var name = names[i];
 
-                    var desc = "";
-                    if (name == "VHSE1") desc = "Hydrophobic properties";
-                    else if (name == "VHSE2") desc = "Hydrophobic properties";
-                    else if (name == "VHSE3") desc = "Steric properties";
-                    else if (name == "VHSE4") desc = "Steric properties";
-                    else if (name == "VHSE5") desc = "Electronic properties";
-                    else if (name == "VHSE6") desc = "Electronic properties";
-                    else if (name == "VHSE7") desc = "Electronic properties";
-                    else if (name == "VHSE8") desc = "Electronic properties";
+                    var desc = $@"";
+                    if (name == $@"VHSE1") desc = $@"Hydrophobic properties";
+                    else if (name == $@"VHSE2") desc = $@"Hydrophobic properties";
+                    else if (name == $@"VHSE3") desc = $@"Steric properties";
+                    else if (name == $@"VHSE4") desc = $@"Steric properties";
+                    else if (name == $@"VHSE5") desc = $@"Electronic properties";
+                    else if (name == $@"VHSE6") desc = $@"Electronic properties";
+                    else if (name == $@"VHSE7") desc = $@"Electronic properties";
+                    else if (name == $@"VHSE8") desc = $@"Electronic properties";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1717,29 +1717,29 @@ namespace peptides_server
             {
                 var f = nameof(zScales);
                 var k = Key;
-                var v = $"{f}_v{k}";
-                var ai = "[[1]]";
+                var v = $@"{f}_v{k}";
+                var ai = $@"[[1]]";
 
-                var evaluate = engine.Evaluate($"{v} <- {f}(seq = \"{seq}\")");
-                var names = engine.Evaluate($"names({v}{ai})").AsCharacter();
-                //var dimnames = engine.Evaluate($"dimnames({v}{ai})");
-                //var rownames = engine.Evaluate($"rownames({v}{ai})");
-                //var colnames = engine.Evaluate($"colnames({v}{ai})");
-                var values = engine.Evaluate($"{v}{ai}").AsNumeric();
-                var rm = engine.Evaluate($"rm({v})");
+                var evaluate = engine.Evaluate($@"{v} <- {f}(seq = ""{seq}"")");
+                var names = engine.Evaluate($@"names({v}{ai})").AsCharacter();
+                //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
+                //var rownames = engine.Evaluate($@"rownames({v}{ai})");
+                //var colnames = engine.Evaluate($@"colnames({v}{ai})");
+                var values = engine.Evaluate($@"{v}{ai}").AsNumeric();
+                var rm = engine.Evaluate($@"rm({v})");
 
                 var result = new List<(int index, string name, string description, double value)>();
 
                 for (var i = 0; i < names.Length; i++)
                 {
                     var name = names[i];
-                    var desc = "";
+                    var desc = $@"";
 
-                    if (name == "Z1") desc = "Lipophilicity";
-                    else if (name == "Z2") desc = "Steric properties (Steric bulk/Polarizability)";
-                    else if (name == "Z3") desc = "Electronic properties (Polarity / Charge)";
-                    else if (name == "Z4") desc = "Electronegativity, heat of formation, electrophilicity and hardness";
-                    else if (name == "Z5") desc = "Electronegativity, heat of formation, electrophilicity and hardness";
+                    if (name == $@"Z1") desc = $@"Lipophilicity";
+                    else if (name == $@"Z2") desc = $@"Steric properties (Steric bulk/Polarizability)";
+                    else if (name == $@"Z3") desc = $@"Electronic properties (Polarity / Charge)";
+                    else if (name == $@"Z4") desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
+                    else if (name == $@"Z5") desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
 
                     var x = (i, name, desc, values[i]);
 
