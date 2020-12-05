@@ -236,8 +236,10 @@ namespace dimorphics_dataset
 
         internal static void fill_missing_chains()
         {
+            const string module_name = nameof(misc);
+            const string method_name = nameof(fill_missing_chains);
 
-            var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv", nameof(misc), nameof(fill_missing_chains));
+            var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv", module_name, method_name);
 
             var lines_header = lines_all.First();
 
@@ -277,14 +279,15 @@ namespace dimorphics_dataset
 
             // 
 
-            //lines = lines.Skip(lines.FindIndex(a=>a.pdb_id.Equals("2NS9", StringComparison.CurrentCultureIgnoreCase))).ToList();
+            //lines = lines.Skip(lines.FindIndex(a=>a.pdb_id.Equals($@"2NS9", StringComparison.CurrentCultureIgnoreCase))).ToList();
             //lines = lines.Where(a => a.res_id.Length > 0).ToList();
 
 
             var errors = 0;
 
             var tasks = new List<Task>();
-
+            var tasks_start_time = DateTime.Now;
+            
             for (var i = 0; i < lines.Count; i++)
             {
                 var line = lines[i];
@@ -343,7 +346,7 @@ namespace dimorphics_dataset
                         else
                         {
                             errors++;
-                            io_proxy.WriteLine($"errors: {errors}, fix: {fix}");
+                            io_proxy.WriteLine($"errors: {errors}, fix: {fix}", module_name, method_name);
                             //throw new Exception();
                             fix = true;
                         }
@@ -356,9 +359,9 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(misc), nameof(fill_missing_chains));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
 
-            var result = lines.Select(a => String.Join(",", new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
+            var result = lines.Select(a => String.Join($@",", new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
             result.Insert(0, $@"{lines_header},chain_id");
 
             var fn = @"c:\bioinf\fixed_dataset.csv";
@@ -366,7 +369,7 @@ namespace dimorphics_dataset
             //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
             io_proxy.WriteAllLines(fn, result, nameof(program), nameof(fill_missing_chains));
-            io_proxy.WriteLine("finished.");
+            io_proxy.WriteLine($@"finished.", module_name, method_name);
             //Console.ReadLine();
 
         }
@@ -386,6 +389,7 @@ namespace dimorphics_dataset
             var split_pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"pdb_split"), $@"*.pdb").ToList();
 
             var tasks = new List<Task>();
+            var tasks_start_time = DateTime.Now;
 
             foreach (var pp in split_pdbs)
             {
@@ -406,7 +410,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(misc), nameof(repair_all_extracted_pdbs));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, nameof(misc), nameof(repair_all_extracted_pdbs));
 
         }
 
@@ -414,7 +418,7 @@ namespace dimorphics_dataset
         {
 
             var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), nameof(misc), nameof(get_pdb_sequences))
-                .Skip(1).Where(a => !String.IsNullOrWhiteSpace(a.Replace(",", $@"", StringComparison.InvariantCulture))).Select((a, i) =>
+                .Skip(1).Where(a => !String.IsNullOrWhiteSpace(a.Replace($@",", $@"", StringComparison.InvariantCulture))).Select((a, i) =>
                 {
                     var x = a.Split(',');
                     return (
@@ -516,7 +520,7 @@ namespace dimorphics_dataset
             //{
             //    var file_seq = new List<string>();
 
-            //    file_seq.Add(">" + i);
+            //    file_seq.Add($@">" + i);
             //    file_seq.Add(seqs[i]);
 
             //    program.WriteAllLines(Path.Combine(program.data_root_folder,"iupred2a\" + i + $@".seq", file_seq);
@@ -590,8 +594,8 @@ namespace dimorphics_dataset
                 {
                     var cmd_lines = new List<string>() { };
 
-                    var pssm_blast_input_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString("000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture)}";
-                    var pssm_blast_output_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString("000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture)}";
+                    var pssm_blast_input_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}";
+                    var pssm_blast_output_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}";
 
                     Directory.CreateDirectory(pssm_blast_input_folder);
                     Directory.CreateDirectory(pssm_blast_output_folder);
@@ -616,7 +620,7 @@ namespace dimorphics_dataset
 
                         var pssm_copy_file = Path.Combine(pssm_blast_output_folder, $@"{index1}.pssm");
 
-                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file, nameof(misc), nameof(get_pssms)).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith("PSI Gapped", StringComparison.InvariantCulture)))
+                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file, nameof(misc), nameof(get_pssms)).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith($@"PSI Gapped", StringComparison.InvariantCulture)))
                         {
                             skipped_pssm_exists++;
                             continue;
@@ -624,7 +628,7 @@ namespace dimorphics_dataset
 
 
 
-                        var cmd_line = info_blast_pssm.run_psi_blast_get_pssm(fasta_file, pssm_local_file, blast_db, db_folder, num_iterations, evalue.ToString("000.00000", CultureInfo.InvariantCulture), inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture), remote, run);
+                        var cmd_line = info_blast_pssm.run_psi_blast_get_pssm(fasta_file, pssm_local_file, blast_db, db_folder, num_iterations, evalue.ToString($@"000.00000", CultureInfo.InvariantCulture), inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture), remote, run);
 
                         cmd_lines.Add(cmd_line);
 
@@ -637,7 +641,7 @@ namespace dimorphics_dataset
 
                     }
 
-                    var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString("000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString("000.00000", CultureInfo.InvariantCulture)}.bat");
+                    var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}.bat");
 
                     //Directory.CreateDirectory(Path.GetDirectoryName(batch_pssm_local_file));
                     io_proxy.WriteAllLines(batch_pssm_local_file, cmd_lines, nameof(program), nameof(get_pssms));
@@ -699,7 +703,7 @@ namespace dimorphics_dataset
         internal static void get_uniprot_sequences(/*bool limited_to_dimorphics_and_standard = true*/)
         {
             //var dimorphics_data = program.ReadAllLines(Path.Combine(program.data_root_folder,"csv\distinct dimorphics list.csv")
-            //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(",", $@""))).Select((a, i) =>
+            //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace($@",", $@""))).Select((a, i) =>
             //    {
             //        var x = a.Split(',');
             //        return (
@@ -781,7 +785,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_buildmodel_position_scan.bat");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_position_scan.bat");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(a => a.Contains($@"--mutant-file=", StringComparison.InvariantCulture)).ToList();
 
 
             var cmd_list_parsed = cmd_list.Select(a =>
@@ -855,7 +859,7 @@ namespace dimorphics_dataset
             var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_buildmodel_subsequence_mutant.bat");
             var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_subsequence_mutant.bat");
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(a => a.Contains("--mutant-file=", StringComparison.InvariantCulture)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(a => a.Contains($@"--mutant-file=", StringComparison.InvariantCulture)).ToList();
 
 
 
@@ -971,7 +975,7 @@ namespace dimorphics_dataset
             io_proxy.WriteLine($@"missed: {missing.Count}");
             foreach (var m in missing)
             {
-                io_proxy.WriteLine($@"{m.id}, extra: {String.Join("|", m.extra)}, missing: {String.Join("|", m.missing1)}");
+                io_proxy.WriteLine($@"{m.id}, extra: {String.Join($@"|", m.extra)}, missing: {String.Join($@"|", m.missing1)}");
             }
 
 
@@ -1031,7 +1035,7 @@ namespace dimorphics_dataset
 
                 x = x.SelectMany(a =>
                 {
-                    var rid = Int32.Parse(String.Join("", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    var rid = Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture);
 
                     if (actual_miss.Contains(rid))
                     {
@@ -1053,7 +1057,7 @@ namespace dimorphics_dataset
                     }
                 }).Where(a => !String.IsNullOrWhiteSpace(a)).Distinct().ToList();
 
-                var x_res = x.Select(a => Int32.Parse(String.Join("", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var x_res = x.Select(a => Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
 
                 var scanning_data = File.Exists(c.file) && new FileInfo(c.file).Length > 0 ? io_proxy.ReadAllLines(c.file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Select(a =>
                 {
@@ -1064,7 +1068,7 @@ namespace dimorphics_dataset
 
 
                 var data_codes = scanning_data.Select(a => a.First()).Distinct().ToList();
-                var data_codes_res = data_codes.Select(a => Int32.Parse(String.Join("", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var data_codes_res = data_codes.Select(a => Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
 
                 var missing1 = x.Except(data_codes).Distinct().ToList();
 
@@ -1075,9 +1079,9 @@ namespace dimorphics_dataset
                     incomplete_files.Add(file);
 
                     io_proxy.WriteLine();
-                    io_proxy.WriteLine($"File: {file}");
+                    io_proxy.WriteLine($@"File: {file}");
                     io_proxy.WriteLine();
-                    io_proxy.WriteLine($"Missing {missing1.Count}: $@{String.Join(", ", missing1)}");
+                    io_proxy.WriteLine($@"Missing {missing1.Count}: $@{string.Join($@", ", missing1)}");
                     io_proxy.WriteLine();
                 }
                 else
@@ -1088,15 +1092,15 @@ namespace dimorphics_dataset
 
             }
 
-            io_proxy.WriteLine($"incomplete_file_count: {incomplete_files.Count}");
-            io_proxy.WriteLine($"complete_file_count: {complete_files.Count}");
+            io_proxy.WriteLine($@"incomplete_file_count: {incomplete_files.Count}");
+            io_proxy.WriteLine($@"complete_file_count: {complete_files.Count}");
 
             //program.WriteAllLines(Path.Combine(program.data_root_folder,"foldx\ps_incomplete_files.txt", incomplete_files);
 
 
 
             var missing_list = missing.Select(a => a).ToList();
-            var missing_list_del = missing_list.Where(a => a.StartsWith("if not exist", StringComparison.InvariantCultureIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
+            var missing_list_del = missing_list.Where(a => a.StartsWith($@"if not exist", StringComparison.InvariantCultureIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
 
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
@@ -1121,8 +1125,8 @@ namespace dimorphics_dataset
 
             List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> diff = pdbs.Select(a =>
             {
-                var o = io_proxy.ReadAllLines(a.pdb_original, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
-                var r = io_proxy.ReadAllLines(a.pdb_repair, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith("ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var o = io_proxy.ReadAllLines(a.pdb_original, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith($@"ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
+                var r = io_proxy.ReadAllLines(a.pdb_repair, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith($@"ATOM", StringComparison.InvariantCulture)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().ToList();
                 var i = o.Intersect(r).ToList();
                 var e1 = o.Except(r).ToList();
                 var e2 = r.Except(o).ToList();
@@ -1183,7 +1187,7 @@ namespace dimorphics_dataset
 
         //            for (var i = 0; i < x.Count; i++)
         //            {
-        //               // x[i] = string.Join(",", z.a) + $@"," + x[i];
+        //               // x[i] = string.Join($@",", z.a) + $@"," + x[i];
         //            }
         //            //results.AddRange(x);
 
@@ -1206,7 +1210,7 @@ namespace dimorphics_dataset
 
         //    program.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
 
-        //    io_proxy.WriteLine("Finished.");
+        //    io_proxy.WriteLine($@"Finished.");
         //    Console.ReadLine();
         //}
 
@@ -1216,7 +1220,7 @@ namespace dimorphics_dataset
 
 
 
-        //subsequence_classification_data.encode_sequence("x", $@"ALGY");
+        //subsequence_classification_data.encode_sequence($@"x", $@"ALGY");
 
         //xtodo: create dhc dataset with dhc found by dssp3, dssp7, stride3, stride7, for comparison
         //xtodo: to see which secondary structure definition gives the best performance in the classifier
@@ -1234,15 +1238,15 @@ namespace dimorphics_dataset
         //{
         //    class_list.Add(
         //        (
-        //        nameof(run_larks_unknown).EndsWith("unknown") ? +1 : -1,
-        //        nameof(run_larks_unknown).Replace("run_", $@""),
-        //        $@"c:\bioinf\e_{nameof(run_larks_unknown).Replace("run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt",
-        //        $@"c:\bioinf\d_{nameof(run_larks_unknown).Replace("run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt")
+        //        nameof(run_larks_unknown).EndsWith($@"unknown") ? +1 : -1,
+        //        nameof(run_larks_unknown).Replace($@"run_", $@""),
+        //        $@"c:\bioinf\e_{nameof(run_larks_unknown).Replace($@"run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt",
+        //        $@"c:\bioinf\d_{nameof(run_larks_unknown).Replace($@"run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt")
 
         //    );
         //}
 
-        //else if (class_name == nameof(run_larks_unknown).Replace("run_", $@""))
+        //else if (class_name == nameof(run_larks_unknown).Replace($@"run_", $@""))
         //{
         //    var larks = new List<string>() { $@"STGGYG", $@"GYNGFG", $@"SYSGYS", $@"SYSSYGQS", $@"GFGNFGTS" };
         //    sequence_list = larks;
@@ -1286,7 +1290,7 @@ namespace dimorphics_dataset
             //    {
             //        var inp = new string('A', i);
             //        var x = feature_calcs.split_sequence(inp,3,0,b==1);
-            //        io_proxy.WriteLine(inp + $@": " + string.Join(", ", x));
+            //        io_proxy.WriteLine(inp + $@": " + string.Join($@", ", x));
             //    }
             //}
             //return;
@@ -1296,7 +1300,7 @@ namespace dimorphics_dataset
 
             //return;
             //r_peptides.init_r();
-            //io_proxy.WriteLine(r_peptides.get_values("AAAAAAAAAALLLLLLL"));
+            //io_proxy.WriteLine(r_peptides.get_values($@"AAAAAAAAAALLLLLLL"));
             //for (var i = 0; i < 100; i++) Console.ReadLine();
 
             //return;
@@ -1319,7 +1323,7 @@ namespace dimorphics_dataset
             //        get_pssms(blast_db, blast_db_folder, remote, run);
             //    }
             //}
-            //io_proxy.WriteLine("Finished");
+            //io_proxy.WriteLine($@"Finished");
             //Console.ReadLine();
             //return;
 
@@ -1331,7 +1335,7 @@ namespace dimorphics_dataset
 
             //for (var i = 3; i <= 5; i++)
             //{
-            //    var a = new string("ALGYALGY".ToCharArray(),0, i);
+            //    var a = new string($@"ALGYALGY".ToCharArray(),0, i);
             //    var pepValues = r_peptides.get_values(a);
             //    io_proxy.WriteLine($@"!!! length {i}: sequence {a}: features: {pepValues.Count}");
             //}
@@ -1340,7 +1344,7 @@ namespace dimorphics_dataset
             //return;
 
             //REngine engine = REngine.GetInstance();
-            ////engine.Evaluate(@"install.packages(""Peptides"")");
+            ////engine.Evaluate($@"install.packages(""Peptides"")");
 
             //var r_init_cmds = $@"
             //#install.packages(""devtools"", repos=""http://cran.us.r-project.org"")
@@ -1348,10 +1352,10 @@ namespace dimorphics_dataset
             //#install_github(""dosorio/Peptides"")
             //library(Peptides)
             //";
-            //r_init_cmds.Split(new char[] { '\r', '\n'}).Where(a=>!string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith("#")).ToList().ForEach(a=> engine.Evaluate(a));
+            //r_init_cmds.Split(new char[] { '\r', '\n'}).Where(a=>!string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#")).ToList().ForEach(a=> engine.Evaluate(a));
 
-            //var xyz_e = engine.Evaluate("xyz <- lengthpep(seq = \"GLPRKILCAIAKKKGKCKGPLKLVCKC\")").AsDataFrame();
-            //NumericVector xyz = engine.GetSymbol("xyz").AsNumeric();
+            //var xyz_e = engine.Evaluate($@"xyz <- lengthpep(seq = ""GLPRKILCAIAKKKGKCKGPLKLVCKC"")").AsDataFrame();
+            //NumericVector xyz = engine.GetSymbol($@"xyz").AsNumeric();
 
 
 
@@ -1371,7 +1375,7 @@ namespace dimorphics_dataset
             //////var i_types1 = ring_edges.Select(a => a.Interaction.subtype_node1).Distinct().ToList();
             //////var i_types2 = ring_edges.Select(a => a.Interaction.subtype_node2).Distinct().ToList();
 
-            //io_proxy.WriteLine(string.Join("\r\n", ix));
+            //io_proxy.WriteLine(string.Join($"\r\n", ix));
 
             //SC MC
 
@@ -1403,14 +1407,14 @@ namespace dimorphics_dataset
             // pdb sequences test
             //get_pdb_sequences(limited_to_dimorphics_and_standard: false);
             //get_pdb_sequences(limited_to_dimorphics_and_standard: true);
-            //io_proxy.WriteLine("Finished");
+            //io_proxy.WriteLine($@"Finished");
             //Console.ReadLine();
 
-            //var fghx = feature_calcs.feature_pse_aac("CCCCCCCCCCCCCEEEEEEEEHHHHHHT", feature_calcs.seq_type.secondary_structure_sequence, new feature_calcs.pse_aac_options(), false, true);
+            //var fghx = feature_calcs.feature_pse_aac($@"CCCCCCCCCCCCCEEEEEEEEHHHHHHT", feature_calcs.seq_type.secondary_structure_sequence, new feature_calcs.pse_aac_options(), false, true);
             //io_proxy.WriteLine();
             //get_pdb_sequences();
             //return;
-            //var xxx = feature_calcs.feature_pse_aac("AAA", false, false);
+            //var xxx = feature_calcs.feature_pse_aac($@"AAA", false, false);
 
             //return;
 
@@ -1430,8 +1434,8 @@ namespace dimorphics_dataset
             //return;
             // unknown classes
             //var run_larks_unknown = true;
-            //if (run_dimorphics_pos && run_dhc_pos) throw new Exception("Is that right?");
-            //if (run_coils_neg && run_strands_neg) throw new Exception("Is that right?");
+            //if (run_dimorphics_pos && run_dhc_pos) throw new Exception($@"{module_name}.{method_name}: Is that right?");
+            //if (run_coils_neg && run_strands_neg) throw new Exception($@"{module_name}.{method_name}: Is that right?");
             //var uid = 2;
             //class_list.Add((-1, substructure_type.coil, 3, nameof(substructure_type.coil), $@"c:\bioinf\e_{nameof(substructure_type.coil)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.coil)}_{uid}"));
             //class_list.Add((-1, substructure_type.standard_beta_strand, 2, nameof(substructure_type.standard_beta_strand), $@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand)}_{uid}"));

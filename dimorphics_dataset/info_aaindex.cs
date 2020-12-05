@@ -34,8 +34,8 @@ namespace dimorphics_dataset
         //    var split_sequence = feature_calcs.split_sequence(sequence);
 
         //    var sequences = new List<(string name, string sequence)>();
-        //    sequences.Add(("unsplit",sequence));
-        //    sequences.AddRange(split_sequence.Select(a=>("split",a)).ToList());
+        //    sequences.Add(($@"unsplit",sequence));
+        //    sequences.AddRange(split_sequence.Select(a=>($@"split",a)).ToList());
 
         //    var result = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
 
@@ -53,8 +53,8 @@ namespace dimorphics_dataset
 
         //            var r = aaindex_entries.SelectMany(a =>
         //            {
-        //                //var alphabet_sequence = string.Join("", sequence.Where(b => group.Contains(b)).ToList());
-        //                var alphabet_sequences = sequences.Select(b => string.Join("", b.sequence.Where(c => group.Contains(c)).ToList())).ToList();
+        //                //var alphabet_sequence = string.Join($@"", sequence.Where(b => group.Contains(b)).ToList());
+        //                var alphabet_sequences = sequences.Select(b => string.Join($@"", b.sequence.Where(c => group.Contains(c)).ToList())).ToList();
 
         //                var result2 = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
         //                foreach (var alphabet_sequence in alphabet_sequences)
@@ -85,7 +85,7 @@ namespace dimorphics_dataset
         //                return result2;
         //            }).ToList();
 
-                    
+
         //            result1.AddRange(r);
         //        }
 
@@ -199,7 +199,7 @@ namespace dimorphics_dataset
                             //{
                             //    Program.WriteLine();
                             //}
-                            i_amino_acid_order = string.Join("", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 == 0).ToList()) + string.Join("", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 != 0).ToList());
+                            i_amino_acid_order = string.Join($@"", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 == 0).ToList()) + string.Join($@"", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 != 0).ToList());
                             //A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V   
                         }
                         else

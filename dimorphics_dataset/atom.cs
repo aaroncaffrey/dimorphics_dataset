@@ -212,7 +212,7 @@ namespace dimorphics_dataset
             pdb_id = pdb_id.ToUpperInvariant();
 
             var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb", nameof(atom), nameof(extract_split_pdb_chains)).ToList();
-            var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL", StringComparison.InvariantCulture));
+            var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith($@"ENDMDL", StringComparison.InvariantCulture));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith($@"ATOM ", StringComparison.InvariantCulture)).ToList();
 
@@ -255,7 +255,7 @@ namespace dimorphics_dataset
 
             pdb_id = pdb_id.ToUpperInvariant();
             var pdb_lines = io_proxy.ReadAllLines($@"{pdb_in_folder}{pdb_id}.pdb", nameof(atom), nameof(extract_split_pdb_chains_res_ids)).ToList();
-            var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith("ENDMDL", StringComparison.InvariantCulture));
+            var endmdl_index = pdb_lines.FindIndex(a => a.StartsWith($@"ENDMDL", StringComparison.InvariantCulture));
             if (endmdl_index > -1) pdb_lines = pdb_lines.Take(endmdl_index).ToList();
             pdb_lines = pdb_lines.Where(a => a.StartsWith($@"ATOM ", StringComparison.InvariantCulture) && a[21] == chain_id && int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture) >= first_res_id && int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture) <= last_res_id).ToList();
 
@@ -546,7 +546,7 @@ namespace dimorphics_dataset
                         // get the main/ master atoms
                         //var pdb_model_chain_master_atoms = Atom.select_amino_acid_master_atoms(pdb_id, c.pdb_model_chain_atoms);
 
-                        //var chain_seq = string.Join("", pdb_model_chain_master_atoms.Select(a => a.amino_acid).ToList());
+                        //var chain_seq = string.Join($@"", pdb_model_chain_master_atoms.Select(a => a.amino_acid).ToList());
 
 
                         var iup_data = info_iupred.load(pdb_id_simple, c.chain_id);
@@ -622,10 +622,10 @@ namespace dimorphics_dataset
                             file_cache.Add((uniprot_file, uniprot_file_data));
                         }
 
-                        var uniprot_sequence = string.Join("",
+                        var uniprot_sequence = string.Join($@"",
                             uniprot_file_data.Where(a =>
                                     !string.IsNullOrWhiteSpace(a) &&
-                                    !a.StartsWith(">", StringComparison.InvariantCulture))
+                                    !a.StartsWith($@">", StringComparison.InvariantCulture))
                                 .ToList());
 
                         c.pdb_model_chain_atoms.ForEach(a => a.uniprot_sequence = uniprot_sequence);
@@ -659,7 +659,7 @@ namespace dimorphics_dataset
 
                         // load ss as mpsa instance
                         var list = sable_data.Select(a => (a.seq_index, a.amino_acid, a.predicted_ss, a.prob_h, a.prob_e, a.prob_e)).ToList();
-                        var mpsa_reader_sable = new info_mpsa_reader("sable", list);
+                        var mpsa_reader_sable = new info_mpsa_reader($@"sable", list);
 
                         for (var index = 0; index < c.pdb_model_chain_master_atoms.Count; index++)
                         {
@@ -705,13 +705,11 @@ namespace dimorphics_dataset
                 {
                     var dssp_mpsa = get_dssp_and_mpsa_subsequences(/*r.pdb_id, r.chain_id, */r.pdb_model_chain_atoms, (enum_get_dssp_and_mpsa_subsequences_params)0b_1111_1111_1111);
 
-                    var
-                        ground_truths =
-                            dssp_mpsa; // dssp_mpsa.Where(a => a.format.StartsWith("monomer", StringComparison.InvariantCultureIgnoreCase) || a.format.StartsWith("multimer", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    var ground_truths = dssp_mpsa; // dssp_mpsa.Where(a => a.format.StartsWith($@"monomer", StringComparison.InvariantCultureIgnoreCase) || a.format.StartsWith($@"multimer", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
                     var data = new List<string>();
 
-                    var header = $@"pdb,chain_id,format,prediction,{string.Join(",", ground_truths.Select(a => a.format).ToList())}";
+                    var header = $@"pdb,chain_id,format,prediction,{string.Join($@",", ground_truths.Select(a => a.format).ToList())}";
 
                     data.Add(header);
 
@@ -735,7 +733,7 @@ namespace dimorphics_dataset
                         data.Add(x);
                     }
 
-                    data.Add("");
+                    data.Add($@"");
 
                     lock (dssp_mpsa_lock)
                     {
@@ -772,28 +770,28 @@ namespace dimorphics_dataset
                 var filename = $@"";
                 var format = $@"pdb";
 
-                var aa_seq = string.Join("", master_atoms.Select(a => a.amino_acid).ToArray());
+                var aa_seq = string.Join($@"", master_atoms.Select(a => a.amino_acid).ToArray());
                 var aa_seq_aa_types = aa_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var strand_interface_type_seq = string.Join("", master_atoms.Select(a => a.strand_interface_type).ToArray());
+                var strand_interface_type_seq = string.Join($@"", master_atoms.Select(a => a.strand_interface_type).ToArray());
                 var strand_interface_type_seq_aa_types = strand_interface_type_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var parallelism_seq = string.Join("", master_atoms.Select(a => a.parallelism).ToArray());
+                var parallelism_seq = string.Join($@"", master_atoms.Select(a => a.parallelism).ToArray());
                 var parallelism_seq_aa_types = parallelism_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var symmetry_mode_seq = string.Join("", master_atoms.Select(a => a.symmetry_mode).ToArray());
+                var symmetry_mode_seq = string.Join($@"", master_atoms.Select(a => a.symmetry_mode).ToArray());
                 var symmetry_mode_seq_aa_types = symmetry_mode_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_monomer).ToArray());
+                var dssp_seq = string.Join($@"", master_atoms.Select(a => a.dssp_monomer).ToArray());
                 var dssp_seq_ss_types = dssp_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var stride_seq = string.Join("", master_atoms.Select(a => a.stride_monomer).ToArray());
+                var stride_seq = string.Join($@"", master_atoms.Select(a => a.stride_monomer).ToArray());
                 var stride_seq_ss_types = stride_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToArray());
+                var dssp3_seq = string.Join($@"", master_atoms.Select(a => a.dssp3_monomer).ToArray());
                 var dssp3_seq_ss_types = dssp3_seq.Distinct().OrderBy(a => a).ToArray();
 
-                var stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToArray());
+                var stride3_seq = string.Join($@"", master_atoms.Select(a => a.stride3_monomer).ToArray());
                 var stride3_seq_ss_types = stride3_seq.Distinct().OrderBy(a => a).ToArray();
 
 
@@ -818,21 +816,21 @@ namespace dimorphics_dataset
                 //dssp3_seq_ss_types.ToList().ForEach(aa => result2.Add((filename, pdb, format, nameof(dssp3_seq), aa.ToString(CultureInfo.InvariantCulture), dssp3_seq.Select(a => aa == a ? 1.0 : 0.0).Select(b => b.ToString(CultureInfo.InvariantCulture)).ToArray())));
                 //stride_seq_ss_types.ToList().ForEach(aa => result2.Add((filename, pdb, format, nameof(stride_seq), aa.ToString(CultureInfo.InvariantCulture), stride_seq.Select(a => aa == a ? 1.0 : 0.0).Select(b => b.ToString(CultureInfo.InvariantCulture)).ToArray())));
                 //stride3_seq_ss_types.ToList().ForEach(aa => result2.Add((filename, pdb, format, nameof(stride3_seq), aa.ToString(CultureInfo.InvariantCulture), stride3_seq.Select(a => aa == a ? 1.0 : 0.0).Select(b => b.ToString(CultureInfo.InvariantCulture)).ToArray())));
-                //var atoms_all_dssp_seq = string.Join("", atoms_all.Select(a => a.monomer_dssp).ToArray());
+                //var atoms_all_dssp_seq = string.Join($@"", atoms_all.Select(a => a.monomer_dssp).ToArray());
                 //var atoms_all_dssp_seq_ss_types = atoms_all_dssp_seq.Distinct().OrderBy(a => a).ToArray();
-                //var atoms_all_stride_seq = string.Join("", atoms_all.Select(a => a.stride_monomer).ToArray());
+                //var atoms_all_stride_seq = string.Join($@"", atoms_all.Select(a => a.stride_monomer).ToArray());
                 //var atoms_all_stride_seq_ss_types = atoms_all_stride_seq.Distinct().OrderBy(a => a).ToArray();
-                //var atoms_all_dssp3_seq = string.Join("", atoms_all.Select(a => a.monomer_dssp3).ToArray());
+                //var atoms_all_dssp3_seq = string.Join($@"", atoms_all.Select(a => a.monomer_dssp3).ToArray());
                 //var atoms_all_dssp3_seq_ss_types = atoms_all_dssp3_seq.Distinct().OrderBy(a => a).ToArray();
-                //var atoms_all_stride3_seq = string.Join("", atoms_all.Select(a => a.monomer_stride3).ToArray());
+                //var atoms_all_stride3_seq = string.Join($@"", atoms_all.Select(a => a.monomer_stride3).ToArray());
                 //var atoms_all_stride3_seq_ss_types = atoms_all_stride3_seq.Distinct().OrderBy(a => a).ToArray();
 
                 var mpsa_seqs = master_atoms.SelectMany(a => a.mpsa_entries).ToArray();
 
-                var q3 = new List<(string pdb_id, char chain_id, string truth_format, string predictor_format, string aa_subset, char ss, double q3_value, double truth_total)> { ("pdb_id", 'c', $@"truth_format", $@"predictor_format", $@"aa_subset", 's', 0, 0) };
+                var q3 = new List<(string pdb_id, char chain_id, string truth_format, string predictor_format, string aa_subset, char ss, double q3_value, double truth_total)> { ($@"pdb_id", 'c', $@"truth_format", $@"predictor_format", $@"aa_subset", 's', 0, 0) };
 
                 // for each subset, what is the average predicted value
-                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)> { ("pdb_id", 'c', $@"predictor_format", $@"aa_subset", 's', 0, 0) };
+                var av = new List<(string pdb_id, char chain_id, string predictor_format, string aa_subset, char ss, double average, double truth_total)> { ($@"pdb_id", 'c', $@"predictor_format", $@"aa_subset", 's', 0, 0) };
 
                 // problem(?): this doesn't separate the interfaces
 
@@ -933,7 +931,7 @@ namespace dimorphics_dataset
 
                         //if (atoms_standard_strand.Count > 0)
                         //{
-                        //    io_proxy.WriteLine("");
+                        //    io_proxy.WriteLine($@"");
                         //}
                     }
 
@@ -982,7 +980,7 @@ namespace dimorphics_dataset
                 //    var x = s.ToList();
 
                 //    // get the predicted SS sequence
-                //    var predictor_seq = string.Join("", x.Select(a => a.mpsa_entry.predicted_ss_code).ToArray());
+                //    var predictor_seq = string.Join($@"", x.Select(a => a.mpsa_entry.predicted_ss_code).ToArray());
                 //    var predictor_seq_ss_types = predictor_seq.Union(x.First().mpsa_entry.ss_column_headers).Distinct().OrderBy(a => a).ToArray();
                 //    result1.Add((filename, pdb, format, $@"seq_{format}", $@"seq_predicted", predictor_seq.Select(b => b.ToString(CultureInfo.InvariantCulture)).ToArray()));
 
@@ -1056,8 +1054,8 @@ namespace dimorphics_dataset
                 //result1.Add(blank);
                 //result2.Add(blank);
 
-                //result1.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $@"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
-                //result2.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $@"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join(",", b.data)}").ToList()));
+                //result1.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $@"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join($@",", b.data)}").ToList()));
+                //result2.GroupBy(a => a.filename).ToList().ForEach(a => program.AppendAllLines(Path.Combine(program.data_root_folder,"dssp_vs_mpsa\ss_predictor_comparison_{a.Key}.csv", a.Select(b => $@"{b.pdb},{b.format},{b.data_category1},{b.data_category2},{string.Join($@",", b.data)}").ToList()));
 
                 var f_q3 = Path.Combine(program.data_root_folder, $@"dssp_vs_mpsa", $@"ss_predictor_comparison_{nameof(q3)}.csv");
                 var r_q3 = q3.Select(a => $@"{a.pdb_id},{a.chain_id},{a.truth_format},{a.predictor_format},{a.aa_subset},{a.ss},{a.q3_value},{a.truth_total}").ToList();
@@ -1077,7 +1075,7 @@ namespace dimorphics_dataset
         {
             var result = new List<(string format, string prediction)>();
 
-            //result.Add("DSSP vs MPSA: " + pdb_id + $@" " + chain_id);
+            //result.Add($@"DSSP vs MPSA: " + pdb_id + $@" " + chain_id);
 
             //atoms = atoms.Where(a => a.pdb_id == pdb_id && a.chain_id == chain_id).ToList();
 
@@ -1085,17 +1083,17 @@ namespace dimorphics_dataset
 
             if (master_atoms == null || master_atoms.Count == 0) return result;
 
-            var aa_seq = string.Join("", master_atoms.Select(a => a.amino_acid).ToList());
+            var aa_seq = string.Join($@"", master_atoms.Select(a => a.amino_acid).ToList());
 
-            var monomer_dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_monomer).ToList());
-            var monomer_stride_seq = string.Join("", master_atoms.Select(a => a.stride_monomer).ToList());
-            var monomer_dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_monomer).ToList());
-            var monomer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_monomer).ToList());
+            var monomer_dssp_seq = string.Join($@"", master_atoms.Select(a => a.dssp_monomer).ToList());
+            var monomer_stride_seq = string.Join($@"", master_atoms.Select(a => a.stride_monomer).ToList());
+            var monomer_dssp3_seq = string.Join($@"", master_atoms.Select(a => a.dssp3_monomer).ToList());
+            var monomer_stride3_seq = string.Join($@"", master_atoms.Select(a => a.stride3_monomer).ToList());
 
-            var multimer_dssp_seq = string.Join("", master_atoms.Select(a => a.dssp_multimer).ToList());
-            var multimer_stride_seq = string.Join("", master_atoms.Select(a => a.stride_multimer).ToList());
-            var multimer_dssp3_seq = string.Join("", master_atoms.Select(a => a.dssp3_multimer).ToList());
-            var multimer_stride3_seq = string.Join("", master_atoms.Select(a => a.stride3_multimer).ToList());
+            var multimer_dssp_seq = string.Join($@"", master_atoms.Select(a => a.dssp_multimer).ToList());
+            var multimer_stride_seq = string.Join($@"", master_atoms.Select(a => a.stride_multimer).ToList());
+            var multimer_dssp3_seq = string.Join($@"", master_atoms.Select(a => a.dssp3_multimer).ToList());
+            var multimer_stride3_seq = string.Join($@"", master_atoms.Select(a => a.stride3_multimer).ToList());
 
             if (get_dssp_and_mpsa_subsequences_params.HasFlag(enum_get_dssp_and_mpsa_subsequences_params.aa_seq)) { result.Add((nameof(aa_seq), aa_seq)); }
 
@@ -1116,12 +1114,12 @@ namespace dimorphics_dataset
             {
                 var format = s.Key;
                 var x = s.ToList();
-                var mpsa_seq = string.Join("", x.Select(a => a.mpsa_entry.predicted_ss_code).ToList());
+                var mpsa_seq = string.Join($@"", x.Select(a => a.mpsa_entry.predicted_ss_code).ToList());
 
                 result.Add((format, mpsa_seq));
             }
 
-            var con_ss_seq = string.Join("", master_atoms.Select(a =>
+            var con_ss_seq = string.Join($@"", master_atoms.Select(a =>
             {
                 var y = a?.mpsa_entries?.SelectMany(b => b.mpsa_entry?.line_prob_values ?? new List<(char ss, char amino_acid, double value)>()).ToList() ?? new List<(char ss, char amino_acid, double value)>();
 
@@ -1140,7 +1138,7 @@ namespace dimorphics_dataset
                 return all_zero ? 'C' : values.First().ss;
             }).ToList());
 
-            result.Add(("consensus", con_ss_seq));
+            result.Add(($@"consensus", con_ss_seq));
 
             return result;
         }
@@ -1254,7 +1252,7 @@ namespace dimorphics_dataset
         {
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
-            var seq = group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, aa_sequence: String.Join("", a.atom_list.Select(b => b.amino_acid).ToList()))).ToList();
+            var seq = group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, aa_sequence: string.Join($@"", a.atom_list.Select(b => b.amino_acid).ToList()))).ToList();
             return seq;
         }
 
@@ -1263,7 +1261,7 @@ namespace dimorphics_dataset
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
 
-            return group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, ss_sequence: String.Join("", a.atom_list.Select(b =>
+            return group_master_atoms_by_pdb_id_and_chain_id(pdb_id, atoms).Select(a => (pdb_id: a.pdb_id, chain_id: a.chain_id, ss_sequence: string.Join($@"", a.atom_list.Select(b =>
             {
                 if (ss_type == enum_ss_type.DSSP) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp_multimer : b.dssp_monomer;
                 if (ss_type == enum_ss_type.DSSP3) return structure_oligomisation == enum_structure_oligomisation.multimer ? b.dssp3_multimer : b.dssp3_monomer;
@@ -1276,7 +1274,7 @@ namespace dimorphics_dataset
 
         private static void load_mpsa_sec_struct_predictions(string pdb_id, List<atom> pdb_model_atoms)
         {
-            //this.mpsa_entries = new mpsa_reader("");
+            //this.mpsa_entries = new mpsa_reader($@"");
 
             var pdb_id_simple = Path.GetFileNameWithoutExtension(pdb_id).Substring(0, 4);
 
@@ -1366,10 +1364,10 @@ namespace dimorphics_dataset
             foreach (var file in files)
             {
                 var data = io_proxy.ReadAllLines(file, nameof(atom), nameof(load_dna_binding_stackdppred)).First();
-                var data2 = string.Join("", data.Where(a => !"{}'':,".Contains(a, StringComparison.InvariantCulture)).ToList()).Split().ToList();
+                var data2 = string.Join($@"", data.Where(a => !"{}'':,".Contains(a, StringComparison.InvariantCulture)).ToList()).Split().ToList();
 
-                var non_binding_prob = double.Parse(data2[data2.IndexOf("non-binding_prob") + 1], NumberStyles.Float, CultureInfo.InvariantCulture);
-                var binding_prob = double.Parse(data2[data2.IndexOf("binding_prob") + 1], NumberStyles.Float, CultureInfo.InvariantCulture);
+                var non_binding_prob = double.Parse(data2[data2.IndexOf($@"non-binding_prob") + 1], NumberStyles.Float, CultureInfo.InvariantCulture);
+                var binding_prob = double.Parse(data2[data2.IndexOf($@"binding_prob") + 1], NumberStyles.Float, CultureInfo.InvariantCulture);
 
                 var db = Path.GetDirectoryName(file)?.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries).Last().Split('_').Last();
 
@@ -1766,7 +1764,8 @@ namespace dimorphics_dataset
             return list.Skip(index1 < index2 ? index1 : index2).Take(Math.Abs(index2 - index1) + 1).ToList();
         }
 
-        internal static (descriptive_stats displacement_stat_values, descriptive_stats curve_stat_values, descriptive_stats tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
+        //internal static (descriptive_stats displacement_stat_values, descriptive_stats curve_stat_values, descriptive_stats tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
+        internal static (double[] displacement_stat_values, double[] curve_stat_values, double[] tortuosity_stat_values) measure_tortuosity2(List<atom> atoms)
         {
             //if (atoms == null || atoms.Count <= 1)
             //{
@@ -1791,47 +1790,17 @@ namespace dimorphics_dataset
 
             // linear_distance / linear_list / linear_stat_values --> list of distances between all pairs of atoms, then averaged
             // curve_distance / 
-            var displacement_distance_list = distances.Select(a => a.displacement_distance).ToArray(); // list of LineOfSight distances between all points (CA atoms)
+            var displacement_distance_list = distances.Select(a => a.displacement_distance).OrderBy(a=>a).ToArray(); // list of LineOfSight distances between all points (CA atoms)
             //var curve_stat_list = distances.Select(a => a.curve_distance).ToArray(); // list of all curve distances between all pairs of points (CA atoms) 
-            var curve_distance_list = distances.Select(a => a.curve_distance).ToArray(); //curve_stat_list.Select(a => a.sum).ToArray();
+            var curve_distance_list = distances.Select(a => a.curve_distance).OrderBy(a=>a).ToArray(); //curve_stat_list.Select(a => a.sum).ToArray();
 
-            var tortuosity_list = distances.Select(a => a.displacement_distance == 0 ? 0d : a.curve_distance / a.displacement_distance).ToArray();
+            var tortuosity_list = distances.Select(a => a.displacement_distance == 0 ? 0d : a.curve_distance / a.displacement_distance).OrderBy(a=>a).ToArray();
 
-            descriptive_stats displacement_stat_values = descriptive_stats.get_stat_values(
-                displacement_distance_list,
-                $@"",
-                nameof(displacement_stat_values),
-                presorted: false,
-                interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_displacement,
-                distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_displacement,
-                interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_displacement,
-                abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_displacement,
-                rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_displacement
-            );
+            return (displacement_distance_list, curve_distance_list, tortuosity_list);
 
-            descriptive_stats curve_stat_values = descriptive_stats.get_stat_values(
-                curve_distance_list,
-                $@"",
-                nameof(curve_stat_values),
-                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_curves,
-                distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_curves,
-                interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_curves,
-                abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_curves,
-                rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_curves
-            );
+          
 
-            descriptive_stats tortuosity_stat_values = descriptive_stats.get_stat_values(
-                tortuosity_list,
-                $@"",
-                nameof(tortuosity_stat_values),
-                presorted: false, interval: descriptive_stats_encoding_options.dse_intervals_tortuosity2_stat_values,
-                distance: descriptive_stats_encoding_options.dse_distances_tortuosity2_stat_values,
-                interquartile: descriptive_stats_encoding_options.dse_interquartile_tortuosity2_stat_values,
-                abs: descriptive_stats_encoding_options.dse_abs_tortuosity2_stat_values,
-                rescale: descriptive_stats_encoding_options.dse_rescale_tortuosity2_stat_values
-            );
-
-            return (displacement_stat_values, curve_stat_values, tortuosity_stat_values);
+            //return (displacement_stat_values, curve_stat_values, tortuosity_stat_values);
         }
         /*
         internal static void find_intramolecular_contacts(string pdb_id, List<atom> atoms, double? max_dist = null)

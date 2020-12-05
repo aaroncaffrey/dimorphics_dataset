@@ -472,11 +472,11 @@ namespace dimorphics_dataset
             }
             
 
-            if (format.Equals("preda",StringComparison.InvariantCultureIgnoreCase))
+            if (format.Equals($@"preda",StringComparison.InvariantCultureIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith("HEADER  |- Residue -|  Pred  Rel      NAli   Asn", StringComparison.InvariantCulture));
+                var start_marker = lines.FindIndex(a => a.StartsWith($@"HEADER  |- Residue -|  Pred  Rel      NAli   Asn", StringComparison.InvariantCulture));
                 lines = lines.Skip(start_marker + 1).ToList();
-                lines = lines.Where(a => a.StartsWith("PRED", StringComparison.InvariantCulture)).ToList();
+                lines = lines.Where(a => a.StartsWith($@"PRED", StringComparison.InvariantCulture)).ToList();
 
                 var check_matrix_colum_headers = $@"HEC".ToList();
 
@@ -600,9 +600,9 @@ namespace dimorphics_dataset
                 return (matrix_colum_headers, parsed_matrix1);
             }
 
-            if (format.Equals("dsc",StringComparison.InvariantCultureIgnoreCase))
+            if (format.Equals($@"dsc",StringComparison.InvariantCultureIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith("NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C", StringComparison.InvariantCulture));
+                var start_marker = lines.FindIndex(a => a.StartsWith($@"NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C", StringComparison.InvariantCulture));
                 lines = lines.Skip(start_marker + 1).ToList();
                 lines = lines.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
 
@@ -668,12 +668,12 @@ namespace dimorphics_dataset
 
             }
 
-            if (format.Equals("phd",StringComparison.InvariantCultureIgnoreCase))
+            if (format.Equals($@"phd",StringComparison.InvariantCultureIgnoreCase))
             {
-                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith("*", StringComparison.InvariantCulture) && !a.StartsWith("END", StringComparison.InvariantCulture)).ToList();
+                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith($@"*", StringComparison.InvariantCulture) && !a.StartsWith($@"END", StringComparison.InvariantCulture)).ToList();
                 lines = lines.Select(a => a[9..]).ToList();
 
-                var titles = lines.Select(a => a.Substring(0, 4).Replace("-", $@"", StringComparison.InvariantCulture).Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+                var titles = lines.Select(a => a.Substring(0, 4).Replace($@"-", $@"", StringComparison.InvariantCulture).Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
                 var merged_lines = new List<(string title, string line, int len)>();
                 foreach (var t in titles)
                 {
@@ -725,10 +725,10 @@ namespace dimorphics_dataset
                         predicted_ss_code = 'C';
                     }
 
-                    var reliability = double.Parse("" + rel_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
-                    var prob_h = double.Parse("" + prob_h_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
-                    var prob_e = double.Parse("" + prob_e_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
-                    var prob_c = double.Parse("" + prob_l_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var reliability = double.Parse($@"" + rel_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_h = double.Parse($@"" + prob_h_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_e = double.Parse($@"" + prob_e_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var prob_c = double.Parse($@"" + prob_l_line[index], NumberStyles.Float, CultureInfo.InvariantCulture);
 
                     var prob_adjust_range = new double[] {prob_h, prob_e, prob_c}.Min();
 
@@ -770,9 +770,9 @@ namespace dimorphics_dataset
                 return (matrix_colum_headers, parsed_matrix1);
             }
 
-            var psipred_marker = lines.FindIndex(a=> a.StartsWith("# PSIPRED VFORMAT", StringComparison.InvariantCulture));//# PSIPRED VFORMAT (PSIPRED V4.0)
+            var psipred_marker = lines.FindIndex(a=> a.StartsWith($@"# PSIPRED VFORMAT", StringComparison.InvariantCulture));//# PSIPRED VFORMAT (PSIPRED V4.0)
 
-            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith("MPSA code :", StringComparison.InvariantCulture));
+            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith($@"MPSA code :", StringComparison.InvariantCulture));
 
             var matrix_start = mpsa_code_marker + 3; // +2 or +3 ?
 

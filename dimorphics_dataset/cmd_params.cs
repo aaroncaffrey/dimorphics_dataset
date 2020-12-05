@@ -13,7 +13,7 @@ namespace dimorphics_dataset
     {
         internal bool parse_ok;
 
-        internal string[] area;
+        //internal string[] area;
         internal bool use_dssp3;
         internal int class_id;
         internal string class_name;
@@ -33,7 +33,7 @@ namespace dimorphics_dataset
 
         internal cmd_params(cmd_params p)
         {
-            area = p.area;
+            //area = p.area;
             use_dssp3 = p.use_dssp3;
             class_id = p.class_id;
             class_name = p.class_name;
@@ -51,55 +51,103 @@ namespace dimorphics_dataset
         {
             var x = new List<string>();
 
-            // 1d tags
-            if (feature_types_1d_interface?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_1d_interface_kvl = feature_types_1d_interface.key_value_list();
+            if (feature_types_1d_interface_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area1i);
+                x.Add(area1i);
+            }
+            else if (feature_types_1d_interface_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_1d_interface_kvl.Where(a => a.value).Select(a => $"{area1i}.{a.key}").ToArray());
             }
 
-            if (feature_types_1d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_1d_neighbourhood_kvl = feature_types_1d_neighbourhood.key_value_list();
+            if (feature_types_1d_neighbourhood_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area1n);
+                x.Add(area1n);
+            }
+            else if (feature_types_1d_neighbourhood_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_1d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area1n}.{a.key}").ToArray());
             }
 
-            if (feature_types_1d_chain?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_1d_chain_kvl = feature_types_1d_chain.key_value_list();
+            if (feature_types_1d_chain_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area1p);
+                x.Add(area1p);
+            }
+            else if (feature_types_1d_chain_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_1d_chain_kvl.Where(a => a.value).Select(a => $"{area1p}.{a.key}").ToArray());
             }
 
-            // 2d tags
-            if (feature_types_2d_interface?.key_value_list()?.Any(a => a.value) ?? false)
+
+
+            var feature_types_2d_interface_kvl = feature_types_2d_interface.key_value_list();
+            if (feature_types_2d_interface_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area2i);
+                x.Add(area2i);
+            }
+            else if (feature_types_2d_interface_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_2d_interface_kvl.Where(a => a.value).Select(a => $"{area2i}.{a.key}").ToArray());
             }
 
-            if (feature_types_2d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_2d_neighbourhood_kvl = feature_types_2d_neighbourhood.key_value_list();
+            if (feature_types_2d_neighbourhood_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area2n);
+                x.Add(area2n);
+            }
+            else if (feature_types_2d_neighbourhood_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_2d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area2n}.{a.key}").ToArray());
             }
 
-            if (feature_types_2d_chain?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_2d_chain_kvl = feature_types_2d_chain.key_value_list();
+            if (feature_types_2d_chain_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area2p);
+                x.Add(area2p);
+            }
+            else if (feature_types_2d_chain_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_2d_chain_kvl.Where(a => a.value).Select(a => $"{area2p}.{a.key}").ToArray());
             }
 
-            // 3d tags
-            if (feature_types_3d_interface?.key_value_list()?.Any(a => a.value) ?? false)
+
+
+            var feature_types_3d_interface_kvl = feature_types_3d_interface.key_value_list();
+            if (feature_types_3d_interface_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area3i);
+                x.Add(area3i);
+            }
+            else if (feature_types_3d_interface_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_3d_interface_kvl.Where(a => a.value).Select(a => $"{area3i}.{a.key}").ToArray());
             }
 
-            if (feature_types_3d_neighbourhood?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_3d_neighbourhood_kvl = feature_types_3d_neighbourhood.key_value_list();
+            if (feature_types_3d_neighbourhood_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area3n);
+                x.Add(area3n);
+            }
+            else if (feature_types_3d_neighbourhood_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_3d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area3n}.{a.key}").ToArray());
             }
 
-            if (feature_types_3d_chain?.key_value_list()?.Any(a => a.value) ?? false)
+            var feature_types_3d_chain_kvl = feature_types_3d_chain.key_value_list();
+            if (feature_types_3d_chain_kvl.All(a => a.value))
             {
-                x.Add(cmd_params.area3p);
+                x.Add(area3p);
+            }
+            else if (feature_types_3d_chain_kvl.Any(a => a.value))
+            {
+                x.AddRange(feature_types_3d_chain_kvl.Where(a => a.value).Select(a => $"{area3p}.{a.key}").ToArray());
             }
 
-            return String.Join("", x);
+            // f_([1i]_[1n.aaindex]_[1n.dfdsf]_[1p])_(+1)_(dimorphic_coil).csv
+
+            return string.Join($@"_", x.Select(a=> $"[{a}]").ToArray());
         }
 
 
@@ -189,7 +237,44 @@ namespace dimorphics_dataset
             var param_list = get_params(args);
             io_proxy.WriteLine(string.Join($@", ", param_list), nameof(program), nameof(cmd_params));
 
-          
+            var known_params = new List<string>()
+            {
+                //nameof(area),
+                nameof(use_dssp3),
+                nameof(class_id),
+                nameof(class_name),
+                nameof(min_sequence_length),
+                nameof(max_features),
+                nameof(output_folder),
+                nameof(first_index),
+                nameof(last_index),
+                nameof(verbose),
+                //nameof(tag),
+                nameof(use_children),
+            };
+
+            known_params.AddRange(defined_areas);
+
+            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1i}.{a}").ToArray());
+            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1n}.{a}").ToArray());
+            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1p}.{a}").ToArray());
+
+            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2i}.{a}").ToArray());
+            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2n}.{a}").ToArray());
+            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2p}.{a}").ToArray());
+
+            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3i}.{a}").ToArray());
+            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3n}.{a}").ToArray());
+            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3p}.{a}").ToArray());
+
+            var unknown_params = param_list.Where(a => known_params.All(b => !string.Equals(a.key, b, StringComparison.InvariantCultureIgnoreCase))).Select(a => a.key).ToArray();
+
+            if (unknown_params != null && unknown_params.Length > 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(args), $"Arguments not recognised: {string.Join($@", ", unknown_params)}");
+            }
+
+
             if (param_list.Count == 0) 
             {
                 var classes = new[] { (class_id: +1, class_name: dimorphic_coil), (class_id: -1, class_name: standard_coil) };
@@ -198,10 +283,6 @@ namespace dimorphics_dataset
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
                 io_proxy.WriteLine($@"");
                 io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} usage:");
-                io_proxy.WriteLine($@"");
-                io_proxy.WriteLine($@"{exe} -area=[{string.Join(",", defined_areas)}] -{nameof(use_dssp3)}=[true|false] -{nameof(class_id)}=[-1|+1] -{nameof(class_name)}=[class_name] -{nameof(min_sequence_length)}=[3] -{nameof(max_features)}=[100] -{nameof(output_folder)}=[path] [-{nameof(verbose)}=true|false] [-{nameof(first_index)}=[i] -{nameof(last_index)}=[j]]");
-                io_proxy.WriteLine($@"");
-                io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} examples:");
                 io_proxy.WriteLine($@"");
 
                 foreach (var defined_area in defined_areas)
@@ -213,7 +294,14 @@ namespace dimorphics_dataset
                         var stdout_file = Path.Combine(output_folder, $@"stdout_{defined_area}_({(b.class_id > 0 ? $@"+" : $@"")}{b.class_id})_({b.class_name}).txt");
                         var stderr_file = Path.Combine(output_folder, $@"stderr_{defined_area}_({(b.class_id > 0 ? $@"+" : $@"")}{b.class_id})_({b.class_name}).txt");
 
-                        io_proxy.WriteLine($@"{exe} -area={defined_area} -{nameof(use_dssp3)}=true -{nameof(class_id)}={(b.class_id > 0 ? $@"+" : $@"")}{b.class_id} -{nameof(class_name)}={b.class_name} -{nameof(min_sequence_length)}=3 -{nameof(max_features)}=100 -{nameof(output_folder)}={output_folder} -{nameof(use_children)}=true -{nameof(verbose)}=true 1> {stdout_file} 2> {stderr_file}");
+                        string[] keys;
+                        if (new string[] {area1i, area1n, area1p}.Any(a => string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_1d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        else if (new string[] {area2i,area2n,area2p}.Any(a=> string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_2d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        else if (new string[] {area3i,area3n,area3p}.Any(a=> string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_3d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        else throw new Exception();
+
+                        io_proxy.WriteLine($@"{exe} -{defined_area}=true {string.Join($@" ", keys.Select(a => $"-{a}=true").ToArray())} -{nameof(use_dssp3)}=true -{nameof(class_id)}={(b.class_id > 0 ? $@"+" : $@"")}{b.class_id} -{nameof(class_name)}={b.class_name} -{nameof(min_sequence_length)}=3 -{nameof(max_features)}=100 -{nameof(output_folder)}={output_folder} -{nameof(use_children)}=true -{nameof(verbose)}=true [-{nameof(first_index)}=[i] -{nameof(last_index)}=[j]] 1> {stdout_file} 2> {stderr_file}");
+
                     }
 
                     io_proxy.WriteLine($@"");
@@ -411,7 +499,7 @@ namespace dimorphics_dataset
             
 
 
-            if (param_list.Any(a => string.Equals(a.key, nameof(area), StringComparison.InvariantCultureIgnoreCase))) area = param_list.FirstOrDefault(z => z.key == nameof(area)).value?.ToLowerInvariant().Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries).SelectMany(a => a.Select((b, i) => i % 2 == 0 && i < a.Length - 1 ? a.Substring(i, 2) : $@"").Where(b => !string.IsNullOrWhiteSpace(b)).ToList()).OrderBy(a => a).ToArray() ?? null;
+            //if (param_list.Any(a => string.Equals(a.key, nameof(area), StringComparison.InvariantCultureIgnoreCase))) area = param_list.FirstOrDefault(z => z.key == nameof(area)).value?.ToLowerInvariant().Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries).SelectMany(a => a.Select((b, i) => i % 2 == 0 && i < a.Length - 1 ? a.Substring(i, 2) : $@"").Where(b => !string.IsNullOrWhiteSpace(b)).ToList()).OrderBy(a => a).ToArray() ?? null;
             if (param_list.Any(a => string.Equals(a.key, nameof(use_dssp3), StringComparison.InvariantCultureIgnoreCase))) use_dssp3 = bool.Parse(param_list.FirstOrDefault(z => z.key == nameof(use_dssp3)).value);
             if (param_list.Any(a => string.Equals(a.key, nameof(class_id), StringComparison.InvariantCultureIgnoreCase))) class_id = int.Parse(param_list.FirstOrDefault(z => z.key == nameof(class_id)).value, NumberStyles.Integer, CultureInfo.InvariantCulture);
             if (param_list.Any(a => string.Equals(a.key, nameof(class_name), StringComparison.InvariantCultureIgnoreCase))) class_name = param_list.FirstOrDefault(z => z.key == nameof(class_name)).value?.ToLowerInvariant();
@@ -440,7 +528,7 @@ namespace dimorphics_dataset
             {
                 io_proxy.WriteLine();
 
-                io_proxy.WriteLine($@"{nameof(area)} = ""{string.Join($@", ", area ?? Array.Empty<string>())}""", module_name, method_name);
+                //io_proxy.WriteLine($@"{nameof(area)} = ""{string.Join($@", ", area ?? Array.Empty<string>())}""", module_name, method_name);
                 io_proxy.WriteLine($@"{nameof(use_dssp3)} = ""{use_dssp3}""", module_name, method_name);
                 io_proxy.WriteLine($@"{nameof(class_id)} = ""{class_id}""", module_name, method_name);
                 io_proxy.WriteLine($@"{nameof(class_name)} = ""{class_name}""", module_name, method_name);
@@ -489,8 +577,8 @@ namespace dimorphics_dataset
                 feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
             }
 
-            if (area == null || area.Any(string.IsNullOrWhiteSpace)) throw new ArgumentNullException(nameof(args), nameof(area));
-            if (area.Except(defined_areas).Any()) throw new ArgumentOutOfRangeException(nameof(args), nameof(area));
+            //if (area == null || area.Any(string.IsNullOrWhiteSpace)) throw new ArgumentNullException(nameof(args), nameof(area));
+            //if (area.Except(defined_areas).Any()) throw new ArgumentOutOfRangeException(nameof(args), nameof(area));
             if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(use_dssp3)).value)) throw new ArgumentNullException(nameof(args), nameof(use_dssp3));
             if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(class_id)).value)) throw new ArgumentNullException(nameof(args), nameof(class_id));
             if (string.IsNullOrWhiteSpace(class_name)) throw new ArgumentNullException(nameof(args), nameof(class_name));
@@ -506,8 +594,8 @@ namespace dimorphics_dataset
 }
 /*internal static feature_types feature_types_params(string[] area)
 {
-    var module_name = nameof(dimorphics_dataset.feature_types);
-    var method_name = nameof(feature_types_params);
+    const string module_name = nameof(dimorphics_dataset.feature_types);
+    const string method_name = nameof(feature_types_params);
 
     if (area == null || area.Length == 0)
     {

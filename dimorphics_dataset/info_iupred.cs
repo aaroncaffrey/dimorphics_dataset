@@ -10,28 +10,28 @@ namespace dimorphics_dataset
     {
         internal static List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)> load(string pdb_id, char chain_id)
         {
-       
+
             //var seq_index_lookup_file = Path.Combine(program.data_root_folder,"betastrands_dataset_sequences_limited.txt";
 
             //var seq_lookup_list = program.ReadAllLines(seq_index_lookup_file).ToList();
 
-           // var index = seq_lookup_list.IndexOf(sequence);
+            // var index = seq_lookup_list.IndexOf(sequence);
 
             //if (index == -1)
 
             //{
-            //    io_proxy.WriteLine("Warning: iupred2a data missing");
+            //    io_proxy.WriteLine($@"Warning: iupred2a data missing", module_name, method_name);
             //    return new List<(int index, double short_type_score, double long_type_score, double glob_type_score, double anchor2_score)>();
             //}
 
             var iup_files = new List<(string type, string filename)>()
             {
-                ("long", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.long.iup")),
-                ("short", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.short.iup")),
-                ("glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
+                ($@"long", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.long.iup")),
+                ($@"short", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.short.iup")),
+                ($@"glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
             };
 
-            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith("#", StringComparison.InvariantCulture) && $@"0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
+            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith($@"#", StringComparison.InvariantCulture) && $@"0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
             {
 
                 var x= b.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);

@@ -12,6 +12,8 @@ namespace dimorphics_dataset
     {
         internal static string run_psi_blast_get_pssm(string seq_filename, string pssm_filename, string blast_database, string database_folder, int num_iterations = 1, string evalue = @"0.1", string inclusion_ethresh = @"0.1", bool remote = true, bool run = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(run_psi_blast_get_pssm);
 
             //run_psi_blast_get_pssm: stdout: Database: Non - redundant UniProtKB / SwissProt sequences
             //run_psi_blast_get_pssm: stdout: 468,734 sequences; 176,603,381 total letters
@@ -70,13 +72,13 @@ namespace dimorphics_dataset
             if (run)
             {
 
-                io_proxy.WriteLine($@"{nameof(run_psi_blast_get_pssm)}: run: ""{start.FileName}"" {start.Arguments}", nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
+                io_proxy.WriteLine($@"{module_name}.{method_name}: run: ""{start.FileName}"" {start.Arguments}", module_name, method_name);
 
                 using var process = Process.Start(start);
 
                 if (process == null)
                 {
-                    throw new Exception($@"{nameof(run_psi_blast_get_pssm)}: {nameof(process)} is null");
+                    throw new Exception($@"{module_name}.{method_name}: {nameof(process)} is null");
                 }
 
 
@@ -85,8 +87,8 @@ namespace dimorphics_dataset
                     var stdout = reader.ReadToEnd();
                     if (!string.IsNullOrWhiteSpace(stdout))
                     {
-                        stdout = $"\r\n{stdout}".Replace($"\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
-                        io_proxy.WriteLine(stdout, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
+                        stdout = $"\r\n{stdout}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
+                        io_proxy.WriteLine(stdout, module_name, method_name);
                     }
                 }
 
@@ -96,8 +98,8 @@ namespace dimorphics_dataset
 
                     if (!string.IsNullOrWhiteSpace(stderr))
                     {
-                        stderr = $"\r\n{stderr}".Replace($"\r\n", $"\r\n{nameof(run_psi_blast_get_pssm)}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
-                        io_proxy.WriteLine(stderr, nameof(info_blast_pssm), nameof(run_psi_blast_get_pssm));
+                        stderr = $"\r\n{stderr}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
+                        io_proxy.WriteLine(stderr, module_name, method_name);
                     }
                 }
 
@@ -127,6 +129,9 @@ namespace dimorphics_dataset
 
             internal pssm_entry(pssm_entry pssm_entry)
             {
+                const string module_name = nameof(pssm_entry);
+                const string method_name = nameof(pssm_entry);
+
                 if (pssm_entry == null)
                 {
                     throw new ArgumentNullException(nameof(pssm_entry));
@@ -143,6 +148,9 @@ namespace dimorphics_dataset
 
         internal static List<pssm_entry> normalise_pssm(List<pssm_entry> pssm)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(normalise_pssm);
+
             if (pssm == null || pssm.Count == 0)
             {
                 return new List<pssm_entry>();
@@ -164,6 +172,9 @@ namespace dimorphics_dataset
         }
         internal static double[] normalise_array(double[] pssm)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(normalise_array);
+
             if (pssm == null || pssm.Length == 0) return Array.Empty<double>();
 
             pssm = pssm.ToArray();
@@ -183,6 +194,9 @@ namespace dimorphics_dataset
 
         internal static double[] normalise_array(double[] pssm, double min_score, double max_score)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(normalise_array);
+
             if (pssm == null || pssm.Length == 0) return Array.Empty<double>();
 
             pssm = pssm.ToArray();
@@ -198,6 +212,8 @@ namespace dimorphics_dataset
 
         internal static double[] intervals(double[] pssm, bool normalise = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(intervals);
             // note: data always input in the same meaningful order - so considered pre-ordered
 
             if (pssm == null || pssm.Length == 0)
@@ -219,8 +235,11 @@ namespace dimorphics_dataset
 
         internal static double[] distances(double[] pssm, bool normalise = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(distances);
+
             //var x = pssm.SelectMany((a, i) => pssm.Where((b, j) => i < j).Select((b, j) => Math.Abs(a - b)).ToArray()).ToArray();
-            
+
             // return the distances between the values
 
             var x = pssm.SelectMany((a, i) => pssm.Where((b, j) => i < j).Select((b, j) => Math.Abs(a - b)).ToArray()).ToArray();
@@ -232,6 +251,10 @@ namespace dimorphics_dataset
 
         internal static List<pssm_entry> load_psi_blast_pssm(string pssm_filename, bool normalise_pssm = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(load_psi_blast_pssm);
+
+
             var pssm = new List<pssm_entry>();
 
             if (!File.Exists(pssm_filename) || new FileInfo(pssm_filename).Length == 0)
@@ -239,8 +262,8 @@ namespace dimorphics_dataset
                 return new List<pssm_entry>();
             }
 
-            var line_list = io_proxy.ReadAllLines(pssm_filename, nameof(info_blast_pssm), nameof(load_psi_blast_pssm)).Skip(2).ToList();
-            var pssm_end_index = line_list.IndexOf("");
+            var line_list = io_proxy.ReadAllLines(pssm_filename, module_name, method_name).Skip(2).ToList();
+            var pssm_end_index = line_list.IndexOf($@"");
             if (pssm_end_index > -1) line_list = line_list.GetRange(0, pssm_end_index);
 
             line_list[0] = $@"ID AA {line_list[0]} W1 W2";
@@ -314,6 +337,9 @@ namespace dimorphics_dataset
 
         internal static double[] pssm_to_vector1(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector1);
+
             var x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Select(a => a.score).ToArray();
 
             if (x == null || x.Length == 0) x = new[] { 0d };
@@ -336,6 +362,9 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm_to_vector20col(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector20col);
+
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
@@ -390,6 +419,9 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm_to_vector20col_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector20col_DT);
+
             // join all cols with same amino acid, calc average
             //var cols = pssm.Select(a => a.position_aa).Distinct().ToList();
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
@@ -397,7 +429,8 @@ namespace dimorphics_dataset
             var result = new List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)>();
 
             var tasks = new List<Task<(string name, List<(string col_aa, int lag, double[] values)> vector)>>();
-
+            var tasks_start_time = DateTime.Now;
+            
             foreach (var l_alphabet in feature_calcs.aa_alphabets)
             {
                 var alphabet = l_alphabet;
@@ -485,7 +518,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector20col_DT));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
 
 
             tasks.ForEach(a=>result.Add(a.Result));
@@ -495,6 +528,9 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm_to_vector20row(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector20row);
+
             // join all rows with the same amino acid, calculate average
             // note: it doesn't make sense to have DT for 20row
 
@@ -549,6 +585,8 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector210);
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)>();
@@ -605,12 +643,16 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector210_DT);
+
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)>();
 
             var tasks = new List<Task<(string name, List<(string row_aa, string col_aa, int lag, double[] values)> vector)>>();
-
+            var tasks_start_time = DateTime.Now;
+            
             foreach (var l_alphabet in feature_calcs.aa_alphabets)
             {
                 var alphabet = l_alphabet;
@@ -688,7 +730,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector210_DT));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
 
 
             tasks.ForEach(a=>result.Add(a.Result));
@@ -698,6 +740,9 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector400);
+
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, double[] values)>)>();
@@ -757,12 +802,16 @@ namespace dimorphics_dataset
 
         internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
+            const string module_name = nameof(info_blast_pssm);
+            const string method_name = nameof(pssm_to_vector400_DT);
+
             //var cols = $@"ARNDCQEGHILKMFPSTWYV".ToCharArray(); //pssm.Select(a => a.position_aa).Distinct().ToList();
 
             var result = new List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)>)>();
 
             var tasks = new List<Task<(string name, List<(string row_aa, string col_aa, int lag, double[] values)> vector)>>();
-
+            var tasks_start_time = DateTime.Now;
+            
             foreach (var l_alphabet in feature_calcs.aa_alphabets)
             {
                 var alphabet = l_alphabet;
@@ -835,7 +884,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(info_blast_pssm), nameof(pssm_to_vector400_DT));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
 
             tasks.ForEach(a=>result.Add(a.Result));
 

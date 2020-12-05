@@ -56,7 +56,7 @@ namespace dimorphics_dataset
 
                     }
 
-                    if (pdbId != null && pdbId.Contains("_", StringComparison.InvariantCulture)) //(mol == $@"protein")
+                    if (pdbId != null && pdbId.Contains($@"_", StringComparison.InvariantCulture)) //(mol == $@"protein")
                     {
                         chainId = pdbId.Substring(pdbId.IndexOf('_', StringComparison.InvariantCulture) + 1);
                         pdbId = pdbId.Substring(0, pdbId.IndexOf('_', StringComparison.InvariantCulture));
@@ -76,7 +76,7 @@ namespace dimorphics_dataset
 
                     var split = sequence_id.Split(new char[] { '_', '-', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (split.Length < 2) return;// Init("", ' ', $@"", $@"", $@"");
+                    if (split.Length < 2) return;// Init($@"", ' ', $@"", $@"", $@"");
 
 
                     var pdbId = split[0].ToUpperInvariant();

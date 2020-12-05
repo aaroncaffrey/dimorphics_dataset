@@ -39,9 +39,12 @@ namespace dimorphics_dataset
 
         internal void init_nh_flanking(int neighbourhood_flanking_size = 6, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
+            const string module_name = nameof(subsequence_classification_data);
+            const string method_name = nameof(init_nh_flanking);
+
             if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)
             {
-                throw new Exception("Number must be divisible by both 2 and 3");
+                throw new Exception($@"{module_name}.{method_name}: Number must be divisible by both 2 and 3");
             }
             
 
@@ -74,9 +77,12 @@ namespace dimorphics_dataset
 
         internal void init_nh_contacts(double nh_max_dist = 5.0, bool should_include_interface = false, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
+            const string module_name = nameof(subsequence_classification_data);
+            const string method_name = nameof(init_nh_contacts);
+
             if (nh_max_dist > 8.0)
             {
-                throw new Exception("the specified maximum atomic distance is too long for contacts");
+                throw new Exception($"{module_name}.{method_name}: the specified maximum atomic distance is too long for contacts");
             }
 
             var contact_table = interface_region.atoms.First().intramolecular_contact_table;
@@ -164,7 +170,7 @@ namespace dimorphics_dataset
 
                 row_comments.Add($@"{region.region.aa_sequence.Length}");
                 row_comments.Add($@"{region.region.aa_sequence}");
-                row_comments.Add($@"{string.Join($@" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*"i"*/"" : $@"")}{a.i_code}" : $@"")}").ToList())}");
+                row_comments.Add($@"{string.Join($@" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*"i"*/$@"" : $@"")}{a.i_code}" : $@"")}").ToList())}");
                 row_comments.Add($@"{region.region.dssp3_monomer}");
                 row_comments.Add($@"{region.region.dssp3_multimer}");
                 row_comments.Add($@"{region.region.dssp_monomer}");

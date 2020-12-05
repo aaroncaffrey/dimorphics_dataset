@@ -402,7 +402,7 @@ namespace peptides_server
                     //io_proxy.WriteLine($@"{nameof(tScales_result)} = {string.Join(",", tScales_result)}");
                     //io_proxy.WriteLine($@"{nameof(vhseScales_result)} = {string.Join(",", vhseScales_result)}");
                     //io_proxy.WriteLine($@"{nameof(zScales_result)} = {string.Join(",", zScales_result)}");
-                    //io_proxy.WriteLine("");
+                    //io_proxy.WriteLine($@"");
 
                     if (_template_get_values == null)
                     {

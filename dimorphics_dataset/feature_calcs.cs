@@ -167,7 +167,7 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).ToList());
+                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
@@ -185,7 +185,7 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + String.Join("", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).Select(a => a.foldx_aa_code1).ToList());
+                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).Select(a => a.foldx_aa_code1).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
@@ -226,7 +226,7 @@ namespace dimorphics_dataset
             if (seq == null) seq = $@"";
 
             var x = split_sequence(seq.ToList(), sections, divisible, distribute);
-            var y = x.Select(a => String.Join("", a)).ToArray();
+            var y = x.Select(a => string.Join($@"", a)).ToArray();
             return y;
         }
 
@@ -331,6 +331,9 @@ namespace dimorphics_dataset
         internal static
             List<(int alphabet_id, string alphabet_name, (string name, double value)[][] motifs, (string name, double value)[][] motifs_binary, (string name, double value)[] oaac, (string name, double value)[] oaac_binary, (string name, double value)[] average_seq_positions, (string name, double value)[][] dipeptides, (string name, double value)[][] dipeptides_binary, (string name, double value)[] average_dipeptide_distance)> feature_pse_aac(string seq, enum_seq_type seq_type, pse_aac_options pse_aac_options, bool sqrt, bool as_dist)
         {
+            const string module_name = nameof(feature_calcs);
+            const string method_name = nameof(feature_pse_aac);
+
             // number of distinct amino acids in sequence
             // number of continuous group amino acids
 
@@ -350,6 +353,7 @@ namespace dimorphics_dataset
 
 
             var a_tasks = new List<Task<List<(int alphabet_id, string alphabet_name, (string name, double value)[][] motifs, (string name, double value)[][] motifs_binary, (string name, double value)[] oaac, (string name, double value)[] oaac_binary, (string name, double value)[] average_seq_positions, (string name, double value)[][] dipeptides, (string name, double value)[][] dipeptides_binary, (string name, double value)[] average_dipeptide_distance)>>>();
+            var a_tasks_start_time = DateTime.Now;
 
             //var alpha_tasks = new List<Task>();
             var sequence_relation_levels = 3;
@@ -362,22 +366,16 @@ namespace dimorphics_dataset
                     var result = new List<(int alphabet_id, string alphabet_name, (string name, double value)[][] motifs, (string name, double value)[][] motifs_binary, (string name, double value)[] oaac, (string name, double value)[] oaac_binary, (string name, double value)[] average_seq_positions, (string name, double value)[][] dipeptides, (string name, double value)[][] dipeptides_binary, (string name, double value)[] average_dipeptide_distance)>();
 
                     var tasks = new List<Task>();
+                    var tasks_start_time = DateTime.Now;
                     var alphabet = alphabets[alphabet_index];
 
                     var alphabet_indexes0based = indexes0based[alphabet_index];
                     //var split_alphabet_indexes0based = split_indexes0based[alphabet_index];
 
 
-
-                    
-
-
-
-                        (string name, double value)[][] motifs = null;
+                    (string name, double value)[][] motifs = null;
                     if (pse_aac_options.motifs || pse_aac_options.motifs_binary)
                     {
-
-
                         var task = Task.Run(() =>
                         {
                             motifs = new (string name, double value)[sequence_relation_levels][];
@@ -568,7 +566,7 @@ namespace dimorphics_dataset
                     }
 
                     //Task.WaitAll(tasks.ToArray<Task>());
-                    program.wait_tasks(tasks.ToArray<Task>(), nameof(feature_calcs), nameof(feature_pse_aac));
+                    program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
 
 
 
@@ -578,6 +576,7 @@ namespace dimorphics_dataset
 
 
                     var tasks2 = new List<Task>();
+                    var tasks2_start_time = DateTime.Now;
 
                     (string name, double value)[][] motifs_binary = null;
                     tasks2.Add(Task.Run(() => { motifs_binary = motifs == null ? motifs : motifs.Select(a => a == null ? a : a.Select(b => (name: b.name, value: (b.value != 0d ? 1d : 0d))).ToArray()).ToArray(); }));
@@ -592,7 +591,7 @@ namespace dimorphics_dataset
                     tasks2.Add(Task.Run(() => { dipeptides_binary = dipeptides == null ? dipeptides : dipeptides.Select(a => a == null ? a : a.Select(b => (name: b.name, value: b.value != 0d ? 1d : 0d)).ToArray()).ToArray(); }));
 
                     //Task.WaitAll(tasks2.ToArray<Task>());
-                    program.wait_tasks(tasks2.ToArray<Task>(), nameof(feature_calcs), nameof(feature_pse_aac));
+                    program.wait_tasks(tasks2.ToArray<Task>(), tasks2_start_time, module_name, method_name);
 
 
 
@@ -606,7 +605,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(a_tasks.ToArray<Task>());
-            program.wait_tasks(a_tasks.ToArray<Task>(), nameof(feature_calcs), nameof(feature_pse_aac));
+            program.wait_tasks(a_tasks.ToArray<Task>(), a_tasks_start_time, module_name, method_name);
 
 
             var ext_result = a_tasks.SelectMany(a => a.Result).ToList();

@@ -22,7 +22,7 @@ namespace protr_server
 
                 var x = r_protr.get_values(0, $@"datasource", $@"Overall", peptide);
 
-                io_proxy.WriteLine("input size: " + length + $@", output size: " + x.Count);
+                io_proxy.WriteLine($@"input size: " + length + $@", output size: " + x.Count);
                 foreach (var a in x)
                 {
                     //io_proxy.WriteLine(a.ToString());

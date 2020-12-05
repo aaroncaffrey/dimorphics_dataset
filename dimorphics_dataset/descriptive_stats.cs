@@ -47,12 +47,17 @@ namespace dimorphics_dataset
         internal descriptive_stats abs_descriptive_stats;
         internal descriptive_stats rescaled_descriptive_stats;
 
-        internal static double geometric_mean(double[] values, bool ignore_zeros = true)
+        internal static double geometric_mean(double[] values, bool ignore_zeros = true, bool add_one = false)
         {
             // note: it only makes sense to ignore zeros if they are non-responses/not-applicable.
             // other strategies exist, such as adding 1 to all values or changing 0 to 1
 
             if (values == null || values.Length == 0) return 0;
+
+            if (add_one)
+            {
+                values = values.Select(a => a + 1).ToArray();
+            }
 
             double sum = 1.0;
             int zeros = 0;
@@ -103,9 +108,14 @@ namespace dimorphics_dataset
             }
         }
 
-        public static double harmonic_mean(double[] values, bool correct_zeros = true, bool ignore_zeros = true)
+        public static double harmonic_mean(double[] values, bool correct_zeros = true, bool ignore_zeros = true, bool add_one = false)
         {
             if (values == null || values.Length == 0) return 0;
+
+            if (add_one)
+            {
+                values = values.Select(a => a + 1).ToArray();
+            }
 
             var nonzero = values.Where(a => a != 0).ToArray();
             var zeros = values.Length - nonzero.Length;
@@ -211,41 +221,23 @@ namespace dimorphics_dataset
 
 
         internal List<(string group_id, string member_id, string perspective_id, double perspective_value)> encode(
-                descriptive_stats_encoding_options descriptive_stats_encoding_options,
-                bool presorted,
-                bool interval,
-                bool distance,
-                bool interquartile,
-                bool abs,
-                bool rescale)
+                descriptive_stats_encoding_options descriptive_stats_encoding_options)
         {
             return encode(
                 this,
-                descriptive_stats_encoding_options,
-                presorted,
-                interval,
-                distance,
-                interquartile,
-                abs,
-                rescale
-                    );
+                descriptive_stats_encoding_options
+            );
         }
 
         private static List<(string group_id, string member_id, string perspective_id, double perspective_value)> encode(
             descriptive_stats stats,
-            descriptive_stats_encoding_options descriptive_stats_encoding_options,
-            bool presorted,
-            bool interval,
-            bool distance,
-            bool interquartile,
-            bool abs,
-            bool rescale)
+            descriptive_stats_encoding_options descriptive_stats_encoding_options)
         {
             var result = new List<(string group_id, string member_id, string perspective_id, double perspective_value)>();
 
             if (stats == null)
             {
-                stats = new descriptive_stats(data: null, ds_group_name: $@"", ds_member_name: $@"", presorted: presorted, interval: interval, distance: distance, interquartile: interquartile, abs: abs, rescale: rescale);
+                stats = new descriptive_stats(data: null, descriptive_stats_encoding_options, ds_group_name: $@"", ds_member_name: $@"", presorted: true);
             }
 
             if (descriptive_stats_encoding_options == null)
@@ -253,30 +245,38 @@ namespace dimorphics_dataset
                 descriptive_stats_encoding_options = descriptive_stats_encoding_options.options_default;
             }
 
-            if (interval && stats.intervals_descriptive_stats != null)
+            if (descriptive_stats_encoding_options?.intervals != null && stats.intervals_descriptive_stats != null && descriptive_stats_encoding_options.intervals.key_value_list().Any(a => a.value))
             {
-                var encoded_intervals_descriptive_stats = encode(stats.intervals_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var encoded_intervals_descriptive_stats = encode(stats.intervals_descriptive_stats, descriptive_stats_encoding_options.intervals);
 
                 result.AddRange(encoded_intervals_descriptive_stats);
             }
 
-            if (distance && stats.distances_descriptive_stats != null)
+            if (descriptive_stats_encoding_options?.distances != null && stats.distances_descriptive_stats != null && descriptive_stats_encoding_options.distances.key_value_list().Any(a => a.value))
             {
-                var encoded_distances_descriptive_stats = encode(stats.distances_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var encoded_distances_descriptive_stats = encode(stats.distances_descriptive_stats, descriptive_stats_encoding_options.distances);
 
                 result.AddRange(encoded_distances_descriptive_stats);
             }
 
-            if (interquartile && stats.interquartile_range_descriptive_stats != null)
+            if (descriptive_stats_encoding_options?.interquartile != null && stats.interquartile_range_descriptive_stats != null && descriptive_stats_encoding_options.interquartile.key_value_list().Any(a => a.value))
             {
-                var encoded_interquartile_range_descriptive_stats = encode(stats.interquartile_range_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var encoded_interquartile_range_descriptive_stats = encode(stats.interquartile_range_descriptive_stats, descriptive_stats_encoding_options.interquartile);
 
                 result.AddRange(encoded_interquartile_range_descriptive_stats);
             }
 
-            if (abs && stats.abs_descriptive_stats != null)
+            if (descriptive_stats_encoding_options?.abs != null && stats.abs_descriptive_stats != null && descriptive_stats_encoding_options.abs.key_value_list().Any(a => a.value))
             {
-                var encoded_abs_descriptive_stats = encode(stats.abs_descriptive_stats, descriptive_stats_encoding_options, presorted: false, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var encoded_abs_descriptive_stats = encode(stats.abs_descriptive_stats, descriptive_stats_encoding_options.abs);
+
+                result.AddRange(encoded_abs_descriptive_stats);
+            }
+
+
+            if (descriptive_stats_encoding_options?.rescale != null && stats.rescaled_descriptive_stats != null && descriptive_stats_encoding_options.rescale.key_value_list().Any(a => a.value))
+            {
+                var encoded_abs_descriptive_stats = encode(stats.rescaled_descriptive_stats, descriptive_stats_encoding_options.rescale);
 
                 result.AddRange(encoded_abs_descriptive_stats);
             }
@@ -325,32 +325,22 @@ namespace dimorphics_dataset
 
         internal static descriptive_stats get_stat_values(
             double[] data,
+            descriptive_stats_encoding_options descriptive_stats_encoding_options,
             string group_id_name,
             string member_id_name,
-            /*bool preserve_values = false,*/
-            bool presorted,
-            bool interval,
-            bool distance,
-            bool interquartile,
-            bool abs,
-            bool rescale
-            )
+            bool presorted
+        )
         {
-            return new descriptive_stats(data, group_id_name, member_id_name, /*preserve_values,*/ presorted, interval, distance, interquartile, abs, rescale);
+            return new descriptive_stats(data, descriptive_stats_encoding_options, group_id_name, member_id_name, presorted);
         }
 
         internal descriptive_stats(
             double[] data,
+            descriptive_stats_encoding_options descriptive_stats_encoding_options,
             string ds_group_name,
             string ds_member_name,
-            /*bool preserve_values = false,*/
-            bool presorted,
-            bool interval,
-            bool distance,
-            bool interquartile,
-            bool abs,
-            bool rescale
-            )
+            bool presorted
+        )
         {
 
             this.ds_group_name = ds_group_name;
@@ -360,39 +350,39 @@ namespace dimorphics_dataset
             if (data == null || data.Length == 0 || data.All(a => a == 0))
             {
 
-                if (interval)
+                if (descriptive_stats_encoding_options?.intervals != null)
                 {
-                    var interval_group_name = string.Join("_", new string[] { nameof(interval), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    var interval_member_name = string.Join("_", new string[] { nameof(interval), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    intervals_descriptive_stats = new descriptive_stats(Array.Empty<double>(), interval_group_name, interval_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                    var interval_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.intervals), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var interval_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.intervals), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    intervals_descriptive_stats = new descriptive_stats(Array.Empty<double>(), descriptive_stats_encoding_options?.intervals, interval_group_name, interval_member_name, presorted: true);
                 }
 
-                if (distance)
+                if (descriptive_stats_encoding_options?.distances != null)
                 {
-                    var distance_group_name = string.Join("_", new string[] { nameof(distance), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    var distance_member_name = string.Join("_", new string[] { nameof(distance), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    distances_descriptive_stats = new descriptive_stats(Array.Empty<double>(), distance_group_name, distance_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                    var distance_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.distances), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var distance_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.distances), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    distances_descriptive_stats = new descriptive_stats(Array.Empty<double>(), descriptive_stats_encoding_options?.distances, distance_group_name, distance_member_name, presorted: true);
                 }
 
-                if (interquartile)
+                if (descriptive_stats_encoding_options?.interquartile != null)
                 {
-                    var interquartile_group_name = string.Join("_", new string[] { nameof(interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    var interquartile_member_name = string.Join("_", new string[] { nameof(interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    interquartile_range_descriptive_stats = new descriptive_stats(Array.Empty<double>(), interquartile_group_name, interquartile_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                    var interquartile_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var interquartile_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    interquartile_range_descriptive_stats = new descriptive_stats(Array.Empty<double>(), descriptive_stats_encoding_options?.interquartile, interquartile_group_name, interquartile_member_name, presorted: true);
                 }
 
-                if (abs)
+                if (descriptive_stats_encoding_options?.abs != null)
                 {
-                    var abs_group_name = string.Join("_", new string[] { nameof(abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    var abs_member_name = string.Join("_", new string[] { nameof(abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    abs_descriptive_stats = new descriptive_stats(Array.Empty<double>(), abs_group_name, abs_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                    var abs_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var abs_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    abs_descriptive_stats = new descriptive_stats(Array.Empty<double>(), descriptive_stats_encoding_options?.abs, abs_group_name, abs_member_name, presorted: true);
                 }
 
-                if (rescale)
+                if (descriptive_stats_encoding_options?.rescale != null)
                 {
-                    var rescale_group_name = string.Join("_", new string[] { nameof(rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    var rescale_member_name = string.Join("_", new string[] { nameof(rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                    abs_descriptive_stats = new descriptive_stats(Array.Empty<double>(), rescale_group_name, rescale_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: rescale);
+                    var rescale_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    var rescale_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                    rescaled_descriptive_stats = new descriptive_stats(Array.Empty<double>(), descriptive_stats_encoding_options?.rescale, rescale_group_name, rescale_member_name, presorted: true);
                 }
 
                 return;
@@ -457,26 +447,26 @@ namespace dimorphics_dataset
             fix_double();
 
 
-            
-            if (interval)
+            if (descriptive_stats_encoding_options?.intervals != null && descriptive_stats_encoding_options.intervals.key_value_list().Any(a => a.value))
             {
-                var data_point_intevals = new double[sorted_data.Length - 1];
+                var interval_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.intervals), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var interval_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.intervals), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var data_point_intervals = new double[sorted_data.Length - 1];
 
                 for (var i = 1; i < sorted_data.Length; i++)
                 {
-                    data_point_intevals[i - 1] = Math.Abs(sorted_data[i] - sorted_data[i - 1]);
+                    data_point_intervals[i - 1] = Math.Abs(sorted_data[i] - sorted_data[i - 1]);
                 }
-                Array.Sort(data_point_intevals);
+                Array.Sort(data_point_intervals);
 
-                var interval_group_name = string.Join("_", new string[] { nameof(interval), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                var interval_member_name = string.Join("_", new string[] { nameof(interval), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                intervals_descriptive_stats = new descriptive_stats(data_point_intevals, interval_group_name, interval_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                intervals_descriptive_stats = new descriptive_stats(data_point_intervals, descriptive_stats_encoding_options.intervals, interval_group_name, interval_member_name, presorted: true);
             }
 
-            if (distance)
+            if (descriptive_stats_encoding_options?.distances != null && descriptive_stats_encoding_options.distances.key_value_list().Any(a => a.value))
             {
+                var distance_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.distances), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var distance_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.distances), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
                 var data_point_distances = new double[((sorted_data.Length - 1) * sorted_data.Length) / 2];
-
                 var k = 0;
 
                 for (var i = 0; i < sorted_data.Length; i++)
@@ -492,42 +482,39 @@ namespace dimorphics_dataset
                 }
 
                 Array.Sort(data_point_distances);
-
-                var distance_group_name = string.Join("_", new string[] { nameof(distance), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                var distance_member_name = string.Join("_", new string[] { nameof(distance), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                distances_descriptive_stats = new descriptive_stats(data_point_distances, distance_group_name, distance_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                distances_descriptive_stats = new descriptive_stats(data_point_distances, descriptive_stats_encoding_options.distances, distance_group_name, distance_member_name, presorted: true);
             }
 
-            if (interquartile)
+            if (descriptive_stats_encoding_options?.interquartile != null && descriptive_stats_encoding_options.interquartile.key_value_list().Any(a => a.value))
             {
+                var interquartile_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var interquartile_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
                 var interquartile_data = sorted_data.Where(a => a >= this.median_q1 && a <= this.median_q3).ToArray();
-
-                var interquartile_group_name = string.Join("_", new string[] { nameof(interquartile), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                var interquartile_member_name = string.Join("_", new string[] { nameof(interquartile), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                interquartile_range_descriptive_stats = new descriptive_stats(interquartile_data, interquartile_group_name, interquartile_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                interquartile_range_descriptive_stats = new descriptive_stats(interquartile_data, descriptive_stats_encoding_options.interquartile, interquartile_group_name, interquartile_member_name, presorted: true);
             }
 
-            if (abs)
+            if (descriptive_stats_encoding_options?.abs != null && descriptive_stats_encoding_options.abs.key_value_list().Any(a => a.value))
             {
+                var abs_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var abs_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
                 var has_neg = sorted_data.Any(a => a < 0);
-
-                var sorted_data_abs = has_neg ? sorted_data.Select(a => Math.Abs(a)).OrderBy(a => a).ToArray() : sorted_data;
-
-                var abs_group_name = string.Join("_", new string[] { nameof(abs), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                var abs_member_name = string.Join("_", new string[] { nameof(abs), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                abs_descriptive_stats = new descriptive_stats(sorted_data_abs, abs_group_name, abs_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var sorted_data_abs = has_neg ? sorted_data.Select(Math.Abs).OrderBy(a => a).ToArray() : sorted_data;
+                abs_descriptive_stats = new descriptive_stats(sorted_data_abs, descriptive_stats_encoding_options.abs, abs_group_name, abs_member_name, presorted: true);
             }
 
-            if (rescale)
+            if (descriptive_stats_encoding_options?.rescale != null && descriptive_stats_encoding_options.rescale.key_value_list().Any(a => a.value))
             {
-                var s = new scaling(data);
-                s.rescale_scale_min = 1; // avoid zeros whilst keeping data on the same scale.. only applicable with single arrays, not for multi array comparison if the value size has meaning...
-                s.rescale_scale_max = 2;
-                var rescaled_sorted_data = s.scale(sorted_data, scaling.scale_function.rescale);
+                var rescale_group_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
+                var rescale_member_name = string.Join($@"_", new string[] { nameof(descriptive_stats_encoding_options.rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
 
-                var rescale_group_name = string.Join("_", new string[] { nameof(rescale), this.ds_group_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                var rescale_member_name = string.Join("_", new string[] { nameof(rescale), this.ds_member_name }.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray());
-                rescaled_descriptive_stats = new descriptive_stats(rescaled_sorted_data, rescale_group_name, rescale_member_name, presorted: true, interval: false, distance: false, interquartile: false, abs: false, rescale: false);
+                var s = new scaling(sorted_data)
+                {
+                    rescale_scale_min = 1, // avoid zeros whilst keeping data on the same scale.. only applicable with single arrays, not for multi array comparison if the value size has meaning...
+                    rescale_scale_max = 2
+                };
+                
+                var rescaled_sorted_data = s.scale(sorted_data, scaling.scale_function.rescale);
+                rescaled_descriptive_stats = new descriptive_stats(rescaled_sorted_data, descriptive_stats_encoding_options.rescale, rescale_group_name, rescale_member_name, presorted: true);
             }
         }
 

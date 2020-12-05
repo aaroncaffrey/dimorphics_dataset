@@ -1,7 +1,3 @@
-C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.AssemblyInfoInputs.cache
-C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.AssemblyInfo.cs
-C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.csproj.CoreCompileInputs.cache
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\dimorphics_dataset.exe
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\protr_server.exe
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\protr_server.deps.json
@@ -16,6 +12,10 @@ C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\RDot
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\dimorphics_dataset.dll
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\bin\x64\Debug\net5.0\dimorphics_dataset.pdb
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.csprojAssemblyReference.cache
+C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.AssemblyInfoInputs.cache
+C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.AssemblyInfo.cs
+C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.csproj.CoreCompileInputs.cache
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.csproj.CopyComplete
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\protr_server.dll
 C:\Users\Aaron\Desktop\dimorphics_dataset\protr_server\obj\x64\Debug\net5.0\ref\protr_server.dll

@@ -49,6 +49,8 @@ namespace dimorphics_dataset
             //var tasks = new List<Task<List<subsequence_classification_data>>>();
             var tasks = new List<Task<List<protein_subsequence_info>>>();
 
+            var start_time = DateTime.Now;
+            
             foreach (var loop_chain_id in chain_ids)
             {
                 var chain_id = loop_chain_id;
@@ -60,7 +62,7 @@ namespace dimorphics_dataset
                     
                     var pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == chain_id).ToList();
                     var pdb_chain_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_chain_atoms);
-                    var pdb_chain_aa_sequence = string.Join("", pdb_chain_master_atoms.Select(a => a.amino_acid).ToList());
+                    var pdb_chain_aa_sequence = string.Join($@"", pdb_chain_master_atoms.Select(a => a.amino_acid).ToList());
 
                     var coil_subsequence_atoms = new List<atom>();
                     var coil_subsequence_master_atoms = new List<atom>();
@@ -112,7 +114,7 @@ namespace dimorphics_dataset
                                     pdb_id = pdb_id,
                                     chain_id = chain_id,
                                     res_ids = coil_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
-                                    aa_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
+                                    aa_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
                                     //aa_before = $@"",
                                     //aa_after = $@"",
                                     //aa_protein = pdb_chain_aa_sequence,
@@ -126,11 +128,11 @@ namespace dimorphics_dataset
                                 //    pdb_id = pdb_id,
                                 //    chain_id = chain_id,
                                 //    res_ids = coil_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
-                                //    aa_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
-                                //    dssp_multimer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
-                                //    dssp_monomer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
-                                //    stride_multimer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.stride_multimer).ToList()),
-                                //    stride_monomer_subsequence = string.Join("", coil_subsequence_master_atoms.Select(a => a.stride_monomer).ToList()),
+                                //    aa_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
+                                //    dssp_multimer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
+                                //    dssp_monomer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
+                                //    stride_multimer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.stride_multimer).ToList()),
+                                //    stride_monomer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.stride_monomer).ToList()),
                                 //    pdb_chain_atoms = pdb_chain_atoms,
                                 //    pdb_chain_master_atoms = pdb_chain_master_atoms,
                                 //    subsequence_atoms = coil_subsequence_atoms,
@@ -154,7 +156,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(dataset_gen_coils), nameof(find_coils));
+            program.wait_tasks(tasks.ToArray<Task>(), start_time, nameof(dataset_gen_coils), nameof(find_coils));
 
 
             var pdb_coils = tasks.SelectMany(a => a.Result).ToList();

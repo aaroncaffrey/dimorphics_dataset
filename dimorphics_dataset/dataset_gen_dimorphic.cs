@@ -72,6 +72,8 @@ namespace dimorphics_dataset
 
             var tasks = new List<Task<protein_subsequence_info>>();
 
+            var start_time = DateTime.Now;
+
             for (var i = 0; i < dimorphics_data.Count; i++)
             {
                 var dimorphics_interface = dimorphics_data[i];
@@ -85,7 +87,7 @@ namespace dimorphics_dataset
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), nameof(dataset_gen_dimorphic), nameof(get_dhc_list));
+            program.wait_tasks(tasks.ToArray<Task>(), start_time, nameof(dataset_gen_dimorphic), nameof(get_dhc_list));
 
             var psi_list = tasks.Select(a => a.Result).ToList();
 
@@ -94,6 +96,9 @@ namespace dimorphics_dataset
 
         internal static (int strand_array_index, List<int> strand_res_ids) find_subseq_index(string strand_seq, string strand_protein, List<int> strand_protein_res_ids, int optional_res_index = -1)
         {
+            const string module_name = nameof(dataset_gen_dimorphic);
+            const string method_name = nameof(find_subseq_index);
+
             var strand_array_index = strand_protein?.IndexOf(strand_seq, StringComparison.InvariantCulture) ?? -1;
 
             if (optional_res_index > -1)
@@ -109,7 +114,7 @@ namespace dimorphics_dataset
 
             if (strand_protein?.Substring(strand_array_index, strand_seq.Length) != strand_seq)
             {
-                throw new Exception("Not correct position");
+                throw new Exception($@"{module_name}.{method_name}: Not correct position");
             }
 
             var strand_res_ids = strand_protein_res_ids.Skip(strand_array_index).Take(strand_seq?.Length ?? 0).ToList();
@@ -121,7 +126,7 @@ namespace dimorphics_dataset
         {
             var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(null, pdb_atoms);
-            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join("", a.Select(b => b.amino_acid).ToList()))).ToList();
+            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
             var chain_id = chain_list_default_order[chain_number].chain_id;
 
             return chain_id;
@@ -136,6 +141,9 @@ namespace dimorphics_dataset
             (string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index) dimorphics_interface
             )
         {
+            const string module_name = nameof(dataset_gen_dimorphic);
+            const string method_name = nameof(get_dhc_item);
+
             var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new atom.load_atoms_pdb_options()
             {
                 find_3d_intramolecular = false,
@@ -168,7 +176,7 @@ namespace dimorphics_dataset
 
             //var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_atoms);
-            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join("", a.Select(b => b.amino_acid).ToList()))).ToList();
+            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
             //var chain_id = chain_list_default_order[chain_number].chain_id;
 
             var chain_id = get_chain_id_from_chain_number(pdb_atoms, chain_number);
@@ -197,7 +205,7 @@ namespace dimorphics_dataset
 
             //if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
             //{
-            //    throw new Exception("Not correct position");
+            //    throw new Exception($@"Not correct position");
             //}
 
             var find_subseq_index_ret = find_subseq_index(strand_seq, strand_protein,
@@ -226,7 +234,7 @@ namespace dimorphics_dataset
 
                 var other_chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
                 var other_pdb_master_atoms = atom.select_amino_acid_master_atoms(other_pdb_id, pdb_atoms);
-                var other_sequences = other_pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join("", a.Select(b => b.amino_acid).ToList()))).ToList();
+                var other_sequences = other_pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
                 var other_chain_id = other_chain_list_default_order[other_chain_number].chain_id;
 
                 var other_pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == other_chain_id).ToList();
@@ -250,7 +258,7 @@ namespace dimorphics_dataset
 
                 if (other_strand_protein.Substring(other_strand_array_index, other_strand_seq.Length) != other_strand_seq)
                 {
-                    throw new Exception("Not correct position");
+                    throw new Exception($@"{module_name}.{method_name}: Not correct position");
                 }
 
                 var dimorphic_dssp3 = $@"";
@@ -362,25 +370,25 @@ namespace dimorphics_dataset
                 shc_subsequence_master_atoms = pdb_chain_master_atoms;
                 shc_start_array_index = 0;
                 shc_end_array_index = pdb_chain_master_atoms.Count - 1;
-                strand_seq = string.Join("", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
+                strand_seq = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
                 shc_sequence_before = $@"";
                 shc_sequence_after = $@"";
             }
 
             //var shc_subsequence_atoms = pdb_chain_atoms.Where(a => shc_subsequence_master_atoms.Any(b => a.pdb_id == b.pdb_id && a.chain_id == b.chain_id && a.residue_index == b.residue_index && a.i_code == b.i_code)).ToList();
 
-            var shc_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
+            var shc_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
 
-            //var shc_dssp_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
-            //var shc_dssp_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
+            //var shc_dssp_multimer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
+            //var shc_dssp_monomer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
 
-            //var shc_stride_multimer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
-            //var shc_stride_monomer_sequence = string.Join("", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
+            //var shc_stride_multimer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
+            //var shc_stride_monomer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
 
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;
 
-            if (shc_sequence.Length != shc_length) throw new Exception("shc length error");
-            if (shc_sequence_before + strand_seq + shc_sequence_after != shc_sequence) throw new Exception("shc seq error");
+            if (shc_sequence.Length != shc_length) throw new Exception($@"{module_name}.{method_name}: shc length error");
+            if (shc_sequence_before + strand_seq + shc_sequence_after != shc_sequence) throw new Exception($@"{module_name}.{method_name}: shc seq error");
 
             //if (shc_sequence.Length < min_strand_host_coil_length) continue;
 
