@@ -96,7 +96,7 @@ namespace dimorphics_dataset
 
 
         // feature parameters:
-        internal static descriptive_stats_encoding_options[] dse_options_aa_index = new[] { new descriptive_stats_encoding_options(options_default) };
+        internal static descriptive_stats_encoding_options[] dse_options_aa_index = new[] { new descriptive_stats_encoding_options(options_all_plus) };
 
         internal static descriptive_stats_encoding_options[] dse_options_sable_ds_entropy = new[] { new descriptive_stats_encoding_options(options_default) };
 

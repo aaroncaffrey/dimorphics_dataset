@@ -237,7 +237,7 @@ namespace dimorphics_dataset
 
             if (stats == null)
             {
-                stats = new descriptive_stats(data: null, descriptive_stats_encoding_options, ds_group_name: $@"", ds_member_name: $@"", presorted: true);
+                stats = new descriptive_stats(null, descriptive_stats_encoding_options, ds_group_name: $@"", ds_member_name: $@"", presorted: true);
             }
 
             if (descriptive_stats_encoding_options == null)
@@ -247,28 +247,28 @@ namespace dimorphics_dataset
 
             if (descriptive_stats_encoding_options?.intervals != null && stats.intervals_descriptive_stats != null && descriptive_stats_encoding_options.intervals.key_value_list().Any(a => a.value))
             {
-                var encoded_intervals_descriptive_stats = encode(stats.intervals_descriptive_stats, descriptive_stats_encoding_options.intervals);
+                var encoded_intervals_descriptive_stats = stats.intervals_descriptive_stats.encode(descriptive_stats_encoding_options.intervals);
 
                 result.AddRange(encoded_intervals_descriptive_stats);
             }
 
             if (descriptive_stats_encoding_options?.distances != null && stats.distances_descriptive_stats != null && descriptive_stats_encoding_options.distances.key_value_list().Any(a => a.value))
             {
-                var encoded_distances_descriptive_stats = encode(stats.distances_descriptive_stats, descriptive_stats_encoding_options.distances);
+                var encoded_distances_descriptive_stats = stats.distances_descriptive_stats.encode(descriptive_stats_encoding_options.distances);
 
                 result.AddRange(encoded_distances_descriptive_stats);
             }
 
             if (descriptive_stats_encoding_options?.interquartile != null && stats.interquartile_range_descriptive_stats != null && descriptive_stats_encoding_options.interquartile.key_value_list().Any(a => a.value))
             {
-                var encoded_interquartile_range_descriptive_stats = encode(stats.interquartile_range_descriptive_stats, descriptive_stats_encoding_options.interquartile);
+                var encoded_interquartile_range_descriptive_stats = stats.interquartile_range_descriptive_stats.encode(descriptive_stats_encoding_options.interquartile);
 
                 result.AddRange(encoded_interquartile_range_descriptive_stats);
             }
 
             if (descriptive_stats_encoding_options?.abs != null && stats.abs_descriptive_stats != null && descriptive_stats_encoding_options.abs.key_value_list().Any(a => a.value))
             {
-                var encoded_abs_descriptive_stats = encode(stats.abs_descriptive_stats, descriptive_stats_encoding_options.abs);
+                var encoded_abs_descriptive_stats = stats.abs_descriptive_stats.encode(descriptive_stats_encoding_options.abs);
 
                 result.AddRange(encoded_abs_descriptive_stats);
             }
@@ -276,7 +276,7 @@ namespace dimorphics_dataset
 
             if (descriptive_stats_encoding_options?.rescale != null && stats.rescaled_descriptive_stats != null && descriptive_stats_encoding_options.rescale.key_value_list().Any(a => a.value))
             {
-                var encoded_abs_descriptive_stats = encode(stats.rescaled_descriptive_stats, descriptive_stats_encoding_options.rescale);
+                var encoded_abs_descriptive_stats = stats.rescaled_descriptive_stats.encode(descriptive_stats_encoding_options.rescale);
 
                 result.AddRange(encoded_abs_descriptive_stats);
             }
@@ -291,34 +291,30 @@ namespace dimorphics_dataset
             if (descriptive_stats_encoding_options.range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.range)}", stats.range)); }
             if (descriptive_stats_encoding_options.sum) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.sum)}", stats.sum)); }
             if (descriptive_stats_encoding_options.mid_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mid_range)}", stats.mid_range)); }
-            //if (descriptive_stats_encoding_options.mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mode)}", stats.mode)); }
             if (descriptive_stats_encoding_options.median_q1) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q1)}", stats.median_q1)); }
             if (descriptive_stats_encoding_options.median_q2) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q2)}", stats.median_q2)); }
             if (descriptive_stats_encoding_options.median_q3) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.median_q3)}", stats.median_q3)); }
-
             if (descriptive_stats_encoding_options.root_mean_square) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.root_mean_square)}", stats.root_mean_square)); }
             if (descriptive_stats_encoding_options.mean_arithmetic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_arithmetic)}", stats.mean_arithmetic)); }
             if (descriptive_stats_encoding_options.mean_harmonic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_harmonic)}", stats.mean_harmonic)); }
             if (descriptive_stats_encoding_options.mean_geometric) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mean_geometric)}", stats.mean_geometric)); }
-
             if (descriptive_stats_encoding_options.variance) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.variance)}", stats.variance)); }
             if (descriptive_stats_encoding_options.dev_standard) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.dev_standard)}", stats.dev_standard)); }
-
             if (descriptive_stats_encoding_options.mad_mean_arithmetic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_arithmetic)}", stats.mad_mean_arithmetic)); }
             if (descriptive_stats_encoding_options.mad_mean_harmonic) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_harmonic)}", stats.mad_mean_harmonic)); }
             if (descriptive_stats_encoding_options.mad_mean_geometric) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mean_geometric)}", stats.mad_mean_geometric)); }
-
             if (descriptive_stats_encoding_options.mad_median_q1) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q1)}", stats.mad_median_q1)); }
             if (descriptive_stats_encoding_options.mad_median_q2) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q2)}", stats.mad_median_q2)); }
             if (descriptive_stats_encoding_options.mad_median_q3) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_median_q3)}", stats.mad_median_q3)); }
-            //if (descriptive_stats_encoding_options.mad_mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mad_mode)}", stats.mad_mode)); }
             if (descriptive_stats_encoding_options.mad_mid_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.mad_mid_range)}", stats.mad_mid_range)); }
-
             if (descriptive_stats_encoding_options.interquartile_range) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.interquartile_range)}", stats.interquartile_range)); }
             if (descriptive_stats_encoding_options.skewness) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.skewness)}", stats.skewness)); }
             if (descriptive_stats_encoding_options.kurtosis) { z.Add((group_id: $@"{stats.ds_group_name}", member_id: $@"{stats.ds_member_name}", perspective_id: $@"{nameof(stats.kurtosis)}", stats.kurtosis)); }
+            
+            //if (descriptive_stats_encoding_options.mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mode)}", stats.mode)); }
+            //if (descriptive_stats_encoding_options.mad_mode) { z.Add((group_id: $@"{stats.group_id_name}", member_id: $@"{stats.member_id_name}", perspective_id: $@"{nameof(stats.mad_mode)}", stats.mad_mode)); }
+            
             result.AddRange(z);
-
 
             return result;
         }

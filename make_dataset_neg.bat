@@ -27,11 +27,11 @@ set max_features=100
 set use_children=true
 set verbose=true
 
-::set class_id=%neg_class_id%
-::set class_name=%neg_class_name%
+set class_id=%neg_class_id%
+set class_name=%neg_class_name%
 
-set class_id=%pos_class_id%
-set class_name=%pos_class_name%
+::set class_id=%pos_class_id%
+::set class_name=%pos_class_name%
 
 :: ===========================
 :: ===========================

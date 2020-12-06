@@ -15,3 +15,4 @@ C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\ref\dimorphics_dataset.dll
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.pdb
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.genruntimeconfig.cache
+C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.csprojAssemblyReference.cache
