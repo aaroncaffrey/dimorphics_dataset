@@ -88,7 +88,7 @@ namespace dimorphics_dataset
             
             var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(c => c.Length).ThenBy(c => c).ToList()).ToList();
 
-            if (aa_seqs[0].SequenceEqual(aa_seqs[1])) throw new Exception($@"{module_name}.{method_name}: cache sequences differ");
+            if (!aa_seqs[0].SequenceEqual(aa_seqs[1])) throw new Exception($@"{module_name}.{method_name}: cache source sequences differ");
 
             return aa_seqs.FirstOrDefault();
         }
@@ -106,9 +106,6 @@ namespace dimorphics_dataset
             Console.WriteLine();
 
         }
-
-
-
 
         internal static List<(string aa_sequence, List<feature_info> features)> cache_r_load(string cache_file)
         {
@@ -149,7 +146,6 @@ namespace dimorphics_dataset
             io_proxy.WriteLine($@"Loaded: {features_grouped.Count} sequences ({string.Join($@", ", counts)} features) in {sw1.Elapsed:dd\:hh\:mm\:ss\.fff}", nameof(program), nameof(cache_r_load));
             return features_grouped;
         }
-
 
         internal static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
         {
@@ -229,7 +225,6 @@ namespace dimorphics_dataset
 
             };
 
-
             var result = new List<feature_info>();
 
             using (var process = Process.Start(start))
@@ -258,8 +253,6 @@ namespace dimorphics_dataset
                     var stderr = process.StandardError.ReadToEnd();
 
                     stdout = stdout[(stdout.IndexOf('\n', StringComparison.Ordinal) + 1)..];
-
-
 
                     process.WaitForExit();
 
