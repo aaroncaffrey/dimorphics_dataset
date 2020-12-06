@@ -50,7 +50,7 @@ namespace peptides_server
 
             var arg_index = 0;
 
-            var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var call_count = int.Parse(args[arg_index++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
             var alphabet_name = $@"";//args[arg_index++];
             var source_name = $@"";//args[arg_index++];
             var sequence = args[arg_index++];

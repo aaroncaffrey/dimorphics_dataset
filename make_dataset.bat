@@ -3,7 +3,7 @@
 :: ===========================
 
 @set exe=%USERPROFILE%\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.exe
-@set output=e:\dataset2
+@set output=e:\dataset3
 @md %output%\
 
 :: ===========================
@@ -25,6 +25,9 @@ set use_dssp3=true
 set max_features=100
 set use_children=true
 set verbose=true
+
+::set class_id=%neg_class_id%
+::set class_name=%neg_class_name%
 
 set class_id=%pos_class_id%
 set class_name=%pos_class_name%
@@ -63,92 +66,126 @@ set features3n=-3n.pse_ssc_dssp=1 -3n.foldx=1 -3n.ring=1 -3n.sasa=1 -3n.tortuosi
 set features3p=-3p.pse_ssc_dssp=1 -3p.foldx=1 -3p.ring=1 -3p.sasa=1 -3p.tortuosity=1 -3p.intramolecular=1
 
 
+:: disable dimensions/areas/features
 
-:: =========================
-:: == 1d features dataset ==
-:: =========================
-set dimension=1
+set features1i=-1i.aaindex=1
+set features1n=
+set features1p=
+
+set features2i=
+set features2n=
+set features2p=
+
+set features3i=
+set features3n=
+set features3p=
+
 
 :: ===================================
 :: == 1d interface subsequence area ==
 :: ===================================
 if NOT %features1i% == "" (
+	set features=%features1i%
+	set dimension=1
 	set area=i
-	%exe% -area=%dimension%%area% %features1i% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 :: ===========================
 :: == 1d neighbourhood area ==
 :: ===========================
 if NOT %features1n% == "" (
+	set features=%features1n%
+	set dimension=1
 	set area=n
-	%exe% -area=%dimension%%area% %features1n% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 :: ===========================
 :: == 1d protein chain area ==
 :: ===========================
 if NOT %features1p% == "" (
+	set features=%features1p%
+	set dimension=1
 	set area=p
-	%exe% -area=%dimension%%area% %features1p% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
-
-:: =========================
-:: == 2d features dataset ==
-:: =========================
-set dimension=2
 
 :: ===================================
 :: == 2d interface subsequence area ==
 :: ===================================
 if NOT %features2i% == "" (
+	set features=%features2i%
+	set dimension=2
 	set area=i
-	%exe% -area=%dimension%%area% %features2i% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
 :: ===========================
 :: == 2d neighbourhood area ==
 :: ===========================
 if NOT %features2n% == "" (
+	set features=%features2n%
+	set dimension=2
 	set area=n
-	%exe% -area=%dimension%%area% %features2n% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
 :: ===========================
 :: == 2d protein chain area ==
 :: ===========================
 if NOT %features2p% == "" (
+	set features=%features2p%
+	set dimension=2
 	set area=p
-	%exe% -area=%dimension%%area% %features2p% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
-
-
-:: =========================
-:: == 3d features dataset ==
-:: =========================
-set dimension=3
 
 :: ===================================
 :: == 3d interface subsequence area ==
 :: ===================================
 if NOT %features3i% == "" (
+	set features=%features3i%
+	set dimension=3
 	set area=i
-	%exe% -area=%dimension%%area% %features3i% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
 :: ===========================
 :: == 3d neighbourhood area ==
 :: ===========================
 if NOT %features3n% == "" (
+	set features=%features3n%
+	set dimension=3
 	set area=n
-	%exe% -area=%dimension%%area% %features3n% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
 :: ===========================
 :: == 3d protein chain area ==
 :: ===========================
 if NOT %features3p% == "" (
+	set features=%features3p%
+	set dimension=3
 	set area=p
-	%exe% -area=%dimension%%area% %features3p% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt 2> %output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stdout=%output%\stdout_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	set stderr=%output%\stderr_%dimension%%area%_(%class_id%)_(%class_name%).txt
+	%exe% %features% -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> %stdout% 2> %stderr%
 )
 
 

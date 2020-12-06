@@ -31,12 +31,12 @@ namespace dimorphics_dataset
                 ($@"glob", Path.Combine(program.data_root_folder, $@"iupred2a", $@"{pdb_id}{chain_id}.seq.glob.iup")),
             };
 
-            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith($@"#", StringComparison.InvariantCulture) && $@"0123456789".Contains(b.First(), StringComparison.InvariantCulture)).Select((b,i) =>
+            var iup_data = iup_files.SelectMany(a => io_proxy.ReadAllLines(a.filename, nameof(info_iupred), nameof(load)).Where(b=>!b.StartsWith($@"#", StringComparison.Ordinal) && $@"0123456789".Contains(b.First(), StringComparison.Ordinal)).Select((b,i) =>
             {
 
                 var x= b.Split(new[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
 
-                var y = (type:a.type, line_index:i, data_index:int.Parse(x[0], NumberStyles.Integer, CultureInfo.InvariantCulture), amino_acid:x[1][0], score: double.Parse(x[2], NumberStyles.Float, CultureInfo.InvariantCulture), anchor2:double.Parse(x[3], NumberStyles.Float, CultureInfo.InvariantCulture));
+                var y = (type:a.type, line_index:i, data_index:int.Parse(x[0], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), amino_acid:x[1][0], score: double.Parse(x[2], NumberStyles.Float, NumberFormatInfo.InvariantInfo), anchor2:double.Parse(x[3], NumberStyles.Float, NumberFormatInfo.InvariantInfo));
 
                 return y;
 
@@ -48,9 +48,9 @@ namespace dimorphics_dataset
 
                 var first = list.First();
 
-                var long_type_score = list.First(b => b.type == $@"long").score;
-                var short_type_score = list.First(b => b.type == $@"short").score;
-                var glob_type_score = list.First(b => b.type == $@"glob").score;
+                var long_type_score = list.First(b => string.Equals(b.type, $@"long", StringComparison.Ordinal)).score;
+                var short_type_score = list.First(b => string.Equals(b.type, $@"short", StringComparison.Ordinal)).score;
+                var glob_type_score = list.First(b => string.Equals(b.type, $@"glob", StringComparison.Ordinal)).score;
                 var anchor2_score = first.anchor2;
 
                 return (first.line_index, short_type_score, long_type_score, glob_type_score, anchor2_score);

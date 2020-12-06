@@ -8,20 +8,7 @@ namespace dimorphics_dataset
 {
     internal static class info_aaindex
     {
-        internal static readonly List<info_aaindex.info_aaindex_entry> aaindex_entries = info_aaindex.Load();
-
-        internal class info_aaindex_entry
-        {
-            internal string H_Accession_Number;
-            internal string D_Data_Description;
-            internal string R_PMID;
-            internal string A_Authors;
-            internal string T_Title_Of_Article;
-            internal string J_Journal_Reference;
-            internal List<(string entry_name,double similarity_score)> C_Accession_numbers_of_similar_entries=new List<(string, double)>();
-            internal List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data=new List<(char, double)>();
-            internal List<(char amino_acid,double index_value)> I_Amino_Acid_Index_Data_Normalised=new List<(char, double)>();
-        }
+        internal static readonly List<info_aaindex_entry> aaindex_entries = info_aaindex.Load();
 
         //internal static List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)> sequence_aaindex_all(string sequence)//, List<aaindex_entry> aaindex_entries = null)
         //{
@@ -41,7 +28,7 @@ namespace dimorphics_dataset
 
         //    var alphabets = feature_calcs.aa_alphabets.ToList();
         //    alphabets.Add((-1,"Overall",new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-        //    alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+        //    alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
 
         //    foreach (var alphabet in alphabets)
         //    {
@@ -104,7 +91,7 @@ namespace dimorphics_dataset
 
             //if (aaindex_list == null && aaindex.aaindex_entries != null) aaindex_list = aaindex.aaindex_entries;
 
-            var aaindex_entry = aaindex_entries.FirstOrDefault(a => a.H_Accession_Number == accession_number);
+            var aaindex_entry = aaindex_entries.FirstOrDefault(a => string.Equals(a.H_Accession_Number, accession_number, StringComparison.Ordinal));
             
             var result = sequence.Select(aa => (amino_acid:aa, value:aaindex_entry.I_Amino_Acid_Index_Data.First(b => b.amino_acid == aa).index_value)).ToList();
 
@@ -133,13 +120,13 @@ namespace dimorphics_dataset
                 if (string.IsNullOrWhiteSpace(code)) code = lastcode;
                 lastcode = code;
                 if (line.Length == 1) continue;
-                if (code == $@"//" || entry == null || lines_index == 0)
+                if (string.Equals(code, $@"//", StringComparison.Ordinal) || entry == null || lines_index == 0)
                 {
                     if (lines_index >= lines.Length - 2) break;
                     entry = new info_aaindex_entry();
                     result.Add(entry);
                     i_amino_acid_order = $@"";
-                    if (code == $@"//")
+                    if (string.Equals(code, $@"//", StringComparison.Ordinal))
                     {
                         lastcode = $@"";
                         code = $@"";
@@ -187,7 +174,7 @@ namespace dimorphics_dataset
                         var c = line_data.Split(new char[] {' ', '\t'}, StringSplitOptions.RemoveEmptyEntries).ToList();
                         while (c.Count > 0)
                         {
-                            entry.C_Accession_numbers_of_similar_entries.Add((c[0], double.Parse(c[1], NumberStyles.Float, CultureInfo.InvariantCulture)));
+                            entry.C_Accession_numbers_of_similar_entries.Add((c[0], double.Parse(c[1], NumberStyles.Float, NumberFormatInfo.InvariantInfo)));
                             c = c.Skip(2).ToList();
                         }
 

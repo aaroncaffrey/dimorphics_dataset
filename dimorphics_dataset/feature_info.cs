@@ -31,13 +31,13 @@ namespace dimorphics_dataset
             var ix = csv_offset;
             alphabet = x[ix++];
             stats = x[ix++];
-            dimension = int.Parse(x[ix++], NumberStyles.Integer, CultureInfo.InvariantCulture);
+            dimension = int.Parse(x[ix++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
             category = x[ix++];
             source = x[ix++];
             @group = x[ix++];
             member = x[ix++];
             perspective = x[ix++];
-            feature_value = double.Parse(x[ix++], NumberStyles.Float, CultureInfo.InvariantCulture);
+            feature_value = double.Parse(x[ix++], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
 
             //"alphabet,dim?,1,r_peptides,,r_peptides_aIndex,r_peptides_aIndex,default,0"
             //var j = 0;
@@ -53,13 +53,13 @@ namespace dimorphics_dataset
             //            var txt = csv_line.Substring(start, len);
             //
             //            if (j==0 + csv_offset) alphabet = txt;
-            //            else if (j==1+csv_offset) dimension = int.Parse(txt, NumberStyles.Integer, CultureInfo.InvariantCulture);
+            //            else if (j==1+csv_offset) dimension = int.Parse(txt, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
             //            else if (j==2+csv_offset) category = txt;
             //            else if (j==3+csv_offset) source = txt;
             //            else if (j==4+csv_offset) @group = txt;
             //            else if (j==5+csv_offset) member = txt;
             //            else if (j==6+csv_offset) perspective = txt;
-            //            else if (j==7+csv_offset) feature_value = double.Parse(txt, NumberStyles.Float, CultureInfo.InvariantCulture);
+            //            else if (j==7+csv_offset) feature_value = double.Parse(txt, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
             //        }
             //
             //        j++;

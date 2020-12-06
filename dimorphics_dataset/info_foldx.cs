@@ -15,32 +15,12 @@ namespace dimorphics_dataset
 
 
 
-        //internal class energy_differences
-        //{
-        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> ala_scan;
-        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_position_scan;
-        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> build_model_subsequence_mutant;
-        //    internal List<(bool is_fragment, bool is_repaired, double[] energy)> position_scan;
-        //    //internal List<(bool is_fragment, bool is_repaired, double[] energy)> stability;
-        //}
-
-        internal class energy_differences
-        {
-            //internal (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) foldx_ala_scanning_result_protein;
-
-            internal (string cmd_line, string wait_filename, List<foldx_ala_scanning_result> data) foldx_ala_scanning_result_subsequence;
-
-            internal (string cmd_line, string wait_filename, List<foldx_position_scanning_result> data) foldx_position_scanning_result_subsequence;
-
-            internal (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) foldx_buildmodel_position_scan_result_subsequence;
-
-            internal (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) foldx_buildmodel_subsequence_mutant_result_subsequence;
-        }
+        
 
 
         private static readonly object file_write_lock = new object();
 
-        internal static energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = @"all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
+        internal static foldx_energy_differences load_calc_energy_differences(string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids, bool run, string source = @"all", bool write_bat = false)//int nh_first_res_id, int nh_last_res_id)
         {
             const string module_name = nameof(info_foldx);
             const string method_name = nameof(load_calc_energy_differences);
@@ -52,7 +32,7 @@ namespace dimorphics_dataset
             //var nh_first_res_id = res_ids.Min(a => a.residue_index);
             //var nh_last_res_id = res_ids.Max(a => a.residue_index);
 
-            var result = new energy_differences();
+            var result = new foldx_energy_differences();
             // fragments should be first residue to last residue (even non-interacting residues), since we want to mutate only some of them
 
             // returns energy differences upon mutation of a neighbourhood
@@ -68,7 +48,7 @@ namespace dimorphics_dataset
             // repair
             var monomer_file_repair = foldx_repair_pdb(Path.GetFileNameWithoutExtension(monomer_file), run);
 
-            var repair_res_ids = io_proxy.ReadAllLines(monomer_file_repair, module_name, method_name).Where(a => a.StartsWith($@"ATOM", StringComparison.InvariantCulture)).Select(a => int.Parse(a.Substring(22, 4), NumberStyles.Integer, CultureInfo.InvariantCulture)).Distinct().OrderBy(a => a).ToList();
+            var repair_res_ids = io_proxy.ReadAllLines(monomer_file_repair, module_name, method_name).Where(a => a.StartsWith($@"ATOM", StringComparison.Ordinal)).Select(a => int.Parse(a.Substring(22, 4), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().OrderBy(a => a).ToList();
 
             // filter res ids to remove res ides which were in the original pdb structure file but removed by the foldx repair
             res_ids = res_ids.Where(a => repair_res_ids.Contains(a.residue_index)).ToList();
@@ -104,71 +84,7 @@ namespace dimorphics_dataset
 
 
 
-        internal class foldx_energy_terms
-        {
-            internal string pdb_id;
-            internal char chain_id;
-            internal List<(int residue_index, char i_code, char amino_acid)> res_ids;
-
-            internal int line_index;
-
-            //internal string pdb_filename;
-            //internal string wait_filename;
-            //internal bool repaired;
-            internal string Pdb;
-            internal double SD;
-            internal double total_energy;
-            internal double Backbone_Hbond;
-            internal double Sidechain_Hbond;
-            internal double Van_der_Waals;
-            internal double Electrostatics;
-            internal double Solvation_Polar;
-            internal double Solvation_Hydrophobic;
-            internal double Van_der_Waals_clashes;
-            internal double entropy_sidechain;
-            internal double entropy_mainchain;
-            internal double sloop_entropy;
-            internal double mloop_entropy;
-            internal double cis_bond;
-            internal double torsional_clash;
-            internal double backbone_clash;
-            internal double helix_dipole;
-            internal double water_bridge;
-            internal double disulfide;
-            internal double electrostatic_kon;
-            internal double partial_covalent_bonds;
-            internal double energy_Ionisation;
-            internal double Entropy_Complex;
-
-            internal (string name, double value)[] properties()
-            {
-                return new (string name, double value)[]
-                    {
-                        (nameof(total_energy),              total_energy),
-                        (nameof(Backbone_Hbond),            Backbone_Hbond),
-                        (nameof(Sidechain_Hbond),           Sidechain_Hbond),
-                        (nameof(Van_der_Waals),             Van_der_Waals),
-                        (nameof(Electrostatics),            Electrostatics),
-                        (nameof(Solvation_Polar),           Solvation_Polar),
-                        (nameof(Solvation_Hydrophobic),     Solvation_Hydrophobic),
-                        (nameof(Van_der_Waals_clashes),     Van_der_Waals_clashes),
-                        (nameof(entropy_sidechain),         entropy_sidechain),
-                        (nameof(entropy_mainchain),         entropy_mainchain),
-                        (nameof(sloop_entropy),             sloop_entropy),
-                        (nameof(mloop_entropy),             mloop_entropy),
-                        (nameof(cis_bond),                  cis_bond),
-                        (nameof(torsional_clash),           torsional_clash),
-                        (nameof(backbone_clash),            backbone_clash),
-                        (nameof(helix_dipole),              helix_dipole),
-                        (nameof(water_bridge),              water_bridge),
-                        (nameof(disulfide),                 disulfide),
-                        (nameof(electrostatic_kon),         electrostatic_kon),
-                        (nameof(partial_covalent_bonds),    partial_covalent_bonds),
-                        (nameof(energy_Ionisation),         energy_Ionisation),
-                        (nameof(Entropy_Complex),           Entropy_Complex),
-                    };
-            }
-        }
+        
 
 
         internal static readonly
@@ -359,10 +275,10 @@ namespace dimorphics_dataset
             }
 
             var foldx_args2 = foldx_args;
-            if (!foldx_args2.Contains($@"--command=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --command={foldx_command}"; }
-            if (!foldx_args2.Contains($@"--pdb=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --pdb={Path.GetFileName(pdb_file)}"; }
-            if (!foldx_args2.Contains($@"--pdb-dir=", StringComparison.InvariantCulture)) { foldx_args2 += $@" --pdb-dir=""{Path.GetDirectoryName(pdb_file) ?? $@"."}"""; }
-            if (!foldx_args2.Contains($@"--out-pdb=", StringComparison.InvariantCulture) && !string.Equals(foldx_command, $@"RepairPDB", StringComparison.InvariantCultureIgnoreCase)) { foldx_args2 += $@" --out-pdb=false"; }
+            if (!foldx_args2.Contains($@"--command=", StringComparison.Ordinal)) { foldx_args2 += $@" --command={foldx_command}"; }
+            if (!foldx_args2.Contains($@"--pdb=", StringComparison.Ordinal)) { foldx_args2 += $@" --pdb={Path.GetFileName(pdb_file)}"; }
+            if (!foldx_args2.Contains($@"--pdb-dir=", StringComparison.Ordinal)) { foldx_args2 += $@" --pdb-dir=""{Path.GetDirectoryName(pdb_file) ?? $@"."}"""; }
+            if (!foldx_args2.Contains($@"--out-pdb=", StringComparison.Ordinal) && !string.Equals(foldx_command, $@"RepairPDB", StringComparison.OrdinalIgnoreCase)) { foldx_args2 += $@" --out-pdb=false"; }
 
             var start = new ProcessStartInfo { FileName = foldx_exe, WorkingDirectory = Path.GetDirectoryName(foldx_exe) ?? $@"", Arguments = foldx_args2, UseShellExecute = false, CreateNoWindow = false, RedirectStandardOutput = true, RedirectStandardError = true };
             var cmd_line = $@"""{start.FileName}"" {start.Arguments}";
@@ -382,14 +298,14 @@ namespace dimorphics_dataset
                         using (var reader = process.StandardOutput)
                         {
                             var stdout = reader.ReadToEnd();
-                            stdout = stdout.Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
+                            stdout = stdout.Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stdout)}: ", StringComparison.Ordinal);
                             if (!string.IsNullOrWhiteSpace(stdout))
                             {
                                 io_proxy.WriteLine($@"{module_name}.{method_name}: {nameof(stdout)}: {stdout}", module_name, method_name);
                             }
 
                             var stderr = process.StandardError.ReadToEnd();
-                            stderr = stderr.Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
+                            stderr = stderr.Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stderr)}: ", StringComparison.Ordinal);
                             if (!string.IsNullOrWhiteSpace(stderr))
                             {
                                 io_proxy.WriteLine($@"{module_name}.{method_name}: {nameof(stderr)}: {stderr}", module_name, method_name);
@@ -464,10 +380,7 @@ namespace dimorphics_dataset
         }
 
 
-        internal class foldx_energy_terms_ps : foldx_energy_terms
-        {
-            internal (char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3) mutation_positions_data;
-        }
+
 
         internal static (string cmd_line, string wait_filename, List<foldx_energy_terms_ps> data) load_foldx_buildmodel_position_scan((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool write_list = false)
         {
@@ -551,11 +464,11 @@ namespace dimorphics_dataset
             }
 
             var sd = false;
-            var marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\ttotal energy", StringComparison.InvariantCulture));
+            var marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\ttotal energy", StringComparison.Ordinal));
 
             if (marker_index < 0)
             {
-                marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\tSD\ttotal energy", StringComparison.InvariantCulture));
+                marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\tSD\ttotal energy", StringComparison.Ordinal));
 
                 if (marker_index > -1)
                 {
@@ -581,29 +494,29 @@ namespace dimorphics_dataset
                     mutation_positions_data = mutation_positions_data[i],
 
                     Pdb = b[j++],
-                    SD = sd ? double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture) : 0,
-                    total_energy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Backbone_Hbond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Sidechain_Hbond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Van_der_Waals = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Electrostatics = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Solvation_Polar = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Solvation_Hydrophobic = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Van_der_Waals_clashes = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    entropy_sidechain = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    entropy_mainchain = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    sloop_entropy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    mloop_entropy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    cis_bond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    torsional_clash = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    backbone_clash = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    helix_dipole = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    water_bridge = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    disulfide = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    electrostatic_kon = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    partial_covalent_bonds = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    energy_Ionisation = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Entropy_Complex = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture)
+                    SD = sd ? double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
+                    total_energy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Backbone_Hbond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Sidechain_Hbond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Van_der_Waals = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Electrostatics = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Solvation_Polar = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Solvation_Hydrophobic = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Van_der_Waals_clashes = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    entropy_sidechain = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    entropy_mainchain = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    sloop_entropy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    mloop_entropy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    cis_bond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    torsional_clash = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    backbone_clash = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    helix_dipole = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    water_bridge = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    disulfide = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    electrostatic_kon = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    partial_covalent_bonds = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    energy_Ionisation = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Entropy_Complex = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo)
 
                 };
 
@@ -616,12 +529,6 @@ namespace dimorphics_dataset
             }
 
             return (cmd_line, wait_filename, results);
-        }
-
-
-        internal class foldx_energy_terms_sm : foldx_energy_terms
-        {
-            internal List<(char original_amino_acid1, char chain_id, int residue_index, char mutant_foldx_amino_acid1, string mutant_foldx_amino_acid3, char mutant_standard_amino_acid1, string mutant_standard_amino_acid3)> mutation_positions_data;
         }
 
         internal static (string cmd_line, string wait_filename, List<foldx_energy_terms_sm> data) load_foldx_buildmodel_subsequence_mutant((string pdb_id, char chain_id, List<(int residue_index, char i_code, char amino_acid)> res_ids) interface_residues, bool run, bool save_list = false)
@@ -691,11 +598,11 @@ namespace dimorphics_dataset
             }
 
             var sd = false;
-            var marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\ttotal energy", StringComparison.InvariantCulture));
+            var marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\ttotal energy", StringComparison.Ordinal));
 
             if (marker_index < 0)
             {
-                marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\tSD\ttotal energy", StringComparison.InvariantCulture));
+                marker_index = foldx_result.ToList().FindIndex(a => a.StartsWith($"Pdb\tSD\ttotal energy", StringComparison.Ordinal));
 
                 if (marker_index > -1)
                 {
@@ -720,29 +627,29 @@ namespace dimorphics_dataset
                     res_ids = res_ids,
 
                     Pdb = b[j++],
-                    SD = sd ? double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture) : 0,
-                    total_energy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Backbone_Hbond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Sidechain_Hbond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Van_der_Waals = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Electrostatics = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Solvation_Polar = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Solvation_Hydrophobic = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Van_der_Waals_clashes = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    entropy_sidechain = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    entropy_mainchain = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    sloop_entropy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    mloop_entropy = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    cis_bond = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    torsional_clash = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    backbone_clash = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    helix_dipole = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    water_bridge = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    disulfide = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    electrostatic_kon = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    partial_covalent_bonds = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    energy_Ionisation = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture),
-                    Entropy_Complex = double.Parse(b[j++], NumberStyles.Float, CultureInfo.InvariantCulture)
+                    SD = sd ? double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
+                    total_energy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Backbone_Hbond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Sidechain_Hbond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Van_der_Waals = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Electrostatics = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Solvation_Polar = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Solvation_Hydrophobic = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Van_der_Waals_clashes = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    entropy_sidechain = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    entropy_mainchain = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    sloop_entropy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    mloop_entropy = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    cis_bond = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    torsional_clash = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    backbone_clash = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    helix_dipole = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    water_bridge = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    disulfide = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    electrostatic_kon = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    partial_covalent_bonds = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    energy_Ionisation = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo),
+                    Entropy_Complex = double.Parse(b[j++], NumberStyles.Float, NumberFormatInfo.InvariantInfo)
                 };
 
                 return foldx_energy_terms;
@@ -756,58 +663,6 @@ namespace dimorphics_dataset
 
 
             return (cmd_line, wait_filename, results);
-        }
-
-        internal class foldx_ala_scanning_result
-        {
-            // LYS 86 to ALA energy change is 0.0306484
-            // THR 87 to ALA energy change is -0.727468
-            // GLU 88 to ALA energy change is -0.923282
-
-            internal string pdb_id;
-            internal char chain_id;
-            internal int residue_index;
-
-            //internal string res_name;
-            //internal string scan_res_name;
-
-            internal char original_foldx_amino_acid_1;
-            internal string original_foldx_amino_acid_3;
-            internal char original_standard_amino_acid_1;
-            internal string original_standard_amino_acid_3;
-
-            internal char mutant_foldx_amino_acid_1;
-            internal string mutant_foldx_amino_acid_3;
-            internal char mutant_standard_amino_acid_1;
-            internal string mutant_standard_amino_acid_3;
-
-            internal double ddg;
-        }
-
-        internal class foldx_position_scanning_result
-        {
-            // FoldX --command=PositionScan --pdb-dir=c:\betastrands_dataset\pdb\ --pdb=1AJYA.pdb --positions MA30d
-
-            // META30M 0
-            // META30G 0.0440333
-            // META30A 0.000395327
-            // META30L -0.063261
-
-            internal string pdb_id;
-            internal char chain_id;
-            internal int residue_index;
-
-            internal char original_foldx_amino_acid_1;
-            internal string original_foldx_amino_acid_3;
-            internal char original_standard_amino_acid_1;
-            internal string original_standard_amino_acid_3;
-
-            internal char mutant_foldx_amino_acid_1;
-            internal string mutant_foldx_amino_acid_3;
-            internal char mutant_standard_amino_acid_1;
-            internal string mutant_standard_amino_acid_3;
-
-            internal double ddg;
         }
 
         internal static string fix_non_standard_naming(string res_name, bool fix)
@@ -824,12 +679,12 @@ namespace dimorphics_dataset
             {
                 if (res_name.Length == 3)
                 {
-                    var ri = foldx_residues.FindIndex(a => a.foldx_aa_code3 == res_name);
+                    var ri = foldx_residues.FindIndex(a => string.Equals(a.foldx_aa_code3, res_name, StringComparison.Ordinal));
                     if (ri > -1)
                     {
                         var r = foldx_residues[ri];
 
-                        if (r.foldx_aa_code3 != r.standard_aa_code3)
+                        if (!string.Equals(r.foldx_aa_code3, r.standard_aa_code3, StringComparison.Ordinal))
                         {
                             return r.standard_aa_code3;
                         }
@@ -921,27 +776,27 @@ namespace dimorphics_dataset
                 {
                     pdb_id = pdb_id,
                     chain_id = chain_id,
-                    residue_index = int.Parse(c[1], NumberStyles.Integer, CultureInfo.InvariantCulture),
+                    residue_index = int.Parse(c[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
 
                     //res_name = fix_non_standard_naming(c[0], fix_nsn),
 
-                    original_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code1,
-                    original_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.InvariantCultureIgnoreCase)).standard_aa_code1,
-                    original_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code3,
-                    original_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.InvariantCultureIgnoreCase)).standard_aa_code3,
+                    original_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.OrdinalIgnoreCase)).foldx_aa_code1,
+                    original_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.OrdinalIgnoreCase)).standard_aa_code1,
+                    original_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.OrdinalIgnoreCase)).foldx_aa_code3,
+                    original_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[0], StringComparison.OrdinalIgnoreCase)).standard_aa_code3,
 
-                    mutant_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code1,
-                    mutant_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.InvariantCultureIgnoreCase)).standard_aa_code1,
-                    mutant_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code3,
-                    mutant_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.InvariantCultureIgnoreCase)).standard_aa_code3,
+                    mutant_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.OrdinalIgnoreCase)).foldx_aa_code1,
+                    mutant_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.OrdinalIgnoreCase)).standard_aa_code1,
+                    mutant_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.OrdinalIgnoreCase)).foldx_aa_code3,
+                    mutant_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, c[3], StringComparison.OrdinalIgnoreCase)).standard_aa_code3,
 
 
-                    ddg = double.Parse(c[7], NumberStyles.Float, CultureInfo.InvariantCulture)
+                    ddg = double.Parse(c[7], NumberStyles.Float, NumberFormatInfo.InvariantInfo)
                 }).ToList();
 
 
 
-            results = results.Where(a => pdb_id == a.pdb_id && chain_id == a.chain_id).ToList();
+            results = results.Where(a => string.Equals(pdb_id, a.pdb_id, StringComparison.OrdinalIgnoreCase) && chain_id == a.chain_id).ToList();
 
             if (res_ids != null && res_ids.Count > 0)
             {
@@ -1003,21 +858,21 @@ namespace dimorphics_dataset
                         chain_id = chain_id,
 
 
-                        original_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code1,
-                        original_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.InvariantCultureIgnoreCase)).standard_aa_code1,
+                        original_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.OrdinalIgnoreCase)).foldx_aa_code1,
+                        original_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.OrdinalIgnoreCase)).standard_aa_code1,
 
-                        original_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.InvariantCultureIgnoreCase)).foldx_aa_code3,
-                        original_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.InvariantCultureIgnoreCase)).standard_aa_code3,
+                        original_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.OrdinalIgnoreCase)).foldx_aa_code3,
+                        original_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => string.Equals(a.foldx_aa_code3, line[0].Substring(0, 3), StringComparison.OrdinalIgnoreCase)).standard_aa_code3,
 
                         mutant_foldx_amino_acid_1 = foldx_residues_aa_mutable.First(a => a.foldx_aa_code1.Equals(line[0][^1])).foldx_aa_code1,
                         mutant_standard_amino_acid_1 = foldx_residues_aa_mutable.First(a => a.foldx_aa_code1.Equals(line[0][^1])).standard_aa_code1,
                         mutant_foldx_amino_acid_3 = foldx_residues_aa_mutable.First(a => a.foldx_aa_code1.Equals(line[0][^1])).foldx_aa_code3,
                         mutant_standard_amino_acid_3 = foldx_residues_aa_mutable.First(a => a.foldx_aa_code1.Equals(line[0][^1])).standard_aa_code3,
 
-                        //residue_index = int.Parse(line[0].Substring(4, line[0].Length - 5), NumberStyles.Integer, CultureInfo.InvariantCulture),
-                        residue_index = int.Parse(line[0][4..^1], NumberStyles.Integer, CultureInfo.InvariantCulture),
+                        //residue_index = int.Parse(line[0].Substring(4, line[0].Length - 5), NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
+                        residue_index = int.Parse(line[0][4..^1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
                         //res_mutant_aa = line[0][line[0].Length - 1],
-                        ddg = double.Parse(line[1], NumberStyles.Float, CultureInfo.InvariantCulture)
+                        ddg = double.Parse(line[1], NumberStyles.Float, NumberFormatInfo.InvariantInfo)
                     };
                 }).ToList();
             }

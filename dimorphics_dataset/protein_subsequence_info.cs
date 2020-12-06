@@ -41,14 +41,14 @@ namespace dimorphics_dataset
                 var j = 0;
                 return new protein_subsequence_info()
                 {
-                    class_id = int.Parse(b[j++], NumberStyles.Integer, CultureInfo.InvariantCulture),
+                    class_id = int.Parse(b[j++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
                     class_name = b[j++],
                     dimer_type = b[j++],
                     parallelism = b[j++],
                     symmetry_mode = b[j++],
                     pdb_id = b[j++],
                     chain_id = b[j++][0],
-                    res_ids = b[j++].Split(';').Select(c => (res_id: int.Parse(c.Substring(2), NumberStyles.Integer, CultureInfo.InvariantCulture), i_code: c[1], amino_acid: c[0])).ToList(),
+                    res_ids = b[j++].Split(';').Select(c => (res_id: int.Parse(c.Substring(2), NumberStyles.Integer, NumberFormatInfo.InvariantInfo), i_code: c[1], amino_acid: c[0])).ToList(),
                     aa_subsequence = b[j++],
                     //aa_before = b[j++],
                     //aa_after = b[j++],

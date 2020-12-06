@@ -147,7 +147,7 @@ namespace dimorphics_dataset
 
             // f_([1i]_[1n.aaindex]_[1n.dfdsf]_[1p])_(+1)_(dimorphic_coil).csv
 
-            return string.Join($@"_", x.Select(a=> $"[{a}]").ToArray());
+            return string.Join($@"_", x.Select(a => $"[{a}]").ToArray());
         }
 
 
@@ -219,11 +219,11 @@ namespace dimorphics_dataset
         internal feature_types_2d feature_types_2d_interface = new feature_types_2d(enum_protein_data_source.interface_2d, false);
         internal feature_types_2d feature_types_2d_neighbourhood = new feature_types_2d(enum_protein_data_source.neighbourhood_2d, false);
         internal feature_types_2d feature_types_2d_chain = new feature_types_2d(enum_protein_data_source.chain_2d, false);
-        
+
         internal feature_types_3d feature_types_3d_interface = new feature_types_3d(enum_protein_data_source.interface_3d, false);
         internal feature_types_3d feature_types_3d_neighbourhood = new feature_types_3d(enum_protein_data_source.neighbourhood_3d, false);
         internal feature_types_3d feature_types_3d_chain = new feature_types_3d(enum_protein_data_source.chain_3d, false);
-        
+
 
 
         internal cmd_params(string[] args)
@@ -267,7 +267,7 @@ namespace dimorphics_dataset
             known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3n}.{a}").ToArray());
             known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3p}.{a}").ToArray());
 
-            var unknown_params = param_list.Where(a => known_params.All(b => !string.Equals(a.key, b, StringComparison.InvariantCultureIgnoreCase))).Select(a => a.key).ToArray();
+            var unknown_params = param_list.Where(a => known_params.All(b => !string.Equals(a.key, b, StringComparison.OrdinalIgnoreCase))).Select(a => a.key).ToArray();
 
             if (unknown_params != null && unknown_params.Length > 0)
             {
@@ -275,7 +275,7 @@ namespace dimorphics_dataset
             }
 
 
-            if (param_list.Count == 0) 
+            if (param_list.Count == 0)
             {
                 var classes = new[] { (class_id: +1, class_name: dimorphic_coil), (class_id: -1, class_name: standard_coil) };
                 var output_folder = @"e:\dataset\";
@@ -295,9 +295,9 @@ namespace dimorphics_dataset
                         var stderr_file = Path.Combine(output_folder, $@"stderr_{defined_area}_({(b.class_id > 0 ? $@"+" : $@"")}{b.class_id})_({b.class_name}).txt");
 
                         string[] keys;
-                        if (new string[] {area1i, area1n, area1p}.Any(a => string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_1d.keys.Select(a => $"{defined_area}.{a}").ToArray();
-                        else if (new string[] {area2i,area2n,area2p}.Any(a=> string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_2d.keys.Select(a => $"{defined_area}.{a}").ToArray();
-                        else if (new string[] {area3i,area3n,area3p}.Any(a=> string.Equals(a, defined_area, StringComparison.InvariantCultureIgnoreCase))) keys = feature_types_3d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        if (new string[] { area1i, area1n, area1p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_1d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        else if (new string[] { area2i, area2n, area2p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_2d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        else if (new string[] { area3i, area3n, area3p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_3d.keys.Select(a => $"{defined_area}.{a}").ToArray();
                         else throw new Exception();
 
                         io_proxy.WriteLine($@"{exe} -{defined_area}=true {string.Join($@" ", keys.Select(a => $"-{a}=true").ToArray())} -{nameof(use_dssp3)}=true -{nameof(class_id)}={(b.class_id > 0 ? $@"+" : $@"")}{b.class_id} -{nameof(class_name)}={b.class_name} -{nameof(min_sequence_length)}=3 -{nameof(max_features)}=100 -{nameof(output_folder)}={output_folder} -{nameof(use_children)}=true -{nameof(verbose)}=true [-{nameof(first_index)}=[i] -{nameof(last_index)}=[j]] 1> {stdout_file} 2> {stderr_file}");
@@ -312,68 +312,68 @@ namespace dimorphics_dataset
                 //throw new Exception($@"No {nameof(args)} specified.");
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area1i, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area1i, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area1i, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_1d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area1i, StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area1n, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area1n, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area1n, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_1d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area1n, StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area1p, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area1p, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area1p, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_1d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area1p, StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area2i, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area2i, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area2i, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_2d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area2i, StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area2n, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area2n, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area2n, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_2d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area2n, StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area2p, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area2p, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area2p, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_2d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area2p, StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area3i, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area3i, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area3i, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_3d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area3i, StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area3n, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area3n, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area3n, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_3d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area3n, StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
-            if (param_list.Any(a => string.Equals(a.key, area3p, StringComparison.InvariantCultureIgnoreCase)))
+            if (param_list.Any(a => string.Equals(a.key, area3p, StringComparison.OrdinalIgnoreCase)))
             {
-                var v = param_list.First(a => string.Equals(a.key, area3p, StringComparison.InvariantCultureIgnoreCase));
-                feature_types_3d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(v.value, "true", StringComparison.InvariantCultureIgnoreCase));
+                var v = param_list.First(a => string.Equals(a.key, area3p, StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
             }
 
             feature_types_1d_interface
               .set_enable(param_list
-                  .Where(a => a.key.StartsWith($"{area1i}.", StringComparison.InvariantCultureIgnoreCase) &&
+                  .Where(a => a.key.StartsWith($"{area1i}.", StringComparison.OrdinalIgnoreCase) &&
                               feature_types_1d.keys.Contains(a.key.Substring($"{area1i}.".Length))
                   )
                   .Select(a =>
                       (
-                          enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                          enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                           name: a.key.Substring($"{area1i}.".Length)
                       )
                   )
@@ -382,12 +382,12 @@ namespace dimorphics_dataset
 
             feature_types_1d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area1n}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area1n}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_1d.keys.Contains(a.key.Substring($"{area1n}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area1n}.".Length)
                         )
                     )
@@ -397,12 +397,12 @@ namespace dimorphics_dataset
 
             feature_types_1d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area1p}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area1p}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_1d.keys.Contains(a.key.Substring($"{area1p}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area1p}.".Length)
                         )
                     )
@@ -411,12 +411,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_interface
                      .set_enable(param_list
-                         .Where(a => a.key.StartsWith($"{area2i}.", StringComparison.InvariantCultureIgnoreCase) &&
+                         .Where(a => a.key.StartsWith($"{area2i}.", StringComparison.OrdinalIgnoreCase) &&
                                      feature_types_2d.keys.Contains(a.key.Substring($"{area2i}.".Length))
                          )
                          .Select(a =>
                              (
-                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                                  name: a.key.Substring($"{area2i}.".Length)
                              )
                          )
@@ -425,12 +425,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area2n}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area2n}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_2d.keys.Contains(a.key.Substring($"{area2n}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area2n}.".Length)
                         )
                     )
@@ -440,12 +440,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area2p}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area2p}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_2d.keys.Contains(a.key.Substring($"{area2p}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area2p}.".Length)
                         )
                     )
@@ -455,12 +455,12 @@ namespace dimorphics_dataset
 
             feature_types_3d_interface
                      .set_enable(param_list
-                         .Where(a => a.key.StartsWith($"{area3i}.", StringComparison.InvariantCultureIgnoreCase) &&
+                         .Where(a => a.key.StartsWith($"{area3i}.", StringComparison.OrdinalIgnoreCase) &&
                                      feature_types_3d.keys.Contains(a.key.Substring($"{area3i}.".Length))
                          )
                          .Select(a =>
                              (
-                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                                  name: a.key.Substring($"{area3i}.".Length)
                              )
                          )
@@ -469,12 +469,12 @@ namespace dimorphics_dataset
 
             feature_types_3d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area3n}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area3n}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_3d.keys.Contains(a.key.Substring($"{area3n}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area3n}.".Length)
                         )
                     )
@@ -484,44 +484,105 @@ namespace dimorphics_dataset
 
             feature_types_3d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area3p}.", StringComparison.InvariantCultureIgnoreCase) &&
+                    .Where(a => a.key.StartsWith($"{area3p}.", StringComparison.OrdinalIgnoreCase) &&
                                 feature_types_3d.keys.Contains(a.key.Substring($"{area3p}.".Length))
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.InvariantCultureIgnoreCase) || string.Equals(a.value, "true", StringComparison.InvariantCultureIgnoreCase)),
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
                             name: a.key.Substring($"{area3p}.".Length)
                         )
                     )
                     .ToArray()
                 );
 
-            
 
 
-            //if (param_list.Any(a => string.Equals(a.key, nameof(area), StringComparison.InvariantCultureIgnoreCase))) area = param_list.FirstOrDefault(z => z.key == nameof(area)).value?.ToLowerInvariant().Split(new char[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries).SelectMany(a => a.Select((b, i) => i % 2 == 0 && i < a.Length - 1 ? a.Substring(i, 2) : $@"").Where(b => !string.IsNullOrWhiteSpace(b)).ToList()).OrderBy(a => a).ToArray() ?? null;
-            if (param_list.Any(a => string.Equals(a.key, nameof(use_dssp3), StringComparison.InvariantCultureIgnoreCase))) use_dssp3 = bool.Parse(param_list.FirstOrDefault(z => z.key == nameof(use_dssp3)).value);
-            if (param_list.Any(a => string.Equals(a.key, nameof(class_id), StringComparison.InvariantCultureIgnoreCase))) class_id = int.Parse(param_list.FirstOrDefault(z => z.key == nameof(class_id)).value, NumberStyles.Integer, CultureInfo.InvariantCulture);
-            if (param_list.Any(a => string.Equals(a.key, nameof(class_name), StringComparison.InvariantCultureIgnoreCase))) class_name = param_list.FirstOrDefault(z => z.key == nameof(class_name)).value?.ToLowerInvariant();
-            if (param_list.Any(a => string.Equals(a.key, nameof(min_sequence_length), StringComparison.InvariantCultureIgnoreCase))) min_sequence_length = int.Parse(param_list.FirstOrDefault(z => z.key == nameof(min_sequence_length)).value, NumberStyles.Integer, CultureInfo.InvariantCulture);
-            if (param_list.Any(a => string.Equals(a.key, nameof(max_features), StringComparison.InvariantCultureIgnoreCase))) max_features = int.Parse(param_list.FirstOrDefault(z => z.key == nameof(max_features)).value, NumberStyles.Integer, CultureInfo.InvariantCulture);
-            if (param_list.Any(a => string.Equals(a.key, nameof(output_folder), StringComparison.InvariantCultureIgnoreCase))) output_folder = param_list.FirstOrDefault(z => z.key == nameof(output_folder)).value;
-            if (param_list.Any(a => string.Equals(a.key, nameof(first_index), StringComparison.InvariantCultureIgnoreCase))) first_index = int.TryParse(param_list.FirstOrDefault(z => z.key == nameof(first_index)).value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var tp_first_index) ? tp_first_index : (int?)null;
-            if (param_list.Any(a => string.Equals(a.key, nameof(last_index), StringComparison.InvariantCultureIgnoreCase))) last_index = int.TryParse(param_list.FirstOrDefault(z => z.key == nameof(last_index)).value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var tp_last_index) ? tp_last_index : (int?)null;
-            if (param_list.Any(a => string.Equals(a.key, nameof(verbose), StringComparison.InvariantCultureIgnoreCase))) verbose = bool.TryParse(param_list.FirstOrDefault(z => z.key == nameof(verbose)).value, out var tp_verbose) ? tp_verbose : (bool?)null;
-            if (param_list.Any(a => string.Equals(a.key, nameof(use_children), StringComparison.InvariantCultureIgnoreCase))) use_children = bool.TryParse(param_list.FirstOrDefault(z => z.key == nameof(use_children)).value, out var tp_use_children) ? tp_use_children : (bool?)null;
+
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(use_dssp3), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                use_dssp3 = bool.Parse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(use_dssp3), StringComparison.OrdinalIgnoreCase)).value);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(use_dssp3)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(class_id), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                class_id = int.Parse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(class_id), StringComparison.OrdinalIgnoreCase)).value, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(class_id)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(class_name), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                class_name = param_list.FirstOrDefault(z => string.Equals(z.key, nameof(class_name), StringComparison.OrdinalIgnoreCase)).value?.ToLowerInvariant();
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(class_name)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(min_sequence_length), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                min_sequence_length = int.Parse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(min_sequence_length), StringComparison.OrdinalIgnoreCase)).value, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(min_sequence_length)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(max_features), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                max_features = int.Parse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(max_features), StringComparison.OrdinalIgnoreCase)).value, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(max_features)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(output_folder), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                output_folder = param_list.FirstOrDefault(z => string.Equals(z.key, nameof(output_folder), StringComparison.OrdinalIgnoreCase)).value;
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(output_folder)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(first_index), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                first_index = int.TryParse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(first_index), StringComparison.OrdinalIgnoreCase)).value, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out var tp_first_index) ? tp_first_index : (int?)null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(last_index), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                last_index = int.TryParse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(last_index), StringComparison.OrdinalIgnoreCase)).value, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out var tp_last_index) ? tp_last_index : (int?)null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(verbose), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                verbose = bool.TryParse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(verbose), StringComparison.OrdinalIgnoreCase)).value, out var tp_verbose) ? tp_verbose : (bool?)null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(use_children), StringComparison.OrdinalIgnoreCase)).value))
+            {
+                use_children = bool.TryParse(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(use_children), StringComparison.OrdinalIgnoreCase)).value, out var tp_use_children) ? tp_use_children : (bool?)null;
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(use_children)}");
+            }
 
 
             verbose ??= (first_index == null && last_index == null);
             first_index ??= last_index;
             last_index ??= first_index;
             use_children ??= true;
-
-            //if (args_list.Any())
-            //{
-            //    io_proxy.WriteLine($@"Args unknown: {string.Join($@" ", args_list)}", nameof(program), nameof(cmd_params));
-            //    Environment.Exit(0);
-            //}
 
 
             if (first_index == null && last_index == null)
@@ -547,7 +608,7 @@ namespace dimorphics_dataset
                 io_proxy.WriteLine();
 
                 feature_types_1d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
-                
+
                 io_proxy.WriteLine();
 
                 feature_types_1d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
@@ -577,14 +638,7 @@ namespace dimorphics_dataset
                 feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
             }
 
-            //if (area == null || area.Any(string.IsNullOrWhiteSpace)) throw new ArgumentNullException(nameof(args), nameof(area));
-            //if (area.Except(defined_areas).Any()) throw new ArgumentOutOfRangeException(nameof(args), nameof(area));
-            if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(use_dssp3)).value)) throw new ArgumentNullException(nameof(args), nameof(use_dssp3));
-            if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(class_id)).value)) throw new ArgumentNullException(nameof(args), nameof(class_id));
-            if (string.IsNullOrWhiteSpace(class_name)) throw new ArgumentNullException(nameof(args), nameof(class_name));
-            if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(min_sequence_length)).value)) throw new ArgumentNullException(nameof(args), nameof(min_sequence_length));
-            if (string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => a.key == nameof(max_features)).value)) throw new ArgumentNullException(nameof(args), nameof(max_features));
-            if (string.IsNullOrWhiteSpace(output_folder)) throw new ArgumentNullException(nameof(args), nameof(output_folder));
+
 
 
             parse_ok = true;
@@ -605,17 +659,17 @@ namespace dimorphics_dataset
     area = area.SelectMany(a => a.Split(new char[] { ' ', ';', ',', '-', '|' }, StringSplitOptions.RemoveEmptyEntries)).Where(a => !string.IsNullOrWhiteSpace(a)).ToArray();
 
 
-    var do_1d_interface = area?.Any(a => string.Equals(a, cmd_params.area1i, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_1d_nh = area?.Any(a => string.Equals(a, cmd_params.area1n, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_1d_protein = area?.Any(a => string.Equals(a, cmd_params.area1p, StringComparison.InvariantCultureIgnoreCase)) ?? false;
+    var do_1d_interface = area?.Any(a => string.Equals(a, cmd_params.area1i, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_1d_nh = area?.Any(a => string.Equals(a, cmd_params.area1n, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_1d_protein = area?.Any(a => string.Equals(a, cmd_params.area1p, StringComparison.OrdinalIgnoreCase)) ?? false;
 
-    var do_2d_interface = area?.Any(a => string.Equals(a, cmd_params.area2i, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_2d_nh = area?.Any(a => string.Equals(a, cmd_params.area2n, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_2d_protein = area?.Any(a => string.Equals(a, cmd_params.area2p, StringComparison.InvariantCultureIgnoreCase)) ?? false;
+    var do_2d_interface = area?.Any(a => string.Equals(a, cmd_params.area2i, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_2d_nh = area?.Any(a => string.Equals(a, cmd_params.area2n, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_2d_protein = area?.Any(a => string.Equals(a, cmd_params.area2p, StringComparison.OrdinalIgnoreCase)) ?? false;
 
-    var do_3d_interface = area?.Any(a => string.Equals(a, cmd_params.area3i, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_3d_nh = area?.Any(a => string.Equals(a, cmd_params.area3n, StringComparison.InvariantCultureIgnoreCase)) ?? false;
-    var do_3d_protein = area?.Any(a => string.Equals(a, cmd_params.area3p, StringComparison.InvariantCultureIgnoreCase)) ?? false;
+    var do_3d_interface = area?.Any(a => string.Equals(a, cmd_params.area3i, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_3d_nh = area?.Any(a => string.Equals(a, cmd_params.area3n, StringComparison.OrdinalIgnoreCase)) ?? false;
+    var do_3d_protein = area?.Any(a => string.Equals(a, cmd_params.area3p, StringComparison.OrdinalIgnoreCase)) ?? false;
 
 
     var feature_types = new feature_types()

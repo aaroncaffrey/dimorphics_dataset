@@ -47,7 +47,7 @@ namespace protr_server
                     library(protr)
                 ";
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.Ordinal)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -104,8 +104,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{ds_stat.lambda}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{ds_stat.lambda}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -116,8 +116,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{ds_stat.submat}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{ds_stat.submat}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -128,8 +128,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -140,8 +140,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -152,8 +152,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -164,8 +164,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -176,8 +176,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -188,8 +188,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -200,8 +200,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{ds_stat.propmat}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{ds_stat.propmat}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -212,8 +212,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{ds_stat.factors}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{ds_stat.factors}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -224,8 +224,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -236,8 +236,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -248,8 +248,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -260,8 +260,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -272,8 +272,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{ds_stat.lambda}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{ds_stat.lambda}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -284,8 +284,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -296,8 +296,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -308,8 +308,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{ds_stat.nlag}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{ds_stat.nlag}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -320,8 +320,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -332,8 +332,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -344,8 +344,8 @@ namespace protr_server
                         stats = "", dimension = 1,
                         category = $@"{nameof(r_protr)}",
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.InvariantCulture),
+                        @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
+                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
                         perspective = $@"default",
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
@@ -917,7 +917,7 @@ namespace protr_server
                                 var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                                 var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
-                                var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                                var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                                 pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
                             }
@@ -1021,7 +1021,7 @@ namespace protr_server
                         var factors_col_labels = values_output[22].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         var factors_rows = values_output.Skip(23).Take(3).Select(a => a.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).ToList();
                         var factors_row_labels = factors_rows.Select(a => string.Join($@" ", a.Take(a.Length - factors_col_labels.Length).ToList())).ToList();
-                        var factors_row_values = factors_rows.Select(a => a.Skip(a.Length - factors_col_labels.Length).Select(b => double.Parse(b, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList()).ToList();
+                        var factors_row_values = factors_rows.Select(a => a.Skip(a.Length - factors_col_labels.Length).Select(b => double.Parse(b, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList()).ToList();
 
                         var factors_list = new List<(string row_name, string col_name, double value)>();
                         for (var r = 0; r < factors_row_labels.Count; r++)
@@ -1033,8 +1033,8 @@ namespace protr_server
                         }
                         //var values_output2 = values_output[0,]
 
-                        var chi_sq = double.Parse(values_output[28].Split()[5], NumberStyles.Float, CultureInfo.InvariantCulture);
-                        var p_value = double.Parse(values_output[29].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last(), NumberStyles.Float, CultureInfo.InvariantCulture);
+                        var chi_sq = double.Parse(values_output[28].Split()[5], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
+                        var p_value = double.Parse(values_output[29].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last(), NumberStyles.Float, NumberFormatInfo.InvariantInfo);
 
                         list.AddRange(names.Select((a, i) => (name: a, factors: factors, lag: lag, factors_list: factors_list, chi_sq: chi_sq, p_value: p_value, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                     }
@@ -1176,7 +1176,7 @@ namespace protr_server
                         var rm2 = engine.Evaluate($@"rm({vr_name_tprops})");
                         var rm3 = engine.Evaluate($@"rm({vr_name_output})");
 
-                        var scaling_eigenvalues = values_output.Skip(1).SelectMany(a => a.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(b => double.Parse(b, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray()).ToArray();
+                        var scaling_eigenvalues = values_output.Skip(1).SelectMany(a => a.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(b => double.Parse(b, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToArray()).ToArray();
 
                         if (names.Length != values.Length) throw new Exception();
 
@@ -1514,7 +1514,7 @@ namespace protr_server
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                             var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
-                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
                         }
@@ -1612,7 +1612,7 @@ namespace protr_server
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                             var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
-                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
                         }
@@ -1846,7 +1846,7 @@ namespace protr_server
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                             var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
-                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
                         }
@@ -1948,7 +1948,7 @@ namespace protr_server
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                             var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
-                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                            var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
                         }

@@ -15,7 +15,7 @@ namespace dimorphics_dataset
             var pdb_atoms = atom.load_atoms_pdb
                 (
                 pdb_id:pdb_id,
-                new atom.load_atoms_pdb_options()
+                new load_atoms_pdb_options()
                 { 
                     find_3d_intramolecular=false,
 
@@ -37,7 +37,7 @@ namespace dimorphics_dataset
 
             var chain_id_filter = dataset_gen_dimorphic.get_chain_id_from_chain_number(pdb_atoms, chain_number);
 
-            pdb_atoms = pdb_atoms.Where(a => string.Equals(a.pdb_id, pdb_id, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            pdb_atoms = pdb_atoms.Where(a => string.Equals(a.pdb_id, pdb_id, StringComparison.OrdinalIgnoreCase)).ToList();
             
             pdb_atoms = pdb_atoms.Where(a => a.chain_id == chain_id_filter).ToList();
 
@@ -165,7 +165,7 @@ namespace dimorphics_dataset
             {
                 var chain_seqs = atom.amino_acid_sequence(null, pdb_atoms);
 
-                if (chain_seqs.Any(a => chain_seqs.Any(b => a != b && (a.aa_sequence.Contains(b.aa_sequence, StringComparison.InvariantCulture) || b.aa_sequence.Contains(a.aa_sequence, StringComparison.InvariantCulture)))))
+                if (chain_seqs.Any(a => chain_seqs.Any(b => a != b && (a.aa_sequence.Contains(b.aa_sequence, StringComparison.Ordinal) || b.aa_sequence.Contains(a.aa_sequence, StringComparison.Ordinal)))))
                 {
                     pdb_coils = pdb_coils.GroupBy(scd => (scd.pdb_id, /*scd.chain_id,*/ scd.aa_subsequence))
                         .Select(group => group.First()).Distinct().ToList();

@@ -38,15 +38,15 @@ namespace dimorphics_dataset
 
         internal void set_enable(bool enable, string name = null)
         {
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(pse_aac), StringComparison.InvariantCultureIgnoreCase)) pse_aac = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(sable), StringComparison.InvariantCultureIgnoreCase)) sable = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(blast_pssm), StringComparison.InvariantCultureIgnoreCase)) blast_pssm = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(aaindex), StringComparison.InvariantCultureIgnoreCase)) aaindex = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(geometry), StringComparison.InvariantCultureIgnoreCase)) geometry = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(iupred2a), StringComparison.InvariantCultureIgnoreCase)) iupred2a = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(stackdppred), StringComparison.InvariantCultureIgnoreCase)) stackdppred = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(r_peptides), StringComparison.InvariantCultureIgnoreCase)) r_peptides = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(r_protr), StringComparison.InvariantCultureIgnoreCase)) r_protr = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(pse_aac), StringComparison.OrdinalIgnoreCase)) pse_aac = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(sable), StringComparison.OrdinalIgnoreCase)) sable = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(blast_pssm), StringComparison.OrdinalIgnoreCase)) blast_pssm = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(aaindex), StringComparison.OrdinalIgnoreCase)) aaindex = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(geometry), StringComparison.OrdinalIgnoreCase)) geometry = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(iupred2a), StringComparison.OrdinalIgnoreCase)) iupred2a = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(stackdppred), StringComparison.OrdinalIgnoreCase)) stackdppred = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(r_peptides), StringComparison.OrdinalIgnoreCase)) r_peptides = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(r_protr), StringComparison.OrdinalIgnoreCase)) r_protr = enable;
         }
 
         internal void set_enable((bool enable, string name)[] items)

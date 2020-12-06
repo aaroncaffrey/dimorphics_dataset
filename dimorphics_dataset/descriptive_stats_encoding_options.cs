@@ -255,34 +255,34 @@ namespace dimorphics_dataset
 
             for (var i = 0; i < names.Length; i++)
             {
-                if (string.Equals(names[i], nameof(count), StringComparison.InvariantCultureIgnoreCase)) count = enable;
-                else if (string.Equals(names[i], nameof(count_zero_values), StringComparison.InvariantCultureIgnoreCase)) count_zero_values = enable;
-                else if (string.Equals(names[i], nameof(count_non_zero_values), StringComparison.InvariantCultureIgnoreCase)) count_non_zero_values = enable;
-                else if (string.Equals(names[i], nameof(count_distinct_values), StringComparison.InvariantCultureIgnoreCase)) count_distinct_values = enable;
-                else if (string.Equals(names[i], nameof(sum), StringComparison.InvariantCultureIgnoreCase)) sum = enable;
-                else if (string.Equals(names[i], nameof(mean_arithmetic), StringComparison.InvariantCultureIgnoreCase)) mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mean_geometric), StringComparison.InvariantCultureIgnoreCase)) mean_geometric = enable;
-                else if (string.Equals(names[i], nameof(mean_harmonic), StringComparison.InvariantCultureIgnoreCase)) mean_harmonic = enable;
-                else if (string.Equals(names[i], nameof(min), StringComparison.InvariantCultureIgnoreCase)) min = enable;
-                else if (string.Equals(names[i], nameof(max), StringComparison.InvariantCultureIgnoreCase)) max = enable;
-                else if (string.Equals(names[i], nameof(range), StringComparison.InvariantCultureIgnoreCase)) range = enable;
-                else if (string.Equals(names[i], nameof(mid_range), StringComparison.InvariantCultureIgnoreCase)) mid_range = enable;
-                else if (string.Equals(names[i], nameof(variance), StringComparison.InvariantCultureIgnoreCase)) variance = enable;
-                else if (string.Equals(names[i], nameof(dev_standard), StringComparison.InvariantCultureIgnoreCase)) dev_standard = enable;
-                else if (string.Equals(names[i], nameof(root_mean_square), StringComparison.InvariantCultureIgnoreCase)) root_mean_square = enable;
-                else if (string.Equals(names[i], nameof(skewness), StringComparison.InvariantCultureIgnoreCase)) skewness = enable;
-                else if (string.Equals(names[i], nameof(kurtosis), StringComparison.InvariantCultureIgnoreCase)) kurtosis = enable;
-                else if (string.Equals(names[i], nameof(interquartile_range), StringComparison.InvariantCultureIgnoreCase)) interquartile_range = enable;
-                else if (string.Equals(names[i], nameof(median_q1), StringComparison.InvariantCultureIgnoreCase)) median_q1 = enable;
-                else if (string.Equals(names[i], nameof(median_q2), StringComparison.InvariantCultureIgnoreCase)) median_q2 = enable;
-                else if (string.Equals(names[i], nameof(median_q3), StringComparison.InvariantCultureIgnoreCase)) median_q3 = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_arithmetic), StringComparison.InvariantCultureIgnoreCase)) mad_mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_harmonic), StringComparison.InvariantCultureIgnoreCase)) mad_mean_harmonic = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_geometric), StringComparison.InvariantCultureIgnoreCase)) mad_mean_geometric = enable;
-                else if (string.Equals(names[i], nameof(mad_median_q1), StringComparison.InvariantCultureIgnoreCase)) mad_median_q1 = enable;
-                else if (string.Equals(names[i], nameof(mad_median_q2), StringComparison.InvariantCultureIgnoreCase)) mad_median_q2 = enable;
-                else if (string.Equals(names[i], nameof(mad_median_q3), StringComparison.InvariantCultureIgnoreCase)) mad_median_q3 = enable;
-                else if (string.Equals(names[i], nameof(mad_mid_range), StringComparison.InvariantCultureIgnoreCase)) mad_mid_range = enable;
+                if (string.Equals(names[i], nameof(count), StringComparison.OrdinalIgnoreCase)) count = enable;
+                else if (string.Equals(names[i], nameof(count_zero_values), StringComparison.OrdinalIgnoreCase)) count_zero_values = enable;
+                else if (string.Equals(names[i], nameof(count_non_zero_values), StringComparison.OrdinalIgnoreCase)) count_non_zero_values = enable;
+                else if (string.Equals(names[i], nameof(count_distinct_values), StringComparison.OrdinalIgnoreCase)) count_distinct_values = enable;
+                else if (string.Equals(names[i], nameof(sum), StringComparison.OrdinalIgnoreCase)) sum = enable;
+                else if (string.Equals(names[i], nameof(mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mean_arithmetic = enable;
+                else if (string.Equals(names[i], nameof(mean_geometric), StringComparison.OrdinalIgnoreCase)) mean_geometric = enable;
+                else if (string.Equals(names[i], nameof(mean_harmonic), StringComparison.OrdinalIgnoreCase)) mean_harmonic = enable;
+                else if (string.Equals(names[i], nameof(min), StringComparison.OrdinalIgnoreCase)) min = enable;
+                else if (string.Equals(names[i], nameof(max), StringComparison.OrdinalIgnoreCase)) max = enable;
+                else if (string.Equals(names[i], nameof(range), StringComparison.OrdinalIgnoreCase)) range = enable;
+                else if (string.Equals(names[i], nameof(mid_range), StringComparison.OrdinalIgnoreCase)) mid_range = enable;
+                else if (string.Equals(names[i], nameof(variance), StringComparison.OrdinalIgnoreCase)) variance = enable;
+                else if (string.Equals(names[i], nameof(dev_standard), StringComparison.OrdinalIgnoreCase)) dev_standard = enable;
+                else if (string.Equals(names[i], nameof(root_mean_square), StringComparison.OrdinalIgnoreCase)) root_mean_square = enable;
+                else if (string.Equals(names[i], nameof(skewness), StringComparison.OrdinalIgnoreCase)) skewness = enable;
+                else if (string.Equals(names[i], nameof(kurtosis), StringComparison.OrdinalIgnoreCase)) kurtosis = enable;
+                else if (string.Equals(names[i], nameof(interquartile_range), StringComparison.OrdinalIgnoreCase)) interquartile_range = enable;
+                else if (string.Equals(names[i], nameof(median_q1), StringComparison.OrdinalIgnoreCase)) median_q1 = enable;
+                else if (string.Equals(names[i], nameof(median_q2), StringComparison.OrdinalIgnoreCase)) median_q2 = enable;
+                else if (string.Equals(names[i], nameof(median_q3), StringComparison.OrdinalIgnoreCase)) median_q3 = enable;
+                else if (string.Equals(names[i], nameof(mad_mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mad_mean_arithmetic = enable;
+                else if (string.Equals(names[i], nameof(mad_mean_harmonic), StringComparison.OrdinalIgnoreCase)) mad_mean_harmonic = enable;
+                else if (string.Equals(names[i], nameof(mad_mean_geometric), StringComparison.OrdinalIgnoreCase)) mad_mean_geometric = enable;
+                else if (string.Equals(names[i], nameof(mad_median_q1), StringComparison.OrdinalIgnoreCase)) mad_median_q1 = enable;
+                else if (string.Equals(names[i], nameof(mad_median_q2), StringComparison.OrdinalIgnoreCase)) mad_median_q2 = enable;
+                else if (string.Equals(names[i], nameof(mad_median_q3), StringComparison.OrdinalIgnoreCase)) mad_median_q3 = enable;
+                else if (string.Equals(names[i], nameof(mad_mid_range), StringComparison.OrdinalIgnoreCase)) mad_mid_range = enable;
             }
         }
 

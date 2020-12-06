@@ -1,7 +1,3 @@
-C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.AssemblyInfoInputs.cache
-C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.AssemblyInfo.cs
-C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.csproj.CoreCompileInputs.cache
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.exe
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.deps.json
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.runtimeconfig.json
@@ -10,6 +6,10 @@ C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\ref\dimorphics_dataset.dll
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.pdb
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\Newtonsoft.Json.dll
+C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.AssemblyInfoInputs.cache
+C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.AssemblyInfo.cs
+C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.csproj.CoreCompileInputs.cache
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.csproj.CopyComplete
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\dimorphics_dataset.dll
 C:\Users\Aaron\Desktop\dimorphics_dataset\dimorphics_dataset\obj\x64\Release\net5.0\ref\dimorphics_dataset.dll

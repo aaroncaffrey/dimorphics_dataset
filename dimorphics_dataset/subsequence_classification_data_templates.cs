@@ -4,7 +4,7 @@ namespace dimorphics_dataset
 {
     internal static class subsequence_classification_data_templates
     {
-        internal static readonly List<(string name, List<info_aaindex.info_aaindex_entry> list)> _aaindex_subset_templates = subsequence_classification_data_methods.aaindex_subset_templates_search();
+        internal static readonly List<(string name, List<info_aaindex_entry> list)> _aaindex_subset_templates = subsequence_classification_data_methods.aaindex_subset_templates_search();
 
         internal static subsequence_classification_data _template_scd;
 

@@ -87,7 +87,7 @@ namespace dimorphics_dataset
                     var stdout = reader.ReadToEnd();
                     if (!string.IsNullOrWhiteSpace(stdout))
                     {
-                        stdout = $"\r\n{stdout}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stdout)}: ", StringComparison.InvariantCulture);
+                        stdout = $"\r\n{stdout}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stdout)}: ", StringComparison.Ordinal);
                         io_proxy.WriteLine(stdout, module_name, method_name);
                     }
                 }
@@ -98,7 +98,7 @@ namespace dimorphics_dataset
 
                     if (!string.IsNullOrWhiteSpace(stderr))
                     {
-                        stderr = $"\r\n{stderr}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stderr)}: ", StringComparison.InvariantCulture);
+                        stderr = $"\r\n{stderr}".Replace($"\r\n", $"\r\n{module_name}.{method_name}: {nameof(stderr)}: ", StringComparison.Ordinal);
                         io_proxy.WriteLine(stderr, module_name, method_name);
                     }
                 }
@@ -107,56 +107,19 @@ namespace dimorphics_dataset
             }
 
             return $@"{start.FileName} {start.Arguments}";
-
         }
 
-        internal class pssm_entry
-        {
-            internal int query_sequence_aa_pos;
-
-            internal char query_sequence_aa;
-
-            //internal int PositionAaPos;
-            internal char position_aa;
-            internal double score;
-            internal int matrix_row_index;
-            internal int matrix_column_index;
-
-            internal pssm_entry()
-            {
-
-            }
-
-            internal pssm_entry(pssm_entry pssm_entry)
-            {
-                const string module_name = nameof(pssm_entry);
-                const string method_name = nameof(pssm_entry);
-
-                if (pssm_entry == null)
-                {
-                    throw new ArgumentNullException(nameof(pssm_entry));
-                }
-
-                this.matrix_column_index = pssm_entry.matrix_column_index;
-                this.matrix_row_index = pssm_entry.matrix_row_index;
-                this.position_aa = pssm_entry.position_aa;
-                this.score = pssm_entry.score;
-                this.query_sequence_aa = pssm_entry.query_sequence_aa;
-                this.query_sequence_aa_pos = pssm_entry.query_sequence_aa_pos;
-            }
-        }
-
-        internal static List<pssm_entry> normalise_pssm(List<pssm_entry> pssm)
+        internal static List<info_blast_pssm_entry> normalise_pssm(List<info_blast_pssm_entry> pssm)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(normalise_pssm);
 
             if (pssm == null || pssm.Count == 0)
             {
-                return new List<pssm_entry>();
+                return new List<info_blast_pssm_entry>();
             }
 
-            pssm = pssm.Select(a => new pssm_entry(a)).ToList();
+            pssm = pssm.Select(a => new info_blast_pssm_entry(a)).ToList();
 
             var scores = pssm.Select(a => a.score).Distinct().ToList();
             var min_score = scores.Min();
@@ -249,17 +212,17 @@ namespace dimorphics_dataset
             return x;
         }
 
-        internal static List<pssm_entry> load_psi_blast_pssm(string pssm_filename, bool normalise_pssm = false)
+        internal static List<info_blast_pssm_entry> load_psi_blast_pssm(string pssm_filename, bool normalise_pssm = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(load_psi_blast_pssm);
 
 
-            var pssm = new List<pssm_entry>();
+            var pssm = new List<info_blast_pssm_entry>();
 
             if (!File.Exists(pssm_filename) || new FileInfo(pssm_filename).Length == 0)
             {
-                return new List<pssm_entry>();
+                return new List<info_blast_pssm_entry>();
             }
 
             var line_list = io_proxy.ReadAllLines(pssm_filename, module_name, method_name).Skip(2).ToList();
@@ -287,9 +250,9 @@ namespace dimorphics_dataset
 
                     var col_aa_provided = line_list_split[0][col][0];
                     var row_aa_provided = line_list_split[row][1][0];
-                    var row_index_provided = int.Parse(line_list_split[row][0], NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    var row_index_provided = int.Parse(line_list_split[row][0], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
 
-                    var e = new pssm_entry()
+                    var e = new info_blast_pssm_entry()
                     {
                         query_sequence_aa_pos = row_index_provided,
                         query_sequence_aa = row_aa_provided,
@@ -335,7 +298,7 @@ namespace dimorphics_dataset
 
      
 
-        internal static double[] pssm_to_vector1(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_all = false)
+        internal static double[] pssm_to_vector1(List<info_blast_pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector1);
@@ -360,7 +323,7 @@ namespace dimorphics_dataset
             return x; //(scores, sum, average);
         }
 
-        internal static List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm_to_vector20col(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string col_aa, double[] values)> x)> pssm_to_vector20col(List<info_blast_pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector20col);
@@ -379,7 +342,7 @@ namespace dimorphics_dataset
 
                 foreach (var c1 in alphabet_groups)
                 {
-                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
+                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal)).Select(a => a.score).ToArray();
 
                     if (x == null || x.Length == 0) x = new[] { 0d };
 
@@ -417,7 +380,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        internal static List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm_to_vector20col_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string col_aa, int lag, double[] values)> x)> pssm_to_vector20col_DT(List<info_blast_pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector20col_DT);
@@ -453,7 +416,7 @@ namespace dimorphics_dataset
 
                             if (pssm != null && pssm.Count > 0)
                             {
-                                var col_pssm = pssm.Where(a => r1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture)).ToList();
+                                var col_pssm = pssm.Where(a => r1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal)).ToList();
                                 // z = list of column 
 
                                 //for (var r1_index = 0; r1_index < alphabet_groups.Count; r1_index++)
@@ -466,8 +429,8 @@ namespace dimorphics_dataset
 
                                     if (r2_index < r1_index) continue;
 
-                                    var r1_match = col_pssm.Where(a => r1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
-                                    var r2_match = col_pssm.Where(a => r2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
+                                    var r1_match = col_pssm.Where(a => r1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)).ToList();
+                                    var r2_match = col_pssm.Where(a => r2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)).ToList();
                                     var join = r1_match.Union(r2_match).ToList();
                                     var z = @join.Where(a => @join.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)
@@ -526,7 +489,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        internal static List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm_to_vector20row(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string row_aa, double[] values)> x)> pssm_to_vector20row(List<info_blast_pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector20row);
@@ -547,7 +510,7 @@ namespace dimorphics_dataset
 
                 foreach (var c1 in alphabet_groups)
                 {
-                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
+                    double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)).Select(a => a.score).ToArray();
                     if (x == null || x.Length == 0) x = new[] { 0d };
                     if (normalise_row) x = normalise_array(x);
                     if (x == null || x.Length == 0) x = new[] { 0d };
@@ -583,7 +546,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector210(List<info_blast_pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector210);
@@ -604,7 +567,7 @@ namespace dimorphics_dataset
                         var c2 = alphabet.groups[c2_index];
                         if (c2_index < c1_index) continue;
 
-                        double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture))).Select(a => a.score).ToArray();
+                        double[] x = (pssm == null || pssm.Count == 0) ? new[] { 0d } : pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal))).Select(a => a.score).ToArray();
                         if (x == null || x.Length == 0) x = new[] { 0d };
                         if (normalise_row_col) x = normalise_array(x);
 
@@ -641,7 +604,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector210_DT(List<info_blast_pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector210_DT);
@@ -681,7 +644,7 @@ namespace dimorphics_dataset
 
                                 if (pssm != null && pssm.Count > 0)
                                 {
-                                    var z = pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture))).ToList();
+                                    var z = pssm.Where(a => (c1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)) || (c2.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c1.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal))).ToList();
                                     z = z.OrderBy(a => a.matrix_row_index).ToList();
                                     z = z.Where(a => z.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)
@@ -738,7 +701,7 @@ namespace dimorphics_dataset
             return result;
         }
 
-        internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string row_aa, string col_aa, double[] values)> x)> pssm_to_vector400(List<info_blast_pssm_entry> pssm, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector400);
@@ -762,7 +725,7 @@ namespace dimorphics_dataset
                         //if (c2_index > c1_index) continue;
                         
                         var c2 = alphabet.groups[c2_index];
-                        double[] x = (pssm == null || pssm.Count == 0) ? new[] {0d} : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).Select(a => a.score).ToArray();
+                        double[] x = (pssm == null || pssm.Count == 0) ? new[] {0d} : pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)).Select(a => a.score).ToArray();
                         if (x == null || x.Length == 0) x = new[] {0d};
                         if (normalise_row_col) x = normalise_array(x);
 
@@ -800,7 +763,7 @@ namespace dimorphics_dataset
         }
 
 
-        internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
+        internal static List<(string alphabet, List<(string row_aa, string col_aa, int lag, double[] values)> x)> pssm_to_vector400_DT(List<info_blast_pssm_entry> pssm, int max_lag, enum_pssm_value_type pssm_value_type, bool normalise_row_col = false, bool normalise_all = false)
         {
             const string module_name = nameof(info_blast_pssm);
             const string method_name = nameof(pssm_to_vector400_DT);
@@ -834,7 +797,7 @@ namespace dimorphics_dataset
 
                                 if (pssm != null && pssm.Count > 0)
                                 {
-                                    var z = pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.InvariantCulture) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.InvariantCulture)).ToList();
+                                    var z = pssm.Where(a => c1.group_amino_acids.Contains(a.position_aa, StringComparison.Ordinal) && c2.group_amino_acids.Contains(a.query_sequence_aa, StringComparison.Ordinal)).ToList();
                                     z = z.OrderBy(a => a.matrix_row_index).ToList();
                                     z = z.Where(a => z.Any(b => Math.Abs(a.matrix_row_index - b.matrix_row_index) == lag)).ToList();
                                     if (z.Count > 0)

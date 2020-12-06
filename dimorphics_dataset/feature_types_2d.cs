@@ -31,7 +31,7 @@ namespace dimorphics_dataset
 
         internal void set_enable(bool enable, string name = null)
         {
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(mpsa), StringComparison.InvariantCultureIgnoreCase)) mpsa = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(mpsa), StringComparison.OrdinalIgnoreCase)) mpsa = enable;
         }
 
         internal void set_enable((bool enable, string name)[] items)

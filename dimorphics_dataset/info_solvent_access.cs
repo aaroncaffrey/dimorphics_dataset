@@ -36,7 +36,7 @@ namespace dimorphics_dataset
 
         internal static double try_parse_double(string value, double default_value = 0)
         {
-            if (!string.IsNullOrWhiteSpace(value) && double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+            if (!string.IsNullOrWhiteSpace(value) && double.TryParse(value, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out var result))
             {
                 return result;
             }
@@ -64,7 +64,7 @@ namespace dimorphics_dataset
 
                 var lines = io_proxy.ReadAllLines(file, nameof(info_solvent_access), nameof(load)).ToList();
 
-                lines = lines.Where(a => a.StartsWith($@"RES ", StringComparison.InvariantCulture)).ToList();
+                lines = lines.Where(a => a.StartsWith($@"RES ", StringComparison.Ordinal)).ToList();
 
 
                 var array_index = 0;
@@ -83,7 +83,7 @@ namespace dimorphics_dataset
                         amino_acid = atom.Aa3To1(split[++i]),
 
                         chain_id = split[++i][0],
-                        res_num = int.Parse(split[++i], NumberStyles.Integer, CultureInfo.InvariantCulture),
+                        res_num = int.Parse(split[++i], NumberStyles.Integer, NumberFormatInfo.InvariantInfo),
 
                         all_atoms_abs = try_parse_double(split[++i]),
                         all_atoms_rel = try_parse_double(split[++i]),

@@ -151,7 +151,7 @@ namespace dimorphics_dataset
 
             var regions = instance_meta_data.get_regions();
 
-            var if_region = regions.First(a => a.region_name == nameof(interface_region));
+            //var if_region = regions.First(a => string.Equals(a.region_name, nameof(interface_region), StringComparison.Ordinal));
 
             row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
 

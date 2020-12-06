@@ -53,7 +53,7 @@ namespace dimorphics_dataset
 
             var dimorphics_data_all = program.get_dataset_pdb_id_list(null);
 
-            var dimorphics_data = dimorphics_data_all.Where(a => a.class_name == class_name_in_file).ToList();
+            var dimorphics_data = dimorphics_data_all.Where(a => string.Equals(a.class_name, class_name_in_file, StringComparison.Ordinal)).ToList();
 
             var get_dhc_ret = get_dhc_list(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_data);
 
@@ -99,20 +99,20 @@ namespace dimorphics_dataset
             const string module_name = nameof(dataset_gen_dimorphic);
             const string method_name = nameof(find_subseq_index);
 
-            var strand_array_index = strand_protein?.IndexOf(strand_seq, StringComparison.InvariantCulture) ?? -1;
+            var strand_array_index = strand_protein?.IndexOf(strand_seq, StringComparison.Ordinal) ?? -1;
 
             if (optional_res_index > -1)
             {
                 strand_array_index = strand_protein_res_ids.IndexOf(optional_res_index);
 
-                if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+                if (!string.Equals(strand_protein.Substring(strand_array_index, strand_seq.Length), strand_seq, StringComparison.Ordinal))
                 {
-                    var indexes = strand_protein.Select((a, i) => i + strand_seq.Length < strand_protein.Length && strand_protein.Substring(i, strand_seq.Length) == strand_seq ? i : -1).Where(a => a > -1).ToList();
+                    var indexes = strand_protein.Select((a, i) => i + strand_seq.Length < strand_protein.Length && string.Equals(strand_protein.Substring(i, strand_seq.Length), strand_seq, StringComparison.Ordinal) ? i : -1).Where(a => a > -1).ToList();
                     strand_array_index = indexes.Select(a => (index1: a, index2: Math.Abs(strand_array_index - a))).OrderBy(a => a.index2).First().index1;
                 }
             }
 
-            if (strand_protein?.Substring(strand_array_index, strand_seq.Length) != strand_seq)
+            if (!string.Equals(strand_protein?.Substring(strand_array_index, strand_seq.Length), strand_seq, StringComparison.Ordinal))
             {
                 throw new Exception($@"{module_name}.{method_name}: Not correct position");
             }
@@ -144,7 +144,7 @@ namespace dimorphics_dataset
             const string module_name = nameof(dataset_gen_dimorphic);
             const string method_name = nameof(get_dhc_item);
 
-            var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new atom.load_atoms_pdb_options()
+            var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new load_atoms_pdb_options()
             {
                 find_3d_intramolecular = false,
 
@@ -187,14 +187,14 @@ namespace dimorphics_dataset
             
 
             var strand_protein = sequences.First(a => a.chain_id == chain_id).sequence;
-            //var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.InvariantCulture);
+            //var strand_array_index = strand_protein.IndexOf(strand_seq, StringComparison.Ordinal);
 
             //var res_ids = pdb_chain_master_atoms.Select(a => a.residue_index).ToList();
 
 
             //if (!string.IsNullOrWhiteSpace(optional_res_index))
             //{
-            //    strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture));
+            //    strand_array_index = res_ids.IndexOf(int.Parse(optional_res_index, NumberStyles.Integer, NumberFormatInfo.InvariantInfo));
 
             //    if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
             //    {
@@ -210,7 +210,7 @@ namespace dimorphics_dataset
 
             var find_subseq_index_ret = find_subseq_index(strand_seq, strand_protein,
                 pdb_chain_master_atoms.Select(a => a.residue_index).ToList(),
-                int.TryParse(optional_res_index, NumberStyles.Integer, CultureInfo.InvariantCulture, out var opt_res_ix)
+                int.TryParse(optional_res_index, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out var opt_res_ix)
                     ? opt_res_ix
                     : -1);
             var strand_array_index = find_subseq_index_ret.strand_array_index;
@@ -241,7 +241,7 @@ namespace dimorphics_dataset
                 var other_pdb_chain_master_atoms = other_pdb_master_atoms.Where(a => a.chain_id == other_chain_id).ToList();
 
                 var other_strand_protein = other_sequences.First(a => a.chain_id == other_chain_id).sequence;
-                var other_strand_array_index = other_strand_protein.IndexOf(other_strand_seq, StringComparison.InvariantCulture);
+                var other_strand_array_index = other_strand_protein.IndexOf(other_strand_seq, StringComparison.Ordinal);
 
                 var other_res_ids = other_pdb_chain_master_atoms.Select(a => a.residue_index).ToList();
 
@@ -272,18 +272,18 @@ namespace dimorphics_dataset
                     other_pdb_chain_master_atoms[i].is_strand_interface_atom = 1;
                     other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_strand_interface_atom = 1);
 
-                    if (string.Equals(other_class_name, $@"Single", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, $@"Dimorphic", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(other_class_name, $@"Single", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, $@"Dimorphic", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_dimorphic_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_dimorphic_strand_interface_atom = 1);
                         dimorphic_dssp3 += other_pdb_chain_master_atoms[i].monomer_dssp3;
                     }
-                    else if (string.Equals(other_class_name, $@"Multiple", StringComparison.InvariantCultureIgnoreCase) || string.Equals(other_class_name, $@"Standard", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(other_class_name, $@"Multiple", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, $@"Standard", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_standard_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_standard_strand_interface_atom = 1);
                     }
-                    else if (string.Equals(other_class_name, $@"Hybrid", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(other_class_name, $@"Hybrid", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_hybrid_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_hybrid_strand_interface_atom = 1);
@@ -388,7 +388,7 @@ namespace dimorphics_dataset
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;
 
             if (shc_sequence.Length != shc_length) throw new Exception($@"{module_name}.{method_name}: shc length error");
-            if (shc_sequence_before + strand_seq + shc_sequence_after != shc_sequence) throw new Exception($@"{module_name}.{method_name}: shc seq error");
+            if (!string.Equals(shc_sequence_before + strand_seq + shc_sequence_after, shc_sequence, StringComparison.Ordinal)) throw new Exception($@"{module_name}.{method_name}: shc seq error");
 
             //if (shc_sequence.Length < min_strand_host_coil_length) continue;
 

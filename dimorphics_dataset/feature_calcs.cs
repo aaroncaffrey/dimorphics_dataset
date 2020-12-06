@@ -167,7 +167,7 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).ToList());
+                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.Ordinal)).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
@@ -185,7 +185,7 @@ namespace dimorphics_dataset
             {
                 var x = (a.id, a.name, a.groups.Select(b =>
                 {
-                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.InvariantCulture)).Select(a => a.foldx_aa_code1).ToList());
+                    var y = b.group_amino_acids + string.Join($@"", info_foldx.foldx_residues_aa_mutable.Where(d => d.standard_aa_code1 != d.foldx_aa_code1 && b.group_amino_acids.Contains(d.standard_aa_code1, StringComparison.Ordinal)).Select(a => a.foldx_aa_code1).ToList());
                     return (b.group_name, y);
                 }).ToList());
                 return x;
@@ -297,7 +297,7 @@ namespace dimorphics_dataset
 
             do
             {
-                index = text.IndexOf(substring, index + 1);//, StringComparison.InvariantCulture);
+                index = text.IndexOf(substring, index + 1);//, StringComparison.Ordinal);
                 if (index != -1) indexes.Add(index);
 
             } while (index != -1);
@@ -319,7 +319,7 @@ namespace dimorphics_dataset
 
                 do
                 {
-                    index = text.IndexOf(substring, index + 1, StringComparison.InvariantCulture);
+                    index = text.IndexOf(substring, index + 1, StringComparison.Ordinal);
                     if (index != -1) indexes.Add(index);
 
                 } while (index != -1);

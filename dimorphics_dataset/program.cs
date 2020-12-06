@@ -33,7 +33,7 @@ namespace dimorphics_dataset
 
             var dimorphics_data1 = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), module_name, method_name)
                 .Skip(1)
-                .Where(a => !string.IsNullOrWhiteSpace(a.Replace($@",", $@"", StringComparison.InvariantCulture)))
+                .Where(a => !string.IsNullOrWhiteSpace(a.Replace($@",", $@"", StringComparison.Ordinal)))
                 .Select((a, i) =>
                 {
                     var k = 0;
@@ -44,7 +44,7 @@ namespace dimorphics_dataset
                         class_name: x[k++],
                         symmetry_mode: x[k++],
                         parallelism: x[k++],
-                        chain_number: int.Parse(x[k++], NumberStyles.Integer, CultureInfo.InvariantCulture) - 1,
+                        chain_number: int.Parse(x[k++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) - 1,
                         strand_seq: x[k++],
                         optional_res_index: x[k++]
                     );
@@ -52,7 +52,7 @@ namespace dimorphics_dataset
 
             if (!string.IsNullOrWhiteSpace(class_name_in_file))
             {
-                dimorphics_data1 = dimorphics_data1.Where(a => a.class_name == class_name_in_file).ToList();
+                dimorphics_data1 = dimorphics_data1.Where(a => string.Equals(a.class_name, class_name_in_file, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             //var pdb_id_list = dimorphics_data1.Select(a => (dimer_type: a.dimer_type, pdb_id: a.pdb_id)).Distinct().ToList();
@@ -62,7 +62,7 @@ namespace dimorphics_dataset
             return dimorphics_data1;
         }
 
-        internal static subsequence_classification_data get_subsequence_classificiation_data(cmd_params p, protein_subsequence_info psi, protein_subsequence_info _template_protein = null, atom.load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
+        internal static subsequence_classification_data get_subsequence_classificiation_data(cmd_params p, protein_subsequence_info psi, protein_subsequence_info _template_protein = null, load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
             const string module_name = nameof(program);
             const string method_name = nameof(get_subsequence_classificiation_data);
@@ -94,7 +94,7 @@ namespace dimorphics_dataset
                 (
                     pdb_id: psi.pdb_id,
                     pdb_options ??
-                    new atom.load_atoms_pdb_options()
+                    new load_atoms_pdb_options()
                     {
                         //load_2d_mpsa_sec_struct_predictions = features_1d || features_3d,
                         //load_2d_blast_pssms = features_1d || features_3d,
@@ -258,7 +258,7 @@ namespace dimorphics_dataset
 
 
         //var pdbs = get_dataset_pdb_id_list().Select(a => a.pdb_id).Distinct().ToList();
-        //var at = pdbs.SelectMany(a => atom.load_atoms_pdb(a, new atom.load_atoms_pdb_options()
+        //var at = pdbs.SelectMany(a => atom.load_atoms_pdb(a, new load_atoms_pdb_options()
         //{
         //    load_2d_mpsa_sec_struct_predictions = false,
         //    load_3d_dssp_data = false,
@@ -288,7 +288,7 @@ namespace dimorphics_dataset
         //return;
         //foreach (var pdb in pdbs)
         //{
-        //    var ppp = atom.load_atoms_pdb(pdb, new atom.load_atoms_pdb_options()
+        //    var ppp = atom.load_atoms_pdb(pdb, new load_atoms_pdb_options()
         //    {
         //        load_2d_mpsa_sec_struct_predictions = false,
         //        load_3d_dssp_data = false,
@@ -395,8 +395,8 @@ namespace dimorphics_dataset
             // load r cache, if not using children (takes too many resources to load cache for individual items)
             if (!p.use_children.Value)
             {
-                subsequence_classification_data_r_methods.cache_r_protr = subsequence_classification_data_r_methods.cache_r_load(@"e:\dataset\r_protr_cache.csv");
-                subsequence_classification_data_r_methods.cache_r_peptides = subsequence_classification_data_r_methods.cache_r_load(@"e:\dataset\r_peptides_cache.csv");
+                subsequence_classification_data_r_methods.cache_r_protr = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_protr_filename);
+                subsequence_classification_data_r_methods.cache_r_peptides = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_peptides_filename);
             }
 
             var _template_protein = psi_list.First();
@@ -551,7 +551,7 @@ namespace dimorphics_dataset
             // check for any non-double type features
             var invalid_features = text_features
                 .SelectMany(a =>
-                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || b == $@"∞" || b == $@"+∞" || b == $@"-∞" || b == $@"NaN") ? i : -1)
+                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || string.Equals(b, $@"∞", StringComparison.Ordinal) || string.Equals(b, $@"+∞", StringComparison.Ordinal) || string.Equals(b, $@"-∞", StringComparison.Ordinal) || string.Equals(b, $@"NaN", StringComparison.Ordinal)) ? i : -1)
                         .Where(a => a != -1).ToList()).Distinct().OrderBy(a => a).ToList();
 
             if (invalid_features.Count > 0)
@@ -561,7 +561,7 @@ namespace dimorphics_dataset
                 foreach (var i in invalid_features)
                 {
                     var invalid_feature_header =
-                        text_header.FirstOrDefault(a => a.StartsWith($@"{i},", StringComparison.InvariantCulture));
+                        text_header.FirstOrDefault(a => a.StartsWith($@"{i},", StringComparison.Ordinal));
                     io_proxy.WriteLine($@"{i}: {invalid_feature_header}");
                 }
             }
@@ -595,15 +595,15 @@ namespace dimorphics_dataset
             var file_hashes_comments = file_hashes.Select(a => a.fn_comments).ToList();
 
             var file_hashes_headers_cnt = file_hashes_headers.Distinct()
-                .Select(a => (hash: a, count: file_hashes_headers.Count(b => a == b)))
+                .Select(a => (hash: a, count: file_hashes_headers.Count(b => string.Equals(a, b, StringComparison.Ordinal))))
                 .OrderByDescending(a => a.count).ToList();
 
             var file_hashes_features_cnt = file_hashes_features.Distinct()
-                .Select(a => (hash: a, count: file_hashes_features.Count(b => a == b)))
+                .Select(a => (hash: a, count: file_hashes_features.Count(b => string.Equals(a, b, StringComparison.Ordinal))))
                 .OrderByDescending(a => a.count).ToList();
 
             var file_hashes_comments_cnt = file_hashes_comments.Distinct()
-                .Select(a => (hash: a, count: file_hashes_comments.Count(b => a == b)))
+                .Select(a => (hash: a, count: file_hashes_comments.Count(b => string.Equals(a, b, StringComparison.Ordinal))))
                 .OrderByDescending(a => a.count).ToList();
 
             if (file_hashes_headers_cnt.Count != 1)
@@ -838,7 +838,7 @@ namespace dimorphics_dataset
 
             var pdb_id_list2 = pdb_id_list;
 
-            if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(p.class_name, standard_coil, StringComparison.OrdinalIgnoreCase))
             {
                 pdb_id_list2 = pdb_id_list.GroupBy(a => (a.pdb_id, a.chain_number)).Select(a => a.First()).ToList();
             }
@@ -861,7 +861,7 @@ namespace dimorphics_dataset
 
             List<(string pdb_id, char chain_id, List<int> res_ids)> invalid_res_ids = null;
 
-            if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(p.class_name, standard_coil, StringComparison.OrdinalIgnoreCase))
             {
                 var p2 = new cmd_params(p)
                 {
@@ -892,11 +892,11 @@ namespace dimorphics_dataset
                 {
                     var psi_list = new List<protein_subsequence_info>();
 
-                    if (string.Equals(p.class_name, standard_coil, StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(p.class_name, standard_coil, StringComparison.OrdinalIgnoreCase))
                     {
                         psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, pdb_id_item.chain_number, p.class_id, p.class_name, p.use_dssp3);
                     }
-                    else if (string.Equals(p.class_name, dimorphic_coil, StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(p.class_name, dimorphic_coil, StringComparison.OrdinalIgnoreCase))
                     {
                         psi_list.Add(dataset_gen_dimorphic.get_dhc_item(p.class_id, p.class_name, p.use_dssp3, true, false, pdb_id_item));
                     }

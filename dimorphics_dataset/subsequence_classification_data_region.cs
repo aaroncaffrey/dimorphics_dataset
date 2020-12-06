@@ -21,7 +21,7 @@ namespace dimorphics_dataset
         internal List<atom> atoms;
         internal List<atom> master_atoms;
         internal List<(string format, string prediction)> ss_predictions;
-        internal info_foldx.energy_differences foldx_energy_differences;
+        internal foldx_energy_differences foldx_energy_differences;
 
         internal string unique_id()
         {

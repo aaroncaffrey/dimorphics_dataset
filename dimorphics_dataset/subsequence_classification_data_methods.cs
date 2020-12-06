@@ -71,7 +71,7 @@ namespace dimorphics_dataset
             //var pdb_sable_data = scd.pdb_chain_master_atoms.Select(a => a.sable_item).ToList();
             var subseq_sable_data = subsequence_master_atoms.Select(a => a.sable_item).ToList();
 
-            var sable_data_list = new List<(string name, List<info_sable.info_sable_item> data)>();
+            var sable_data_list = new List<(string name, List<info_sable_item> data)>();
             //sable_data_list.Add((nameof(pdb_sable_data), pdb_sable_data));
             sable_data_list.Add(($@"unsplit", subseq_sable_data));
             sable_data_list.AddRange(feature_calcs.split_sequence(subseq_sable_data).Select(a => (name: $@"split", data: a)).ToList());
@@ -85,7 +85,7 @@ namespace dimorphics_dataset
                 {
                     foreach (var alphabet_group in alphabet.groups)
                     {
-                        var data = sable_data.data?.Where(a => a != null && alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).ToList() ?? new List<info_sable.info_sable_item>();
+                        var data = sable_data.data?.Where(a => a != null && alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)).ToList() ?? new List<info_sable_item>();
 
                         var feats = new List<feature_info>();
 
@@ -96,7 +96,7 @@ namespace dimorphics_dataset
                                 entropy,
                                 dse_options,
                                 $@"",
-                                $@"{nameof(info_sable.info_sable_item.entropy_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                                $@"{nameof(info_sable_item.entropy_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
                                 presorted: true
                             );
 
@@ -125,7 +125,7 @@ namespace dimorphics_dataset
                                 burial_abs,
                                 dse_options,
                                 $@"",
-                                $@"{nameof(info_sable.info_sable_item.absolute_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                                $@"{nameof(info_sable_item.absolute_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
                                 presorted: true
                             );
 
@@ -155,7 +155,7 @@ namespace dimorphics_dataset
                                 burial_rel,
                                 dse_options,
                                 $@"",
-                                $@"{nameof(info_sable.info_sable_item.relative_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
+                                $@"{nameof(info_sable_item.relative_burial_value)}_{index}_{sable_data.name}_{alphabet_group.group_name}",
                                 presorted: true
                             );
 
@@ -265,11 +265,11 @@ namespace dimorphics_dataset
 
                     var mpsa_aa_seq = string.Join($@"", reader?.mpsa_matrix?.Select(a => a.amino_acid).ToList() ?? new List<char>());
 
-                    if (atoms_aa_seq != mpsa_aa_seq && mpsa_aa_seq?.Length > 0) throw new Exception();
+                    if (!string.Equals(atoms_aa_seq, mpsa_aa_seq, StringComparison.Ordinal) && mpsa_aa_seq?.Length > 0) throw new Exception();
 
                     var ss_seq = string.Join($@"", reader?.mpsa_matrix?.Select(a => a.predicted_ss_code).ToList() ?? new List<char>());
 
-                    if (string.Equals(sq.name, $@"unsplit", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(sq.name, $@"unsplit", StringComparison.OrdinalIgnoreCase))
                     {
                         // PseSSC data (secondary structure sequence pattern descriptors)
                         var mpsa_pse_aac_options = new pse_aac_options()
@@ -526,7 +526,7 @@ namespace dimorphics_dataset
             {
                 foreach (var alphabet_group in alphabet.groups)
                 {
-                    var nodes_a = nodes.Where(a => alphabet_group.group_amino_acids.Contains(a.Residue1, StringComparison.InvariantCulture)).ToList();
+                    var nodes_a = nodes.Where(a => alphabet_group.group_amino_acids.Contains(a.Residue1, StringComparison.Ordinal)).ToList();
 
                     var feats = new List<feature_info>();
 
@@ -660,15 +660,15 @@ namespace dimorphics_dataset
                 {
                     foreach (var bond_type in bond_types)
                     {
-                        var bonds = edges.Where(a => bond_type == $@"all" || a.Interaction.interaction_type == bond_type)
+                        var bonds = edges.Where(a => string.Equals(bond_type, $@"all", StringComparison.Ordinal) || string.Equals(a.Interaction.interaction_type, bond_type, StringComparison.Ordinal))
                             .ToList();
 
-                        bonds = bonds.Where(a => alphabet_group.group_amino_acids.Contains(a.NodeId1.amino_acid1, StringComparison.InvariantCulture)).ToList();
+                        bonds = bonds.Where(a => alphabet_group.group_amino_acids.Contains(a.NodeId1.amino_acid1, StringComparison.Ordinal)).ToList();
 
                         foreach (var dir_type1 in dir_types)
                         {
                             var bonds1 = bonds
-                                .Where(a => dir_type1 == $@"all" || a.Interaction.subtype_node1 == dir_type1)
+                                .Where(a => string.Equals(dir_type1, $@"all", StringComparison.Ordinal) || string.Equals(a.Interaction.subtype_node1, dir_type1, StringComparison.Ordinal))
                                 .ToList();
 
                             foreach (var dir_type2 in dir_types)
@@ -676,7 +676,7 @@ namespace dimorphics_dataset
                                 var feats = new List<feature_info>();
 
                                 var bonds2 = bonds1
-                                    .Where(a => dir_type2 == $@"all" || a.Interaction.subtype_node2 == dir_type2)
+                                    .Where(a => string.Equals(dir_type2, $@"all", StringComparison.Ordinal) || string.Equals(a.Interaction.subtype_node2, dir_type2, StringComparison.Ordinal))
                                     .ToList();
 
                                 var distances = bonds2.Select(a => a.Distance).OrderBy(a => a).ToArray();
@@ -918,7 +918,7 @@ namespace dimorphics_dataset
             var make_subsequence_foldx_buildmodel_position_scan_feature = true;
             var make_subsequence_foldx_buildmodel_subsequence_replacement_feature = true;
 
-            info_foldx.energy_differences foldx_energy_differences = source switch
+            foldx_energy_differences foldx_energy_differences = source switch
             {
                 enum_protein_data_source.interface_3d => scd.interface_region.foldx_energy_differences,
                 enum_protein_data_source.neighbourhood_2d => scd.nh_flank_region.foldx_energy_differences,
@@ -942,7 +942,7 @@ namespace dimorphics_dataset
             //var alphabets = feature_calcs.aa_alphabets.ToList();
             var aa_alphabets_inc_overall_foldx = feature_calcs.aa_alphabets_inc_overall_foldx.ToList();
             //alphabets.Add((-1, $@"Overall", new List<string>() { foldx_amino_acids }));
-            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
             //alphabets = alphabets.Where(a => a.groups.Count <= 4).ToList();
 
             //var foldx_alphabets = feature_calcs.aa_alphabets.ToList();
@@ -958,7 +958,7 @@ namespace dimorphics_dataset
                 var foldx_ala_scan_feats = new List<feature_info>();
 
 
-                var foldx_ala_scanning_result = foldx_energy_differences?.foldx_ala_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<info_foldx.foldx_ala_scanning_result>();
+                var foldx_ala_scanning_result = foldx_energy_differences?.foldx_ala_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<foldx_ala_scanning_result>();
 
                 var foldx_ala_scanning_result_split = feature_calcs.split_sequence(foldx_ala_scanning_result);//, 3, 0, false);
 
@@ -973,7 +973,7 @@ namespace dimorphics_dataset
                         foreach (var alphabet_group in alphabet.groups)
                         {
                             // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
-                            var items = sq.items.Where(a => alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
+                            var items = sq.items.Where(a => alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.Ordinal)).ToList();
                             var items_ddg = items.Select(a => a.ddg).OrderBy(a => a).ToArray();
 
 
@@ -1032,7 +1032,7 @@ namespace dimorphics_dataset
                     var foldx_pos_feats = new List<feature_info>();
 
 
-                    var foldx_pos_scanning_result = foldx_energy_differences?.foldx_position_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<info_foldx.foldx_position_scanning_result>();
+                    var foldx_pos_scanning_result = foldx_energy_differences?.foldx_position_scanning_result_subsequence.data?.OrderBy(a => a.residue_index).ToList() ?? new List<foldx_position_scanning_result>();
                     var foldx_pos_scanning_result_split = feature_calcs.split_sequence(foldx_pos_scanning_result);//, 3, 0, false);
 
                     var foldx_pos = foldx_pos_scanning_result_split.Select(a => (name: $@"split", items: a)).ToList();
@@ -1051,7 +1051,7 @@ namespace dimorphics_dataset
                                 //if (foldx_specific_amino_acids.All(a => $@"" + a != g_row_original_amino_acid))
                                 {
                                     // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
-                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.Ordinal)).ToList();
                                     var items_ddg = items.Select(a => a.ddg).OrderBy(a => a).ToArray();
 
                                     //if (items == null || items.Count == 0) throw new Exception(); // just to test
@@ -1092,7 +1092,7 @@ namespace dimorphics_dataset
                                 {
                                     var g_col_foldx_amino_acid_alphabet_group = g_row_original_foldx_amino_acid_alphabet_group;
 
-                                    var items = sq.items.Where(a => g_col_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutant_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_col_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutant_foldx_amino_acid_1, StringComparison.Ordinal)).ToList();
                                     var items_ddg = items.Select(a => a.ddg).OrderBy(a => a).ToArray();
 
 
@@ -1132,7 +1132,7 @@ namespace dimorphics_dataset
 
                                 foreach (var g_col_mutant_foldx_amino_acid_alphabet_group in alphabet.groups)
                                 {
-                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.InvariantCulture) && g_col_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutant_foldx_amino_acid_1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.original_foldx_amino_acid_1, StringComparison.Ordinal) && g_col_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutant_foldx_amino_acid_1, StringComparison.Ordinal)).ToList();
                                     var items_ddg = items.Select(a => a.ddg).OrderBy(a => a).ToArray();
 
 
@@ -1190,7 +1190,7 @@ namespace dimorphics_dataset
                     var foldx_bm_ps_feats = new List<feature_info>();
 
                     //155, 558, 372
-                    var foldx_bm_ps_scanning_result = foldx_energy_differences?.foldx_buildmodel_position_scan_result_subsequence.data?.OrderBy(a => a.mutation_positions_data.residue_index).ToList() ?? new List<info_foldx.foldx_energy_terms_ps>();
+                    var foldx_bm_ps_scanning_result = foldx_energy_differences?.foldx_buildmodel_position_scan_result_subsequence.data?.OrderBy(a => a.mutation_positions_data.residue_index).ToList() ?? new List<foldx_energy_terms_ps>();
 
                     //3 (4,4,4) (31,31,31)
                     // todo: should 'distribute' not be true? (currently giving 1,3,1 and etc.).  NO IT SHOULD NOT. The middle is fine to be larger.
@@ -1220,13 +1220,13 @@ namespace dimorphics_dataset
                                 {
                                     var g_col_foldx_amino_acid = g_row_original_foldx_amino_acid_alphabet_group;
 
-                                    var items = sq.items.Where(a => g_col_foldx_amino_acid.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_col_foldx_amino_acid.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1, StringComparison.Ordinal)).ToList();
                                     var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
 
                                     if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
                                     {
                                         // insert blank values to make same number of features for each input
-                                        items_ddg_list = new info_foldx.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                        items_ddg_list = new foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
                                     }
 
                                     foreach (var items_ddg in items_ddg_list)
@@ -1287,7 +1287,7 @@ namespace dimorphics_dataset
                                     // bugged
 
                                     // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
-                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1, StringComparison.Ordinal)).ToList();
 
                                     //if (items == null || items.Count == 0) throw new Exception();
 
@@ -1296,7 +1296,7 @@ namespace dimorphics_dataset
                                     if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
                                     {
                                         // insert blank values to make same number of features for each input
-                                        items_ddg_list = new info_foldx.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                        items_ddg_list = new foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
                                     }
 
                                     foreach (var items_ddg in items_ddg_list)
@@ -1356,13 +1356,13 @@ namespace dimorphics_dataset
 
                                 foreach (var g_col_mutant_foldx_amino_acid_alphabet_group in alphabet.groups)
                                 {
-                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1, StringComparison.InvariantCulture) && g_col_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1, StringComparison.InvariantCulture)).ToList();
+                                    var items = sq.items.Where(a => g_row_original_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.original_amino_acid1, StringComparison.Ordinal) && g_col_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.mutant_foldx_amino_acid1, StringComparison.Ordinal)).ToList();
                                     var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
 
                                     if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
                                     {
                                         // insert blank values to make same number of features for each input
-                                        items_ddg_list = new info_foldx.foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                        items_ddg_list = new foldx_energy_terms_ps().properties().Select(a => (a.name, new double[] { a.value })).ToList();
                                     }
 
                                     foreach (var items_ddg in items_ddg_list)
@@ -1444,7 +1444,7 @@ namespace dimorphics_dataset
                     var foldx_bm_if_sub_feats = new List<feature_info>();
 
 
-                    var foldx_bm_if_sub = foldx_energy_differences?.foldx_buildmodel_subsequence_mutant_result_subsequence.data?.ToList() ?? new List<info_foldx.foldx_energy_terms_sm>();
+                    var foldx_bm_if_sub = foldx_energy_differences?.foldx_buildmodel_subsequence_mutant_result_subsequence.data?.ToList() ?? new List<foldx_energy_terms_sm>();
 
 
 
@@ -1460,14 +1460,14 @@ namespace dimorphics_dataset
                             //if (foldx_specific_amino_acids.All(a => $@"" + a != g_row_original_amino_acid))
                             {
                                 // 1. Overall - get ddg of sequence amino acids where the amino acid is ANY amino acid.
-                                var items = foldx_bm_if_sub.Where(a => g_row_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.First().mutant_foldx_amino_acid1, StringComparison.InvariantCulture)).ToList();
+                                var items = foldx_bm_if_sub.Where(a => g_row_mutant_foldx_amino_acid_alphabet_group.group_amino_acids.Contains(a.mutation_positions_data.First().mutant_foldx_amino_acid1, StringComparison.Ordinal)).ToList();
                                 var items_ddg_list = items.SelectMany(a => a.properties()).GroupBy(a => a.name).Select(a => (energy_name: a.Key, values: a.Select(b => b.value).ToArray())).ToList();
 
 
                                 if (items == null || items.Count == 0 || items_ddg_list == null || items_ddg_list.Count == 0)
                                 {
                                     // insert blank values to make same number of features for each input
-                                    items_ddg_list = new info_foldx.foldx_energy_terms_sm().properties().Select(a => (a.name, new double[] { a.value })).ToList();
+                                    items_ddg_list = new foldx_energy_terms_sm().properties().Select(a => (a.name, new double[] { a.value })).ToList();
                                 }
 
                                 foreach (var items_ddg in items_ddg_list)
@@ -1680,7 +1680,7 @@ namespace dimorphics_dataset
             return features;
         }
 
-        internal static List<(string name, List<info_aaindex.info_aaindex_entry> list)> aaindex_subset_templates_search()
+        internal static List<(string name, List<info_aaindex_entry> list)> aaindex_subset_templates_search()
         {
             var keywords = new List<(string name, string[] list)>
             {
@@ -1706,10 +1706,10 @@ namespace dimorphics_dataset
                 ($@"composition", new[] { $@"composition", $@"propensity", $@"distribution", $@"frequency" })
             };
 
-            List<(string name, List<info_aaindex.info_aaindex_entry> list)> aaindices_subsections = keywords.Select(a =>
+            List<(string name, List<info_aaindex_entry> list)> aaindices_subsections = keywords.Select(a =>
                 (name: a.name,
                     list:
-                    info_aaindex.aaindex_entries.Where(b => a.list.Any(c => b.D_Data_Description.Contains(c, StringComparison.InvariantCultureIgnoreCase) || b.T_Title_Of_Article.Contains(c, StringComparison.InvariantCultureIgnoreCase))).Distinct().ToList())).Distinct().ToList();
+                    info_aaindex.aaindex_entries.Where(b => a.list.Any(c => b.D_Data_Description.Contains(c, StringComparison.OrdinalIgnoreCase) || b.T_Title_Of_Article.Contains(c, StringComparison.OrdinalIgnoreCase))).Distinct().ToList())).Distinct().ToList();
 
 
             aaindices_subsections.Add(($@"all", info_aaindex.aaindex_entries));
@@ -1796,7 +1796,7 @@ namespace dimorphics_dataset
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
             //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-            alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
             alphabets = alphabets.Where(a => a.groups.Count <= 5).ToList();
 
 
@@ -1819,7 +1819,7 @@ namespace dimorphics_dataset
                         {
                             foreach (var alphabet_group in alphabet.groups)
                             {
-                                var seq_aaindex_values_limited = seq_aaindex_values.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => a.value).OrderBy(a => a).ToArray();
+                                var seq_aaindex_values_limited = seq_aaindex_values.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)).Select(a => a.value).OrderBy(a => a).ToArray();
 
 
 
@@ -1839,7 +1839,7 @@ namespace dimorphics_dataset
                                     );
 
 
-                                    if (string.Equals(aaindexes.name, $@"all", StringComparison.InvariantCultureIgnoreCase))
+                                    if (string.Equals(aaindexes.name, $@"all", StringComparison.OrdinalIgnoreCase))
                                     {
                                         var f_e_ds_values1 = e_ds_values.Select(ds_stat => new feature_info()
                                         {
@@ -2025,7 +2025,7 @@ namespace dimorphics_dataset
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
             //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-            alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
 
             for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
             {
@@ -2036,7 +2036,7 @@ namespace dimorphics_dataset
 
                     foreach (var alphabet_group in alphabet.groups)
                     {
-                        var iup = sq.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => a.iup_entry).ToList();
+                        var iup = sq.sequence.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)).Select(a => a.iup_entry).ToList();
 
                         var short_list = iup.Select(a => a.short_type_score).OrderBy(a => a).ToArray();
                         var long_list = iup.Select(a => a.long_type_score).OrderBy(a => a).ToArray();
@@ -2309,8 +2309,8 @@ namespace dimorphics_dataset
                 var sq = sequences[sq_index];
 
 
-                var all_pssm_unnormalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_unnormalised ?? new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>()).ToList();
-                var all_pssm_normalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_normalised ?? new List<(string database, List<info_blast_pssm.pssm_entry> pssm_entries)>()).ToList();
+                var all_pssm_unnormalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_unnormalised ?? new List<(string database, List<info_blast_pssm_entry> pssm_entries)>()).ToList();
+                var all_pssm_normalised = sq.sequence.SelectMany(a => a.amino_acid_pssm_normalised ?? new List<(string database, List<info_blast_pssm_entry> pssm_entries)>()).ToList();
 
 
                 var alphabets = feature_calcs.aa_alphabets.ToList();
@@ -2320,14 +2320,14 @@ namespace dimorphics_dataset
                 {
                     var database = _database;
 
-                    if (!use_databases.Any(a => string.Equals(a.Item1, database, StringComparison.InvariantCultureIgnoreCase) && a.Item2)) continue;
+                    if (!use_databases.Any(a => string.Equals(a.Item1, database, StringComparison.OrdinalIgnoreCase) && a.Item2)) continue;
 
-                    var pssm_group_unnormalised = all_pssm_unnormalised.Where(a => a.database.Equals(database, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    var pssm_group_normalised = all_pssm_normalised.Where(a => a.database.Equals(database, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    var pssm_group_unnormalised = all_pssm_unnormalised.Where(a => a.database.Equals(database, StringComparison.OrdinalIgnoreCase)).ToList();
+                    var pssm_group_normalised = all_pssm_normalised.Where(a => a.database.Equals(database, StringComparison.OrdinalIgnoreCase)).ToList();
                     //var pssm_entries = pssm_group.ToList();
 
-                    var pssm_matrix_unnormalised = pssm_group_unnormalised.SelectMany(a => a.pssm_entries.Select(b => new info_blast_pssm.pssm_entry(b)).ToList()).ToList();
-                    var pssm_matrix_normalised = pssm_group_normalised.SelectMany(a => a.pssm_entries.Select(b => new info_blast_pssm.pssm_entry(b)).ToList()).ToList();
+                    var pssm_matrix_unnormalised = pssm_group_unnormalised.SelectMany(a => a.pssm_entries.Select(b => new info_blast_pssm_entry(b)).ToList()).ToList();
+                    var pssm_matrix_normalised = pssm_group_normalised.SelectMany(a => a.pssm_entries.Select(b => new info_blast_pssm_entry(b)).ToList()).ToList();
 
 
                     // method 1: no normalisation
@@ -2345,7 +2345,7 @@ namespace dimorphics_dataset
                     {
                         var normalisation_method = _normalisation_method;
 
-                        var pssm_matrix = new List<info_blast_pssm.pssm_entry>();
+                        var pssm_matrix = new List<info_blast_pssm_entry>();
 
 
                         switch (normalisation_method)
@@ -2501,7 +2501,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm20col_values_alphabets != null && pssm20col_values_alphabets.Count > 0)
                                         {
-                                            var pssm20col_values = pssm20col_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+                                            var pssm20col_values = pssm20col_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x;
 
                                             if (pssm20col_values != null && pssm20col_values.Count > 0) // && pssm20col_values.Count <= max_features)
                                             {
@@ -2536,7 +2536,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm20row_values_alphabets != null && pssm20row_values_alphabets.Count > 0)
                                         {
-                                            var pssm20row_values = pssm20row_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+                                            var pssm20row_values = pssm20row_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x;
 
                                             if (pssm20row_values != null && pssm20row_values.Count > 0) // && pssm20row_values.Count <= max_features)
                                             {
@@ -2571,7 +2571,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm210_values_alphabets != null && pssm210_values_alphabets.Count > 0)
                                         {
-                                            var pssm210_values = pssm210_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+                                            var pssm210_values = pssm210_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x;
 
                                             if (pssm210_values != null && pssm210_values.Count > 0) // && pssm210_values.Count <= max_features)
                                             {
@@ -2606,7 +2606,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm400_values_alphabets != null && pssm400_values_alphabets.Count > 0)
                                         {
-                                            var pssm400_values = pssm400_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x;
+                                            var pssm400_values = pssm400_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x;
 
                                             if (pssm400_values != null && pssm400_values.Count > 0) // && pssm400_values.Count <= max_features)
                                             {
@@ -2645,7 +2645,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm20colDT_values_alphabets != null && pssm20colDT_values_alphabets.Count > 0)
                                         {
-                                            var pssm20colDT_values_groups = pssm20colDT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+                                            var pssm20colDT_values_groups = pssm20colDT_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x.GroupBy(a => a.lag).ToList();
 
                                             if (pssm20colDT_values_groups != null && pssm20colDT_values_groups.Count > 0)
                                             {
@@ -2690,7 +2690,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm210DT_values_alphabets != null && pssm210DT_values_alphabets.Count > 0)
                                         {
-                                            var pssm210DT_values_groups = pssm210DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+                                            var pssm210DT_values_groups = pssm210DT_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x.GroupBy(a => a.lag).ToList();
 
                                             if (pssm210DT_values_groups != null && pssm210DT_values_groups.Count > 0)
                                             {
@@ -2735,7 +2735,7 @@ namespace dimorphics_dataset
                                     {
                                         if (pssm400DT_values_alphabets != null && pssm400DT_values_alphabets.Count > 0)
                                         {
-                                            var pssm400DT_values_groups = pssm400DT_values_alphabets.FirstOrDefault(a => a.alphabet == alphabet.name).x.GroupBy(a => a.lag).ToList();
+                                            var pssm400DT_values_groups = pssm400DT_values_alphabets.FirstOrDefault(a => string.Equals(a.alphabet, alphabet.name, StringComparison.Ordinal)).x.GroupBy(a => a.lag).ToList();
 
                                             if (pssm400DT_values_groups != null && pssm400DT_values_groups.Count > 0)
                                             {
@@ -2869,7 +2869,7 @@ namespace dimorphics_dataset
 
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
             //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.InvariantCultureIgnoreCase)).ToList();
+            //alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
 
             for (var _sq_index = 0; _sq_index < sequences.Count; _sq_index++)
             {
@@ -2886,7 +2886,7 @@ namespace dimorphics_dataset
 
                     foreach (var alphabet_group in alphabet.groups)
                     {
-                        var sequence_sasa_values = sq.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)).Select(a => (L_all_atoms_abs: a.RSA_L.all_atoms_abs, L_all_polar_abs: a.RSA_L.all_polar_abs, L_main_chain_abs: a.RSA_L.main_chain_abs, L_total_side_abs: a.RSA_L.total_side_abs, L_non_polar_abs: a.RSA_L.non_polar_abs, L_all_atoms_rel: a.RSA_L.all_atoms_rel, L_all_polar_rel: a.RSA_L.all_polar_rel, L_main_chain_rel: a.RSA_L.main_chain_rel, L_total_side_rel: a.RSA_L.total_side_rel, L_non_polar_rel: a.RSA_L.non_polar_rel, S_all_atoms_abs: a.RSA_S.all_atoms_abs, S_all_polar_abs: a.RSA_S.all_polar_abs, S_main_chain_abs: a.RSA_S.main_chain_abs, S_total_side_abs: a.RSA_S.total_side_abs, S_non_polar_abs: a.RSA_S.non_polar_abs, S_all_atoms_rel: a.RSA_S.all_atoms_rel, S_all_polar_rel: a.RSA_S.all_polar_rel, S_main_chain_rel: a.RSA_S.main_chain_rel, S_total_side_rel: a.RSA_S.total_side_rel, S_non_polar_rel: a.RSA_S.non_polar_rel)).ToList() ?? new List<(double L_all_atoms_abs, double L_all_polar_abs, double L_main_chain_abs, double L_total_side_abs, double L_non_polar_abs, double L_all_atoms_rel, double L_all_polar_rel, double L_main_chain_rel, double L_total_side_rel, double L_non_polar_rel, double S_all_atoms_abs, double S_all_polar_abs, double S_main_chain_abs, double S_total_side_abs, double S_non_polar_abs, double S_all_atoms_rel, double S_all_polar_rel, double S_main_chain_rel, double S_total_side_rel, double S_non_polar_rel)>();
+                        var sequence_sasa_values = sq.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)).Select(a => (L_all_atoms_abs: a.RSA_L.all_atoms_abs, L_all_polar_abs: a.RSA_L.all_polar_abs, L_main_chain_abs: a.RSA_L.main_chain_abs, L_total_side_abs: a.RSA_L.total_side_abs, L_non_polar_abs: a.RSA_L.non_polar_abs, L_all_atoms_rel: a.RSA_L.all_atoms_rel, L_all_polar_rel: a.RSA_L.all_polar_rel, L_main_chain_rel: a.RSA_L.main_chain_rel, L_total_side_rel: a.RSA_L.total_side_rel, L_non_polar_rel: a.RSA_L.non_polar_rel, S_all_atoms_abs: a.RSA_S.all_atoms_abs, S_all_polar_abs: a.RSA_S.all_polar_abs, S_main_chain_abs: a.RSA_S.main_chain_abs, S_total_side_abs: a.RSA_S.total_side_abs, S_non_polar_abs: a.RSA_S.non_polar_abs, S_all_atoms_rel: a.RSA_S.all_atoms_rel, S_all_polar_rel: a.RSA_S.all_polar_rel, S_main_chain_rel: a.RSA_S.main_chain_rel, S_total_side_rel: a.RSA_S.total_side_rel, S_non_polar_rel: a.RSA_S.non_polar_rel)).ToList() ?? new List<(double L_all_atoms_abs, double L_all_polar_abs, double L_main_chain_abs, double L_total_side_abs, double L_non_polar_abs, double L_all_atoms_rel, double L_all_polar_rel, double L_main_chain_rel, double L_total_side_rel, double L_non_polar_rel, double S_all_atoms_abs, double S_all_polar_abs, double S_main_chain_abs, double S_total_side_abs, double S_non_polar_abs, double S_all_atoms_rel, double S_all_polar_rel, double S_main_chain_rel, double S_total_side_rel, double S_non_polar_rel)>();
 
                         var all_atoms_abs_L = sequence_sasa_values.Select(a => a.L_all_atoms_abs).OrderBy(a => a).ToArray();
                         var all_polar_abs_L = sequence_sasa_values.Select(a => a.L_all_polar_abs).OrderBy(a => a).ToArray();
@@ -2967,10 +2967,10 @@ namespace dimorphics_dataset
                                 /*if (f.Count <= max_features)*/
                                 features.AddRange(f);
 
-                                if (abs_or_rel == $@"abs") all_abs.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
-                                if (abs_or_rel == $@"rel") all_rel.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
-                                if (algo == $@"L") all_algorithm_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
-                                if (algo == $@"S") all_algorithm_s.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
+                                if (string.Equals(abs_or_rel, $@"abs", StringComparison.Ordinal)) all_abs.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
+                                if (string.Equals(abs_or_rel, $@"rel", StringComparison.Ordinal)) all_rel.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{abs_or_rel}_{alphabet.name}" }).ToList());
+                                if (string.Equals(algo, $@"L", StringComparison.Ordinal)) all_algorithm_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
+                                if (string.Equals(algo, $@"S", StringComparison.Ordinal)) all_algorithm_s.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{algo}_{alphabet.name}" }).ToList());
                                 all_rel_abs_s_l.AddRange(f.Select(a => new feature_info(a) { @group = $@"sasa_{sq.name}_all_{alphabet.name}" }).ToList());
                             }
                         }
@@ -3069,7 +3069,7 @@ namespace dimorphics_dataset
                         {
                             var sq = (
                                 name: sq_all.name,
-                                sequence: sq_all.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.InvariantCulture)
+                                sequence: sq_all.sequence?.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)
                                 ).ToList() ?? new List<atom>());
 
                             var tortuosity1 = atom.measure_tortuosity1(sq.sequence);
@@ -3359,7 +3359,7 @@ namespace dimorphics_dataset
 
                         var group2 = alphabet.groups[group_index2];
 
-                        var dist_list = aa_distances.Where(a => (group1.group_amino_acids.Contains(a.aa1,StringComparison.InvariantCulture) && group2.group_amino_acids.Contains(a.aa2, StringComparison.InvariantCulture)) || (group1.group_amino_acids.Contains(a.aa2, StringComparison.InvariantCulture) && group2.group_amino_acids.Contains(a.aa1, StringComparison.InvariantCulture))).Select(a => a.distance).ToArray();
+                        var dist_list = aa_distances.Where(a => (group1.group_amino_acids.Contains(a.aa1,StringComparison.Ordinal) && group2.group_amino_acids.Contains(a.aa2, StringComparison.Ordinal)) || (group1.group_amino_acids.Contains(a.aa2, StringComparison.Ordinal) && group2.group_amino_acids.Contains(a.aa1, StringComparison.Ordinal))).Select(a => a.distance).ToArray();
 
                         var ds = descriptive_stats.get_stat_values(dist_list, $@"{group1.group_name}_{group2.group_name}");
                         var dse = descriptive_stats.encode(
@@ -3516,8 +3516,8 @@ namespace dimorphics_dataset
 
                     var r2 = atom_types_pairs./*AsParallel().*/SelectMany(atom_type_pair =>
                     {
-                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (atom_type_pair.atom_type1 == $@"all" ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
-                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (atom_type_pair.atom_type2 == $@"all" ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
+                        var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type1, $@"all", StringComparison.Ordinal) ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
+                        var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type2, $@"all", StringComparison.Ordinal) ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
 
 
                         var ret = new List<feature_info>();
@@ -3590,8 +3590,8 @@ namespace dimorphics_dataset
 
                         //foreach (var dist_range in dist_ranges)
                         //{
-                        var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace($@".", $@"-", StringComparison.InvariantCulture)}A";
-                        var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace($@".", $@"-", StringComparison.InvariantCulture)}A";
+                        var name8 = $@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace($@".", $@"-", StringComparison.Ordinal)}A";
+                        var name9 = $@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace($@".", $@"-", StringComparison.Ordinal)}A";
 
                         //io_proxy.WriteLine($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
 
@@ -3846,7 +3846,7 @@ namespace dimorphics_dataset
             if (no_duplicates) return true;
 
             var header_list_str_dupe_check_distinct_count = header_list_str_dupe_check_distinct.AsParallel().AsOrdered().Select(a =>
-                (header: a, count: header_list_str_dupe_check.Count(b => b == a))).Where(a => a.count > 1).OrderByDescending(a => a.count).ToList();
+                (header: a, count: header_list_str_dupe_check.Count(b => string.Equals(b,a,StringComparison.Ordinal)))).Where(a => a.count > 1).OrderByDescending(a => a.count).ToList();
 
             header_list_str_dupe_check_distinct_count.ForEach(a => io_proxy.WriteLine($@"{module_name}.{method_name}: Duplicate header: {a.header} ({a.count})", module_name, method_name));
 
@@ -5232,9 +5232,9 @@ namespace dimorphics_dataset
             if (copy_without_std_dev)
             {
                 // find which groups contain dev_standard
-                var groups_with_std_dev = features.GroupBy(a => (a.source, a.@group)).Where(a => a.Any(b => b.perspective == nameof(descriptive_stats.dev_standard))).SelectMany(a => a.ToList()).ToList();
+                var groups_with_std_dev = features.GroupBy(a => (a.source, a.@group)).Where(a => a.Any(b => string.Equals(b.perspective, nameof(descriptive_stats.dev_standard), StringComparison.Ordinal))).SelectMany(a => a.ToList()).ToList();
 
-                var copy_without_sd_perspectives = groups_with_std_dev.Where(a => a.perspective != nameof(descriptive_stats.dev_standard)).Select(a => new feature_info(a)
+                var copy_without_sd_perspectives = groups_with_std_dev.Where(a => !string.Equals(a.perspective, nameof(descriptive_stats.dev_standard), StringComparison.Ordinal)).Select(a => new feature_info(a)
                 {
                     @group = $@"{a.@group}_nosd"
                 }).ToList();

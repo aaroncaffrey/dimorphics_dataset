@@ -49,7 +49,7 @@ namespace peptides_server
                     if (!exists(""AAdata"")) data(AAdata)
                 ";
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.InvariantCulture)).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.Ordinal)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -994,9 +994,9 @@ namespace peptides_server
                     var name = names[i];
                     var desc = $@"";
 
-                    if (name == $@"PP1") desc = $@"Polarity";
-                    else if (name == $@"PP2") desc = $@"Hydrophobicity";
-                    else if (name == $@"PP3") desc = $@"H-bonding";
+                    if (string.Equals(name, $@"PP1", StringComparison.Ordinal)) desc = $@"Polarity";
+                    else if (string.Equals(name, $@"PP2", StringComparison.Ordinal)) desc = $@"Hydrophobicity";
+                    else if (string.Equals(name, $@"PP3", StringComparison.Ordinal)) desc = $@"H-bonding";
 
                     var x = (i, names[i], desc, values[i]);
                     result.Add(x);
@@ -1055,12 +1055,12 @@ namespace peptides_server
                     var name = names[i];
                     var desc = $@"";
 
-                    if (name == $@"F1") desc = $@"Hydrophobicity index";
-                    else if (name == $@"F2") desc = $@"Alpha and turn propensities";
-                    else if (name == $@"F3") desc = $@"Bulky properties";
-                    else if (name == $@"F4") desc = $@"Compositional characteristic index";
-                    else if (name == $@"F5") desc = $@"Local flexibility";
-                    else if (name == $@"F6") desc = $@"Electronic properties";
+                    if (string.Equals(name, $@"F1", StringComparison.Ordinal)) desc = $@"Hydrophobicity index";
+                    else if (string.Equals(name, $@"F2", StringComparison.Ordinal)) desc = $@"Alpha and turn propensities";
+                    else if (string.Equals(name, $@"F3", StringComparison.Ordinal)) desc = $@"Bulky properties";
+                    else if (string.Equals(name, $@"F4", StringComparison.Ordinal)) desc = $@"Compositional characteristic index";
+                    else if (string.Equals(name, $@"F5", StringComparison.Ordinal)) desc = $@"Local flexibility";
+                    else if (string.Equals(name, $@"F6", StringComparison.Ordinal)) desc = $@"Electronic properties";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1271,16 +1271,16 @@ namespace peptides_server
                 {
                     var name = names[i];
                     var desc = $@"";
-                    if (name == $@"KF1") desc = $@"Helix/bend preference";
-                    else if (name == $@"KF2") desc = $@"Side-chain size";
-                    else if (name == $@"KF3") desc = $@"Extended structure preference";
-                    else if (name == $@"KF4") desc = $@"Hydrophobicity";
-                    else if (name == $@"KF5") desc = $@"Double-bend preference";
-                    else if (name == $@"KF6") desc = $@"Partial specific volume";
-                    else if (name == $@"KF7") desc = $@"Flat extended preference";
-                    else if (name == $@"KF8") desc = $@"Occurrence in alpha region";
-                    else if (name == $@"KF9") desc = $@"pK-C";
-                    else if (name == $@"KF10") desc = $@"Surrounding hydrophobicity";
+                    if (string.Equals(name, $@"KF1", StringComparison.Ordinal)) desc = $@"Helix/bend preference";
+                    else if (string.Equals(name, $@"KF2", StringComparison.Ordinal)) desc = $@"Side-chain size";
+                    else if (string.Equals(name, $@"KF3", StringComparison.Ordinal)) desc = $@"Extended structure preference";
+                    else if (string.Equals(name, $@"KF4", StringComparison.Ordinal)) desc = $@"Hydrophobicity";
+                    else if (string.Equals(name, $@"KF5", StringComparison.Ordinal)) desc = $@"Double-bend preference";
+                    else if (string.Equals(name, $@"KF6", StringComparison.Ordinal)) desc = $@"Partial specific volume";
+                    else if (string.Equals(name, $@"KF7", StringComparison.Ordinal)) desc = $@"Flat extended preference";
+                    else if (string.Equals(name, $@"KF8", StringComparison.Ordinal)) desc = $@"Occurrence in alpha region";
+                    else if (string.Equals(name, $@"KF9", StringComparison.Ordinal)) desc = $@"pK-C";
+                    else if (string.Equals(name, $@"KF10", StringComparison.Ordinal)) desc = $@"Surrounding hydrophobicity";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1372,9 +1372,9 @@ namespace peptides_server
                     var MembPos = values_MembPos[r];
                     var MembPosValue = 0.5;
 
-                    if (MembPos == $@"Globular") MembPosValue = 0.5;
-                    else if (MembPos == $@"Surface") MembPosValue = 1.0;
-                    else if (MembPos == $@"Transmembrane") MembPosValue = 0.0;
+                    if (string.Equals(MembPos, $@"Globular", StringComparison.Ordinal)) MembPosValue = 0.5;
+                    else if (string.Equals(MembPos, $@"Surface", StringComparison.Ordinal)) MembPosValue = 1.0;
+                    else if (string.Equals(MembPos, $@"Transmembrane", StringComparison.Ordinal)) MembPosValue = 0.0;
 
 
                     var x = (r, values_Pep[r], values_H[r], values_uH[r], MembPosValue, MembPos);
@@ -1675,14 +1675,14 @@ namespace peptides_server
                     var name = names[i];
 
                     var desc = $@"";
-                    if (name == $@"VHSE1") desc = $@"Hydrophobic properties";
-                    else if (name == $@"VHSE2") desc = $@"Hydrophobic properties";
-                    else if (name == $@"VHSE3") desc = $@"Steric properties";
-                    else if (name == $@"VHSE4") desc = $@"Steric properties";
-                    else if (name == $@"VHSE5") desc = $@"Electronic properties";
-                    else if (name == $@"VHSE6") desc = $@"Electronic properties";
-                    else if (name == $@"VHSE7") desc = $@"Electronic properties";
-                    else if (name == $@"VHSE8") desc = $@"Electronic properties";
+                    if (string.Equals(name, $@"VHSE1", StringComparison.Ordinal)) desc = $@"Hydrophobic properties";
+                    else if (string.Equals(name, $@"VHSE2", StringComparison.Ordinal)) desc = $@"Hydrophobic properties";
+                    else if (string.Equals(name, $@"VHSE3", StringComparison.Ordinal)) desc = $@"Steric properties";
+                    else if (string.Equals(name, $@"VHSE4", StringComparison.Ordinal)) desc = $@"Steric properties";
+                    else if (string.Equals(name, $@"VHSE5", StringComparison.Ordinal)) desc = $@"Electronic properties";
+                    else if (string.Equals(name, $@"VHSE6", StringComparison.Ordinal)) desc = $@"Electronic properties";
+                    else if (string.Equals(name, $@"VHSE7", StringComparison.Ordinal)) desc = $@"Electronic properties";
+                    else if (string.Equals(name, $@"VHSE8", StringComparison.Ordinal)) desc = $@"Electronic properties";
 
                     var x = (i, name, desc, values[i]);
 
@@ -1735,11 +1735,11 @@ namespace peptides_server
                     var name = names[i];
                     var desc = $@"";
 
-                    if (name == $@"Z1") desc = $@"Lipophilicity";
-                    else if (name == $@"Z2") desc = $@"Steric properties (Steric bulk/Polarizability)";
-                    else if (name == $@"Z3") desc = $@"Electronic properties (Polarity / Charge)";
-                    else if (name == $@"Z4") desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
-                    else if (name == $@"Z5") desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
+                    if (string.Equals(name, $@"Z1", StringComparison.Ordinal)) desc = $@"Lipophilicity";
+                    else if (string.Equals(name, $@"Z2", StringComparison.Ordinal)) desc = $@"Steric properties (Steric bulk/Polarizability)";
+                    else if (string.Equals(name, $@"Z3", StringComparison.Ordinal)) desc = $@"Electronic properties (Polarity / Charge)";
+                    else if (string.Equals(name, $@"Z4", StringComparison.Ordinal)) desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
+                    else if (string.Equals(name, $@"Z5", StringComparison.Ordinal)) desc = $@"Electronegativity, heat of formation, electrophilicity and hardness";
 
                     var x = (i, name, desc, values[i]);
 

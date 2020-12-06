@@ -37,12 +37,12 @@ namespace dimorphics_dataset
 
         internal void set_enable(bool enable, string name = null)
         {
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(pse_ssc_dssp), StringComparison.InvariantCultureIgnoreCase)) pse_ssc_dssp = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(foldx), StringComparison.InvariantCultureIgnoreCase)) foldx = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(ring), StringComparison.InvariantCultureIgnoreCase)) ring = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(sasa), StringComparison.InvariantCultureIgnoreCase)) sasa = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(tortuosity), StringComparison.InvariantCultureIgnoreCase)) tortuosity = enable;
-            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(intramolecular), StringComparison.InvariantCultureIgnoreCase)) intramolecular = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(pse_ssc_dssp), StringComparison.OrdinalIgnoreCase)) pse_ssc_dssp = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(foldx), StringComparison.OrdinalIgnoreCase)) foldx = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(ring), StringComparison.OrdinalIgnoreCase)) ring = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(sasa), StringComparison.OrdinalIgnoreCase)) sasa = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(tortuosity), StringComparison.OrdinalIgnoreCase)) tortuosity = enable;
+            if (string.IsNullOrEmpty(name) || string.Equals(name, nameof(intramolecular), StringComparison.OrdinalIgnoreCase)) intramolecular = enable;
 
         }
 
