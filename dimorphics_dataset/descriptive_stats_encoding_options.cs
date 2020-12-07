@@ -97,76 +97,40 @@ namespace dimorphics_dataset
 
         // feature parameters:
         internal static descriptive_stats_encoding_options[] dse_options_aa_index = new[] { new descriptive_stats_encoding_options(options_all_plus) };
-
         internal static descriptive_stats_encoding_options[] dse_options_sable_ds_entropy = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_abs = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_rel = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_distances = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_angles = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_energies = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_degrees = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_rapdf = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_atom_distances = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_curves = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_displacement = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_stat_values = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_sasa_all = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_ring_tap = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_iud_short = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_iud_long = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_iud_glob = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_anchor2 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_ala = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_sr1 = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm1_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm20col_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm20row_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm210_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm400_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm20colDT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm210DT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
         internal static descriptive_stats_encoding_options[] dse_options_pssm400DT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-
-
 
 
 
@@ -207,51 +171,68 @@ namespace dimorphics_dataset
         internal bool mad_median_q3;
         internal bool mad_mid_range;
 
-        internal descriptive_stats_encoding_options(string name, bool enable = false, string[] to_enable = null, string[] to_disable = null)
+        internal descriptive_stats_encoding_options(string name, bool? enable = null, string[] to_enable = null, string[] to_disable = null)
         {
-            options_name = name;
+            if (name != null)
+            {
+                options_name = name;
+            }
 
-            set_enable(enable);
-            if (to_enable != null && to_enable.Length > 0) set_enable(to_enable, true);
-            if (to_disable != null && to_disable.Length > 0) set_enable(to_disable, false);
+            if (enable != null)
+            {
+                set_enable(enable.Value);
+            }
+
+            if (to_enable != null && to_enable.Length > 0)
+            {
+                set_enable(to_enable, true);
+            }
+
+            if (to_disable != null && to_disable.Length > 0)
+            {
+                set_enable(to_disable, false);
+            }
         }
 
         internal void set_enable(bool enable)
         {
-            count = enable;
-            count_zero_values = enable;
-            count_non_zero_values = enable;
-            count_distinct_values = enable;
-            sum = enable;
-            mean_arithmetic = enable;
-            mean_geometric = enable;
-            mean_harmonic = enable;
-            min = enable;
-            max = enable;
-            range = enable;
-            mid_range = enable;
-            variance = enable;
-            dev_standard = enable;
-            root_mean_square = enable;
-            skewness = enable;
-            kurtosis = enable;
-            interquartile_range = enable;
-            median_q1 = enable;
-            median_q2 = enable;
-            median_q3 = enable;
-            mad_mean_arithmetic = enable;
-            mad_mean_harmonic = enable;
-            mad_mean_geometric = enable;
-            mad_median_q1 = enable;
-            mad_median_q2 = enable;
-            mad_median_q3 = enable;
-            mad_mid_range = enable;
+            this.count = enable;
+            this.count_zero_values = enable;
+            this.count_non_zero_values = enable;
+            this.count_distinct_values = enable;
+            this.sum = enable;
+            this.mean_arithmetic = enable;
+            this.mean_geometric = enable;
+            this.mean_harmonic = enable;
+            this.min = enable;
+            this.max = enable;
+            this.range = enable;
+            this.mid_range = enable;
+            this.variance = enable;
+            this.dev_standard = enable;
+            this.root_mean_square = enable;
+            this.skewness = enable;
+            this.kurtosis = enable;
+            this.interquartile_range = enable;
+            this.median_q1 = enable;
+            this.median_q2 = enable;
+            this.median_q3 = enable;
+            this.mad_mean_arithmetic = enable;
+            this.mad_mean_harmonic = enable;
+            this.mad_mean_geometric = enable;
+            this.mad_median_q1 = enable;
+            this.mad_median_q2 = enable;
+            this.mad_median_q3 = enable;
+            this.mad_mid_range = enable;
         }
 
 
         internal void set_enable(string[] names, bool enable)
         {
-            if (names == null || names.Length == 0) return;
+            if (names == null || names.Length == 0)
+            {
+                return;
+            }
 
             for (var i = 0; i < names.Length; i++)
             {
@@ -287,44 +268,47 @@ namespace dimorphics_dataset
         }
 
 
-        internal descriptive_stats_encoding_options(descriptive_stats_encoding_options dse_options, string name = null, bool? enable = false)
+        internal descriptive_stats_encoding_options(descriptive_stats_encoding_options dse_options, string name = null, bool? enable = null)
         {
-            this.options_name = dse_options.options_name;
+            if (dse_options != null)
+            {
+                this.options_name = dse_options.options_name;
 
-            this.intervals = dse_options.intervals != null ? new descriptive_stats_encoding_options(dse_options.intervals) : null;
-            this.distances = dse_options.distances != null ? new descriptive_stats_encoding_options(dse_options.distances) : null;
-            this.interquartile = dse_options.interquartile != null ? new descriptive_stats_encoding_options(dse_options.interquartile) : null;
-            this.abs = dse_options.abs != null ? new descriptive_stats_encoding_options(dse_options.abs) : null;
-            this.rescale = dse_options.rescale != null ? new descriptive_stats_encoding_options(dse_options.rescale) : null;
+                this.intervals = dse_options.intervals != null ? new descriptive_stats_encoding_options(dse_options.intervals) : null;
+                this.distances = dse_options.distances != null ? new descriptive_stats_encoding_options(dse_options.distances) : null;
+                this.interquartile = dse_options.interquartile != null ? new descriptive_stats_encoding_options(dse_options.interquartile) : null;
+                this.abs = dse_options.abs != null ? new descriptive_stats_encoding_options(dse_options.abs) : null;
+                this.rescale = dse_options.rescale != null ? new descriptive_stats_encoding_options(dse_options.rescale) : null;
 
-            this.count = dse_options.count;
-            this.count_zero_values = dse_options.count_zero_values;
-            this.count_non_zero_values = dse_options.count_non_zero_values;
-            this.count_distinct_values = dse_options.count_distinct_values;
-            this.sum = dse_options.sum;
-            this.mean_arithmetic = dse_options.mean_arithmetic;
-            this.mean_geometric = dse_options.mean_geometric;
-            this.mean_harmonic = dse_options.mean_harmonic;
-            this.min = dse_options.min;
-            this.max = dse_options.max;
-            this.range = dse_options.range;
-            this.mid_range = dse_options.mid_range;
-            this.variance = dse_options.variance;
-            this.dev_standard = dse_options.dev_standard;
-            this.root_mean_square = dse_options.root_mean_square;
-            this.skewness = dse_options.skewness;
-            this.kurtosis = dse_options.kurtosis;
-            this.interquartile_range = dse_options.interquartile_range;
-            this.median_q1 = dse_options.median_q1;
-            this.median_q2 = dse_options.median_q2;
-            this.median_q3 = dse_options.median_q3;
-            this.mad_mean_arithmetic = dse_options.mad_mean_arithmetic;
-            this.mad_mean_harmonic = dse_options.mad_mean_harmonic;
-            this.mad_mean_geometric = dse_options.mad_mean_geometric;
-            this.mad_median_q1 = dse_options.mad_median_q1;
-            this.mad_median_q2 = dse_options.mad_median_q2;
-            this.mad_median_q3 = dse_options.mad_median_q3;
-            this.mad_mid_range = dse_options.mad_mid_range;
+                this.count = dse_options.count;
+                this.count_zero_values = dse_options.count_zero_values;
+                this.count_non_zero_values = dse_options.count_non_zero_values;
+                this.count_distinct_values = dse_options.count_distinct_values;
+                this.sum = dse_options.sum;
+                this.mean_arithmetic = dse_options.mean_arithmetic;
+                this.mean_geometric = dse_options.mean_geometric;
+                this.mean_harmonic = dse_options.mean_harmonic;
+                this.min = dse_options.min;
+                this.max = dse_options.max;
+                this.range = dse_options.range;
+                this.mid_range = dse_options.mid_range;
+                this.variance = dse_options.variance;
+                this.dev_standard = dse_options.dev_standard;
+                this.root_mean_square = dse_options.root_mean_square;
+                this.skewness = dse_options.skewness;
+                this.kurtosis = dse_options.kurtosis;
+                this.interquartile_range = dse_options.interquartile_range;
+                this.median_q1 = dse_options.median_q1;
+                this.median_q2 = dse_options.median_q2;
+                this.median_q3 = dse_options.median_q3;
+                this.mad_mean_arithmetic = dse_options.mad_mean_arithmetic;
+                this.mad_mean_harmonic = dse_options.mad_mean_harmonic;
+                this.mad_mean_geometric = dse_options.mad_mean_geometric;
+                this.mad_median_q1 = dse_options.mad_median_q1;
+                this.mad_median_q2 = dse_options.mad_median_q2;
+                this.mad_median_q3 = dse_options.mad_median_q3;
+                this.mad_mid_range = dse_options.mad_mid_range;
+            }
 
             if (name != null)
             {

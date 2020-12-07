@@ -603,43 +603,71 @@ namespace dimorphics_dataset
 
                 io_proxy.WriteLine();
 
-                feature_types_1d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_1d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_1d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_2d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_2d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_2d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_3d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_3d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
-                io_proxy.WriteLine();
+                //io_proxy.WriteLine();
 
-                feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
             }
 
+            var feature_status = new List<(string key, bool value)>();
 
+            feature_status.AddRange(feature_types_1d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area1i}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_1d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area1n}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_1d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area1p}.{a.key}", a.value)).ToArray());
 
+            feature_status.AddRange(feature_types_2d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area2i}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_2d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area2n}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_2d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area2p}.{a.key}", a.value)).ToArray());
+
+            feature_status.AddRange(feature_types_3d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area3i}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_3d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area3n}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_3d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area3p}.{a.key}", a.value)).ToArray());
+
+            var feature_enabled = feature_status.Where(a => a.value).ToList();
+            var num_enabled = feature_enabled.Count;
+            io_proxy.WriteLine($@"Features enabled for extraction [{num_enabled}]:", module_name, method_name);
+            feature_enabled.ForEach(a => io_proxy.WriteLine(a.key, module_name, method_name));
+            io_proxy.WriteLine();
+
+            var feature_disabled = feature_status.Where(a => !a.value).ToList();
+            var num_disabled = feature_disabled.Count;
+            io_proxy.WriteLine($@"Features disabled for extraction [{num_enabled}]:", module_name, method_name);
+            feature_enabled.ForEach(a => io_proxy.WriteLine(a.key, module_name, method_name));
+            io_proxy.WriteLine();
+
+            if (num_enabled == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(args), $@"{module_name}.{method_name}: No features are selected for extraction ({nameof(num_enabled)}: {num_enabled}, {nameof(num_disabled)}: {num_disabled}).");
+            }
 
             parse_ok = true;
         }

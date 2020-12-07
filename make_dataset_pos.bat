@@ -4,7 +4,7 @@
 
 setlocal EnableDelayedExpansion
 @set exe=%USERPROFILE%\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.exe
-@set output=e:\dataset4
+@set output=e:\dataset6
 @md %output%\
 
 :: ===========================

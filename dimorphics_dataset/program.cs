@@ -194,6 +194,13 @@ namespace dimorphics_dataset
             return scd;
         }
 
+        internal static string join(IList<string> items)
+        {
+            if (items == null || items.Count == 0) return $@"";
+
+            return string.Join($@"_", items.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()).Replace($@".", $@"_", StringComparison.Ordinal);
+        }
+
         internal static void print_eta(int num_complete, int num_total, DateTime start_time, string module_name = @"", string method_name = @"")
         {
             var num_incomplete = num_total - num_complete;
@@ -341,6 +348,11 @@ namespace dimorphics_dataset
 
         internal static void Main(string[] args)
         {
+            //var x2 = descriptive_stats_encoding_options.options_all_plus;
+            //var x1 = descriptive_stats_encoding_options.options_all;
+            //var x3 = descriptive_stats_encoding_options.options_default;
+
+            //return;
             //var nums = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 10, 10 };//{1.34, 353253.3, 4343.2344, 12.11111199, 9.1, 9.99, 0.01, 0.0001, 54654, 745637, 234234, 745634, 24, 54563476, 8090, 6453};
 
             //nums = new double[] { 222, 1122, 45444 };
@@ -432,6 +444,10 @@ namespace dimorphics_dataset
                         {
                             while (true)
                             {
+                                var cmd_line = $@"{Process.GetCurrentProcess().MainModule.FileName} {string.Join($@" ", args)} -first_index={_index} -last_index={_index}";
+
+                                io_proxy.WriteLine(cmd_line, module_name, method_name);
+
                                 using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, $@"{string.Join($@" ", args)} -first_index={_index} -last_index={_index}");
 
                                 if (process != null)

@@ -2,7 +2,7 @@
   "profiles": {
     "dimorphics_dataset": {
       "commandName": "Project",
-      "commandLineArgs": "-3i=false -3p=true -3p.foldx=false -3i.foldx=true -use_dssp3=true -class_id=+1 -class_name=x -min_sequence_length=3 -max_features=100 -output_folder=c:\\ -3n=true -test"
+      "commandLineArgs": "-1i.aaindex -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\\dataset6\\ -use_children=true -verbose=true -use_dssp3=true -first_index=151 -last_index=151"
     }
   }
 }

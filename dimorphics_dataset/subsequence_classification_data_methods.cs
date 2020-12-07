@@ -1682,41 +1682,52 @@ namespace dimorphics_dataset
 
         internal static List<(string name, List<info_aaindex_entry> list)> aaindex_subset_templates_search()
         {
+            var aaindices_subsections = new List<(string name, List<info_aaindex_entry> list)>();
+            
+            // group with ALL aaindex entries
+            aaindices_subsections.Add(($@"all", info_aaindex.aaindex_entries));
+
+            // keyword search
             var keywords = new List<(string name, string[] list)>
             {
                 // energy terms
-                ($@"energy", new[] { $@"thermodynamic", $@"thermodynamics", $@"thermal", $@"energy", $@"gibbs", $@"solvation", $@"entropy", $@"entropies", $@"energies", $@"pka", $@"pk", $@"ph", $@"heat", $@"temperature", $@"dg", $@"ddg", $@"delta-g", $@"delta g" }),
+                ($@"s_energy", new[] { $@"thermodynamic", $@"thermodynamics", $@"thermal", $@"energy", $@"gibbs", $@"solvation", $@"entropy", $@"entropies", $@"energies", $@"pka", $@"pk", $@"ph", $@"heat", $@"temperature", $@"dg", $@"ddg", $@"delta-g", $@"delta g" }),
                 // charge terms
-                ($@"charge", new[] { $@"charge", $@"polarity", $@"polar", $@"charged", $@"positive", $@"negative", $@"electric", $@"electricity", $@"electrostatic" }),
+                ($@"s_charge", new[] { $@"charge", $@"polarity", $@"polar", $@"charged", $@"positive", $@"negative", $@"electric", $@"electricity", $@"electrostatic" }),
                 // interaction terms
-                ($@"interaction", new[] { $@"interaction", $@"interactions", $@"attraction", $@"affinity", $@"contact", $@"contacts", $@"complex", $@"complexation", $@"bind", $@"bond", $@"bonding", $@"binding", $@"bonded", $@"partner", $@"partnered", $@"partnering", $@"interaction", $@"intramolecular", $@"intermolecular", $@"vdw", $@"van der waals", $@"electrostatic", $@"statics", $@"hydrogen", $@"hbond" }),
+                ($@"s_interaction", new[] { $@"interaction", $@"interactions", $@"attraction", $@"affinity", $@"contact", $@"contacts", $@"complex", $@"complexation", $@"bind", $@"bond", $@"bonding", $@"binding", $@"bonded", $@"partner", $@"partnered", $@"partnering", $@"interaction", $@"intramolecular", $@"intermolecular", $@"vdw", $@"van der waals", $@"electrostatic", $@"statics", $@"hydrogen", $@"hbond" }),
                 // burial/exposed keywords
-                ($@"accessibility", new[] { $@"buried", $@"burial", $@"exposed", $@"exposure", $@"hidden", $@"accessibility", $@"accessible", $@"surface", $@"surfacial", $@"solvation", $@"solvent" }),
+                ($@"s_accessibility", new[] { $@"buried", $@"burial", $@"exposed", $@"exposure", $@"hidden", $@"accessibility", $@"accessible", $@"surface", $@"surfacial", $@"solvation", $@"solvent" }),
                 // unordered regions keywords
-                ($@"disorder", new[] { $@"unordered", $@"disorder", $@"randomness", $@"random coil", $@"random region", $@"coil", $@"terminal", $@"ambiguous", $@"conformational change" }),
+                ($@"s_disorder", new[] { $@"unordered", $@"disorder", $@"randomness", $@"random coil", $@"random region", $@"coil", $@"terminal", $@"ambiguous", $@"conformational change" }),
                 // beta-strand keywords
-                ($@"strand", new[] { $@"strand", $@"sheet", $@"beta-strand", $@"beta-sheet", $@"strand-strand", $@"sheet-sheet" }),
+                ($@"s_strand", new[] { $@"β", $@"β-strand", $@"βstrand", $@"strand", $@"sheet", $@"beta-strand", $@"beta-sheet", $@"strand-strand", $@"sheet-sheet" }),
+                // alpha-helix keywords
+                ($@"s_helix", new[] { $@"α", $@"α-helix", $@"αhelix", $@"helix", $@"helice", $@"helical", $@"alphahelix", $@"alpha-helix" }),
                 // coil keywords
-                ($@"coil", new[] { $@"coil", $@"random coil", $@"unstructured", $@"unordered", $@"coiled coil", $@"terminal coil", $@"coil-coil", $@"coil-strand", $@"coil-helix", $@"starnd-coil", $@"helix-coil" }),
+                ($@"s_coil", new[] { $@"coil", $@"random coil", $@"unstructured", $@"unordered", $@"coiled coil", $@"terminal coil", $@"coil-coil", $@"coil-strand", $@"coil-helix", $@"strand-coil", $@"helix-coil" }),
                 // all secondary structure keywords
-                ($@"ss", new[] { $@"transformation", $@"conversion", $@"conformation", $@"structure", $@"helix", $@"helice", $@"helical", $@"coil", $@"coiled", $@"helix", $@"strand", $@"sheet", $@"ss", $@"sec struct", $@"secondary structure" }),
+                ($@"s_ss", new[] { $@"transformation", $@"conversion", $@"conformation", $@"structure", $@"structural", $@"helix", $@"helice", $@"helical", $@"coil", $@"coiled", $@"helix", $@"strand", $@"sheet", $@"ss", $@"sec struct", $@"secondary structure" }),
                 // hydrophobicity keywords
-                ($@"hydrophocity", new[] { $@"hydropathy", $@"hydrophobe", $@"hydrophilathy", $@"hydrophobicity", $@"hydrophobic", $@"hydrophil", $@"hydrophile", $@"hydrophilic", $@"hydrophicility" }),
+                ($@"s_hydrophocity", new[] { $@"hydropathy", $@"hydrophobe", $@"hydrophilathy", $@"hydrophobicity", $@"hydrophobic", $@"hydrophil", $@"hydrophile", $@"hydrophilic", $@"hydrophicility", $@"hydro" }),
                 // composition keywords
-                ($@"composition", new[] { $@"composition", $@"propensity", $@"distribution", $@"frequency" })
+                ($@"s_composition", new[] { $@"composition", $@"propensity", $@"distribution", $@"frequency" })
             };
 
-            List<(string name, List<info_aaindex_entry> list)> aaindices_subsections = keywords.Select(a =>
-                (name: a.name,
-                    list:
-                    info_aaindex.aaindex_entries.Where(b => a.list.Any(c => b.D_Data_Description.Contains(c, StringComparison.OrdinalIgnoreCase) || b.T_Title_Of_Article.Contains(c, StringComparison.OrdinalIgnoreCase))).Distinct().ToList())).Distinct().ToList();
+            var keywords_results = keywords.Select(a =>
+                (
+                    name: a.name,
+                    list: info_aaindex.aaindex_entries.Where(b => a.list.Any(c => b.D_Data_Description.Contains(c, StringComparison.OrdinalIgnoreCase) || b.T_Title_Of_Article.Contains(c, StringComparison.OrdinalIgnoreCase))).Distinct().ToList()
+                )
+            ).Distinct().ToList();
 
+            aaindices_subsections.AddRange(keywords_results);
 
-            aaindices_subsections.Add(($@"all", info_aaindex.aaindex_entries));
-
+            
+            // entries found in various papers
 
             // from a paper... which one?
-            var dna_binding = new string[] {
+            var p_dna_binding = new string[] {
             $@"CHOP780202", $@"GEIM800106", $@"PALJ810107", $@"ZIMJ680104",
             $@"CIDH920103", $@"KANM800102", $@"QIAN880123", $@"AURR980120",
             $@"CIDH920105", $@"KLEP840101", $@"RACS770103", $@"MUNV940103",
@@ -1724,35 +1735,35 @@ namespace dimorphics_dataset
             $@"FAUJ880111", $@"LIFS790101", $@"ROSM880102", $@"NADH010106",
             $@"FINA910104", $@"MEEJ800101", $@"SWER830101", $@"GUYH850105",
             $@"GEIM800104", $@"OOBM770102", $@"ZIMJ680102", $@"MIYS990104"};
-            aaindices_subsections.Add((nameof(dna_binding), info_aaindex.aaindex_entries.Where(a => dna_binding.Contains(a.H_Accession_Number)).ToList()));
+            aaindices_subsections.Add((nameof(p_dna_binding), info_aaindex.aaindex_entries.Where(a => p_dna_binding.Contains(a.H_Accession_Number)).ToList()));
 
             // from a paper... which one?
-            var zernike = new string[] { $@"BLAM930101", $@"BIOV880101", $@"MAXF760101", $@"TSAJ990101", $@"NAKH920108", $@"CEDJ970104", $@"LIFS790101", $@"MIYS990104", };
-            aaindices_subsections.Add((nameof(zernike), info_aaindex.aaindex_entries.Where(a => zernike.Contains(a.H_Accession_Number)).ToList()));
+            var p_zernike = new string[] { $@"BLAM930101", $@"BIOV880101", $@"MAXF760101", $@"TSAJ990101", $@"NAKH920108", $@"CEDJ970104", $@"LIFS790101", $@"MIYS990104", };
+            aaindices_subsections.Add((nameof(p_zernike), info_aaindex.aaindex_entries.Where(a => p_zernike.Contains(a.H_Accession_Number)).ToList()));
 
             //An Ensemble Method for Predicting Subnuclear Localizations from Primary Protein Structures
-            var subnuclear = new string[] { $@"BULH740101", $@"BULH740102", $@"PONP800106", $@"PONP800104", $@"PONP800105", $@"PONP800106", $@"MANP780101", $@"EISD840101", $@"JOND750101", $@"HOPT810101", $@"PARJ860101", $@"JANJ780101", $@"PONP800107", $@"CHOC760102", $@"ROSG850101", $@"ROSG850102", $@"BHAR880101", $@"KARP850101", $@"KARP850102", $@"KARP850103", $@"JANJ780102", $@"JANJ780103", $@"LEVM780101", $@"LEVM780102", $@"LEVM780103", $@"GRAR740102", $@"GRAR740103", $@"MCMT640101", $@"PONP800108", $@"KYTJ820101", };
-            aaindices_subsections.Add((nameof(subnuclear), info_aaindex.aaindex_entries.Where(a => subnuclear.Contains(a.H_Accession_Number)).ToList()));
+            var p_subnuclear = new string[] { $@"BULH740101", $@"BULH740102", $@"PONP800106", $@"PONP800104", $@"PONP800105", $@"PONP800106", $@"MANP780101", $@"EISD840101", $@"JOND750101", $@"HOPT810101", $@"PARJ860101", $@"JANJ780101", $@"PONP800107", $@"CHOC760102", $@"ROSG850101", $@"ROSG850102", $@"BHAR880101", $@"KARP850101", $@"KARP850102", $@"KARP850103", $@"JANJ780102", $@"JANJ780103", $@"LEVM780101", $@"LEVM780102", $@"LEVM780103", $@"GRAR740102", $@"GRAR740103", $@"MCMT640101", $@"PONP800108", $@"KYTJ820101", };
+            aaindices_subsections.Add((nameof(p_subnuclear), info_aaindex.aaindex_entries.Where(a => p_subnuclear.Contains(a.H_Accession_Number)).ToList()));
 
             //Identification of properties important to protein aggregation using feature selection
-            var aggregation = new string[] { $@"CASG920101", $@"GUYH850101", $@"LEVM780102", $@"PALJ810111", $@"PONP800105", $@"PONP800107", $@"PRAM820103", $@"PRAM900103", $@"RICJ880117", $@"ROBB760110", $@"ROSM880105", $@"ROSM880105", $@"VENT840101", $@"VHEG790101", $@"WILM950102", $@"ZIMJ680101", };
-            aaindices_subsections.Add((nameof(aggregation), info_aaindex.aaindex_entries.Where(a => aggregation.Contains(a.H_Accession_Number)).ToList()));
+            var p_aggregation = new string[] { $@"CASG920101", $@"GUYH850101", $@"LEVM780102", $@"PALJ810111", $@"PONP800105", $@"PONP800107", $@"PRAM820103", $@"PRAM900103", $@"RICJ880117", $@"ROBB760110", $@"ROSM880105", $@"ROSM880105", $@"VENT840101", $@"VHEG790101", $@"WILM950102", $@"ZIMJ680101", };
+            aaindices_subsections.Add((nameof(p_aggregation), info_aaindex.aaindex_entries.Where(a => p_aggregation.Contains(a.H_Accession_Number)).ToList()));
 
             //Prediction of Protein–Protein Interaction with Pairwise Kernel Support Vector Machine
-            var ppi = new string[] { $@"LEWP710101", $@"QIAN880138", $@"NADH010104", $@"NAGK730103", $@"AURR980116" };
-            aaindices_subsections.Add((nameof(ppi), info_aaindex.aaindex_entries.Where(a => ppi.Contains(a.H_Accession_Number)).ToList()));
+            var p_ppi = new string[] { $@"LEWP710101", $@"QIAN880138", $@"NADH010104", $@"NAGK730103", $@"AURR980116" };
+            aaindices_subsections.Add((nameof(p_ppi), info_aaindex.aaindex_entries.Where(a => p_ppi.Contains(a.H_Accession_Number)).ToList()));
 
             //Characterizing informative sequence descriptors and predicting binding affinities of heterodimeric protein complexes
-            var affinity = new string[] { $@"GUYH850105", $@"SNEP660104", $@"RACS820113", $@"MITS020101", $@"MAXF760103", $@"CIDH920104", $@"AURR980119", $@"TANS770103", $@"CHOP780101", $@"PALJ810107", $@"QIAN880116", $@"PALJ810110", $@"TAKK010101", };
-            aaindices_subsections.Add((nameof(affinity), info_aaindex.aaindex_entries.Where(a => affinity.Contains(a.H_Accession_Number)).ToList()));
+            var p_affinity = new string[] { $@"GUYH850105", $@"SNEP660104", $@"RACS820113", $@"MITS020101", $@"MAXF760103", $@"CIDH920104", $@"AURR980119", $@"TANS770103", $@"CHOP780101", $@"PALJ810107", $@"QIAN880116", $@"PALJ810110", $@"TAKK010101", };
+            aaindices_subsections.Add((nameof(p_affinity), info_aaindex.aaindex_entries.Where(a => p_affinity.Contains(a.H_Accession_Number)).ToList()));
 
             // Intersection of the values from papers
-            var intersection = new string[] { $@"PALJ810107", $@"NADH010104", $@"LIFS790101", $@"GUYH850105", $@"MIYS990104", $@"PONP800106", $@"PONP800105", $@"PONP800107", $@"LEVM780102", $@"ROSM880105", };
-            aaindices_subsections.Add((nameof(intersection), info_aaindex.aaindex_entries.Where(a => intersection.Contains(a.H_Accession_Number)).ToList()));
+            var p_intersection = new string[] { $@"PALJ810107", $@"NADH010104", $@"LIFS790101", $@"GUYH850105", $@"MIYS990104", $@"PONP800106", $@"PONP800105", $@"PONP800107", $@"LEVM780102", $@"ROSM880105", };
+            aaindices_subsections.Add((nameof(p_intersection), info_aaindex.aaindex_entries.Where(a => p_intersection.Contains(a.H_Accession_Number)).ToList()));
 
             // Union of the values from papers
-            var union = (new string[][] { dna_binding, zernike, subnuclear, aggregation, ppi, affinity }).SelectMany(a => a).Distinct().ToList();
-            aaindices_subsections.Add((nameof(union), info_aaindex.aaindex_entries.Where(a => union.Contains(a.H_Accession_Number)).ToList()));
+            var p_union = (new string[][] { p_dna_binding, p_zernike, p_subnuclear, p_aggregation, p_ppi, p_affinity }).SelectMany(a => a).Distinct().ToList();
+            aaindices_subsections.Add((nameof(p_union), info_aaindex.aaindex_entries.Where(a => p_union.Contains(a.H_Accession_Number)).ToList()));
 
             return aaindices_subsections;
         }
@@ -1786,31 +1797,34 @@ namespace dimorphics_dataset
                 return template;
             }
 
+            // get preset/preserached groups of related AAindex entries (the whole aaindex is in the 'all' named entry)
             var aaindices_subsections = subsequence_classification_data_templates._aaindex_subset_templates;
 
 
-
+            // split query sequence into 3 parts, and unsplit.
             var sequences = new List<(string name, string sequence)>();
             sequences.Add(($@"unsplit", complete_sequence));
             sequences.AddRange(feature_calcs.split_sequence(complete_sequence).Select(a => ($@"split", a)).ToList());
 
+            // get alphabets with max 5 groups (including 1 group for all AAs)
             var alphabets = feature_calcs.aa_alphabets_inc_overall.ToList();
             //alphabets.Add((-1, $@"Overall", new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-            alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
+            alphabets = alphabets.Where(a => !string.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
             alphabets = alphabets.Where(a => a.groups.Count <= 5).ToList();
 
 
             var result = new List<feature_info>();
 
             // loop through each subsection of the aaindex.  note: one of the subsections is the full aaindex.
-            foreach (var aaindexes in aaindices_subsections)
+            foreach (var aaindex_subsection in aaindices_subsections)
             {
                 // loop through the split and unsplit sequences
                 for (var sq_index = 0; sq_index < sequences.Count; sq_index++)
                 {
                     var sq = sequences[sq_index];
-                    // loop through each aaindex entry without the aaindex subsection
-                    foreach (var aaindex_entry in aaindexes.list) //aaindex.aaindex_entries)
+
+                    // loop through each aaindex entry contained in the aaindex subsection
+                    foreach (var aaindex_entry in aaindex_subsection.list) //aaindex.aaindex_entries)
                     {
                         // get the values for the sequence 
                         var seq_aaindex_values = info_aaindex.sequence_aaindex_entry(aaindex_entry.H_Accession_Number, sq.sequence);
@@ -1820,9 +1834,6 @@ namespace dimorphics_dataset
                             foreach (var alphabet_group in alphabet.groups)
                             {
                                 var seq_aaindex_values_limited = seq_aaindex_values.Where(a => alphabet_group.group_amino_acids.Contains(a.amino_acid, StringComparison.Ordinal)).Select(a => a.value).OrderBy(a => a).ToArray();
-
-
-
 
                                 foreach (var dse_options in descriptive_stats_encoding_options.dse_options_aa_index)
                                 {
@@ -1838,46 +1849,44 @@ namespace dimorphics_dataset
                                         dse_options
                                     );
 
-
-                                    if (string.Equals(aaindexes.name, $@"all", StringComparison.OrdinalIgnoreCase))
+                                    // if 'all', then make individual entries too (group name differs with H_Accession_Number).
+                                    if (string.Equals(aaindex_subsection.name, $@"all", StringComparison.OrdinalIgnoreCase))
                                     {
                                         var f_e_ds_values1 = e_ds_values.Select(ds_stat => new feature_info()
                                         {
                                             alphabet = alphabet.name,
                                             stats = dse_options.options_name,
                                             dimension = 1,
-                                            category = $@"aaindex_{aaindexes.name}",
+                                            category = $@"aaindex_{aaindex_subsection.name}",
                                             source = $@"{source}",
-                                            @group = $@"{ds_stat.group_id}_aaindex_{aaindexes.name}_{sq.name}_{aaindex_entry.H_Accession_Number}_{alphabet.name}",
+                                            @group = $@"aaindex_{aaindex_subsection.name}_{sq.name}_{aaindex_entry.H_Accession_Number}_{alphabet.name}_{ds_stat.group_id}",
                                             member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}_{aaindex_entry.H_Accession_Number}",
                                             perspective = ds_stat.perspective_id,
                                             feature_value = ds_stat.perspective_value
                                         }).ToList();
 
-                                        //if (f_e_ds_values1.Count <= max_features)
+                                        var test = f_e_ds_values1.GroupBy(a => a.@group).Select(a => (a.Key, a.ToList())).ToList();
 
                                         result.AddRange(f_e_ds_values1);
+
+                                        
+
                                     }
 
+                                    // make group for aaindices_subsections (varied by unsplit/split sequence, alphabet name)
                                     var f_e_ds_values2 = e_ds_values.Select(ds_stat => new feature_info()
                                     {
                                         alphabet = alphabet.name,
                                         stats = dse_options.options_name,
                                         dimension = 1,
-                                        category = $@"aaindex_{aaindexes.name}",
+                                        category = $@"aaindex_{aaindex_subsection.name}",
                                         source = $@"{source}",
-                                        @group = $@"{ds_stat.group_id}_aaindex_{aaindexes.name}_{sq.name}_{alphabet.name}",
+                                        @group = $@"aaindex_{aaindex_subsection.name}_{sq.name}_{alphabet.name}_{ds_stat.group_id}",
                                         member = $@"{sq_index}_{alphabet_group.group_name}_{ds_stat.member_id}_{aaindex_entry.H_Accession_Number}",
                                         perspective = ds_stat.perspective_id,
                                         feature_value = ds_stat.perspective_value
                                     }).ToList();
 
-                                    //if (alphabet.name == $@"Overall")
-                                    //{
-                                    //  io_proxy.WriteLine();
-                                    //}
-
-                                    //if (f_e_ds_values2.Count <= max_features)
                                     result.AddRange(f_e_ds_values2);
                                 }
                             }
