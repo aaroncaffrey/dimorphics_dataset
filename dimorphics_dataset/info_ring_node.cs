@@ -30,7 +30,7 @@ namespace dimorphics_dataset
         {
             var result = new List<info_ring_node>();
 
-            var data = io_proxy.ReadAllLines(filename, nameof(info_ring_node), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => string.Equals(b, $@"-999.9", StringComparison.Ordinal) ? $@"0" : b).ToList()).ToList();
+            var data = io_proxy.ReadAllLines(filename, nameof(info_ring_node), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => string.Equals(b, /*program.string_debug*/($@"-999.9"), StringComparison.Ordinal) ? /*program.string_debug*/($@"0") : b).ToList()).ToList();
 
             foreach (var d in data)
             {

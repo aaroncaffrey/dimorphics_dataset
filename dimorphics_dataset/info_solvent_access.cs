@@ -64,7 +64,7 @@ namespace dimorphics_dataset
 
                 var lines = io_proxy.ReadAllLines(file, nameof(info_solvent_access), nameof(load)).ToList();
 
-                lines = lines.Where(a => a.StartsWith($@"RES ", StringComparison.Ordinal)).ToList();
+                lines = lines.Where(a => a.StartsWith(/*program.string_debug*/($@"RES "), StringComparison.Ordinal)).ToList();
 
 
                 var array_index = 0;
@@ -72,7 +72,7 @@ namespace dimorphics_dataset
                 {
                     var split = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-                    if (split[2].Any(char.IsDigit) && split[2].Any(char.IsLetter)) { var a = split[2][0]; var b = split[2].Substring(1); split.RemoveAt(2); split.Insert(2, $@"" + a); split.Insert(3, b); }
+                    if (split[2].Any(char.IsDigit) && split[2].Any(char.IsLetter)) { var a = split[2][0]; var b = split[2].Substring(1); split.RemoveAt(2); split.Insert(2, /*program.string_debug*/($@"") + a); split.Insert(3, b); }
 
                     var i = 0;//skip first
                     var rsa = new info_solvent_access()

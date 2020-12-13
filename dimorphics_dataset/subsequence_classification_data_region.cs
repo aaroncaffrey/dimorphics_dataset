@@ -25,11 +25,14 @@ namespace dimorphics_dataset
 
         internal string unique_id()
         {
-            return string.Join($@"_", new string[]
+            return string.Join(/*program.string_debug*/($@"_"), new string[]
             {
-                pdb_id,
-                $@"{chain_id}",
-                string.Join($@"_", res_ids?.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*$@"i"*/$@"" : $@"")}{a.i_code}" : $@"")}").ToArray() ?? Array.Empty<string>())
+                /*program.string_debug*/($@"{pdb_id}"),
+                /*program.string_debug*/($@"{chain_id}"),
+                string.Join(/*program.string_debug*/($@"_"), res_ids?
+                    .Select(a => 
+                        /*program.string_debug*/($@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? /*program.string_debug*/($@"a.i_code") : /*program.string_debug*/($@""))}")
+                    ).ToArray() ?? Array.Empty<string>())
             });
         }
         
@@ -41,17 +44,17 @@ namespace dimorphics_dataset
             atoms = region_atoms;
             master_atoms = atom.select_amino_acid_master_atoms(null, atoms);
             res_ids = master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList();
-            aa_sequence = string.Join($@"", master_atoms.Select(a => a.amino_acid).ToList());
+            aa_sequence = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.amino_acid).ToList());
 
-            dssp_multimer = string.Join($@"", master_atoms.Select(a => a.dssp_multimer).ToList());
-            stride_multimer = string.Join($@"", master_atoms.Select(a => a.stride_multimer).ToList());
-            dssp_monomer = string.Join($@"", master_atoms.Select(a => a.dssp_monomer).ToList());
-            stride_monomer = string.Join($@"", master_atoms.Select(a => a.stride_monomer).ToList());
+            dssp_multimer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.dssp_multimer).ToList());
+            stride_multimer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.stride_multimer).ToList());
+            dssp_monomer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.dssp_monomer).ToList());
+            stride_monomer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.stride_monomer).ToList());
 
-            dssp3_multimer = string.Join($@"", master_atoms.Select(a => a.dssp3_multimer).ToList());
-            stride3_multimer = string.Join($@"", master_atoms.Select(a => a.stride3_multimer).ToList());
-            dssp3_monomer = string.Join($@"", master_atoms.Select(a => a.dssp3_monomer).ToList());
-            stride3_monomer = string.Join($@"", master_atoms.Select(a => a.stride3_monomer).ToList());
+            dssp3_multimer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.dssp3_multimer).ToList());
+            stride3_multimer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.stride3_multimer).ToList());
+            dssp3_monomer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.dssp3_monomer).ToList());
+            stride3_monomer = string.Join(/*program.string_debug*/($@""), master_atoms.Select(a => a.stride3_monomer).ToList());
 
             if (load_ss_predictions)
             {
@@ -59,7 +62,7 @@ namespace dimorphics_dataset
                 {
                     var template_region = scd.get_regions().First(a => a.region != null && a.region.master_atoms != null && a.region.master_atoms.Count > 0).region.master_atoms;
                     ss_predictions = atom.get_dssp_and_mpsa_subsequences(template_region);
-                    ss_predictions = ss_predictions.Select(a => (a.format, $@"")).ToList();
+                    ss_predictions = ss_predictions.Select(a => (a.format, /*program.string_debug*/($@""))).ToList();
                 }
                 else
                 {

@@ -6,34 +6,38 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Loader;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
     internal static class program
     {
+        // example launch args:
+        // -1i.aaindex -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset6\ -use_children=true -verbose=true -use_dssp3=true -first_index=151 -last_index=151
+
         // todo: re-check tortusoity code, intramolecular distance code, and averageatom-atom distance cpde
 
         // todo: check which blast databases, output options are disabled.
         // todo: check blast distance option.
 
+        public const string module_name = nameof(program);
         internal static bool verbose = true;
 
-        internal static string data_root_folder = $@"C:\betastrands_dataset\";
+        internal static string data_root_folder = /*program.string_debug*/($@"C:\betastrands_dataset\");
 
         internal static List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> get_dataset_pdb_id_list(string class_name_in_file = @"Single")
         {
-            const string module_name = nameof(program);
             const string method_name = nameof(get_dataset_pdb_id_list);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
             //List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)>
 
-            var dimorphics_data1 = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), module_name, method_name)
+            var dimorphics_data1 = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"csv"), /*program.string_debug*/($@"distinct dimorphics list.csv")), module_name, method_name)
                 .Skip(1)
-                .Where(a => !string.IsNullOrWhiteSpace(a.Replace($@",", $@"", StringComparison.Ordinal)))
+                .Where(a => !string.IsNullOrWhiteSpace(a.Replace(/*program.string_debug*/($@","), /*program.string_debug*/($@""), StringComparison.Ordinal)))
                 .Select((a, i) =>
                 {
                     var k = 0;
@@ -64,10 +68,9 @@ namespace dimorphics_dataset
 
         internal static subsequence_classification_data get_subsequence_classificiation_data(cmd_params p, protein_subsequence_info psi, protein_subsequence_info _template_protein = null, load_atoms_pdb_options pdb_options = null, bool load_ss_predictions = true, bool load_foldx_energy = true)
         {
-            const string module_name = nameof(program);
             const string method_name = nameof(get_subsequence_classificiation_data);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
             // todo: check if pdb_folder should be pdb or pdb_repair?
@@ -132,9 +135,9 @@ namespace dimorphics_dataset
 
             var scd = new subsequence_classification_data
             {
-                dimer_type = psi.dimer_type ?? $@"",
-                symmetry_mode = psi.symmetry_mode ?? $@"",
-                parallelism = psi.parallelism ?? $@"",
+                dimer_type = psi.dimer_type ?? /*program.string_debug*/($@""),
+                symmetry_mode = psi.symmetry_mode ?? /*program.string_debug*/($@""),
+                parallelism = psi.parallelism ?? /*program.string_debug*/($@""),
 
                 class_id = psi.class_id,
                 class_name = psi.class_name,
@@ -196,9 +199,9 @@ namespace dimorphics_dataset
 
         internal static string join(IList<string> items)
         {
-            if (items == null || items.Count == 0) return $@"";
+            if (items == null || items.Count == 0) return /*program.string_debug*/($@"");
 
-            return string.Join($@"_", items.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()).Replace($@".", $@"_", StringComparison.Ordinal);
+            return string.Join(/*program.string_debug*/($@"_"), items.Where(a => !string.IsNullOrWhiteSpace(a)).ToArray()).Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal);
         }
 
         internal static void print_eta(int num_complete, int num_total, DateTime start_time, string module_name = @"", string method_name = @"")
@@ -215,52 +218,60 @@ namespace dimorphics_dataset
 
             var time_remaining = TimeSpan.FromTicks((long)est_time_remain);
 
-            io_proxy.WriteLine($@"ETA: tasks complete: {num_complete}/{num_total} ({num_complete_pct:0.00}%) [time taken: {time_taken:dd\:hh\:mm\:ss\.fff}, time remaining: {time_remaining:dd\:hh\:mm\:ss\.fff}]", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"ETA: tasks complete: {num_complete}/{num_total} ({num_complete_pct:0.00}%) [time taken: {time_taken:dd\:hh\:mm\:ss\.fff}, time remaining: {(num_complete>0?$@"{time_remaining:dd\:hh\:mm\:ss\.fff}":/*program.string_debug*/($@"..."))}]"), module_name, method_name);
         }
 
-        internal static void wait_tasks(Task[] tasks, DateTime start_time, string module_name = @"", string method_name = @"")
+        internal static void wait_tasks(Task[] tasks, DateTime start_time, int max_concurrent_tasks = 0, string caller_module_name = @"", string caller_method_name = @"", CancellationTokenSource cts = null)
         {
+            // wait for tasks=> max_concurrent_tasks to complete before returning
+            // except when max_concurrent_tasks is zero, wait all tasks...
             if (tasks == null || tasks.Length == 0) return;
+
+            var resource_wait = false;
+
+            if (max_concurrent_tasks == -1)
+            {
+                // todo: wait for free resources
+                resource_wait = true;
+                max_concurrent_tasks = Environment.ProcessorCount * 2;
+            }
+
+            bool[] task_status;
+            var num_tasks_total = 0;
+            var num_tasks_incomplete = 0;
+            var num_tasks_complete = 0;
 
             do
             {
-                var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToList();
-
-                if (incomplete_tasks.Count > 0)
+                if (cts != null && cts.IsCancellationRequested)
                 {
-                    var completed_task_index = Task.WaitAny(incomplete_tasks.ToArray<Task>());
-
-                    if (completed_task_index > -1)
-                    {
-                        var num_total = tasks.Length;
-                        var num_incomplete = tasks.Count(a => !a.IsCompleted);
-                        var num_complete = num_total - num_incomplete;
-
-                        print_eta(num_complete, num_total, start_time, module_name, method_name);
-                    }
+                    return;
                 }
 
-            } while (tasks.Any(a => !a.IsCompleted));
+                task_status = tasks.Select(a => a.IsCompleted).ToArray();
+                num_tasks_total = task_status.Length;
+                num_tasks_incomplete = task_status.Count(a => !a);
+                num_tasks_complete = num_tasks_total - num_tasks_incomplete;
+                print_eta(num_tasks_complete, num_tasks_total, start_time, caller_module_name, caller_method_name);
 
-            Task.WaitAll(tasks.ToArray<Task>());
+                if (num_tasks_incomplete == 0 || (max_concurrent_tasks > 0 && num_tasks_incomplete < max_concurrent_tasks)) return;
+
+                if (num_tasks_incomplete > 0 && num_tasks_incomplete >= max_concurrent_tasks)
+                {
+                    var incomplete_tasks = tasks.Where((a, i) => !task_status[i]).ToArray<Task>();
+
+                    if (cts==null) Task.WaitAny(incomplete_tasks);
+                    else Task.WaitAny(incomplete_tasks, cts.Token);
+                }
+
+            } while (num_tasks_incomplete > 0 && num_tasks_incomplete >= max_concurrent_tasks);
+
+            if (max_concurrent_tasks <= 0 && num_tasks_incomplete > 0)
+            {
+                if (cts == null) Task.WaitAll(tasks.ToArray<Task>());
+                else Task.WaitAll(tasks.ToArray<Task>(), cts.Token);
+            }
         }
-
-        internal static void close_notifications()
-        {
-            Console.CancelKeyPress += (sender, eventArgs) =>
-            {
-                io_proxy.WriteLine($@"Console.CancelKeyPress", nameof(program), nameof(close_notifications));
-            };
-            AssemblyLoadContext.Default.Unloading += context =>
-            {
-                io_proxy.WriteLine($@"AssemblyLoadContext.Default.Unloading", nameof(program), nameof(close_notifications));
-            };
-            AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
-            {
-                io_proxy.WriteLine($@"AppDomain.CurrentDomain.ProcessExit", nameof(program), nameof(close_notifications));
-            };
-        }
-
 
 
 
@@ -291,7 +302,7 @@ namespace dimorphics_dataset
 
         //var atd = at.Select(a=>a.atom_type).Distinct().ToList();
         //var atc = atd.Select(a => (atom_type:a, count:at.Count(b => b.atom_type == a), files:at.Where(b=>b.atom_type==a).Select(b=>b.pdb_id).Distinct().Count())).OrderByDescending(a=>a.count).ToList();
-        //atc.ForEach(a=>io_proxy.WriteLine($@"{a.atom_type},{a.count},{((double)a.count / (double)atd.Count)},{a.files},{((double)a.files / (double)pdbs.Count)}"));
+        //atc.ForEach(a=>io_proxy.WriteLine(/*program.string_debug*/($@"{a.atom_type},{a.count},{((double)a.count / (double)atd.Count)},{a.files},{((double)a.files / (double)pdbs.Count)}"));
         //return;
         //foreach (var pdb in pdbs)
         //{
@@ -343,7 +354,19 @@ namespace dimorphics_dataset
         //return;
 
 
-
+        internal static string string_debug(string str)
+        {
+#if DEBUG
+            var i_str = string.IsInterned(str);
+            if (i_str == null)
+            {
+                i_str = string.Intern(str);
+                Console.WriteLine($"{nameof(string_debug)}: {i_str}");
+                return i_str;
+            }
+#endif
+            return str;
+        }
 
 
         internal static void Main(string[] args)
@@ -360,8 +383,8 @@ namespace dimorphics_dataset
             ////nums = Enumerable.Range(0,10).SelectMany(j=> nums.Concat(nums.Select((a, i) => a + ((i+1) * (j+1))).ToArray()).ToArray()).ToArray();
             ////nums = nums.Where(a => a != 0).ToArray();
 
-            //var nums_ds = descriptive_stats.get_stat_values(data: nums, group_id_name: $@"", member_id_name: $@"", presorted: false, interval: true, distance: true, interquartile: true, abs: true, rescale:true);
-            //var nums_ds_e = nums_ds.encode(new descriptive_stats_encoding_options($@"", true),  presorted: false, interval: true, distance: true, interquartile: true, abs: true, rescale:true);
+            //var nums_ds = descriptive_stats.get_stat_values(data: nums, group_id_name: /*program.string_debug*/($@""), member_id_name: /*program.string_debug*/($@""), presorted: false, interval: true, distance: true, interquartile: true, abs: true, rescale:true);
+            //var nums_ds_e = nums_ds.encode(new descriptive_stats_encoding_options(/*program.string_debug*/($@""), true),  presorted: false, interval: true, distance: true, interquartile: true, abs: true, rescale:true);
             //nums_ds_e.ForEach(a=> Console.WriteLine($"{a.group_id} {a.member_id} {a.perspective_id} = {a.perspective_value}"));
             //return;
 
@@ -373,87 +396,108 @@ namespace dimorphics_dataset
             //swx.Start();
             //var x = cache_r_load();
             //swx.Stop();
-            //Console.WriteLine(swx.Elapsed.ToString($@"g"));
+            //Console.WriteLine(swx.Elapsed.ToString(/*program.string_debug*/($@"g"));
 
             //cache_r_servers();
             //cache_r_servers_check();
             //return;
 
-            close_notifications();
+            var main_cts = new CancellationTokenSource();
+            init.set_process_priority();
+            init.close_notifications(main_cts);
+            init.check_x64();
+            init.set_gc_mode();
+            init.set_thread_counts();
+
+           
+
             var child_priority = ProcessPriorityClass.Idle;
             var child_priority_boost = false;
+            
             var p = new cmd_params(args);
 
-            //var tag = p.get_output_file_tag();
-
-            if (!p.parse_ok)
-            {
-                return;
-            }
-
+            
             program.verbose = p?.verbose.Value ?? true;
 
-            //var feature_types2 = feature_types.feature_types_params(p?.area ?? null);
+            
+            var sw_all = new Stopwatch();
+            sw_all.Start();
 
-            //return;
-            var sw1 = new Stopwatch();
-            sw1.Start();
+            var sw_part1 = new Stopwatch();
+            var sw_part2 = new Stopwatch();
+            var sw_part3 = new Stopwatch();
+            var sw_part4 = new Stopwatch();
+            var sw_part5 = new Stopwatch();
+            var sw_part6 = new Stopwatch();
+
 
             var pdb_id_list = get_dataset_pdb_id_list();
 
             // 1. find subsequence details from analysis of pdb files
-            var psi_list = part1_find_samples(p, pdb_id_list);
+            sw_part1.Start();
+            var psi_list = part1_find_samples(p, pdb_id_list, main_cts);
+            sw_part1.Stop();
 
             // load r cache, if not using children (takes too many resources to load cache for individual items)
             if (!p.use_children.Value)
             {
-                subsequence_classification_data_r_methods.cache_r_protr = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_protr_filename);
-                subsequence_classification_data_r_methods.cache_r_peptides = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_peptides_filename);
+                subsequence_classification_data_r_methods.cache_r_load();
             }
 
             var _template_protein = psi_list.First();
             //Parallel.For(0, psi_list.Count, index =>
 
-            var tasks = new List<Task>();
 
+            var tasks = new List<Task>();
             var tasks_start_time = DateTime.Now;
 
-            for (var index = 0; index < psi_list.Count; index++)
+            var index_first = 0;
+            var index_last = psi_list.Count - 1;
+
+            if (p.first_index != null && p.first_index >= 0 && p.first_index <= psi_list.Count - 1)
+            {
+                index_first = p.first_index.Value;
+            }
+
+            if (p.last_index != null && p.last_index >= 0 && p.last_index <= psi_list.Count - 1)
+            {
+                index_last = p.last_index.Value;
+            }
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part1)}: {sw_part1.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
+
+            for (var index = index_first; index <= index_last; index++)
             {
                 var _index = index;
 
-                if (p.first_index != null && p.first_index > -1)
-                {
-                    if (_index < p.first_index) continue;
-                }
-
-                if (p.last_index != null && p.last_index > -1)
-                {
-                    if (_index > p.last_index) continue;
-                }
-
                 var fns = get_output_filenames(p, _index);
-                if (File.Exists(fns.fn_headers) && File.Exists(fns.fn_features) && File.Exists(fns.fn_comments)) continue;
 
+#if !DEBUG
+                // if done, skip only in release
+
+                if (File.Exists(fns.fn_headers) && File.Exists(fns.fn_features) && File.Exists(fns.fn_comments)) continue;
+#endif
 
                 if (p.first_index == null && p.last_index == null)
                 {
+                    // if no index given, then 
                     if (p.use_children.Value)
                     {
                         var task = Task.Run(() =>
                         {
                             while (true)
                             {
-                                var cmd_line = $@"{Process.GetCurrentProcess().MainModule.FileName} {string.Join($@" ", args)} -first_index={_index} -last_index={_index}";
+                                var cmd_args = /*program.string_debug*/($@"{string.Join(/*program.string_debug*/($@" "), args)} -first_index={_index} -last_index={_index}");
+                                var cmd_line = /*program.string_debug*/($@"{Process.GetCurrentProcess().MainModule.FileName} {cmd_args}");
 
                                 io_proxy.WriteLine(cmd_line, module_name, method_name);
 
-                                using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, $@"{string.Join($@" ", args)} -first_index={_index} -last_index={_index}");
+                                using var process = Process.Start(Process.GetCurrentProcess().MainModule.FileName, cmd_args);
 
                                 if (process != null)
                                 {
-                                    try { process.PriorityClass = child_priority; } catch (Exception) { }
-                                    try { process.PriorityBoostEnabled = child_priority_boost; } catch (Exception) { }
+                                    try { process.PriorityBoostEnabled = child_priority_boost; } catch (Exception e) { io_proxy.log_exception(e, $@"", module_name, method_name); }
+                                    try { process.PriorityClass = child_priority; } catch (Exception e) { io_proxy.log_exception(e, $@"", module_name, method_name); }
 
                                     process.WaitForExit();
 
@@ -461,86 +505,109 @@ namespace dimorphics_dataset
                                 }
                                 else
                                 {
-                                    Task.Delay(new TimeSpan(0, 0, 5)).Wait();
+                                    Task.Delay(new TimeSpan(0, 0, 5), main_cts.Token).Wait(main_cts.Token);
                                 }
                             }
-                        });
+                        }, main_cts.Token);
                         tasks.Add(task);
 
-                        var num_total = psi_list.Count;
+                        //var num_total = psi_list.Count;
+                        //
+                        //var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
+                        //if (incomplete_tasks.Length >= Environment.ProcessorCount)
+                        //{
+                        //    print_eta(num_total - incomplete_tasks.Length, num_total, tasks_start_time, module_name, method_name);
+                        //    Task.WaitAny(incomplete_tasks);
+                        //}
+                        //
+                        //var completed_tasks = tasks.Where(a => a.IsCompleted).ToArray();
+                        //print_eta(completed_tasks.Length, num_total, tasks_start_time, module_name, method_name);
 
-                        var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
-                        if (incomplete_tasks.Length >= Environment.ProcessorCount)
-                        {
-                            print_eta(num_total - incomplete_tasks.Length, num_total, tasks_start_time, module_name, method_name);
-                            Task.WaitAny(incomplete_tasks);
-                        }
+                        wait_tasks(tasks.ToArray<Task>(), tasks_start_time, Environment.ProcessorCount, module_name, method_name, main_cts);
 
-                        var completed_tasks = tasks.Where(a => a.IsCompleted).ToArray();
-                        print_eta(completed_tasks.Length, num_total, tasks_start_time, module_name, method_name);
 
                         continue;
                     }
-                    /*else
-                    {
-                        var task = Task.Run(() =>
-                        {
-                            var args2 = args.Union(new string[] { $@"-first_index={_index}", $@"-last_index={_index}" }).ToArray();
-                            Main(args2);
-                        });
-                        tasks.Add(task);
-
-                        var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
-                        if (incomplete_tasks.Length >= Environment.ProcessorCount)
-                        {
-                            Task.WaitAny(incomplete_tasks);
-                        }
-
-                        continue;
-                    }*/
-                    
-                   
+                    //else
+                    //{
+                    //    var task = Task.Run(() =>
+                    //    {
+                    //        var args2 = args.Union(new string[] { /*program.string_debug* /($@"-first_index={_index}", /*program.string_debug* /($@"-last_index={_index}" }).ToArray();
+                    //        Main(args2);
+                    //    });
+                    //    tasks.Add(task);
+                    //
+                    //    var incomplete_tasks = tasks.Where(a => !a.IsCompleted).ToArray();
+                    //    if (incomplete_tasks.Length >= Environment.ProcessorCount)
+                    //    {
+                    //        Task.WaitAny(incomplete_tasks);
+                    //    }
+                    //
+                    //    continue;
+                    //}
                 }
-
-
-
 
                 var psi_list2 = new List<protein_subsequence_info>() { psi_list[_index] };
 
                 // 2. load available data sources
-                var class_data_list = part2_load_data(p, psi_list2, _template_protein);
+                sw_part2.Start();
+                var class_data_list = part2_load_data(p, psi_list2, _template_protein, main_cts);
+                sw_part2.Stop();
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part2)}: {sw_part2.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
 
                 // 3. encode the data as svm classification features
+                sw_part3.Start();
                 var data_encoded_list = part3_encode_features(p, class_data_list);
+                sw_part3.Stop();
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part3)}: {sw_part3.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
 
                 // 4. Save to file
+                sw_part4.Start();
                 part4_save_outputs(p, data_encoded_list, _index);
+                sw_part4.Stop();
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part4)}: {sw_part4.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
             }
 
-            wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
+            wait_tasks(tasks.ToArray<Task>(), tasks_start_time, 0, module_name, method_name, main_cts);
 
             if (p.first_index == null && p.last_index == null)
             {
+                sw_part5.Start();
                 part5_check_output_hashes(psi_list, p);
+                sw_part5.Stop();
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part5)}: {sw_part5.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
 
+                sw_part6.Start();
                 part6_check_and_merge_outputs(psi_list, p);
+                sw_part6.Stop();
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished {nameof(sw_part6)}: {sw_part6.Elapsed:dd\:hh\:mm\:ss\.fff} ({index_first}..{index_last})."), module_name, method_name);
             }
 
-            sw1.Stop();
+            sw_all.Stop();
 
-            if (p.first_index == null && p.last_index == null)
+            var sw_times = new[]
             {
+                $@"{nameof(sw_all)}: {sw_all.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part1)}: {sw_part1.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part2)}: {sw_part2.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part3)}: {sw_part3.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part4)}: {sw_part4.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part5)}: {sw_part5.Elapsed:dd\:hh\:mm\:ss\.fff}",
+                $@"{nameof(sw_part6)}: {sw_part6.Elapsed:dd\:hh\:mm\:ss\.fff}",
+            };
 
-                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: Finished: ({sw1.Elapsed:dd\:hh\:mm\:ss\.fff})", module_name, method_name);
-            }
+            io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: Finished ({index_first}..{index_last}). ({string.Join($@", ", sw_times)})"), module_name, method_name);
         }
          
-        private static void part6_check_and_merge_outputs(List<protein_subsequence_info> psi_list, cmd_params p)
+        private static void part6_check_and_merge_outputs(List<protein_subsequence_info> psi_list, cmd_params p, CancellationTokenSource cts = null)
         {
-            const string module_name = nameof(program);
+            
             const string method_name = nameof(part6_check_and_merge_outputs);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
             var files = psi_list.AsParallel().AsOrdered().Select((a, i) =>
             {
@@ -557,33 +624,33 @@ namespace dimorphics_dataset
 
             if (num_features.Select(a => a.num_features).Distinct().Count() > 1)
             {
-                io_proxy.WriteLine($@"Feature counts don't match.", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"Feature counts don't match."), module_name, method_name);
             }
             else
             {
-                io_proxy.WriteLine($@"Feature counts match.", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"Feature counts match."), module_name, method_name);
             }
 
             // check for any non-double type features
             var invalid_features = text_features
                 .SelectMany(a =>
-                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || string.Equals(b, $@"∞", StringComparison.Ordinal) || string.Equals(b, $@"+∞", StringComparison.Ordinal) || string.Equals(b, $@"-∞", StringComparison.Ordinal) || string.Equals(b, $@"NaN", StringComparison.Ordinal)) ? i : -1)
+                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || string.Equals(b, /*program.string_debug*/($@"∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"+∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"-∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"NaN"), StringComparison.Ordinal)) ? i : -1)
                         .Where(a => a != -1).ToList()).Distinct().OrderBy(a => a).ToList();
 
             if (invalid_features.Count > 0)
             {
-                io_proxy.WriteLine($@"Invalid feature ids: {string.Join($@", ", invalid_features)}", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"Invalid feature ids: {string.Join(/*program.string_debug*/($@", "), invalid_features)}"), module_name, method_name);
 
                 foreach (var i in invalid_features)
                 {
                     var invalid_feature_header =
-                        text_header.FirstOrDefault(a => a.StartsWith($@"{i},", StringComparison.Ordinal));
-                    io_proxy.WriteLine($@"{i}: {invalid_feature_header}");
+                        text_header.FirstOrDefault(a => a.StartsWith(/*program.string_debug*/($@"{i},"), StringComparison.Ordinal));
+                    io_proxy.WriteLine(/*program.string_debug*/($@"{i}: {invalid_feature_header}"));
                 }
             }
             else
             {
-                io_proxy.WriteLine($@"No invalid feature ids.", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"No invalid feature ids."), module_name, method_name);
             }
 
             var fns = get_output_filenames(p, null);
@@ -592,12 +659,14 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(fns.fn_comments, text_comments);
         }
 
-        private static void part5_check_output_hashes(List<protein_subsequence_info> psi_list, cmd_params p)
+        private static void part5_check_output_hashes(List<protein_subsequence_info> psi_list, cmd_params p, CancellationTokenSource cts = null)
         {
-            const string module_name = nameof(program);
             const string method_name = nameof(part5_check_output_hashes);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
             var file_hashes = psi_list.AsParallel().AsOrdered().Select((a, i) =>
@@ -624,19 +693,19 @@ namespace dimorphics_dataset
 
             if (file_hashes_headers_cnt.Count != 1)
             {
-                io_proxy.WriteLine($@"Hashes for headers:");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Hashes for headers:"));
                 file_hashes_headers_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
             }
 
             if (file_hashes_features_cnt.Count != psi_list.Count)
             {
-                io_proxy.WriteLine($@"Hashes for features:");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Hashes for features:"));
                 file_hashes_features_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
             }
 
             if (file_hashes_comments_cnt.Count != psi_list.Count)
             {
-                io_proxy.WriteLine($@"Hashes for comments:");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Hashes for comments:"));
                 file_hashes_comments_cnt.Where(a => a.count > 1).ToList().ForEach(a => io_proxy.WriteLine(a.ToString()));
             }
         }
@@ -646,13 +715,13 @@ namespace dimorphics_dataset
             const string module_name = nameof(program);
             const string method_name = nameof(file_sha_256);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
             using var stream = new BufferedStream(File.OpenRead(filename), 1024 * 1024 * 4);
             using var sha256 = new SHA256Managed();
             var hash_bytes = sha256.ComputeHash(stream);
-            var hash_str = BitConverter.ToString(hash_bytes);//.Replace($@"-", String.Empty);
+            var hash_str = BitConverter.ToString(hash_bytes);//.Replace(/*program.string_debug*/($@"-", String.Empty);
             return hash_str;
         }
 
@@ -660,7 +729,7 @@ namespace dimorphics_dataset
 
         private static string get_input_filenames(cmd_params p, int? index = null)
         {
-            var fn_input = Path.Combine(p.output_folder, $@"l__({(p.class_id > 0 ? $@"+" : $@"")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            var fn_input = Path.Combine(p.output_folder, /*program.string_debug*/($@"l__({(p.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{p.class_id})_({p.class_name}){(index != null ? /*program.string_debug*/($@"_{index}") : /*program.string_debug*/($@""))}.csv"));
             return fn_input;
         }
 
@@ -671,35 +740,36 @@ namespace dimorphics_dataset
 
             var tag = p.get_output_file_tag();
 
-            //var fn_input = Path.Combine(cmd_params.output_folder, $@"l__({cmd_params.class_name}){(tag != null ? $@"_{tag}" : $@"")}.csv");
-            var fn_headers =  Path.Combine(p.output_folder, $@"h_({(tag ?? $@"")})_({(p.class_id > 0 ? $@"+" : $@"")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
-            var fn_comments = Path.Combine(p.output_folder, $@"c_({(tag ?? $@"")})_({(p.class_id > 0 ? $@"+" : $@"")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
-            var fn_features = Path.Combine(p.output_folder, $@"f_({(tag ?? $@"")})_({(p.class_id > 0 ? $@"+" : $@"")}{p.class_id})_({p.class_name}){(index != null ? $@"_{index}" : $@"")}.csv");
+            //var fn_input = Path.Combine(cmd_params.output_folder, /*program.string_debug*/($@"l__({cmd_params.class_name}){(tag != null ? /*program.string_debug*/($@"_{tag}" : /*program.string_debug*/($@""))}.csv");
+            var fn_headers =  Path.Combine(p.output_folder, /*program.string_debug*/($@"h_({(tag ?? /*program.string_debug*/($@""))})_({(p.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{p.class_id})_({p.class_name}){(index != null ? /*program.string_debug*/($@"_{index}") : /*program.string_debug*/($@""))}.csv"));
+            var fn_comments = Path.Combine(p.output_folder, /*program.string_debug*/($@"c_({(tag ?? /*program.string_debug*/($@""))})_({(p.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{p.class_id})_({p.class_name}){(index != null ? /*program.string_debug*/($@"_{index}") : /*program.string_debug*/($@""))}.csv"));
+            var fn_features = Path.Combine(p.output_folder, /*program.string_debug*/($@"f_({(tag ?? /*program.string_debug*/($@""))})_({(p.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{p.class_id})_({p.class_name}){(index != null ? /*program.string_debug*/($@"_{index}") : /*program.string_debug*/($@""))}.csv"));
 
             return (fn_headers, fn_comments, fn_features);
         }
 
-        private static void part4_save_outputs(cmd_params p, List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int item_index)
+        private static void part4_save_outputs(cmd_params p, List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> data_encoded_list, int item_index, CancellationTokenSource cts = null)
         {
-            const string module_name = nameof(program);
             const string method_name = nameof(part4_save_outputs);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
 
 
             if (p.first_index == null && p.last_index == null)
             {
-                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: 4. Saving encoded data to file for {data_encoded_list.Count} items...", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: 4. Saving encoded data to file for {data_encoded_list.Count} items..."), module_name, method_name);
             }
 
             var fns = get_output_filenames(p, item_index);
 
             // get header row indexes in csv format
-            var row_feature_header_csv = string.Join($@",", Enumerable.Range(0, data_encoded_list.First().feature_info.Count));
+            var row_feature_header_csv = string.Join(/*program.string_debug*/($@","), Enumerable.Range(0, data_encoded_list.First().feature_info.Count));
 
             // get comments file header in csv format
-            var row_comments_header_csv = string.Join($@",", subsequence_classification_data.get_row_comments_headers(data_encoded_list.First().instance_meta_data));
+            var row_comments_header_csv = string.Join(/*program.string_debug*/($@","), subsequence_classification_data.get_row_comments_headers(data_encoded_list.First().instance_meta_data));
 
             // get list of the feature headers in csv format
             // save headers
@@ -721,28 +791,30 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
+                    if (cts != null && cts.IsCancellationRequested) return default;
+
                     // get feature values
                     var row_feature_values = data_encoded_item.feature_info.Select((a, fid) => $"{a.feature_value:G17}").ToList();
 
                     // convert feature values to csv format
-                    var row_feature_values_csv = string.Join($@",", row_feature_values);
+                    var row_feature_values_csv = string.Join(/*program.string_debug*/($@","), row_feature_values);
 
                     // get meta data about the example instance
                     var row_comments = subsequence_classification_data.get_row_comments(row_index, data_encoded_item.instance_meta_data);
 
-                    var row_comments_csv = string.Join($@",", row_comments);
+                    var row_comments_csv = string.Join(/*program.string_debug*/($@","), row_comments);
 
                     return (row_feature_values_csv, row_comments_csv);
-                });
+                }, cts.Token);
 
                 tasks4.Add(task);
 
-                wait_tasks(tasks4.ToArray<Task>(), tasks4_start_time, module_name, method_name);
+                wait_tasks(tasks4.ToArray<Task>(), tasks4_start_time, 0, module_name, method_name, cts);
             }
 
             data_encoded_list.Clear();
             data_encoded_list = null;
-            wait_tasks(tasks4.ToArray<Task>(), tasks4_start_time, module_name, method_name);
+            wait_tasks(tasks4.ToArray<Task>(), tasks4_start_time, 0, module_name, method_name, cts);
 
             // save comments
             var comments_lines = tasks4.Select(a => a.Result.row_comments_csv).ToList();
@@ -755,17 +827,18 @@ namespace dimorphics_dataset
             io_proxy.WriteAllLines(fns.fn_features, features_lines, module_name, method_name);
         }
 
-        private static List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> part3_encode_features(cmd_params p, List<subsequence_classification_data> class_data_list)
+        private static List<(subsequence_classification_data instance_meta_data, List<feature_info> feature_info)> part3_encode_features(cmd_params p, List<subsequence_classification_data> class_data_list, CancellationTokenSource cts = null)
         {
-            const string module_name = nameof(program);
             const string method_name = nameof(part3_encode_features);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
 
             if (p.first_index == null && p.last_index == null)
             {
-                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: 3. Encoding data for {class_data_list.Count} items...", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: 3. Encoding data for {class_data_list.Count} items..."), module_name, method_name);
             }
 
             var tasks3 =
@@ -780,37 +853,39 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
-                    var encoded_class_data_item = (class_data_item, subsequence_classification_data_methods.encode_subsequence_classification_data_row(p, class_data_item, p.max_features));
+                    if (cts != null && cts.IsCancellationRequested) return default;
 
-                    return encoded_class_data_item;
-                });
+                    var encoded_class_data_item = (class_data_item, subsequence_classification_data_methods.encode_subsequence_classification_data_row(p, class_data_item, p.max_features, cts));
+
+                    return !cts.IsCancellationRequested ? encoded_class_data_item : default;
+                }, cts.Token);
 
                 tasks3.Add(task);
 
-                wait_tasks(tasks3.ToArray<Task>(), tasks3_start_time, module_name, method_name);
+                if (cts != null && cts.IsCancellationRequested) return null;
+
+                wait_tasks(tasks3.ToArray<Task>(), tasks3_start_time, 0, module_name, method_name, cts);
             }
 
             class_data_list.Clear();
             class_data_list = null;
-            wait_tasks(tasks3.ToArray<Task>(), tasks3_start_time, module_name, method_name);
+            wait_tasks(tasks3.ToArray<Task>(), tasks3_start_time, 0, module_name, method_name, cts);
             var data_encoded_list = tasks3.Select(a => a.Result).ToList();
             return data_encoded_list;
         }
 
-        private static List<subsequence_classification_data> part2_load_data(cmd_params p, List<protein_subsequence_info> psi_list, protein_subsequence_info _template_protein)
+        private static List<subsequence_classification_data> part2_load_data(cmd_params p, List<protein_subsequence_info> psi_list, protein_subsequence_info _template_protein, CancellationTokenSource cts)
         {
             const string module_name = nameof(program);
             const string method_name = nameof(part2_load_data);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
 
             if (p.first_index == null && p.last_index == null)
             {
-                io_proxy.WriteLine(
-                    $@"{p.class_id} {p.class_name}: 2. Loading available data for {psi_list.Count} items...",
-                    nameof(program), nameof(part2_load_data));
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: 2. Loading available data for {psi_list.Count} items..."), module_name, method_name);
             }
 
             var tasks2 = new List<Task<subsequence_classification_data>>();
@@ -818,35 +893,39 @@ namespace dimorphics_dataset
 
             for (var i = 0; i < psi_list.Count; i++)
             {
+                if (cts != null && cts.IsCancellationRequested) return default;
+
                 var psi = psi_list[i];
 
                 psi_list[i] = null;
 
                 var task = Task.Run(() =>
                 {
+                    if (cts != null && cts.IsCancellationRequested) return default;
+
                     var classification_data = get_subsequence_classificiation_data(p, psi, _template_protein);
 
                     return classification_data;
-                });
+                }, cts.Token);
 
                 tasks2.Add(task);
 
-                wait_tasks(tasks2.ToArray<Task>(), tasks2_start_time, module_name, method_name);
+                wait_tasks(tasks2.ToArray<Task>(), tasks2_start_time, 0, module_name, method_name, cts);
             }
 
             psi_list.Clear();
             psi_list = null;
-            wait_tasks(tasks2.ToArray<Task>(), tasks2_start_time, module_name, method_name);
+            wait_tasks(tasks2.ToArray<Task>(), tasks2_start_time, 0, module_name, method_name, cts);
             var class_data_list = tasks2.Select(a => a.Result).ToList();
             return class_data_list;
         }
 
-        private static List<protein_subsequence_info> part1_find_samples(cmd_params p, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> pdb_id_list)
+        private static List<protein_subsequence_info> part1_find_samples(cmd_params p, List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> pdb_id_list, CancellationTokenSource cts)
         {
             const string module_name = nameof(program);
             const string method_name = nameof(part1_find_samples);
 
-            io_proxy.WriteLine($@"running {method_name}()...", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"running {method_name}()..."), module_name, method_name);
 
 
             const string standard_coil = @"standard_coil";
@@ -861,10 +940,10 @@ namespace dimorphics_dataset
 
             if (p.first_index == null && p.last_index == null)
             {
-                io_proxy.WriteLine($@"{p.class_id} {p.class_name}: 1. Loading pdb info from {pdb_id_list2.Count} files...", module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{p.class_id} {p.class_name}: 1. Loading pdb info from {pdb_id_list2.Count} files..."), module_name, method_name);
             }
 
-            //var cache_filename = Path.Combine(cmd_params.output_folder, $@"l__({cmd_params.class_name}).csv");
+            //var cache_filename = Path.Combine(cmd_params.output_folder, /*program.string_debug*/($@"l__({cmd_params.class_name}).csv");
 
             var cache_filename = get_input_filenames(p, null);
 
@@ -887,7 +966,7 @@ namespace dimorphics_dataset
                 };
 
                 var pdb_id_list3 = pdb_id_list.Select(a => (a.pdb_id, a.dimer_type, a.class_name, a.symmetry_mode, a.parallelism, a.chain_number, a.strand_seq, a.optional_res_index)).ToList();
-                var dimorphic_coils_psi_list = part1_find_samples(p2, pdb_id_list3);
+                var dimorphic_coils_psi_list = part1_find_samples(p2, pdb_id_list3, cts);
 
                 invalid_res_ids = dimorphic_coils_psi_list.Select(a => (a.pdb_id, a.chain_id, a.res_ids.Select(b => b.res_id).ToList())).ToList();
                 invalid_res_ids = invalid_res_ids.GroupBy(a => (a.pdb_id, a.chain_id)).Select(a =>
@@ -910,11 +989,11 @@ namespace dimorphics_dataset
 
                     if (string.Equals(p.class_name, standard_coil, StringComparison.OrdinalIgnoreCase))
                     {
-                        psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, pdb_id_item.chain_number, p.class_id, p.class_name, p.use_dssp3);
+                        psi_list = dataset_gen_coils.find_coils(pdb_id_item.dimer_type, pdb_id_item.pdb_id, pdb_id_item.chain_number, p.class_id, p.class_name, p.use_dssp3, false, cts);
                     }
                     else if (string.Equals(p.class_name, dimorphic_coil, StringComparison.OrdinalIgnoreCase))
                     {
-                        psi_list.Add(dataset_gen_dimorphic.get_dhc_item(p.class_id, p.class_name, p.use_dssp3, true, false, pdb_id_item));
+                        psi_list.Add(dataset_gen_dimorphic.get_dhc_item(p.class_id, p.class_name, p.use_dssp3, true, false, pdb_id_item, cts));
                     }
                     else
                     {
@@ -931,7 +1010,7 @@ namespace dimorphics_dataset
                     }
 
                     return psi_list;
-                });
+                }, cts.Token);
 
                 tasks1.Add(task);
 
@@ -944,7 +1023,7 @@ namespace dimorphics_dataset
             pdb_id_list?.Clear();
             pdb_id_list = null;
 
-            wait_tasks(tasks1.ToArray<Task>(), tasks1_start_time, module_name, method_name);
+            wait_tasks(tasks1.ToArray<Task>(), tasks1_start_time, 0, module_name, method_name, cts);
             var psi_list2 = tasks1.SelectMany(a => a.Result).ToList();
 
             psi_list2 = psi_list2.Where(a => a.aa_subsequence.Length >= p.min_sequence_length).ToList();

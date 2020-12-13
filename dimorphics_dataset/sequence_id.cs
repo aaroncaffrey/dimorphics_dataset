@@ -23,14 +23,14 @@ namespace dimorphics_dataset
             const string molMarker = @"mol:";
             const string lenMarker = @"length:";
 
-            if (sequence_id.Contains($@" {molMarker}", StringComparison.Ordinal) && sequence_id.Contains($@" {lenMarker}", StringComparison.Ordinal))
+            if (sequence_id.Contains(/*program.string_debug*/($@" {molMarker}"), StringComparison.Ordinal) && sequence_id.Contains(/*program.string_debug*/($@" {lenMarker}"), StringComparison.Ordinal))
             {
                 var idStrings = sequence_id.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 var pdbId = idStrings[0][0] == '>' ? idStrings[0].Substring(1) : idStrings[0];
-                var chainId = $@"";
-                var mol = $@"";
-                var len = $@"";
+                var chainId = /*program.string_debug*/($@"");
+                var mol = /*program.string_debug*/($@"");
+                var len = /*program.string_debug*/($@"");
 
                 foreach (var token in idStrings)
                 {
@@ -41,19 +41,19 @@ namespace dimorphics_dataset
 
                     if (String.IsNullOrWhiteSpace(mol) && token.Length >= molMarker.Length && string.Equals(token.Substring(0, molMarker.Length), molMarker, StringComparison.Ordinal))
                     {
-                        mol = token.Replace(molMarker, $@"", StringComparison.Ordinal);
+                        mol = token.Replace(molMarker, /*program.string_debug*/($@""), StringComparison.Ordinal);
                         continue;
                     }
 
                     if (String.IsNullOrWhiteSpace(len) && token.Length >= lenMarker.Length && string.Equals(token.Substring(0, lenMarker.Length), lenMarker, StringComparison.Ordinal))
                     {
-                        len = token.Replace(lenMarker, $@"", StringComparison.Ordinal);
+                        len = token.Replace(lenMarker, /*program.string_debug*/($@""), StringComparison.Ordinal);
                         continue;
                     }
 
                 }
 
-                if (pdbId != null && pdbId.Contains($@"_", StringComparison.Ordinal)) //(mol == $@"protein")
+                if (pdbId != null && pdbId.Contains(/*program.string_debug*/($@"_"), StringComparison.Ordinal)) //(mol == /*program.string_debug*/($@"protein")
                 {
                     chainId = pdbId.Substring(pdbId.IndexOf('_', StringComparison.Ordinal) + 1);
                     pdbId = pdbId.Substring(0, pdbId.IndexOf('_', StringComparison.Ordinal));
@@ -73,13 +73,13 @@ namespace dimorphics_dataset
 
                 var split = sequence_id.Split(new char[] { '_', '-', ':', ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                if (split.Length < 2) return;// Init($@"", ' ', $@"", $@"", $@"");
+                if (split.Length < 2) return;// Init(/*program.string_debug*/($@""), ' ', /*program.string_debug*/($@""), /*program.string_debug*/($@""), /*program.string_debug*/($@""));
 
 
                 var pdbId = split[0].ToUpperInvariant();
                 var chainId = split[1]/*.ToUpperInvariant()*/;
 
-                var description = split.Length > 2 ? string.Join($@" ", split.Skip(2).ToList()) : $@"";
+                var description = split.Length > 2 ? string.Join(/*program.string_debug*/($@" "), split.Skip(2).ToList()) : /*program.string_debug*/($@"");
 
                 Init(pdbId, chainId[0], null, null, description);
             }

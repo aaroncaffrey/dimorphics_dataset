@@ -62,7 +62,7 @@ namespace dimorphics_dataset
         {
             var data = key_value_list();
 
-            var ret = $@"({string.Join($@", ", data.Select(a => $@"{a.key} = {a.value}").ToList())})";
+            var ret = /*program.string_debug*/($@"({string.Join(/*program.string_debug*/($@", "), data.Select(a => /*program.string_debug*/($@"{a.key} = {a.value}")).ToList())})");
 
             return ret;
         }

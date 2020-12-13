@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "peptides_server": {
+      "commandName": "Project"
+    }
+  }
+}

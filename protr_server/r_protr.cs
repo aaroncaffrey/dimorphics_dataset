@@ -24,7 +24,7 @@ namespace protr_server
                 lock (_key_lock)
                 {
                     _key++;
-                    return $@"{nameof(r_protr)}_{_id}_{_key}";
+                    return /*program.string_debug*/($@"{nameof(r_protr)}_{_id}_{_key}");
                 }
             }
         }
@@ -33,21 +33,21 @@ namespace protr_server
 
         internal static REngine init_r()
         {
-            var rinit = new StartupParameter {Quiet = true, Interactive = false, RHome = $@"C:\Program Files\R\R-3.6.2\"};
-            var engine1 = REngine.GetInstance(Path.Combine(rinit.RHome, $@"bin\x64\R.dll"), true, rinit);
+            var rinit = new StartupParameter {Quiet = true, Interactive = false, RHome = /*program.string_debug*/($@"C:\Program Files\R\R-3.6.2\")};
+            var engine1 = REngine.GetInstance(Path.Combine(rinit.RHome, /*program.string_debug*/($@"bin\x64\R.dll")), true, rinit);
 
             if (need_init)
             {
                 need_init = false;
 
-                var r_init_cmds = $@"
+                var r_init_cmds = /*program.string_debug*/($@"
                     #install.packages(""devtools"")
                     #library(devtools)
                     #install_github(""https://github.com/nanxstats/protr"")
                     library(protr)
-                ";
+                ");
 
-                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#", StringComparison.Ordinal)).ToList().ForEach(a => engine1.Evaluate(a));
+                r_init_cmds.Split(new char[] { '\r', '\n' }).Where(a => !string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith(/*program.string_debug*/($@"#"), StringComparison.Ordinal)).ToList().ForEach(a => engine1.Evaluate(a));
             }
 
             return engine1;
@@ -65,7 +65,7 @@ namespace protr_server
                     {
                         if (_template_get_values == null)
                         {
-                            _template_get_values = get_values(id, source, alphabet_name, $@"ALG");
+                            _template_get_values = get_values(id, source, alphabet_name, /*program.string_debug*/($@"ALG"));
                             _template_get_values = _template_get_values.Select(a => new feature_info(a) { alphabet = alphabet_name, source = source, feature_value = 0 }).ToList();
                         }
 
@@ -102,11 +102,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{ds_stat.lambda}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractAPAAC)}_{ds_stat.lambda}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -114,11 +114,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{ds_stat.submat}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractBLOSUM)}_{ds_stat.submat}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -126,11 +126,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractCTDC)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -138,11 +138,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractCTDD)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -150,11 +150,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractCTDT)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -162,11 +162,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractCTriad)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -174,11 +174,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractCTriadClass)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -186,11 +186,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractDC)}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -198,11 +198,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractDescScales)}_{ds_stat.propmat}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractDescScales)}_{ds_stat.propmat}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -210,11 +210,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractFAScales)}_{ds_stat.factors}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractFAScales)}_{ds_stat.factors}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -222,11 +222,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractGeary)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractGeary)}_{ds_stat.nlag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -234,11 +234,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractMDSScales)}_{ds_stat.k}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -246,11 +246,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoran)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractMoran)}_{ds_stat.nlag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -258,11 +258,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractMoreauBroto)}_{ds_stat.nlag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -270,11 +270,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractPAAC)}_{ds_stat.lambda}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractPAAC)}_{ds_stat.lambda}_{ds_stat.w}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -282,11 +282,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFP)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractProtFP)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -294,11 +294,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractProtFPGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -306,11 +306,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractQSO)}_{ds_stat.nlag}_{ds_stat.w}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractQSO)}_{ds_stat.nlag}_{ds_stat.w}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -318,11 +318,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractSOCN)}_{ds_stat.nlag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractSOCN)}_{ds_stat.nlag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -330,11 +330,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScales)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractScales)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -342,11 +342,11 @@ namespace protr_server
                     {
                         alphabet = alphabet_name,
                         stats = "", dimension = 1,
-                        category = $@"{nameof(r_protr)}",
+                        category = /*program.string_debug*/($@"{nameof(r_protr)}"),
                         source = source,
-                        @group = $@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        member = $@"{ds_stat.name}".Replace($@".", $@"_", StringComparison.Ordinal),
-                        perspective = $@"default",
+                        @group = /*program.string_debug*/($@"{nameof(r_protr)}_{nameof(extractScalesGap)}_{ds_stat.pc}_{ds_stat.lag}_{alphabet_name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        member = /*program.string_debug*/($@"{ds_stat.name}".Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"_"), StringComparison.Ordinal)),
+                        perspective = /*program.string_debug*/($@"default"),
                         feature_value = descriptive_stats.fix_double(ds_stat.value)
                     }).ToList();
 
@@ -378,7 +378,7 @@ namespace protr_server
 
                     if (_template_get_values == null)
                     {
-                        var template = features.Select(a => new feature_info(a) { alphabet = $@"", source = $@"", feature_value = 0 }).ToList();
+                        var template = features.Select(a => new feature_info(a) { alphabet = /*program.string_debug*/($@""), source = /*program.string_debug*/($@""), feature_value = 0 }).ToList();
                         _template_get_values = template;
                     }
 
@@ -399,7 +399,7 @@ namespace protr_server
                 if (template_extractAPAAC == null)
                 {
                     var seq_len = (lambda_last > lambda_first ? lambda_last : lambda_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = /*program.string_debug*/(string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len));
                     template_extractAPAAC = extractAPAAC(engine, temp_str, lambda_first, lambda_last);
                     template_extractAPAAC = template_extractAPAAC.Select(a => (name: a.name, lambda: a.lambda, value: 0d)).ToList();
                 }
@@ -409,12 +409,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_last), lambda_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractAPAAC)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -424,16 +424,16 @@ namespace protr_server
                 {
                     var f = nameof(extractAPAAC);
                     var k = Key;
-                    var v = $@"{f}_v{k}";
-                    var ai_ix = $@""; //"[[1]]";
+                    var v = /*program.string_debug*/($@"{f}_v{k}");
+                    var ai_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                    var evaluate = engine.Evaluate($@"{v} <- {f}({nameof(x)} = ""{x}"", {nameof(lambda)} = {lambda})");
-                    var names = engine.Evaluate($@"names({v}{ai_ix})").AsCharacter();
-                    //var dimnames = engine.Evaluate($@"dimnames({v}{ai})");
-                    //var rownames = engine.Evaluate($@"rownames({v}{ai})");
-                    //var colnames = engine.Evaluate($@"colnames({v}{ai})");
-                    var values = engine.Evaluate($@"{v}{ai_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({v})");
+                    var evaluate = engine.Evaluate(/*program.string_debug*/($@"{v} <- {f}({nameof(x)} = ""{x}"", {nameof(lambda)} = {lambda})"));
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({v}{ai_ix})")).AsCharacter();
+                    //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({v}{ai})");
+                    //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({v}{ai})");
+                    //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({v}{ai})");
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{v}{ai_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({v})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -465,7 +465,7 @@ namespace protr_server
                 if (template_extractBLOSUM == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     template_extractBLOSUM = extractBLOSUM(engine, temp_str, lag_first, lag_last);
                     template_extractBLOSUM = template_extractBLOSUM.Select(a => (name: a.name, submat: a.submat, k: a.k, lag: a.lag, value: 0d)).ToList();
 
@@ -477,19 +477,19 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractBLOSUM)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var submats = new string[]
                 {
-                    $@"AABLOSUM45", $@"AABLOSUM50", $@"AABLOSUM62", $@"AABLOSUM80", $@"AABLOSUM100", $@"AAPAM30", $@"AAPAM40",
-                    $@"AAPAM70", $@"AAPAM120", $@"AAPAM250"
+                    /*program.string_debug*/($@"AABLOSUM45"), /*program.string_debug*/($@"AABLOSUM50"), /*program.string_debug*/($@"AABLOSUM62"), /*program.string_debug*/($@"AABLOSUM80"), /*program.string_debug*/($@"AABLOSUM100"), /*program.string_debug*/($@"AAPAM30"), /*program.string_debug*/($@"AAPAM40"),
+                    /*program.string_debug*/($@"AAPAM70"), /*program.string_debug*/($@"AAPAM120"), /*program.string_debug*/($@"AAPAM250")
                 };
 
                 var k_first = 5;
@@ -502,19 +502,19 @@ namespace protr_server
                     {
                         for (var k = k_first; k <= k_last; k++)
                         {
-                            var fn_name = nameof(extractBLOSUM);
-                            var vr_name = $@"{fn_name}_v{Key}";
-                            var ar_ix = $@""; //"[[1]]";
+                            const string fn_name = nameof(extractBLOSUM);
+                            var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                            var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
                             var evaluate =
                                 engine.Evaluate(
-                                    $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(submat)} = ""{submat}"", {nameof(k)} = {k}, {nameof(lag)} = {lag})");
-                            var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                            //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                            //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                            //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                            var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                            var rm = engine.Evaluate($@"rm({vr_name})");
+                                    /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(submat)} = ""{submat}"", {nameof(k)} = {k}, {nameof(lag)} = {lag})"));
+                            var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                            //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                            //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                            //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                            var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                            var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                             if (names.Length != values.Length) throw new Exception();
 
@@ -548,26 +548,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractCTDC)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractCTDC);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@""; //"[[1]]";
+                const string fn_name = nameof(extractCTDC);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var evaluate = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -596,26 +596,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractCTDD)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractCTDD);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@""; //"[[1]]";
+                const string fn_name = nameof(extractCTDD);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var evaluate = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -647,26 +647,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractCTDT)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractCTDT);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@""; //"[[1]]";
+                const string fn_name = nameof(extractCTDT);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var evaluate = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -695,26 +695,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractCTriad)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractCTriad);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@"";
+                const string fn_name = nameof(extractCTriad);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@"");
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var evaluate = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -744,30 +744,30 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractCTriadClass)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractCTriadClass);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@"";
+                const string fn_name = nameof(extractCTriadClass);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@"");
 
-                var aaclass = $@"{fn_name}_v{Key}";
+                var aaclass = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                var evaluate1 = engine.Evaluate($@"{aaclass} <- list( c(""G"", ""A"", ""S"", ""T"", ""P"", ""D"", ""C""), c(""N"", ""V"", ""E"", ""Q"", ""I"", ""L""), c(""M"", ""H"", ""K"", ""F"", ""R"", ""Y"", ""W"") )");
-                var evaluate2 = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(aaclass)} = {aaclass})");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm1 = engine.Evaluate($@"rm({aaclass})");
-                var rm2 = engine.Evaluate($@"rm({vr_name})");
+                var evaluate1 = engine.Evaluate(/*program.string_debug*/($@"{aaclass} <- list( c(""G"", ""A"", ""S"", ""T"", ""P"", ""D"", ""C""), c(""N"", ""V"", ""E"", ""Q"", ""I"", ""L""), c(""M"", ""H"", ""K"", ""F"", ""R"", ""Y"", ""W"") )"));
+                var evaluate2 = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(aaclass)} = {aaclass})"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({aaclass})"));
+                var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -795,26 +795,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractDC)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractDC);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@""; //"[[1]]";
+                const string fn_name = nameof(extractDC);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                var evaluate = engine.Evaluate($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var evaluate = engine.Evaluate(/*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")"));
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 
@@ -846,7 +846,7 @@ namespace protr_server
                 if (template_extractDescScales == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     template_extractDescScales = extractDescScales(engine, temp_str, lag_first, lag_last);
                     template_extractDescScales = template_extractDescScales.Select(a => (name: a.name, propmat: a.propmat, pc: a.pc, lag: a.lag, pca: a.pca.Select(b => (b.row_name, b.col_name, 0d)).ToList(), value: 0d)).ToList();
 
@@ -858,25 +858,25 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractDescScales)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var propmats = new string[]
                 {
-                    $@"AAMOE2D", $@"AAMOE3D", $@"AACPSA", $@"AADescAll", $@"AA2DACOR", $@"AA3DMoRSE", $@"AAACF", $@"AABurden", $@"AAConn",
-                    $@"AAConst", $@"AAEdgeAdj", $@"AAEigIdx", $@"AAFGC", $@"AAGeom", $@"AAGETAWAY", $@"AAInfo", $@"AAMolProp",
-                    $@"AARandic", $@"AARDF", $@"AATopo", $@"AATopoChg", $@"AAWalk", $@"AAWHIM"
+                    /*program.string_debug*/($@"AAMOE2D"), /*program.string_debug*/($@"AAMOE3D"), /*program.string_debug*/($@"AACPSA"), /*program.string_debug*/($@"AADescAll"), /*program.string_debug*/($@"AA2DACOR"), /*program.string_debug*/($@"AA3DMoRSE"), /*program.string_debug*/($@"AAACF"), /*program.string_debug*/($@"AABurden"), /*program.string_debug*/($@"AAConn"),
+                    /*program.string_debug*/($@"AAConst"), /*program.string_debug*/($@"AAEdgeAdj"), /*program.string_debug*/($@"AAEigIdx"), /*program.string_debug*/($@"AAFGC"), /*program.string_debug*/($@"AAGeom"), /*program.string_debug*/($@"AAGETAWAY"), /*program.string_debug*/($@"AAInfo"), /*program.string_debug*/($@"AAMolProp"),
+                    /*program.string_debug*/($@"AARandic"), /*program.string_debug*/($@"AARDF"), /*program.string_debug*/($@"AATopo"), /*program.string_debug*/($@"AATopoChg"), /*program.string_debug*/($@"AAWalk"), /*program.string_debug*/($@"AAWHIM")
                 };
 
-                var index = $@"NULL";
-                var silent = $@"FALSE";
-                var scale = $@"TRUE";
+                var index = /*program.string_debug*/($@"NULL");
+                var silent = /*program.string_debug*/($@"FALSE");
+                var scale = /*program.string_debug*/($@"TRUE");
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -891,23 +891,23 @@ namespace protr_server
                         {
 
 
-                            var fn_name = nameof(extractDescScales);
-                            var vr_name = $@"{fn_name}_v{Key}";
-                            var ar_ix = $@""; //"[[1]]";
+                            const string fn_name = nameof(extractDescScales);
+                            var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                            var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                            var vr_name_output = $@"{fn_name}_v{Key}";
+                            var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                            var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = ""{propmat}"", {nameof(index)} = {index}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                            var cmd = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = ""{propmat}"", {nameof(index)} = {index}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
 
                             var evaluate = engine.Evaluate(cmd);
-                            var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                            //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                            //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                            //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                            var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                            var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacterMatrix();
-                            var rm1 = engine.Evaluate($@"rm({vr_name})");
-                            var rm2 = engine.Evaluate($@"rm({vr_name_output})");
+                            var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                            //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                            //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                            //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                            var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                            var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacterMatrix();
+                            var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                            var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
 
                             var pca_list = new List<(string row_name, string col_name, double pca_value)>();
 
@@ -916,7 +916,7 @@ namespace protr_server
                             {
                                 var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                                var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                                var pca_row_label = string.Join(/*program.string_debug*/($@" "), pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                                 var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                                 pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -955,7 +955,7 @@ namespace protr_server
                 if (template_extractFAScales == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     template_extractFAScales = extractFAScales(engine, temp_str, lag_first, lag_last, factors_first, factors_last);
                     template_extractFAScales = template_extractFAScales.Select(a => (name: a.name, factors: a.factors, lag: a.lag, factors_list: a.factors_list.Select(b => (row_name: b.row_name, col_name: b.col_name, value: 0d)).ToList(), chi_sq: 0d, p_value: 0d, value: 0d)).ToList();
 
@@ -967,19 +967,19 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(factors_first), factors_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(factors_last), factors_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractFAScales)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var silent = $@"FALSE";
-                var scale = $@"TRUE";
+                var silent = /*program.string_debug*/($@"FALSE");
+                var scale = /*program.string_debug*/($@"TRUE");
 
                 var list = new List<(string name, int factors, int lag, List<(string row_name, string col_name, double value)> factors_list, double chi_sq, double p_value, double value)>();
 
@@ -987,27 +987,27 @@ namespace protr_server
                 {
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
-                        var fn_name = nameof(extractFAScales);
-                        var vr_name = $@"{fn_name}_v{Key}";
-                        var ar_ix = $@"";
+                        const string fn_name = nameof(extractFAScales);
+                        var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var ar_ix = /*program.string_debug*/($@"");
 
-                        var vr_name_tprops = $@"{fn_name}_v{Key}";
-                        var vr_name_output = $@"{fn_name}_v{Key}";
+                        var vr_name_tprops = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                        var cmd1 = $@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]"; // select a set of topological descriptors
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}(x = ""{x}"", propmat = {vr_name_tprops}, {nameof(factors)} = {factors}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd1 = /*program.string_debug*/($@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]"); // select a set of topological descriptors
+                        var cmd2 = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}(x = ""{x}"", propmat = {vr_name_tprops}, {nameof(factors)} = {factors}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacter();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_tprops})");
-                        var rm3 = engine.Evaluate($@"rm({vr_name_output})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacter();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_tprops})"));
+                        var rm3 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
 
                         if (names.Length != values.Length) throw new Exception();
 
@@ -1020,7 +1020,7 @@ namespace protr_server
 
                         var factors_col_labels = values_output[22].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         var factors_rows = values_output.Skip(23).Take(3).Select(a => a.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).ToList();
-                        var factors_row_labels = factors_rows.Select(a => string.Join($@" ", a.Take(a.Length - factors_col_labels.Length).ToList())).ToList();
+                        var factors_row_labels = factors_rows.Select(a => string.Join(/*program.string_debug*/($@" "), a.Take(a.Length - factors_col_labels.Length).ToList())).ToList();
                         var factors_row_values = factors_rows.Select(a => a.Skip(a.Length - factors_col_labels.Length).Select(b => double.Parse(b, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList()).ToList();
 
                         var factors_list = new List<(string row_name, string col_name, double value)>();
@@ -1064,12 +1064,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractGeary)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1077,21 +1077,21 @@ namespace protr_server
 
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
-                    var fn_name = nameof(extractGeary);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@"";
+                    const string fn_name = nameof(extractGeary);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@"");
 
-                    var props = $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = $@"NULL";
+                    var props = /*program.string_debug*/($@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")");
+                    var customprops = /*program.string_debug*/($@"NULL");
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                    //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                    //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                    //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                    //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -1124,7 +1124,7 @@ namespace protr_server
                 if (_template_extractMDSScales == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractMDSScales = extractMDSScales(engine, temp_str, lag_first, lag_last);
                     _template_extractMDSScales = _template_extractMDSScales.Select(a => (name: a.name, k: a.k, lag: a.lag, scaling_eigenvalues: a.scaling_eigenvalues.Select(b => 0d).ToArray(), value: 0d)).ToList();
                 }
@@ -1134,26 +1134,26 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractMDSScales)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int k, int lag, double[] scaling_eigenvalues, double value)>();
 
-                var fn_name = nameof(extractMDSScales);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@"";
+                const string fn_name = nameof(extractMDSScales);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@"");
 
-                var vr_name_tprops = $@"{fn_name}_v{Key}";
-                var vr_name_output = $@"{fn_name}_v{Key}";
+                var vr_name_tprops = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                var scale = $@"TRUE";
-                var silent = $@"FALSE";
+                var scale = /*program.string_debug*/($@"TRUE");
+                var silent = /*program.string_debug*/($@"FALSE");
 
                 var k_first = 5;
                 var k_last = 5;
@@ -1162,19 +1162,19 @@ namespace protr_server
                 {
                     for (var k = k_first; k <= k_last; k++)
                     {
-                        var cmd1 = $@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", propmat = {vr_name_tprops}, {nameof(k)} = {k}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd1 = /*program.string_debug*/($@"{vr_name_tprops} <- AATopo[, c(37:41, 43:47)]");
+                        var cmd2 = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", propmat = {vr_name_tprops}, {nameof(k)} = {k}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacter();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_tprops})");
-                        var rm3 = engine.Evaluate($@"rm({vr_name_output})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacter();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_tprops})"));
+                        var rm3 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
 
                         var scaling_eigenvalues = values_output.Skip(1).SelectMany(a => a.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(b => double.Parse(b, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToArray()).ToArray();
 
@@ -1207,12 +1207,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractMoran)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1220,28 +1220,25 @@ namespace protr_server
 
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
-                    var fn_name = nameof(extractMoran);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@""; //"[[1]]";
+                    const string fn_name = nameof(extractMoran);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                    var props =
-                        $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = $@"NULL";
+                    var props = /*program.string_debug*/($@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")");
+                    var customprops = /*program.string_debug*/($@"NULL");
 
-                    var cmd =
-                        $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                    //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                    //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                    //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                    //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
-                    list.AddRange(names.Select((a, i) =>
-                        (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
+                    list.AddRange(names.Select((a, i) => (name: a, nlag: nlag, value: double.IsNaN(values[i]) ? 0 : values[i])).ToList());
                 }
 
                 if (_template_extractMoran == null && (list != null && list.Count > 0))
@@ -1268,12 +1265,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractMoreauBroto)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1281,22 +1278,22 @@ namespace protr_server
 
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
-                    var fn_name = nameof(extractMoran);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@""; //"[[1]]";
+                    const string fn_name = nameof(extractMoran);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
 
-                    var props = $@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")";
-                    var customprops = $@"NULL";
+                    var props = /*program.string_debug*/($@"c(""CIDH920105"", ""BHAR880101"", ""CHAM820101"", ""CHAM820102"", ""CHOC760101"", ""BIGC670101"", ""CHAM810101"", ""DAYM780201"")");
+                    var customprops = /*program.string_debug*/($@"NULL");
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(nlag)} = {nlag}, {nameof(customprops)} = {customprops})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                    //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                    //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                    //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                    //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -1330,7 +1327,7 @@ namespace protr_server
                 if (_template_extractPAAC == null)
                 {
                     var seq_len = (lamda_last > lambda_first ? lamda_last : lambda_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractPAAC = extractPAAC(engine, temp_str, lambda_first, lamda_last);
                     _template_extractPAAC = _template_extractPAAC.Select(a => (name: a.name, lambda: a.lambda, w: a.w, value: 0d)).ToList();
                 }
@@ -1341,13 +1338,13 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lambda_first), lambda_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lamda_last), lamda_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractPAAC)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1355,21 +1352,21 @@ namespace protr_server
 
                 for (var lambda = lambda_first; lambda <= lamda_last; lambda++)
                 {
-                    var fn_name = nameof(extractPAAC);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@"";
+                    const string fn_name = nameof(extractPAAC);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@"");
 
-                    var props = $@"c(""Hydrophobicity"", ""Hydrophilicity"", ""SideChainMass"")";
-                    var customprops = $@"NULL";
+                    var props = /*program.string_debug*/($@"c(""Hydrophobicity"", ""Hydrophilicity"", ""SideChainMass"")");
+                    var customprops = /*program.string_debug*/($@"NULL");
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(lambda)} = {lambda},  {nameof(w)} = {w}, {nameof(customprops)} = {customprops})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(props)} = {props}, {nameof(lambda)} = {lambda},  {nameof(w)} = {w}, {nameof(customprops)} = {customprops})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                    //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                    //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                    //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                    //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -1398,10 +1395,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractPSSM)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1415,10 +1412,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractPSSMAcc)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1432,10 +1429,10 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractPSSMFeature)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             throw new NotImplementedException();
         }
@@ -1455,7 +1452,7 @@ namespace protr_server
                 if (_template_extractProtFP == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractProtFP = extractProtFP(engine, temp_str, lag_first, lag_last);
                     _template_extractProtFP = _template_extractProtFP.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
                 }
@@ -1466,20 +1463,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractProtFP)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)>();
 
-                var index = $@"c(160:165, 258:296)";
-                var scale = $@"TRUE";
-                var silent = $@"FALSE";
+                var index = /*program.string_debug*/($@"c(160:165, 258:296)");
+                var scale = /*program.string_debug*/($@"TRUE");
+                var silent = /*program.string_debug*/($@"FALSE");
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1489,22 +1486,22 @@ namespace protr_server
                 {
                     for (var pc = pc_first; pc <= pc_last; pc++)
                     {
-                        var fn_name = nameof(extractProtFP);
-                        var vr_name = $@"{fn_name}_v{Key}";
-                        var vr_name_output = $@"{fn_name}_v{Key}";
-                        var ar_ix = $@"";
+                        const string fn_name = nameof(extractProtFP);
+                        var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var ar_ix = /*program.string_debug*/($@"");
 
 
-                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
                         var evaluate = engine.Evaluate(cmd);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacter();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_output})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacter();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
 
                         var pca_list = new List<(string row_name, string col_name, double pca_value)>();
 
@@ -1513,7 +1510,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join(/*program.string_debug*/($@" "), pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1552,7 +1549,7 @@ namespace protr_server
                 if (_template_extractProtFPGap == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractProtFPGap = extractProtFPGap(engine, temp_str, lag_first, lag_last);
                     _template_extractProtFPGap = _template_extractProtFPGap.Select(a => (name: a.name, lag: a.lag, pc: a.pc, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
 
@@ -1564,20 +1561,20 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractProtFPGap)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, int lag, int pc, List<(string row_name, string col_name, double pca_value)> pca_list, double value)>();
 
-                var index = $@"c(160:165, 258:296)";
-                var scale = $@"TRUE";
-                var silent = $@"FALSE";
+                var index = /*program.string_debug*/($@"c(160:165, 258:296)");
+                var scale = /*program.string_debug*/($@"TRUE");
+                var silent = /*program.string_debug*/($@"FALSE");
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1587,22 +1584,22 @@ namespace protr_server
                 {
                     for (var pc = pc_first; pc <= pc_last; pc++)
                     {
-                        var fn_name = nameof(extractProtFPGap);
-                        var vr_name = $@"{fn_name}_v{Key}";
-                        var vr_name_output = $@"{fn_name}_v{Key}";
-                        var ar_ix = $@"";
+                        const string fn_name = nameof(extractProtFPGap);
+                        var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var ar_ix = /*program.string_debug*/($@"");
 
 
-                        var cmd = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(index)} = {index}, {nameof(pc)} = {pc},  {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
                         var evaluate = engine.Evaluate(cmd);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacter();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_output})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacter();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
 
                         var pca_list = new List<(string row_name, string col_name, double pca_value)>();
 
@@ -1611,7 +1608,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join(/*program.string_debug*/($@" "), pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1649,7 +1646,7 @@ namespace protr_server
                 if (_template_extractQSO == null)
                 {
                     var seq_len = (nlag_last > nlag_first ? nlag_last : nlag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractQSO = extractQSO(engine, temp_str, nlag_first, nlag_last, w);
                     _template_extractQSO = _template_extractQSO.Select(a => (name: a.name, nlag: a.nlag, w: a.w, value: 0d)).ToList();
                 }
@@ -1659,13 +1656,13 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
                 (nameof(w), w.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractQSO)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1673,15 +1670,15 @@ namespace protr_server
 
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
-                    var fn_name = nameof(extractQSO);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@"";
+                    const string fn_name = nameof(extractQSO);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@"");
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag},  {nameof(w)} = {w})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag},  {nameof(w)} = {w})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -1715,7 +1712,7 @@ namespace protr_server
                 if (_template_extractSOCN == null)
                 {
                     var seq_len = (nlag_last > nlag_first ? nlag_last : nlag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractSOCN = extractSOCN(engine, temp_str, nlag_first, nlag_last);
                     _template_extractSOCN = _template_extractSOCN.Select(a => (name: a.name, nlag: a.nlag, value: 0d)).ToList();
                 }
@@ -1726,12 +1723,12 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_first), nlag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(nlag_last), nlag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractSOCN)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
@@ -1739,15 +1736,15 @@ namespace protr_server
 
                 for (var nlag = nlag_first; nlag <= nlag_last; nlag++)
                 {
-                    var fn_name = nameof(extractSOCN);
-                    var vr_name = $@"{fn_name}_v{Key}";
-                    var ar_ix = $@"";
+                    const string fn_name = nameof(extractSOCN);
+                    var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                    var ar_ix = /*program.string_debug*/($@"");
 
-                    var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag})";
+                    var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(nlag)} = {nlag})");
                     var evaluate = engine.Evaluate(cmd);
-                    var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                    var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                    var rm = engine.Evaluate($@"rm({vr_name})");
+                    var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                    var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                    var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                     if (names.Length != values.Length) throw new Exception();
 
@@ -1782,7 +1779,7 @@ namespace protr_server
                 if (_template_extractScales == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractScales = extractScales(engine, temp_str, lag_first, lag_last);
                     _template_extractScales = _template_extractScales.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
 
@@ -1793,17 +1790,17 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractScales)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var scale = $@"TRUE";
-                var silent = $@"FALSE";
+                var scale = /*program.string_debug*/($@"TRUE");
+                var silent = /*program.string_debug*/($@"FALSE");
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1815,28 +1812,28 @@ namespace protr_server
                 {
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
-                        var fn_name = nameof(extractScales);
-                        var vr_name = $@"{fn_name}_v{Key}";
-                        var ar_ix = $@""; //"[[1]]";
+                        const string fn_name = nameof(extractScales);
+                        var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                        var vr_name_ = $@"{fn_name}_v{Key}";
-                        var vr_name_output = $@"{fn_name}_v{Key}";
-                        var propmat = $@"{fn_name}_v{Key}";
+                        var vr_name_ = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var propmat = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                        var cmd1 = $@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd1 = /*program.string_debug*/($@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))");
+                        var cmd2 = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacterMatrix();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_output})");
-                        var rm3 = engine.Evaluate($@"rm({propmat})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacterMatrix();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
+                        var rm3 = engine.Evaluate(/*program.string_debug*/($@"rm({propmat})"));
 
                         var pca_list = new List<(string row_name, string col_name, double pca_value)>();
 
@@ -1845,7 +1842,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join(/*program.string_debug*/($@" "), pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1883,7 +1880,7 @@ namespace protr_server
                 if (_template_extractScalesGap == null)
                 {
                     var seq_len = (lag_last > lag_first ? lag_last : lag_first) + 1;
-                    var temp_str = string.Join($@"", Enumerable.Repeat($@"ALG", seq_len).ToList()).Substring(0, seq_len);
+                    var temp_str = string.Join(/*program.string_debug*/($@""), Enumerable.Repeat(/*program.string_debug*/($@"ALG"), seq_len).ToList()).Substring(0, seq_len);
                     _template_extractScalesGap = extractScalesGap(engine, temp_str, lag_first, lag_last);
                     _template_extractScalesGap = _template_extractScalesGap.Select(a => (name: a.name, pc: a.pc, lag: a.lag, pca_list: a.pca_list.Select(b => (row_name: b.row_name, col_name: b.col_name, pca_value: 0d)).ToList(), value: 0d)).ToList();
 
@@ -1895,17 +1892,17 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_first), lag_first.ToString(CultureInfo.InvariantCulture)),
                 (nameof(lag_last), lag_last.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractScalesGap)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
-                var scale = $@"TRUE";
-                var silent = $@"FALSE";
+                var scale = /*program.string_debug*/($@"TRUE");
+                var silent = /*program.string_debug*/($@"FALSE");
 
                 var pc_first = 5;
                 var pc_last = 5;
@@ -1917,28 +1914,28 @@ namespace protr_server
                 {
                     for (var lag = lag_first; lag <= lag_last; lag++)
                     {
-                        var fn_name = nameof(extractScalesGap);
-                        var vr_name = $@"{fn_name}_v{Key}";
-                        var ar_ix = $@""; //"[[1]]";
+                        const string fn_name = nameof(extractScalesGap);
+                        var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var ar_ix = /*program.string_debug*/($@""); //"[[1]]";
 
-                        var vr_name_ = $@"{fn_name}_v{Key}";
-                        var vr_name_output = $@"{fn_name}_v{Key}";
-                        var propmat = $@"{fn_name}_v{Key}";
+                        var vr_name_ = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var vr_name_output = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                        var propmat = /*program.string_debug*/($@"{fn_name}_v{Key}");
 
-                        var cmd1 = $@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))";
-                        var cmd2 = $@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )";
+                        var cmd1 = /*program.string_debug*/($@"{propmat} <- t(na.omit(as.matrix(AAindex[, 7:26])))");
+                        var cmd2 = /*program.string_debug*/($@"{vr_name_output} <- capture.output( {vr_name} <- {fn_name}({nameof(x)} = ""{x}"", {nameof(propmat)} = {propmat}, {nameof(pc)} = {pc}, {nameof(lag)} = {lag}, {nameof(scale)} = {scale}, {nameof(silent)} = {silent}) )");
 
                         var evaluate1 = engine.Evaluate(cmd1);
                         var evaluate2 = engine.Evaluate(cmd2);
-                        var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                        //var dimnames = engine.Evaluate($@"dimnames({vr_name}{ar_ix})");
-                        //var rownames = engine.Evaluate($@"rownames({vr_name}{ar_ix})");
-                        //var colnames = engine.Evaluate($@"colnames({vr_name}{ar_ix})");
-                        var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                        var values_output = engine.Evaluate($@"{vr_name_output}{ar_ix}").AsCharacterMatrix();
-                        var rm1 = engine.Evaluate($@"rm({vr_name})");
-                        var rm2 = engine.Evaluate($@"rm({vr_name_output})");
-                        var rm3 = engine.Evaluate($@"rm({propmat})");
+                        var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                        //var dimnames = engine.Evaluate(/*program.string_debug*/($@"dimnames({vr_name}{ar_ix})");
+                        //var rownames = engine.Evaluate(/*program.string_debug*/($@"rownames({vr_name}{ar_ix})");
+                        //var colnames = engine.Evaluate(/*program.string_debug*/($@"colnames({vr_name}{ar_ix})");
+                        var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                        var values_output = engine.Evaluate(/*program.string_debug*/($@"{vr_name_output}{ar_ix}")).AsCharacterMatrix();
+                        var rm1 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
+                        var rm2 = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name_output})"));
+                        var rm3 = engine.Evaluate(/*program.string_debug*/($@"rm({propmat})"));
 
                         var pca_list = new List<(string row_name, string col_name, double pca_value)>();
 
@@ -1947,7 +1944,7 @@ namespace protr_server
                         {
                             var pca_val = values_output[i, 0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                            var pca_row_label = string.Join($@" ", pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
+                            var pca_row_label = string.Join(/*program.string_debug*/($@" "), pca_val.Take(pca_val.Length - pca_col_labels.Length).ToArray());
                             var pca_row_values = pca_val.Skip(pca_val.Length - pca_col_labels.Length).Select(a => double.Parse(a, NumberStyles.Float, NumberFormatInfo.InvariantInfo)).ToList();
 
                             pca_list.AddRange(pca_row_values.Select((a, j) => (row_name: pca_row_label, col_name: pca_col_labels[j], pca_value: a)).ToList());
@@ -1984,24 +1981,24 @@ namespace protr_server
 #if DEBUG
             var args = new List<(string key, string value)>()
             {
-                (nameof(engine), engine?.ToString() ?? $@""),
+                (nameof(engine), engine?.ToString() ?? /*program.string_debug*/($@"")),
                 (nameof(x), x.ToString(CultureInfo.InvariantCulture)),
             };
-            //io_proxy.WriteLine($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join($@", ", args.Select(a => $@"{a.key} = ""{a.value}""").ToList())})");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(r_protr)}.{nameof(extractTC)}({string.Join(/*program.string_debug*/($@", "), args.Select(a => /*program.string_debug*/($@"{a.key} = ""{a.value}""").ToList())})");
 #endif
             lock (engine_lock)
             {
                 var list = new List<(string name, double value)>();
 
-                var fn_name = nameof(extractTC);
-                var vr_name = $@"{fn_name}_v{Key}";
-                var ar_ix = $@"";
+                const string fn_name = nameof(extractTC);
+                var vr_name = /*program.string_debug*/($@"{fn_name}_v{Key}");
+                var ar_ix = /*program.string_debug*/($@"");
 
-                var cmd = $@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")";
+                var cmd = /*program.string_debug*/($@"{vr_name} <- {fn_name}({nameof(x)} = ""{x}"")");
                 var evaluate = engine.Evaluate(cmd);
-                var names = engine.Evaluate($@"names({vr_name}{ar_ix})").AsCharacter();
-                var values = engine.Evaluate($@"{vr_name}{ar_ix}").AsNumeric();
-                var rm = engine.Evaluate($@"rm({vr_name})");
+                var names = engine.Evaluate(/*program.string_debug*/($@"names({vr_name}{ar_ix})")).AsCharacter();
+                var values = engine.Evaluate(/*program.string_debug*/($@"{vr_name}{ar_ix}")).AsNumeric();
+                var rm = engine.Evaluate(/*program.string_debug*/($@"rm({vr_name})"));
 
                 if (names.Length != values.Length) throw new Exception();
 

@@ -28,13 +28,19 @@ namespace dimorphics_dataset
 
         internal static void Save(string outputFastaFile, List<sequence> sequenceList)
         {
+            const string module_name = nameof(sequence);
+            const string method_name = nameof(Save);
+
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
-            io_proxy.WriteAllText(outputFastaFile, string.Join($@"", sequenceList.Select(a => $"{a.id}\r\n{a.full_sequence}\r\n").ToList()), nameof(sequence), nameof(Save));
+            io_proxy.WriteAllText(outputFastaFile, string.Join(/*program.string_debug*/($@""), sequenceList.Select(a => /*program.string_debug*/($"{a.id}\r\n{a.full_sequence}\r\n")).ToList()), module_name, method_name);
         }
 
         internal static void Save(string outputFastaFile, sequence sequence)
         {
+            const string module_name = nameof(sequence);
+            const string method_name = nameof(Save);
+
             if (String.IsNullOrWhiteSpace(outputFastaFile)) return;
 
             if (sequence == null)
@@ -42,7 +48,7 @@ namespace dimorphics_dataset
                 throw new ArgumentNullException(nameof(sequence));
             }
 
-            io_proxy.WriteAllText(outputFastaFile, $"{sequence.id}\r\n{sequence.full_sequence}\r\n", nameof(sequence), nameof(Save));
+            io_proxy.WriteAllText(outputFastaFile, /*program.string_debug*/($"{sequence.id}\r\n{sequence.full_sequence}\r\n"), module_name, method_name);
         }
     }
 }

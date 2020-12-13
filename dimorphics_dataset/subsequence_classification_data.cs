@@ -44,7 +44,7 @@ namespace dimorphics_dataset
 
             if (neighbourhood_flanking_size % 2 != 0 || neighbourhood_flanking_size % 3 != 0)
             {
-                throw new Exception($@"{module_name}.{method_name}: Number must be divisible by both 2 and 3");
+                throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Number must be divisible by both 2 and 3"));
             }
             
 
@@ -82,7 +82,7 @@ namespace dimorphics_dataset
 
             if (nh_max_dist > 8.0)
             {
-                throw new Exception($"{module_name}.{method_name}: the specified maximum atomic distance is too long for contacts");
+                throw new ArgumentOutOfRangeException(nameof(nh_max_dist),/*program.string_debug*/($"{module_name}.{method_name}: the specified maximum atomic distance is too long for contacts"));
             }
 
             var contact_table = interface_region.atoms.First().intramolecular_contact_table;
@@ -118,28 +118,28 @@ namespace dimorphics_dataset
         {
             var comment_headers = new List<string>
             {
-                $@"row_index",
-                $@"{nameof(instance_meta_data.pdb_id)}",
-                $@"{nameof(instance_meta_data.chain_id)}", 
-                $@"{nameof(instance_meta_data.dimer_type)}", 
-                $@"{nameof(instance_meta_data.class_id)}", 
-                $@"{nameof(instance_meta_data.class_name)}", 
-                $@"{nameof(instance_meta_data.parallelism)}", 
-                $@"{nameof(instance_meta_data.symmetry_mode)}"
+                /*program.string_debug*/($@"row_index"),
+                /*program.string_debug*/($@"{nameof(instance_meta_data.pdb_id)}"),
+                /*program.string_debug*/($@"{nameof(instance_meta_data.chain_id)}"), 
+                /*program.string_debug*/($@"{nameof(instance_meta_data.dimer_type)}"), 
+                /*program.string_debug*/($@"{nameof(instance_meta_data.class_id)}"), 
+                /*program.string_debug*/($@"{nameof(instance_meta_data.class_name)}"), 
+                /*program.string_debug*/($@"{nameof(instance_meta_data.parallelism)}"), 
+                /*program.string_debug*/($@"{nameof(instance_meta_data.symmetry_mode)}")
             };
 
             foreach (var region in instance_meta_data.get_regions())
             {
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.unique_id)}");
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.unique_id)}"));
 
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.aa_sequence.Length)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.aa_sequence)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.res_ids)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp3_monomer)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp3_multimer)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp_monomer)}");
-                comment_headers.Add($@"{region.region_name}_{nameof(region.region.dssp_multimer)}");
-                comment_headers.AddRange(region.region?.ss_predictions?.Select(a => $@"{region.region_name}_{a.format}").ToList() ?? new List<string>());
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.aa_sequence.Length)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.aa_sequence)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.res_ids)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.dssp3_monomer)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.dssp3_multimer)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.dssp_monomer)}"));
+                comment_headers.Add(/*program.string_debug*/($@"{region.region_name}_{nameof(region.region.dssp_multimer)}"));
+                comment_headers.AddRange(region.region?.ss_predictions?.Select(a => /*program.string_debug*/($@"{region.region_name}_{a.format}")).ToList() ?? new List<string>());
             }
 
             return comment_headers;
@@ -155,26 +155,30 @@ namespace dimorphics_dataset
 
             row_comments.Add(row_index.ToString(CultureInfo.InvariantCulture));
 
-            row_comments.Add($@"{instance_meta_data.pdb_id}");
-            row_comments.Add($@"{instance_meta_data.chain_id}");
-            row_comments.Add($@"{instance_meta_data.dimer_type}");
-            row_comments.Add($@"{instance_meta_data.class_id:+#;-#;+0}");
-            row_comments.Add($@"{instance_meta_data.class_name}");
-            row_comments.Add($@"{instance_meta_data.parallelism}");
-            row_comments.Add($@"{instance_meta_data.symmetry_mode}");
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.pdb_id}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.chain_id}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.dimer_type}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.class_id:+#;-#;+0}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.class_name}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.parallelism}"));
+            row_comments.Add(/*program.string_debug*/($@"{instance_meta_data.symmetry_mode}"));
 
             foreach (var region in regions)
             {
                 
-                row_comments.Add($@"{region.region.unique_id()}");
+                row_comments.Add(/*program.string_debug*/($@"{region.region.unique_id()}"));
 
-                row_comments.Add($@"{region.region.aa_sequence.Length}");
-                row_comments.Add($@"{region.region.aa_sequence}");
-                row_comments.Add($@"{string.Join($@" ", region.region.res_ids.Select(a => $@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? $@"{(char.IsDigit(a.i_code) ? /*"i"*/$@"" : $@"")}{a.i_code}" : $@"")}").ToList())}");
-                row_comments.Add($@"{region.region.dssp3_monomer}");
-                row_comments.Add($@"{region.region.dssp3_multimer}");
-                row_comments.Add($@"{region.region.dssp_monomer}");
-                row_comments.Add($@"{region.region.dssp_multimer}");
+                row_comments.Add(/*program.string_debug*/($@"{region.region.aa_sequence.Length}"));
+                row_comments.Add(/*program.string_debug*/($@"{region.region.aa_sequence}"));
+                row_comments.Add(/*program.string_debug*/($@"{string.Join(/*program.string_debug*/($@" "), 
+                    region.
+                        region.
+                        res_ids.
+                        Select(a => /*program.string_debug*/($@"{a.amino_acid}{a.residue_index}{(a.i_code != default && !char.IsWhiteSpace(a.i_code) ? /*program.string_debug*/($@"{(char.IsDigit(a.i_code) ? /*"i"*//*program.string_debug*/($@"") : /*program.string_debug*/($@""))}{a.i_code}") : /*program.string_debug*/($@""))}")).ToList())}"));
+                row_comments.Add(/*program.string_debug*/($@"{region.region.dssp3_monomer}"));
+                row_comments.Add(/*program.string_debug*/($@"{region.region.dssp3_multimer}"));
+                row_comments.Add(/*program.string_debug*/($@"{region.region.dssp_monomer}"));
+                row_comments.Add(/*program.string_debug*/($@"{region.region.dssp_multimer}"));
                 row_comments.AddRange(region.region?.ss_predictions?.Select(a => a.prediction).ToList() ?? new List<string>());
             }
 

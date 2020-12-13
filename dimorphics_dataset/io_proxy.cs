@@ -8,6 +8,7 @@ namespace dimorphics_dataset
 {
     internal static class io_proxy
     {
+        public const string module_name = nameof(io_proxy);
         private static readonly object _console_lock = new object();
 
         internal static void WriteLine(string text = @"", string module_name = @"", string method_name = @"", bool use_lock = false)
@@ -43,13 +44,29 @@ namespace dimorphics_dataset
             }
             catch (Exception)
             {
-
+                //io_proxy.log_exception(e, /*program.string_debug*/($@""), module_name, method_name);
             }
+        }
+
+        internal static void log_exception(Exception e, string msg, string caller_module_name, string caller_method_name)
+        {
+            do
+            {
+                io_proxy.WriteLine($@"Error: ""{msg}"" ""{e.GetType()}"" ""{e.Source}"" ""{e.Message}"" ""{e.StackTrace}""", caller_module_name, caller_method_name);
+
+#if DEBUG
+                if (e.InnerException == null || e == e.InnerException)
+                {
+                    throw e;
+                }
+#endif
+                e = e != e?.InnerException ? e?.InnerException : null;
+            } while (e != null);
         }
 
         internal static void CreateDirectory(string filename)//, string module_name, string method_name)
         {
-            //program.WriteLine($@"{module_name}.{method_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
+            //program.WriteLine(/*program.string_debug*/($@"{module_name}.{method_name} -> {nameof(program)}.{nameof(CreateDirectory)} ( {filename} )");
 
             var dir = Path.GetDirectoryName(filename);
 
@@ -63,9 +80,12 @@ namespace dimorphics_dataset
             }
         }
 
-        internal static string[] ReadAllLines(string filename, string module_name="", string method_name="")
+        internal static string[] ReadAllLines(string filename, string caller_module_name="", string caller_method_name="")
         {
-            io_proxy.WriteLine($@"{module_name}.{method_name} -> ( {filename} )", nameof(io_proxy), nameof(ReadAllLines));
+            
+            const string method_name = nameof(ReadAllLines);
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{caller_module_name}.{caller_method_name} -> ( {filename} )"), module_name, method_name);
 
             while (true)
             {
@@ -77,15 +97,19 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString(), nameof(io_proxy), nameof(ReadAllLines));
+                    io_proxy.log_exception(e, /*program.string_debug*/($@"{caller_module_name}.{caller_method_name}"), module_name, method_name);
+                    
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }
         }
 
-        internal static void WriteAllLines(string filename, IEnumerable<string> lines, string module_name="", string method_name="")
+        internal static void WriteAllLines(string filename, IEnumerable<string> lines, string caller_module_name="", string caller_method_name="")
         {
-            io_proxy.WriteLine($@"{module_name}.{method_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllLines));
+            
+            const string method_name = nameof(WriteAllLines);
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{caller_module_name}.{caller_method_name} -> ( {filename} )"), module_name, method_name);
 
             CreateDirectory(filename);//, module_name, method_name);
 
@@ -98,15 +122,18 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString(), nameof(io_proxy), nameof(WriteAllLines));
+                    io_proxy.log_exception(e, /*program.string_debug*/($@"{caller_module_name}.{caller_method_name}"), module_name, method_name);
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }
         }
 
-        internal static void AppendAllLines(string filename, IEnumerable<string> lines, string module_name="", string method_name="")
+        internal static void AppendAllLines(string filename, IEnumerable<string> lines, string caller_module_name = "", string caller_method_name = "")
         {
-            io_proxy.WriteLine($@"{module_name}.{method_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllLines));
+            
+            const string method_name = nameof(AppendAllLines);
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{caller_module_name}.{caller_method_name} -> ( {filename} )"), module_name, method_name);
 
             CreateDirectory(filename);//, module_name, method_name);
 
@@ -119,15 +146,18 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString(), nameof(io_proxy), nameof(AppendAllLines));
+                    io_proxy.log_exception(e, /*program.string_debug*/($@"{caller_module_name}.{caller_method_name}"), module_name, method_name);
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }
         }
 
-        internal static void AppendAllText(string filename, string text, string module_name="", string method_name="")
+        internal static void AppendAllText(string filename, string text, string caller_module_name = "", string caller_method_name = "")
         {
-            io_proxy.WriteLine($@"{module_name}.{method_name} -> ( {filename} )", nameof(io_proxy), nameof(AppendAllText));
+            
+            const string method_name = nameof(AppendAllText);
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{caller_module_name}.{caller_method_name} -> ( {filename} )"), module_name, method_name);
 
             CreateDirectory(filename);//, module_name, method_name);
 
@@ -140,15 +170,19 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString(), nameof(io_proxy), nameof(AppendAllText));
+                    io_proxy.log_exception(e, /*program.string_debug*/($@"{caller_module_name}.{caller_method_name}"), module_name, method_name);
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }
         }
 
-        internal static void WriteAllText(string filename, string text, string module_name="", string method_name="")
+        internal static void WriteAllText(string filename, string text, string caller_module_name = "", string caller_method_name = "")
         {
-            io_proxy.WriteLine($@"{module_name}.{method_name} -> ( {filename} )", nameof(io_proxy), nameof(WriteAllText));
+            
+            const string method_name = nameof(WriteAllText);
+
+
+            io_proxy.WriteLine(/*program.string_debug*/($@"{caller_module_name}.{caller_method_name} -> ( {filename} )"), module_name, method_name);
 
             CreateDirectory(filename);//, module_name, method_name);
 
@@ -161,7 +195,7 @@ namespace dimorphics_dataset
                 }
                 catch (Exception e)
                 {
-                    WriteLine(e.ToString(), nameof(io_proxy), nameof(WriteAllText));
+                    io_proxy.log_exception(e, /*program.string_debug*/($@"{caller_module_name}.{caller_method_name}"), module_name, method_name);
                     Task.Delay(new TimeSpan(0, 0, 0, 10)).Wait();
                 }
             }

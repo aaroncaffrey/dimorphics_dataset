@@ -11,8 +11,6 @@ namespace dimorphics_dataset
 
     internal class cmd_params
     {
-        internal bool parse_ok;
-
         //internal string[] area;
         internal bool use_dssp3;
         internal int class_id;
@@ -36,10 +34,10 @@ namespace dimorphics_dataset
             //area = p.area;
             use_dssp3 = p.use_dssp3;
             class_id = p.class_id;
-            class_name = p.class_name;
+            class_name = /*program.string_debug*/(p.class_name);
             min_sequence_length = p.min_sequence_length;
             max_features = p.max_features;
-            output_folder = p.output_folder;
+            output_folder = /*program.string_debug*/(p.output_folder);
             first_index = p.first_index;
             last_index = p.last_index;
             verbose = p.verbose;
@@ -58,7 +56,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_1d_interface_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_1d_interface_kvl.Where(a => a.value).Select(a => $"{area1i}.{a.key}").ToArray());
+                x.AddRange(feature_types_1d_interface_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area1i}.{a.key}")).ToArray());
             }
 
             var feature_types_1d_neighbourhood_kvl = feature_types_1d_neighbourhood.key_value_list();
@@ -68,7 +66,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_1d_neighbourhood_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_1d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area1n}.{a.key}").ToArray());
+                x.AddRange(feature_types_1d_neighbourhood_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area1n}.{a.key}")).ToArray());
             }
 
             var feature_types_1d_chain_kvl = feature_types_1d_chain.key_value_list();
@@ -78,7 +76,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_1d_chain_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_1d_chain_kvl.Where(a => a.value).Select(a => $"{area1p}.{a.key}").ToArray());
+                x.AddRange(feature_types_1d_chain_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area1p}.{a.key}")).ToArray());
             }
 
 
@@ -90,7 +88,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_2d_interface_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_2d_interface_kvl.Where(a => a.value).Select(a => $"{area2i}.{a.key}").ToArray());
+                x.AddRange(feature_types_2d_interface_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area2i}.{a.key}")).ToArray());
             }
 
             var feature_types_2d_neighbourhood_kvl = feature_types_2d_neighbourhood.key_value_list();
@@ -100,7 +98,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_2d_neighbourhood_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_2d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area2n}.{a.key}").ToArray());
+                x.AddRange(feature_types_2d_neighbourhood_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area2n}.{a.key}")).ToArray());
             }
 
             var feature_types_2d_chain_kvl = feature_types_2d_chain.key_value_list();
@@ -110,7 +108,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_2d_chain_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_2d_chain_kvl.Where(a => a.value).Select(a => $"{area2p}.{a.key}").ToArray());
+                x.AddRange(feature_types_2d_chain_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area2p}.{a.key}")).ToArray());
             }
 
 
@@ -122,7 +120,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_3d_interface_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_3d_interface_kvl.Where(a => a.value).Select(a => $"{area3i}.{a.key}").ToArray());
+                x.AddRange(feature_types_3d_interface_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area3i}.{a.key}")).ToArray());
             }
 
             var feature_types_3d_neighbourhood_kvl = feature_types_3d_neighbourhood.key_value_list();
@@ -132,7 +130,7 @@ namespace dimorphics_dataset
             }
             else if (feature_types_3d_neighbourhood_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_3d_neighbourhood_kvl.Where(a => a.value).Select(a => $"{area3n}.{a.key}").ToArray());
+                x.AddRange(feature_types_3d_neighbourhood_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area3n}.{a.key}")).ToArray());
             }
 
             var feature_types_3d_chain_kvl = feature_types_3d_chain.key_value_list();
@@ -142,12 +140,12 @@ namespace dimorphics_dataset
             }
             else if (feature_types_3d_chain_kvl.Any(a => a.value))
             {
-                x.AddRange(feature_types_3d_chain_kvl.Where(a => a.value).Select(a => $"{area3p}.{a.key}").ToArray());
+                x.AddRange(feature_types_3d_chain_kvl.Where(a => a.value).Select(a => /*program.string_debug*/($"{area3p}.{a.key}")).ToArray());
             }
 
             // f_([1i]_[1n.aaindex]_[1n.dfdsf]_[1p])_(+1)_(dimorphic_coil).csv
 
-            return string.Join($@"_", x.Select(a => $"[{a}]").ToArray());
+            return string.Join(/*program.string_debug*/($@"_"), x.Select(a => /*program.string_debug*/($"[{a}]")).ToArray());
         }
 
 
@@ -183,7 +181,7 @@ namespace dimorphics_dataset
                         x.Add((name, value));
                     };
 
-                    name = arg.Substring(1);
+                    name = arg[1..];
                     value = "";
                 }
 
@@ -235,7 +233,7 @@ namespace dimorphics_dataset
             const string dimorphic_coil = @"dimorphic_coil";
 
             var param_list = get_params(args);
-            io_proxy.WriteLine(string.Join($@", ", param_list), nameof(program), nameof(cmd_params));
+            io_proxy.WriteLine(string.Join(/*program.string_debug*/($@", "), param_list), nameof(program), nameof(cmd_params));
 
             var known_params = new List<string>()
             {
@@ -255,126 +253,127 @@ namespace dimorphics_dataset
 
             known_params.AddRange(defined_areas);
 
-            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1i}.{a}").ToArray());
-            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1n}.{a}").ToArray());
-            known_params.AddRange(feature_types_1d.keys.Select(a => $"{area1p}.{a}").ToArray());
-
-            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2i}.{a}").ToArray());
-            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2n}.{a}").ToArray());
-            known_params.AddRange(feature_types_2d.keys.Select(a => $"{area2p}.{a}").ToArray());
-
-            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3i}.{a}").ToArray());
-            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3n}.{a}").ToArray());
-            known_params.AddRange(feature_types_3d.keys.Select(a => $"{area3p}.{a}").ToArray());
+            known_params.AddRange(feature_types_1d.keys.Select(a => /*program.string_debug*/($"{area1i}.{a}")).ToArray());
+            known_params.AddRange(feature_types_1d.keys.Select(a => /*program.string_debug*/($"{area1n}.{a}")).ToArray());
+            known_params.AddRange(feature_types_1d.keys.Select(a => /*program.string_debug*/($"{area1p}.{a}")).ToArray());
+                                                                    
+            known_params.AddRange(feature_types_2d.keys.Select(a => /*program.string_debug*/($"{area2i}.{a}")).ToArray());
+            known_params.AddRange(feature_types_2d.keys.Select(a => /*program.string_debug*/($"{area2n}.{a}")).ToArray());
+            known_params.AddRange(feature_types_2d.keys.Select(a => /*program.string_debug*/($"{area2p}.{a}")).ToArray());
+                                                                    
+            known_params.AddRange(feature_types_3d.keys.Select(a => /*program.string_debug*/($"{area3i}.{a}")).ToArray());
+            known_params.AddRange(feature_types_3d.keys.Select(a => /*program.string_debug*/($"{area3n}.{a}")).ToArray());
+            known_params.AddRange(feature_types_3d.keys.Select(a => /*program.string_debug*/($"{area3p}.{a}")).ToArray());
 
             var unknown_params = param_list.Where(a => known_params.All(b => !string.Equals(a.key, b, StringComparison.OrdinalIgnoreCase))).Select(a => a.key).ToArray();
 
             if (unknown_params != null && unknown_params.Length > 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(args), $"Arguments not recognised: {string.Join($@", ", unknown_params)}");
+                throw new ArgumentOutOfRangeException(nameof(args), /*program.string_debug*/($@"Arguments not recognised: {string.Join(/*program.string_debug*/($@", "), unknown_params)}"));
             }
 
 
             if (param_list.Count == 0)
             {
                 var classes = new[] { (class_id: +1, class_name: dimorphic_coil), (class_id: -1, class_name: standard_coil) };
-                var output_folder = @"e:\dataset\";
+                var output_folder = /*program.string_debug*/(@"e:\dataset\");
                 program.verbose = true;
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
-                io_proxy.WriteLine($@"");
-                io_proxy.WriteLine($@"{nameof(dimorphics_dataset)} usage:");
-                io_proxy.WriteLine($@"");
+                io_proxy.WriteLine(/*program.string_debug*/($@""));
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(dimorphics_dataset)} usage:"));
+                io_proxy.WriteLine(/*program.string_debug*/($@""));
 
                 foreach (var defined_area in defined_areas)
                 {
-                    io_proxy.WriteLine($@"{defined_area[0]}d {(defined_area[1] == 'i' || defined_area[1] == 'I' ? $@"interface subsequence" : $@"")}{(defined_area[1] == 'n' || defined_area[1] == 'N' ? $@"neighbourhood" : $@"")}{(defined_area[1] == 'p' || defined_area[1] == 'P' ? $@"protein chain" : $@"")} area:");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"{defined_area[0]}d {(defined_area[1] == 'i' || defined_area[1] == 'I' ? /*program.string_debug*/($@"interface subsequence") : /*program.string_debug*/($@""))}{(defined_area[1] == 'n' || defined_area[1] == 'N' ? /*program.string_debug*/($@"neighbourhood") : /*program.string_debug*/($@""))}{(defined_area[1] == 'p' || defined_area[1] == 'P' ? /*program.string_debug*/($@"protein chain") : /*program.string_debug*/($@""))} area:"));
 
                     foreach (var b in classes)
                     {
-                        var stdout_file = Path.Combine(output_folder, $@"stdout_{defined_area}_({(b.class_id > 0 ? $@"+" : $@"")}{b.class_id})_({b.class_name}).txt");
-                        var stderr_file = Path.Combine(output_folder, $@"stderr_{defined_area}_({(b.class_id > 0 ? $@"+" : $@"")}{b.class_id})_({b.class_name}).txt");
+                        var stdout_file = Path.Combine(output_folder, /*program.string_debug*/($@"stdout_{defined_area}_({(b.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{b.class_id})_({b.class_name}).txt"));
+                        var stderr_file = Path.Combine(output_folder, /*program.string_debug*/($@"stderr_{defined_area}_({(b.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{b.class_id})_({b.class_name}).txt"));
 
                         string[] keys;
-                        if (new string[] { area1i, area1n, area1p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_1d.keys.Select(a => $"{defined_area}.{a}").ToArray();
-                        else if (new string[] { area2i, area2n, area2p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_2d.keys.Select(a => $"{defined_area}.{a}").ToArray();
-                        else if (new string[] { area3i, area3n, area3p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_3d.keys.Select(a => $"{defined_area}.{a}").ToArray();
+                        if (new string[] { area1i, area1n, area1p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_1d.keys.Select(a => /*program.string_debug*/($"{defined_area}.{a}")).ToArray();
+                        else if (new string[] { area2i, area2n, area2p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_2d.keys.Select(a => /*program.string_debug*/($"{defined_area}.{a}")).ToArray();
+                        else if (new string[] { area3i, area3n, area3p }.Any(a => string.Equals(a, defined_area, StringComparison.OrdinalIgnoreCase))) keys = feature_types_3d.keys.Select(a => /*program.string_debug*/($"{defined_area}.{a}")).ToArray();
                         else throw new Exception();
 
-                        io_proxy.WriteLine($@"{exe} -{defined_area}=true {string.Join($@" ", keys.Select(a => $"-{a}=true").ToArray())} -{nameof(use_dssp3)}=true -{nameof(class_id)}={(b.class_id > 0 ? $@"+" : $@"")}{b.class_id} -{nameof(class_name)}={b.class_name} -{nameof(min_sequence_length)}=3 -{nameof(max_features)}=100 -{nameof(output_folder)}={output_folder} -{nameof(use_children)}=true -{nameof(verbose)}=true [-{nameof(first_index)}=[i] -{nameof(last_index)}=[j]] 1> {stdout_file} 2> {stderr_file}");
+                        io_proxy.WriteLine(/*program.string_debug*/($@"{exe} -{defined_area}=true {string.Join(/*program.string_debug*/($@" "), keys.Select(a => /*program.string_debug*/($"-{a}=true")).ToArray())} -{nameof(use_dssp3)}=true -{nameof(class_id)}={(b.class_id > 0 ? /*program.string_debug*/($@"+") : /*program.string_debug*/($@""))}{b.class_id} -{nameof(class_name)}={b.class_name} -{nameof(min_sequence_length)}=3 -{nameof(max_features)}=100 -{nameof(output_folder)}={output_folder} -{nameof(use_children)}=true -{nameof(verbose)}=true [-{nameof(first_index)}=[i] -{nameof(last_index)}=[j]] 1> {stdout_file} 2> {stderr_file}"));
 
                     }
 
-                    io_proxy.WriteLine($@"");
+                    io_proxy.WriteLine(/*program.string_debug*/($@""));
                 }
 
                 Environment.Exit(0);
                 //return default;
-                //throw new Exception($@"No {nameof(args)} specified.");
+                //throw new Exception(/*program.string_debug*/($@"No {nameof(args)} specified.");
             }
 
             if (param_list.Any(a => string.Equals(a.key, area1i, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area1i, StringComparison.OrdinalIgnoreCase));
-                feature_types_1d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area1n, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area1n, StringComparison.OrdinalIgnoreCase));
-                feature_types_1d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area1p, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area1p, StringComparison.OrdinalIgnoreCase));
-                feature_types_1d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_1d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area2i, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area2i, StringComparison.OrdinalIgnoreCase));
-                feature_types_2d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area2n, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area2n, StringComparison.OrdinalIgnoreCase));
-                feature_types_2d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area2p, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area2p, StringComparison.OrdinalIgnoreCase));
-                feature_types_2d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_2d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area3i, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area3i, StringComparison.OrdinalIgnoreCase));
-                feature_types_3d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_interface.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area3n, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area3n, StringComparison.OrdinalIgnoreCase));
-                feature_types_3d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_neighbourhood.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
 
             if (param_list.Any(a => string.Equals(a.key, area3p, StringComparison.OrdinalIgnoreCase)))
             {
                 var v = param_list.First(a => string.Equals(a.key, area3p, StringComparison.OrdinalIgnoreCase));
-                feature_types_3d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, "true", StringComparison.OrdinalIgnoreCase));
+                feature_types_3d_chain.set_enable(string.IsNullOrEmpty(v.value) || string.Equals(v.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(v.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase));
             }
+
+            ///*program.string_debug*/()
 
             feature_types_1d_interface
               .set_enable(param_list
-                  .Where(a => a.key.StartsWith($"{area1i}.", StringComparison.OrdinalIgnoreCase) &&
-                              feature_types_1d.keys.Contains(a.key.Substring($"{area1i}.".Length))
+                  .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area1i}."), StringComparison.OrdinalIgnoreCase) && feature_types_1d.keys.Contains(a.key[/*program.string_debug*/($"{area1i}.").Length..])
                   )
                   .Select(a =>
                       (
-                          enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                          name: a.key.Substring($"{area1i}.".Length)
+                          enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                          name: a.key[/*program.string_debug*/($"{area1i}.").Length..]
                       )
                   )
                   .ToArray()
@@ -382,13 +381,12 @@ namespace dimorphics_dataset
 
             feature_types_1d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area1n}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_1d.keys.Contains(a.key.Substring($"{area1n}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area1n}."), StringComparison.OrdinalIgnoreCase) && feature_types_1d.keys.Contains(a.key[$"{area1n}.".Length..])
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area1n}.".Length)
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                            name: a.key[/*program.string_debug*/($"{area1n}.").Length..]
                         )
                     )
                     .ToArray()
@@ -397,13 +395,12 @@ namespace dimorphics_dataset
 
             feature_types_1d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area1p}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_1d.keys.Contains(a.key.Substring($"{area1p}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area1p}."), StringComparison.OrdinalIgnoreCase) && feature_types_1d.keys.Contains(a.key[/*program.string_debug*/($"{area1p}.").Length..])
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area1p}.".Length)
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                            name: a.key[/*program.string_debug*/($"{area1p}.").Length..]
                         )
                     )
                     .ToArray()
@@ -411,13 +408,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_interface
                      .set_enable(param_list
-                         .Where(a => a.key.StartsWith($"{area2i}.", StringComparison.OrdinalIgnoreCase) &&
-                                     feature_types_2d.keys.Contains(a.key.Substring($"{area2i}.".Length))
+                         .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area2i}."), StringComparison.OrdinalIgnoreCase) && feature_types_2d.keys.Contains(a.key[/*program.string_debug*/($"{area2i}.").Length..])
                          )
                          .Select(a =>
                              (
                                  enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                                 name: a.key.Substring($"{area2i}.".Length)
+                                 name: a.key[/*program.string_debug*/($"{area2i}.").Length..]
                              )
                          )
                          .ToArray()
@@ -425,13 +421,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area2n}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_2d.keys.Contains(a.key.Substring($"{area2n}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area2n}."), StringComparison.OrdinalIgnoreCase) && feature_types_2d.keys.Contains(a.key[$"{area2n}.".Length..])
                     )
                     .Select(a =>
                         (
                             enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area2n}.".Length)
+                            name: a.key[/*program.string_debug*/($"{area2n}.").Length..]
                         )
                     )
                     .ToArray()
@@ -440,13 +435,12 @@ namespace dimorphics_dataset
 
             feature_types_2d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area2p}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_2d.keys.Contains(a.key.Substring($"{area2p}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area2p}."), StringComparison.OrdinalIgnoreCase) && feature_types_2d.keys.Contains(a.key[/*program.string_debug*/($"{area2p}.").Length..])
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area2p}.".Length)
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                            name: a.key[/*program.string_debug*/($"{area2p}.").Length..]
                         )
                     )
                     .ToArray()
@@ -455,13 +449,12 @@ namespace dimorphics_dataset
 
             feature_types_3d_interface
                      .set_enable(param_list
-                         .Where(a => a.key.StartsWith($"{area3i}.", StringComparison.OrdinalIgnoreCase) &&
-                                     feature_types_3d.keys.Contains(a.key.Substring($"{area3i}.".Length))
+                         .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area3i}."), StringComparison.OrdinalIgnoreCase) && feature_types_3d.keys.Contains(a.key[/*program.string_debug*/($"{area3i}.").Length..])
                          )
                          .Select(a =>
                              (
-                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                                 name: a.key.Substring($"{area3i}.".Length)
+                                 enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                                 name: a.key[/*program.string_debug*/($"{area3i}.").Length..]
                              )
                          )
                          .ToArray()
@@ -469,13 +462,12 @@ namespace dimorphics_dataset
 
             feature_types_3d_neighbourhood
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area3n}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_3d.keys.Contains(a.key.Substring($"{area3n}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area3n}."), StringComparison.OrdinalIgnoreCase) && feature_types_3d.keys.Contains(a.key[/*program.string_debug*/($"{area3n}.").Length..])
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area3n}.".Length)
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                            name: a.key[/*program.string_debug*/($"{area3n}.").Length..]
                         )
                     )
                     .ToArray()
@@ -484,13 +476,12 @@ namespace dimorphics_dataset
 
             feature_types_3d_chain
                 .set_enable(param_list
-                    .Where(a => a.key.StartsWith($"{area3p}.", StringComparison.OrdinalIgnoreCase) &&
-                                feature_types_3d.keys.Contains(a.key.Substring($"{area3p}.".Length))
+                    .Where(a => a.key.StartsWith(/*program.string_debug*/($"{area3p}."), StringComparison.OrdinalIgnoreCase) && feature_types_3d.keys.Contains(a.key[/*program.string_debug*/($"{area3p}.").Length..])
                     )
                     .Select(a =>
                         (
-                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, "1", StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, "true", StringComparison.OrdinalIgnoreCase)),
-                            name: a.key.Substring($"{area3p}.".Length)
+                            enable: (string.IsNullOrEmpty(a.value) || string.Equals(a.value, /*program.string_debug*/("1"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.value, /*program.string_debug*/("true"), StringComparison.OrdinalIgnoreCase)),
+                            name: a.key[/*program.string_debug*/($"{area3p}.").Length..]
                         )
                     )
                     .ToArray()
@@ -506,7 +497,7 @@ namespace dimorphics_dataset
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(use_dssp3)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(use_dssp3)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(class_id), StringComparison.OrdinalIgnoreCase)).value))
@@ -515,16 +506,16 @@ namespace dimorphics_dataset
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(class_id)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(class_id)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(class_name), StringComparison.OrdinalIgnoreCase)).value))
             {
-                class_name = param_list.FirstOrDefault(z => string.Equals(z.key, nameof(class_name), StringComparison.OrdinalIgnoreCase)).value?.ToLowerInvariant();
+                class_name = /*program.string_debug*/(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(class_name), StringComparison.OrdinalIgnoreCase)).value?.ToLowerInvariant());
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(class_name)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(class_name)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(min_sequence_length), StringComparison.OrdinalIgnoreCase)).value))
@@ -533,7 +524,7 @@ namespace dimorphics_dataset
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(min_sequence_length)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(min_sequence_length)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(max_features), StringComparison.OrdinalIgnoreCase)).value))
@@ -542,16 +533,16 @@ namespace dimorphics_dataset
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(max_features)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(max_features)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(output_folder), StringComparison.OrdinalIgnoreCase)).value))
             {
-                output_folder = param_list.FirstOrDefault(z => string.Equals(z.key, nameof(output_folder), StringComparison.OrdinalIgnoreCase)).value;
+                output_folder = /*program.string_debug*/(param_list.FirstOrDefault(z => string.Equals(z.key, nameof(output_folder), StringComparison.OrdinalIgnoreCase)).value);
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(output_folder)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(output_folder)}"));
             }
 
             if (!string.IsNullOrWhiteSpace(param_list.FirstOrDefault(a => string.Equals(a.key, nameof(first_index), StringComparison.OrdinalIgnoreCase)).value))
@@ -575,7 +566,7 @@ namespace dimorphics_dataset
             }
             else
             {
-                throw new ArgumentNullException(nameof(args), $@"{module_name}.{method_name}: missing argument {nameof(use_children)}");
+                throw new ArgumentNullException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: missing argument {nameof(use_children)}"));
             }
 
 
@@ -589,87 +580,87 @@ namespace dimorphics_dataset
             {
                 io_proxy.WriteLine();
 
-                //io_proxy.WriteLine($@"{nameof(area)} = ""{string.Join($@", ", area ?? Array.Empty<string>())}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(use_dssp3)} = ""{use_dssp3}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(class_id)} = ""{class_id}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(class_name)} = ""{class_name}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(min_sequence_length)} = ""{min_sequence_length}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(max_features)} = ""{max_features}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(output_folder)} = ""{output_folder}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(first_index)} = ""{first_index}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(last_index)} = ""{last_index}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(verbose)} = ""{verbose}""", module_name, method_name);
-                io_proxy.WriteLine($@"{nameof(use_children)} = ""{use_children}""", module_name, method_name);
+                //io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(area)} = ""{string.Join(/*program.string_debug*/($@", "), area ?? Array.Empty<string>())}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(use_dssp3)} = ""{use_dssp3}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(class_id)} = ""{class_id}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(class_name)} = ""{class_name}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(min_sequence_length)} = ""{min_sequence_length}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(max_features)} = ""{max_features}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(output_folder)} = ""{output_folder}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(first_index)} = ""{first_index}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(last_index)} = ""{last_index}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(verbose)} = ""{verbose}"""), module_name, method_name);
+                io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(use_children)} = ""{use_children}"""), module_name, method_name);
 
                 io_proxy.WriteLine();
 
-                //feature_types_1d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_interface.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_1d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_1d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_1d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_1d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_1d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_1d_chain.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_1d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_2d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_interface.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_2d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_2d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_2d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_2d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_2d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_2d_chain.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_2d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_3d_interface.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_interface.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_3d_interface)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_3d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_neighbourhood.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_3d_neighbourhood)}.{a.key} = ""{a.value}""", module_name, method_name));
 
                 //io_proxy.WriteLine();
 
-                //feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
+                //feature_types_3d_chain.key_value_list().ForEach(a => io_proxy.WriteLine(/*program.string_debug*/($@"{nameof(feature_types_3d_chain)}.{a.key} = ""{a.value}""", module_name, method_name));
             }
 
             var feature_status = new List<(string key, bool value)>();
 
-            feature_status.AddRange(feature_types_1d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area1i}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_1d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area1n}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_1d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area1p}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_1d_interface.key_value_list().Select(a => (/*program.string_debug*/($"{area1i}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_1d_neighbourhood.key_value_list().Select(a => (/*program.string_debug*/($"{area1n}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_1d_chain.key_value_list().Select(a => (/*program.string_debug*/($"{area1p}.{a.key}"), a.value)).ToArray());
 
-            feature_status.AddRange(feature_types_2d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area2i}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_2d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area2n}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_2d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area2p}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_2d_interface.key_value_list().Select(a => (/*program.string_debug*/($"{area2i}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_2d_neighbourhood.key_value_list().Select(a => (/*program.string_debug*/($"{area2n}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_2d_chain.key_value_list().Select(a => (/*program.string_debug*/($"{area2p}.{a.key}"), a.value)).ToArray());
 
-            feature_status.AddRange(feature_types_3d_interface.key_value_list().Where(a => a.value).Select(a => ($"{area3i}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_3d_neighbourhood.key_value_list().Where(a => a.value).Select(a => ($"{area3n}.{a.key}", a.value)).ToArray());
-            feature_status.AddRange(feature_types_3d_chain.key_value_list().Where(a => a.value).Select(a => ($"{area3p}.{a.key}", a.value)).ToArray());
+            feature_status.AddRange(feature_types_3d_interface.key_value_list().Select(a => (/*program.string_debug*/($"{area3i}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_3d_neighbourhood.key_value_list().Select(a => (/*program.string_debug*/($"{area3n}.{a.key}"), a.value)).ToArray());
+            feature_status.AddRange(feature_types_3d_chain.key_value_list().Select(a => (/*program.string_debug*/($"{area3p}.{a.key}"), a.value)).ToArray());
+
 
             var feature_enabled = feature_status.Where(a => a.value).ToList();
             var num_enabled = feature_enabled.Count;
-            io_proxy.WriteLine($@"Features enabled for extraction [{num_enabled}]:", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"Features enabled for extraction [{num_enabled}]:"), module_name, method_name);
             feature_enabled.ForEach(a => io_proxy.WriteLine(a.key, module_name, method_name));
             io_proxy.WriteLine();
 
             var feature_disabled = feature_status.Where(a => !a.value).ToList();
             var num_disabled = feature_disabled.Count;
-            io_proxy.WriteLine($@"Features disabled for extraction [{num_enabled}]:", module_name, method_name);
-            feature_enabled.ForEach(a => io_proxy.WriteLine(a.key, module_name, method_name));
+            io_proxy.WriteLine(/*program.string_debug*/($@"Features disabled for extraction [{num_disabled}]:"), module_name, method_name);
+            feature_disabled.ForEach(a => io_proxy.WriteLine(a.key, module_name, method_name));
             io_proxy.WriteLine();
+        
 
             if (num_enabled == 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(args), $@"{module_name}.{method_name}: No features are selected for extraction ({nameof(num_enabled)}: {num_enabled}, {nameof(num_disabled)}: {num_disabled}).");
+                throw new ArgumentOutOfRangeException(nameof(args), /*program.string_debug*/($@"{module_name}.{method_name}: No features are selected for extraction ({nameof(num_enabled)}: {num_enabled}, {nameof(num_disabled)}: {num_disabled})."));
             }
-
-            parse_ok = true;
         }
     }
 
@@ -813,19 +804,19 @@ namespace dimorphics_dataset
             }
     };
 
-    // 1d
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_1d_interface)} = {feature_types.feature_types_1d_interface}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_neighbourhood_1d)} = {feature_types.feature_types_neighbourhood_1d}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_chain_1d)} = {feature_types.feature_types_chain_1d}", module_name, method_name);
-
-    //2d
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_2d_interface)} = {feature_types.feature_types_2d_interface}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_neighbourhood_2d)} = {feature_types.feature_types_neighbourhood_2d}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_chain_2d)} = {feature_types.feature_types_chain_2d}", module_name, method_name);
-
-    //3d
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_3d_interface)} = {feature_types.feature_types_3d_interface}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_neighbourhood_3d)} = {feature_types.feature_types_neighbourhood_3d}", module_name, method_name);
-    io_proxy.WriteLine($@"{nameof(feature_types.feature_types_chain_3d)} = {feature_types.feature_types_chain_3d}", module_name, method_name);
+    // 1d                               
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_1d_interface)} = {feature_types.feature_types_1d_interface}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_neighbourhood_1d)} = {feature_types.feature_types_neighbourhood_1d}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_chain_1d)} = {feature_types.feature_types_chain_1d}"), module_name, method_name);
+                                        
+    //2d                                
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_2d_interface)} = {feature_types.feature_types_2d_interface}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_neighbourhood_2d)} = {feature_types.feature_types_neighbourhood_2d}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_chain_2d)} = {feature_types.feature_types_chain_2d}"), module_name, method_name);
+                                        
+    //3d                                
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_3d_interface)} = {feature_types.feature_types_3d_interface}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_neighbourhood_3d)} = {feature_types.feature_types_neighbourhood_3d}"), module_name, method_name);
+    io_proxy.WriteLine(/*program.string_debug* /($@"{nameof(feature_types.feature_types_chain_3d)} = {feature_types.feature_types_chain_3d}"), module_name, method_name);
     return feature_types;
 }*/

@@ -2,45 +2,53 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
     internal static class dataset_gen_dimorphic
     {
-        internal static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true)
+        public const string module_name = nameof(dataset_gen_dimorphic);
+
+        internal static List<protein_subsequence_info> run_dhc_dataset_maker(enum_substructure_type strand_type, int class_id, string class_name, bool use_dssp3 = true, CancellationTokenSource cts = null)
         {
-            var class_name_in_file = $@"";
+            const string method_name = nameof(run_dhc_dataset_maker);
+
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
+            var class_name_in_file = /*program.string_debug*/($@"");
             var include_host_coil = false;
             var full_protein_seq = false;
 
             switch (strand_type)
             {
                 case enum_substructure_type.dimorphic:
-                    class_name_in_file = $@"Single";
+                    class_name_in_file = /*program.string_debug*/($@"Single");
                     break;
 
                 case enum_substructure_type.dimorphic_coil:
-                    class_name_in_file = $@"Single";
+                    class_name_in_file = /*program.string_debug*/($@"Single");
                     include_host_coil = true;
                     break;
 
                 case enum_substructure_type.standard_strand:
-                    class_name_in_file = $@"Multiple";
+                    class_name_in_file = /*program.string_debug*/($@"Multiple");
                     break;
 
                 case enum_substructure_type.standard_strand_coil:
-                    class_name_in_file = $@"Multiple";
+                    class_name_in_file = /*program.string_debug*/($@"Multiple");
                     include_host_coil = true;
                     break;
 
                 case enum_substructure_type.dimorphic_full_protein_sequence:
-                    class_name_in_file = $@"Single";
+                    class_name_in_file = /*program.string_debug*/($@"Single");
                     full_protein_seq = true;
                     break;
 
                 case enum_substructure_type.standard_strand_full_protein_sequence:
-                    class_name_in_file = $@"Multiple";
+                    class_name_in_file = /*program.string_debug*/($@"Multiple");
                     full_protein_seq = true;
                     break;
 
@@ -55,15 +63,16 @@ namespace dimorphics_dataset
 
             var dimorphics_data = dimorphics_data_all.Where(a => string.Equals(a.class_name, class_name_in_file, StringComparison.Ordinal)).ToList();
 
-            var get_dhc_ret = get_dhc_list(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_data);
+            var get_dhc_ret = get_dhc_list(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_data, cts);
 
             return get_dhc_ret;
         }
 
         
         internal static List<protein_subsequence_info> get_dhc_list(int class_id, string class_name, bool use_dssp3, bool include_host_coil, bool full_protein_seq,
-            List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data)
+            List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> dimorphics_data, CancellationTokenSource cts)
         {
+            const string method_name = nameof(get_dhc_list);
 
             if (dimorphics_data == null)
             {
@@ -72,22 +81,34 @@ namespace dimorphics_dataset
 
             var tasks = new List<Task<protein_subsequence_info>>();
 
-            var start_time = DateTime.Now;
+            var tasks_start_time = DateTime.Now;
 
             for (var i = 0; i < dimorphics_data.Count; i++)
             {
+                if (cts != null && cts.IsCancellationRequested)
+                {
+                    return null;
+                }
+
                 var dimorphics_interface = dimorphics_data[i];
 
                 var task = Task.Run(() =>
                 {
+                    if (cts != null && cts.IsCancellationRequested)
+                    {
+                        return null;
+                    }
+
                     return get_dhc_item(class_id, class_name, use_dssp3, include_host_coil, full_protein_seq, dimorphics_interface);
-                });
+                }, cts.Token);
 
                 tasks.Add(task);
+
+                program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, -1, module_name, method_name, cts);
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), start_time, nameof(dataset_gen_dimorphic), nameof(get_dhc_list));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, 0, module_name, method_name, cts);
 
             var psi_list = tasks.Select(a => a.Result).ToList();
 
@@ -114,7 +135,7 @@ namespace dimorphics_dataset
 
             if (!string.Equals(strand_protein?.Substring(strand_array_index, strand_seq.Length), strand_seq, StringComparison.Ordinal))
             {
-                throw new Exception($@"{module_name}.{method_name}: Not correct position");
+                throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Not correct position"));
             }
 
             var strand_res_ids = strand_protein_res_ids.Skip(strand_array_index).Take(strand_seq?.Length ?? 0).ToList();
@@ -126,7 +147,7 @@ namespace dimorphics_dataset
         {
             var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(null, pdb_atoms);
-            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
+            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join(/*program.string_debug*/($@""), a.Select(b => b.amino_acid).ToList()))).ToList();
             var chain_id = chain_list_default_order[chain_number].chain_id;
 
             return chain_id;
@@ -138,11 +159,14 @@ namespace dimorphics_dataset
             bool use_dssp3, 
             bool include_host_coil,
             bool full_protein_seq,
-            (string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index) dimorphics_interface
+            (string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index) dimorphics_interface,
+            CancellationTokenSource cts = null
             )
         {
             const string module_name = nameof(dataset_gen_dimorphic);
             const string method_name = nameof(get_dhc_item);
+
+            if (cts != null && cts.IsCancellationRequested) return null;
 
             var pdb_atoms = atom.load_atoms_pdb(dimorphics_interface.pdb_id, new load_atoms_pdb_options()
             {
@@ -176,7 +200,7 @@ namespace dimorphics_dataset
 
             //var chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
             var pdb_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_atoms);
-            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
+            var sequences = pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join(/*program.string_debug*/($@""), a.Select(b => b.amino_acid).ToList()))).ToList();
             //var chain_id = chain_list_default_order[chain_number].chain_id;
 
             var chain_id = get_chain_id_from_chain_number(pdb_atoms, chain_number);
@@ -205,7 +229,7 @@ namespace dimorphics_dataset
 
             //if (strand_protein.Substring(strand_array_index, strand_seq.Length) != strand_seq)
             //{
-            //    throw new Exception($@"Not correct position");
+            //    throw new Exception(/*program.string_debug*/($@"Not correct position");
             //}
 
             var find_subseq_index_ret = find_subseq_index(strand_seq, strand_protein,
@@ -234,7 +258,7 @@ namespace dimorphics_dataset
 
                 var other_chain_list_default_order = pdb_atoms.First(a => a.chain_order_in_pdb_file != null && a.chain_order_in_pdb_file.Count > 0).chain_order_in_pdb_file; //pdb_atoms.Select(a => a.chain_id).Distinct().ToList();
                 var other_pdb_master_atoms = atom.select_amino_acid_master_atoms(other_pdb_id, pdb_atoms);
-                var other_sequences = other_pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join($@"", a.Select(b => b.amino_acid).ToList()))).ToList();
+                var other_sequences = other_pdb_master_atoms.GroupBy(a => a.chain_id).Select(a => (chain_id: a.Key, sequence: string.Join(/*program.string_debug* /($@""), a.Select(b => b.amino_acid).ToList()))).ToList();
                 var other_chain_id = other_chain_list_default_order[other_chain_number].chain_id;
 
                 var other_pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == other_chain_id).ToList();
@@ -258,10 +282,10 @@ namespace dimorphics_dataset
 
                 if (other_strand_protein.Substring(other_strand_array_index, other_strand_seq.Length) != other_strand_seq)
                 {
-                    throw new Exception($@"{module_name}.{method_name}: Not correct position");
+                    throw new Exception(/*program.string_debug* /($@"{module_name}.{method_name}: Not correct position");
                 }
 
-                var dimorphic_dssp3 = $@"";
+                var dimorphic_dssp3 = /*program.string_debug* /($@"");
 
                 for (var i = other_strand_array_index; i < other_strand_array_index + other_strand_seq.Length; i++)
                 {
@@ -272,18 +296,18 @@ namespace dimorphics_dataset
                     other_pdb_chain_master_atoms[i].is_strand_interface_atom = 1;
                     other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_strand_interface_atom = 1);
 
-                    if (string.Equals(other_class_name, $@"Single", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, $@"Dimorphic", StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(other_class_name, /*program.string_debug* /($@"Single", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, /*program.string_debug* /($@"Dimorphic", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_dimorphic_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_dimorphic_strand_interface_atom = 1);
                         dimorphic_dssp3 += other_pdb_chain_master_atoms[i].monomer_dssp3;
                     }
-                    else if (string.Equals(other_class_name, $@"Multiple", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, $@"Standard", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(other_class_name, /*program.string_debug* /($@"Multiple", StringComparison.OrdinalIgnoreCase) || string.Equals(other_class_name, /*program.string_debug* /($@"Standard", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_standard_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_standard_strand_interface_atom = 1);
                     }
-                    else if (string.Equals(other_class_name, $@"Hybrid", StringComparison.OrdinalIgnoreCase))
+                    else if (string.Equals(other_class_name, /*program.string_debug* /($@"Hybrid", StringComparison.OrdinalIgnoreCase))
                     {
                         other_pdb_chain_master_atoms[i].is_hybrid_strand_interface_atom = 1;
                         other_pdb_chain_master_atoms[i].amino_acid_atoms.ForEach(a => a.is_hybrid_strand_interface_atom = 1);
@@ -317,7 +341,7 @@ namespace dimorphics_dataset
             //var dimorphic_sequence_centre = (double)(dimorphic_sequence_first + dimorphic_sequence_last) / (double)2;
             //var dimorphic_sequence_length = dimorphic_seq.Length;
 
-            var shc_sequence_before = $@"";
+            var shc_sequence_before = /*program.string_debug*/($@"");
             var shc_start_array_index = strand_sequence_first_index;
 
             if (include_host_coil)
@@ -339,7 +363,7 @@ namespace dimorphics_dataset
             //if (dhc_start_array_index == -1) dhc_start_array_index = 0;
 
 
-            var shc_sequence_after = $@"";
+            var shc_sequence_after = /*program.string_debug*/($@"");
 
             var shc_end_array_index = strand_sequence_last_index;
 
@@ -370,25 +394,25 @@ namespace dimorphics_dataset
                 shc_subsequence_master_atoms = pdb_chain_master_atoms;
                 shc_start_array_index = 0;
                 shc_end_array_index = pdb_chain_master_atoms.Count - 1;
-                strand_seq = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
-                shc_sequence_before = $@"";
-                shc_sequence_after = $@"";
+                strand_seq = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
+                shc_sequence_before = /*program.string_debug*/($@"");
+                shc_sequence_after = /*program.string_debug*/($@"");
             }
 
             //var shc_subsequence_atoms = pdb_chain_atoms.Where(a => shc_subsequence_master_atoms.Any(b => a.pdb_id == b.pdb_id && a.chain_id == b.chain_id && a.residue_index == b.residue_index && a.i_code == b.i_code)).ToList();
 
-            var shc_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
+            var shc_sequence = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.amino_acid).ToList());
 
-            //var shc_dssp_multimer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
-            //var shc_dssp_monomer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
+            //var shc_dssp_multimer_sequence = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.dssp_multimer).ToList());
+            //var shc_dssp_monomer_sequence = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.dssp_monomer).ToList());
 
-            //var shc_stride_multimer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
-            //var shc_stride_monomer_sequence = string.Join($@"", shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
+            //var shc_stride_multimer_sequence = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.stride_multimer).ToList());
+            //var shc_stride_monomer_sequence = string.Join(/*program.string_debug*/($@""), shc_subsequence_master_atoms.Select(a => a.stride_monomer).ToList());
 
             var shc_length = (shc_end_array_index - shc_start_array_index) + 1;
 
-            if (shc_sequence.Length != shc_length) throw new Exception($@"{module_name}.{method_name}: shc length error");
-            if (!string.Equals(shc_sequence_before + strand_seq + shc_sequence_after, shc_sequence, StringComparison.Ordinal)) throw new Exception($@"{module_name}.{method_name}: shc seq error");
+            if (shc_sequence.Length != shc_length) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: shc length error"));
+            if (!string.Equals(shc_sequence_before + strand_seq + shc_sequence_after, shc_sequence, StringComparison.Ordinal)) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: shc seq error"));
 
             //if (shc_sequence.Length < min_strand_host_coil_length) continue;
 
@@ -403,8 +427,8 @@ namespace dimorphics_dataset
                 symmetry_mode = symmetry_mode,
                 res_ids = shc_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
                 aa_subsequence = shc_sequence,
-                //aa_before = $@"",
-                //aa_after = $@"",
+                //aa_before = /*program.string_debug*/($@""),
+                //aa_after = /*program.string_debug*/($@""),
                 //aa_protein = strand_protein
             };
 

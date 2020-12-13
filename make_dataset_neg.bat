@@ -4,7 +4,7 @@
 
 setlocal EnableDelayedExpansion
 @set exe=%USERPROFILE%\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net5.0\dimorphics_dataset.exe
-@set output=e:\dataset6
+@set output=e:\dataset7
 @md %output%\
 
 :: ===========================
@@ -23,7 +23,7 @@ set neg_class_name=standard_coil
 
 set min_sequence_length=3
 set use_dssp3=true
-set max_features=100
+set max_features=112
 set use_children=true
 set verbose=true
 
@@ -87,11 +87,12 @@ set features3p=
 :: == 1d interface subsequence area ==
 :: ===================================
 if "%features1i%" NEQ "" (
-	set features=%features1i%
-	set area=1i
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features1i%
+	@set area=1i
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -99,11 +100,12 @@ if "%features1i%" NEQ "" (
 :: == 1d neighbourhood area ==
 :: ===========================
 if "%features1n%" NEQ "" (
-	set features=%features1n%
-	set area=1n
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features1n%
+	@set area=1n
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -111,11 +113,12 @@ if "%features1n%" NEQ "" (
 :: == 1d protein chain area ==
 :: ===========================
 if "%features1p%" NEQ "" (
-	set features=%features1p%
-	set area=1p
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features1p%
+	@set area=1p
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -124,11 +127,12 @@ if "%features1p%" NEQ "" (
 :: == 2d interface subsequence area ==
 :: ===================================
 if "%features2i%" NEQ "" (
-	set features=%features2i%
-	set area=2i
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features2i%
+	@set area=2i
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -136,11 +140,12 @@ if "%features2i%" NEQ "" (
 :: == 2d neighbourhood area ==
 :: ===========================
 if "%features2n%" NEQ "" (
-	set features=%features2n%
-	set area=2n
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features2n%
+	@set area=2n
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -148,12 +153,12 @@ if "%features2n%" NEQ "" (
 :: == 2d protein chain area ==
 :: ===========================
 if "%features2p%" NEQ "" (
-	set features=%features2p%
-	set dimension=2
-	set area=2p
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features2p%
+	@set area=2p
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -161,11 +166,12 @@ if "%features2p%" NEQ "" (
 :: == 3d interface subsequence area ==
 :: ===================================
 if "%features3i%" NEQ "" (
-	set features=%features3i%
-	set area=3i
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features3i%
+	@set area=3i
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -173,11 +179,12 @@ if "%features3i%" NEQ "" (
 :: == 3d neighbourhood area ==
 :: ===========================
 if "%features3n%" NEQ "" (
-	set features=%features3n%
-	set area=3n
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features3n%
+	@set area=3n
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
@@ -185,11 +192,12 @@ if "%features3n%" NEQ "" (
 :: == 3d protein chain area ==
 :: ===========================
 if "%features3p%" NEQ "" (
-	set features=%features3p%
-	set area=3p
-	set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
-	set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
-	echo !stdout! !stderr!
+	@set features=%features3p%
+	@set area=3p
+	@set stdout="%output%\stdout_!area!_(%class_id%)_(%class_name%).txt"
+	@set stderr="%output%\stderr_!area!_(%class_id%)_(%class_name%).txt"
+	@echo stdout: !stdout!
+	@echo stderr: !stderr!
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 

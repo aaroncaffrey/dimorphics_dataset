@@ -21,14 +21,14 @@ namespace dimorphics_dataset
         //    var split_sequence = feature_calcs.split_sequence(sequence);
 
         //    var sequences = new List<(string name, string sequence)>();
-        //    sequences.Add(($@"unsplit",sequence));
-        //    sequences.AddRange(split_sequence.Select(a=>($@"split",a)).ToList());
+        //    sequences.Add((/*program.string_debug*/($@"unsplit"),sequence));
+        //    sequences.AddRange(split_sequence.Select(a=>(/*program.string_debug*/($@"split"),a)).ToList());
 
         //    var result = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
 
         //    var alphabets = feature_calcs.aa_alphabets.ToList();
-        //    alphabets.Add((-1,"Overall",new List<string>() { $@"ARNDCQEGHILKMFPSTWYV" }));
-        //    alphabets = alphabets.Where(a => !String.Equals(a.name, $@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
+        //    alphabets.Add((-1,"Overall",new List<string>() { /*program.string_debug*/($@"ARNDCQEGHILKMFPSTWYV" }));
+        //    alphabets = alphabets.Where(a => !String.Equals(a.name, /*program.string_debug*/($@"Normal", StringComparison.OrdinalIgnoreCase)).ToList();
 
         //    foreach (var alphabet in alphabets)
         //    {
@@ -40,13 +40,13 @@ namespace dimorphics_dataset
 
         //            var r = aaindex_entries.SelectMany(a =>
         //            {
-        //                //var alphabet_sequence = string.Join($@"", sequence.Where(b => group.Contains(b)).ToList());
-        //                var alphabet_sequences = sequences.Select(b => string.Join($@"", b.sequence.Where(c => group.Contains(c)).ToList())).ToList();
+        //                //var alphabet_sequence = string.Join(/*program.string_debug*/($@""), sequence.Where(b => group.Contains(b)).ToList());
+        //                var alphabet_sequences = sequences.Select(b => string.Join(/*program.string_debug*/($@""), b.sequence.Where(c => group.Contains(c)).ToList())).ToList();
 
         //                var result2 = new List<(int alphabet_id, string alphabet_name, string alphabet_group, string aaindex_accession_number, descriptive_stats values)>();
         //                foreach (var alphabet_sequence in alphabet_sequences)
         //                {
-        //                    var name = $@"{a.H_Accession_Number}_{alphabet.name}_{group.name}";
+        //                    var name = /*program.string_debug*/($@"{a.H_Accession_Number}_{alphabet.name}_{group.name}";
 
         //                    if (string.IsNullOrWhiteSpace(alphabet_sequence))
         //                    {
@@ -103,15 +103,15 @@ namespace dimorphics_dataset
         {
             if (string.IsNullOrWhiteSpace(aaindex1_file))
             {
-                aaindex1_file = Path.Combine(program.data_root_folder, $@"aaindex", $@"aaindex1.txt");
+                aaindex1_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"aaindex"), /*program.string_debug*/($@"aaindex1.txt"));
             }
 
             var result = new List<info_aaindex_entry>();
             var lines = io_proxy.ReadAllLines(aaindex1_file, nameof(info_aaindex), nameof(Load));
             info_aaindex_entry entry=null;
             
-            var i_amino_acid_order = $@"";
-            var lastcode = $@"";
+            var i_amino_acid_order = /*program.string_debug*/($@"");
+            var lastcode = /*program.string_debug*/($@"");
             for (var lines_index = 0; lines_index < lines.Length; lines_index++)
             {
                 var line = lines[lines_index];
@@ -120,16 +120,16 @@ namespace dimorphics_dataset
                 if (string.IsNullOrWhiteSpace(code)) code = lastcode;
                 lastcode = code;
                 if (line.Length == 1) continue;
-                if (string.Equals(code, $@"//", StringComparison.Ordinal) || entry == null || lines_index == 0)
+                if (string.Equals(code, /*program.string_debug*/($@"//"), StringComparison.Ordinal) || entry == null || lines_index == 0)
                 {
                     if (lines_index >= lines.Length - 2) break;
                     entry = new info_aaindex_entry();
                     result.Add(entry);
-                    i_amino_acid_order = $@"";
-                    if (string.Equals(code, $@"//", StringComparison.Ordinal))
+                    i_amino_acid_order = /*program.string_debug*/($@"");
+                    if (string.Equals(code, /*program.string_debug*/($@"//"), StringComparison.Ordinal))
                     {
-                        lastcode = $@"";
-                        code = $@"";
+                        lastcode = /*program.string_debug*/($@"");
+                        code = /*program.string_debug*/($@"");
                     }
                 }
 
@@ -182,11 +182,11 @@ namespace dimorphics_dataset
                     case @"I":
                         if (string.IsNullOrWhiteSpace(i_amino_acid_order))
                         {
-                            //if (entry.H_Accession_Number == $@"OOBM770105")
+                            //if (entry.H_Accession_Number == /*program.string_debug*/($@"OOBM770105")
                             //{
                             //    Program.WriteLine();
                             //}
-                            i_amino_acid_order = string.Join($@"", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 == 0).ToList()) + string.Join($@"", line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 != 0).ToList());
+                            i_amino_acid_order = string.Join(/*program.string_debug*/($@""), line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 == 0).ToList()) + string.Join(/*program.string_debug*/($@""), line_data.Split(new char[] {' ', '\t', '/', '\\'}, StringSplitOptions.RemoveEmptyEntries).Where((a, i) => i % 2 != 0).ToList());
                             //A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V   
                         }
                         else
@@ -230,7 +230,7 @@ namespace dimorphics_dataset
                 // make overall average from normalised data
                 var x = result.SelectMany(a => a.I_Amino_Acid_Index_Data_Normalised).GroupBy(a => a.amino_acid).Select(a => (amino_acid:a.Key, index_value:a.Select(b=>b.index_value).Average())).ToList();
 
-                var aaindex_overall_average_str = $@"aaindex_overall_average";
+                var aaindex_overall_average_str = /*program.string_debug*/($@"aaindex_overall_average");
                 var aaindex_overall_average = new info_aaindex_entry()
                 {
                     A_Authors = aaindex_overall_average_str,

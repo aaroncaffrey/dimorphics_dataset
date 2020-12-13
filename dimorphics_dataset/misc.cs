@@ -4,12 +4,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
     internal static class misc
     {
+        public const string module_name = nameof(misc);
+
         internal static List<subseq_match> find_subsequences(string pdb_id, string subsequence, bool fix)
         {
             var pdb = atom.load_atoms_pdb(pdb_id, new load_atoms_pdb_options()
@@ -78,7 +81,7 @@ namespace dimorphics_dataset
                             var post_first_index = pre_final_index + seqi.Length;
 
                             var pre = seqj.Substring(0, pre_final_index);
-                            var post = seqj.Substring(post_first_index);
+                            var post = seqj[post_first_index..];
 
                             var pre_len = pre.Length;
                             var post_len = post.Length;
@@ -196,12 +199,14 @@ namespace dimorphics_dataset
 
 
 
-        internal static void fill_missing_chains()
+        internal static void fill_missing_chains(CancellationTokenSource cts = null)
         {
-            const string module_name = nameof(misc);
             const string method_name = nameof(fill_missing_chains);
 
-            var lines_all = io_proxy.ReadAllLines(@"c:\bioinf\fill_missing_chain.csv", module_name, method_name);
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
+            var lines_all = io_proxy.ReadAllLines(/*program.string_debug*/(@"c:\bioinf\fill_missing_chain.csv"), module_name, method_name);
 
             var lines_header = lines_all.First();
 
@@ -240,7 +245,7 @@ namespace dimorphics_dataset
 
             // 
 
-            //lines = lines.Skip(lines.FindIndex(a=>a.pdb_id.Equals($@"2NS9", StringComparison.CurrentCultureIgnoreCase))).ToList();
+            //lines = lines.Skip(lines.FindIndex(a=>a.pdb_id.Equals(/*program.string_debug*/($@"2NS9", StringComparison.CurrentCultureIgnoreCase))).ToList();
             //lines = lines.Where(a => a.res_id.Length > 0).ToList();
 
 
@@ -258,11 +263,13 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
+                    if (cts != null && cts.IsCancellationRequested) return;
+
                     var fix = false;
 
                     do
                     {
-
+                        if (cts != null && cts.IsCancellationRequested) return;
 
                         var lookup = find_subsequences(line.pdb_id, line.strand_seq_merged, fix);
                         fix = false;
@@ -282,7 +289,7 @@ namespace dimorphics_dataset
 
                         // filter by pymol chain colour, 0 is red, 1 is pink
 
-                        if (string.Equals(line.chain_colour, $@"Red", StringComparison.OrdinalIgnoreCase) && lookup.Any(a => a.chain_number == 0))
+                        if (string.Equals(line.chain_colour, /*program.string_debug*/($@"Red"), StringComparison.OrdinalIgnoreCase) && lookup.Any(a => a.chain_number == 0))
                         {
                             var colour_lookup = lookup.Where(a => a.chain_number == 0).ToList();
 
@@ -293,7 +300,7 @@ namespace dimorphics_dataset
                             line.chain_id = colour_lookup.First().chain_id.ToString(CultureInfo.InvariantCulture);
                         }
 
-                        else if (string.Equals(line.chain_colour, $@"Pink", StringComparison.OrdinalIgnoreCase) && lookup.Any(a => a.chain_number == 1))
+                        else if (string.Equals(line.chain_colour, /*program.string_debug*/($@"Pink"), StringComparison.OrdinalIgnoreCase) && lookup.Any(a => a.chain_number == 1))
                         {
                             var colour_lookup = lookup.Where(a => a.chain_number == 1).ToList();
 
@@ -307,47 +314,56 @@ namespace dimorphics_dataset
                         else
                         {
                             errors++;
-                            io_proxy.WriteLine($"errors: {errors}, fix: {fix}", module_name, method_name);
+                            io_proxy.WriteLine(/*program.string_debug*/($@"errors: {errors}, fix: {fix}"), module_name, method_name);
                             //throw new Exception();
                             fix = true;
                         }
 
                     } while (fix);
 
-                });
+                }, cts.Token);
 
                 tasks.Add(task);
+
+                program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, -1, module_name, method_name, cts);
+
             }
 
             //Task.WaitAll(tasks.ToArray());
-            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, module_name, method_name);
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, 0, module_name, method_name, cts);
 
-            var result = lines.Select(a => String.Join($@",", new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
-            result.Insert(0, $@"{lines_header},chain_id");
+            var result = lines.Select(a => String.Join(/*program.string_debug*/($@","), new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
+            result.Insert(0, /*program.string_debug*/($@"{lines_header},chain_id"));
 
             var fn = @"c:\bioinf\fixed_dataset.csv";
 
             //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
             io_proxy.WriteAllLines(fn, result, nameof(program), nameof(fill_missing_chains));
-            io_proxy.WriteLine($@"finished.", module_name, method_name);
+            io_proxy.WriteLine(/*program.string_debug*/($@"finished."), module_name, method_name);
             //Console.ReadLine();
 
         }
         internal static void extract_all_pdbs()
         {
-            var pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"pdb"), $@"*.pdb").ToList();
+            var pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb")), /*program.string_debug*/($@"*.pdb")).ToList();
 
             foreach (var p in pdbs)
             {
-                io_proxy.WriteLine($@"Extracting {p}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Extracting {p}"));
                 atom.extract_split_pdb_chains(p, null);
             }
         }
 
-        internal static void repair_all_extracted_pdbs(bool run)
+        internal static void repair_all_extracted_pdbs(bool run, CancellationTokenSource cts = null)
         {
-            var split_pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, $@"pdb_split"), $@"*.pdb").ToList();
+            const string module_name = nameof(misc);
+            const string method_name = nameof(repair_all_extracted_pdbs);
+
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
+            var split_pdbs = Directory.GetFiles(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb_split")), /*program.string_debug*/($@"*.pdb")).ToList();
 
             var tasks = new List<Task>();
             var tasks_start_time = DateTime.Now;
@@ -358,28 +374,29 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
-                    io_proxy.WriteLine($@"Repairing {p}");
-                    info_foldx.foldx_repair_pdb(Path.GetFileNameWithoutExtension(p), run, $@"{Path.GetDirectoryName(p)}\");
-                });
+                    if (cts != null && cts.IsCancellationRequested) return;
+                    
+                    io_proxy.WriteLine(/*program.string_debug*/($@"Repairing {p}"));
+                    info_foldx.foldx_repair_pdb(Path.GetFileNameWithoutExtension(p), run, /*program.string_debug*/($@"{Path.GetDirectoryName(p)}\"));
+                }, cts.Token);
 
                 tasks.Add(task);
 
-                while (tasks.Count(a => !a.IsCompleted) >= Environment.ProcessorCount)
-                {
-                    Task.WaitAny(tasks.ToArray());
-                }
+                program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, -1, module_name, method_name, cts);
+
+                //program.print_eta(tasks.Count(a => a.IsCompleted), split_pdbs.Count, tasks_start_time, module_name, method_name);
             }
 
             //Task.WaitAll(tasks.ToArray());
-            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, nameof(misc), nameof(repair_all_extracted_pdbs));
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, 0, module_name, method_name, cts);
 
         }
 
         internal static List<string> get_pdb_sequences(bool limited_to_dimorphics_and_standard = true)
         {
 
-            var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"csv", $@"distinct dimorphics list.csv"), nameof(misc), nameof(get_pdb_sequences))
-                .Skip(1).Where(a => !String.IsNullOrWhiteSpace(a.Replace($@",", $@"", StringComparison.Ordinal))).Select((a, i) =>
+            var dimorphics_data = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"csv"), /*program.string_debug*/($@"distinct dimorphics list.csv")), nameof(misc), nameof(get_pdb_sequences))
+                .Skip(1).Where(a => !String.IsNullOrWhiteSpace(a.Replace(/*program.string_debug*/($@","), /*program.string_debug*/($@""), StringComparison.Ordinal))).Select((a, i) =>
                 {
                     var x = a.Split(',');
                     return (
@@ -396,17 +413,17 @@ namespace dimorphics_dataset
 
             if (limited_to_dimorphics_and_standard)
             {
-                dimorphics_data = dimorphics_data.Where(a => (string.Equals(a.class_name, $@"Dimorphic", StringComparison.OrdinalIgnoreCase) || string.Equals(a.class_name, $@"Single", StringComparison.OrdinalIgnoreCase)) || (string.Equals(a.class_name, $@"Standard", StringComparison.OrdinalIgnoreCase) || string.Equals(a.class_name, $@"Multiple", StringComparison.OrdinalIgnoreCase))).ToList();
+                dimorphics_data = dimorphics_data.Where(a => (string.Equals(a.class_name, /*program.string_debug*/($@"Dimorphic"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.class_name, /*program.string_debug*/($@"Single"), StringComparison.OrdinalIgnoreCase)) || (string.Equals(a.class_name, /*program.string_debug*/($@"Standard"), StringComparison.OrdinalIgnoreCase) || string.Equals(a.class_name, /*program.string_debug*/($@"Multiple"), StringComparison.OrdinalIgnoreCase))).ToList();
             }
 
 
             var pdb_id_list = dimorphics_data.Select(a => a.pdb_id.Trim().ToUpperInvariant()).Distinct().ToList();
 
 
-            var pdb_folder = Path.Combine(program.data_root_folder, $@"pdb");
+            var pdb_folder = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb"));
 
 
-            var pdbs = Directory.GetFiles(pdb_folder, $@"*.pdb").ToList();
+            var pdbs = Directory.GetFiles(pdb_folder, /*program.string_debug*/($@"*.pdb")).ToList();
 
             var seqs = new List<string>();
 
@@ -417,7 +434,7 @@ namespace dimorphics_dataset
 
                 //if (!pdb_id_list.Contains(pdb_id_code)) continue;
 
-                io_proxy.WriteLine($@"Extracting sequence from {pdb_id}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Extracting sequence from {pdb_id}"));
 
 
                 var chains = atom.load_atoms_pdb(pdb_id,
@@ -467,9 +484,9 @@ namespace dimorphics_dataset
 
             seqs = seqs.OrderBy(a => a).Distinct().ToList();
 
-            //            var rename_list = seqs.SelectMany((a, i) => reverse_lookup.Where(b=>b.seq==a).Select(b=> $@"copy {i}.* {b.pdb}.*")).ToList();
+            //            var rename_list = seqs.SelectMany((a, i) => reverse_lookup.Where(b=>b.seq==a).Select(b=> /*program.string_debug*/($@"copy {i}.* {b.pdb}.*")).ToList();
 
-            var rename_list = reverse_lookup.Select(a => (a.pdb, a.seq, index: seqs.IndexOf(a.seq), cmd: new[] { $@"del {a.pdb}.*", $@"copy {seqs.IndexOf(a.seq)}.* {a.pdb}.*" })).ToList();
+            var rename_list = reverse_lookup.Select(a => (a.pdb, a.seq, index: seqs.IndexOf(a.seq), cmd: new[] {/*program.string_debug*/($@"del {a.pdb}.*"), /*program.string_debug*/($@"copy {seqs.IndexOf(a.seq)}.* {a.pdb}.*")})).ToList();
 
             //Directory.CreateDirectory(Path.GetDirectoryName(output_filename));
             //Directory.CreateDirectory(Path.GetDirectoryName(rename_filename));
@@ -481,10 +498,10 @@ namespace dimorphics_dataset
             //{
             //    var file_seq = new List<string>();
 
-            //    file_seq.Add($@">" + i);
+            //    file_seq.Add(/*program.string_debug*/($@">") + i);
             //    file_seq.Add(seqs[i]);
 
-            //    program.WriteAllLines(Path.Combine(program.data_root_folder,"iupred2a\" + i + $@".seq", file_seq);
+            //    program.WriteAllLines(Path.Combine(program.data_root_folder,"iupred2a\" + i + /*program.string_debug*/($@".seq", file_seq);
             //}
 
             return seqs;
@@ -502,20 +519,20 @@ namespace dimorphics_dataset
             // 1. if 'output_fasta_files' is true, outputs the fasta sequences in individual files
             // 2. makes a list of command lines to run blast, skipping any pssm files which already exist (& can also run blast if 'run' set to true)
 
-            var txt_sequences = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"), nameof(misc), nameof(get_pssms));
-            var txt_sequences_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"betastrands_dataset_sequences_limited.txt"), nameof(misc), nameof(get_pssms));
+            var txt_sequences = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,/*program.string_debug*/($@"betastrands_dataset_sequences.txt")), nameof(misc), nameof(get_pssms));
+            var txt_sequences_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"betastrands_dataset_sequences_limited.txt")), nameof(misc), nameof(get_pssms));
 
             //var excluded = txt_sequences.Except(txt_sequences_limited).ToList();
             //var included = txt_sequences.Except(excluded).ToList();
 
             //var fasta_file = Path.Combine(program.data_root_folder,"fasta\{index1}.fasta";
-            //var pssm_file = Path.Combine(program.data_root_folder,"blast_pssm_{blast_db}_{num_iterations}_{(remote ? $@"remote" : $@"local")}\{index1}.pssm";
+            //var pssm_file = Path.Combine(program.data_root_folder,"blast_pssm_{blast_db}_{num_iterations}_{(remote ? /*program.string_debug*/($@"remote" : /*program.string_debug*/($@"local")}\{index1}.pssm";
 
 
-            var fasta_blast_input_folder = $@"c:\fasta\";
-            var fasta_output_folder = $@"c:\fasta\";
+            var fasta_blast_input_folder = /*program.string_debug*/($@"c:\fasta\");
+            var fasta_output_folder = /*program.string_debug*/($@"c:\fasta\");
 
-            //var pssm_blast_output_folder = $@"h:\data\blast_pssm_{blast_db}_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"new_remote" : $@"local")}";
+            //var pssm_blast_output_folder = /*program.string_debug*/($@"h:\data\blast_pssm_{blast_db}_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"new_remote" : /*program.string_debug*/($@"local")}";
             //var already_calculated_pssms = program.ReadAllLines(@"C:\Users\aaron\Desktop\{}");
 
 
@@ -527,13 +544,13 @@ namespace dimorphics_dataset
             {
                 for (var index = 0; index < txt_sequences.Length; index++)
                 {
-                    var fasta_file = Path.Combine(fasta_output_folder, $@"{index}.fasta");
+                    var fasta_file = Path.Combine(fasta_output_folder, /*program.string_debug*/($@"{index}.fasta"));
 
                     if (File.Exists(fasta_file) && new FileInfo(fasta_file).Length > 0) continue;
 
-                    io_proxy.WriteLine($@"Saving fasta {index}");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"Saving fasta {index}"));
                     var t_seq = txt_sequences[index];
-                    var seq = new sequence($@">seq_{index}", t_seq);
+                    var seq = new sequence(/*program.string_debug*/($@">seq_{index}"), t_seq);
                     sequence.Save(fasta_file, seq);
                 }
             }
@@ -555,8 +572,8 @@ namespace dimorphics_dataset
                 {
                     var cmd_lines = new List<string>() { };
 
-                    var pssm_blast_input_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}";
-                    var pssm_blast_output_folder = $@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}";
+                    var pssm_blast_input_folder = /*program.string_debug*/($@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
+                    var pssm_blast_output_folder = /*program.string_debug*/($@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
 
                     Directory.CreateDirectory(pssm_blast_input_folder);
                     Directory.CreateDirectory(pssm_blast_output_folder);
@@ -570,18 +587,18 @@ namespace dimorphics_dataset
                             skipped_not_limited++;
                             continue;
                         }
-                        //io_proxy.WriteLine($@"Querying psi blast with sequence {index1}");
+                        //io_proxy.WriteLine(/*program.string_debug*/($@"Querying psi blast with sequence {index1}");
 
-                        var dna_str = $@"python3 predict.py {index1} {txt_sequences[index1]}";
+                        var dna_str = /*program.string_debug*/($@"python3 predict.py {index1} {txt_sequences[index1]}");
                         if (!dna_pred.Contains(dna_str)) dna_pred.Add(dna_str);
 
-                        var fasta_file = Path.Combine(fasta_blast_input_folder, $@"{index1}.fasta");
+                        var fasta_file = Path.Combine(fasta_blast_input_folder, /*program.string_debug*/($@"{index1}.fasta"));
 
-                        var pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"{index1}.pssm");
+                        var pssm_local_file = Path.Combine(pssm_blast_input_folder, /*program.string_debug*/($@"{index1}.pssm"));
 
-                        var pssm_copy_file = Path.Combine(pssm_blast_output_folder, $@"{index1}.pssm");
+                        var pssm_copy_file = Path.Combine(pssm_blast_output_folder, /*program.string_debug*/($@"{index1}.pssm"));
 
-                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file, nameof(misc), nameof(get_pssms)).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith($@"PSI Gapped", StringComparison.Ordinal)))
+                        if (File.Exists(pssm_local_file) && new FileInfo(pssm_local_file).Length > 0 && io_proxy.ReadAllLines(pssm_local_file, nameof(misc), nameof(get_pssms)).Where(a => !String.IsNullOrWhiteSpace(a)).ToList().Any(x => x.StartsWith(/*program.string_debug*/($@"PSI Gapped"), StringComparison.Ordinal)))
                         {
                             skipped_pssm_exists++;
                             continue;
@@ -589,20 +606,20 @@ namespace dimorphics_dataset
 
 
 
-                        var cmd_line = info_blast_pssm.run_psi_blast_get_pssm(fasta_file, pssm_local_file, blast_db, db_folder, num_iterations, evalue.ToString($@"000.00000", CultureInfo.InvariantCulture), inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture), remote, run);
+                        var cmd_line = info_blast_pssm.run_psi_blast_get_pssm(fasta_file, pssm_local_file, blast_db, db_folder, num_iterations, evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture), inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture), remote, run);
 
                         cmd_lines.Add(cmd_line);
 
                         if (!String.Equals(pssm_local_file, pssm_copy_file, StringComparison.Ordinal))
                         {
-                            cmd_lines.Add($@"copy /y ""{pssm_local_file}"" ""{pssm_copy_file}""");
+                            cmd_lines.Add(/*program.string_debug*/($@"copy /y ""{pssm_local_file}"" ""{pssm_copy_file}"""));
                         }
 
 
 
                     }
 
-                    var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, $@"blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + $@"_" : $@"")}{(remote ? $@"remote" : $@"local")}_{blast_db}_{evalue.ToString($@"000.00000", CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString($@"000.00000", CultureInfo.InvariantCulture)}.bat");
+                    var batch_pssm_local_file = Path.Combine(pssm_blast_input_folder, /*program.string_debug*/($@"blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}.bat"));
 
                     //Directory.CreateDirectory(Path.GetDirectoryName(batch_pssm_local_file));
                     io_proxy.WriteAllLines(batch_pssm_local_file, cmd_lines, nameof(program), nameof(get_pssms));
@@ -614,11 +631,11 @@ namespace dimorphics_dataset
 
             //var all_cmd_lines = tasks.SelectMany(a => a.Result).ToList();
 
-            var dna_pred_batch_filename = Path.Combine(program.data_root_folder, $@"dna_pred.bat");
+            var dna_pred_batch_filename = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"dna_pred.bat"));
             //Directory.CreateDirectory(Path.GetDirectoryName(dna_pred_batch_filename));
             io_proxy.WriteAllLines(dna_pred_batch_filename, dna_pred, nameof(program), nameof(get_pssms));
 
-            io_proxy.WriteLine($@"{blast_db}_{num_iterations}_{(remote ? $@"remote" : $@"local")}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"{blast_db}_{num_iterations}_{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}: {nameof(skipped_not_limited)}:{skipped_not_limited} {nameof(skipped_pssm_exists)}:{skipped_pssm_exists}"));
         }
 
         internal static void load_pssms()
@@ -631,14 +648,14 @@ namespace dimorphics_dataset
             {
                 var index1 = index;
 
-                io_proxy.WriteLine($@"Loading pssm {index1}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Loading pssm {index1}"));
 
 
-                var pssm_matrix = info_blast_pssm.load_psi_blast_pssm($@"c:\bs_pssm\{index1}.pssm");
+                var pssm_matrix = info_blast_pssm.load_psi_blast_pssm(/*program.string_debug*/($@"c:\bs_pssm\{index1}.pssm"));
 
                 pssm_matrix = info_blast_pssm.normalise_pssm(pssm_matrix);
 
-                io_proxy.WriteLine($@"Loaded pssm {index1}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"Loaded pssm {index1}"));
 
             }
 
@@ -647,15 +664,15 @@ namespace dimorphics_dataset
 
         internal static (string header, string sequence) get_uniprot_sequence(string uniprot_id)
         {
-            var uniprot_url = $@"https://www.uniprot.org/uniprot/{uniprot_id}.fasta";
+            var uniprot_url = /*program.string_debug*/($@"https://www.uniprot.org/uniprot/{uniprot_id}.fasta");
 
 
             using var wc = new WebClient();
             var fasta = wc.DownloadString(uniprot_url)
                 .Split(new char[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
-            var header = String.Join($@"", fasta.Where(b => b.StartsWith($@">", StringComparison.Ordinal)).ToList());
-            var sequence = String.Join($@"", fasta.Where(b => !b.StartsWith($@">", StringComparison.Ordinal)).ToList());
+            var header = String.Join(/*program.string_debug*/($@""), fasta.Where(b => b.StartsWith(/*program.string_debug*/($@">"), StringComparison.Ordinal)).ToList());
+            var sequence = String.Join(/*program.string_debug*/($@""), fasta.Where(b => !b.StartsWith(/*program.string_debug*/($@">"), StringComparison.Ordinal)).ToList());
 
             //io_proxy.WriteLine(sequence);
             return (header, sequence);
@@ -664,7 +681,7 @@ namespace dimorphics_dataset
         internal static void get_uniprot_sequences(/*bool limited_to_dimorphics_and_standard = true*/)
         {
             //var dimorphics_data = program.ReadAllLines(Path.Combine(program.data_root_folder,"csv\distinct dimorphics list.csv")
-            //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace($@",", $@""))).Select((a, i) =>
+            //    .Skip(1).Where(a => !string.IsNullOrWhiteSpace(a.Replace(/*program.string_debug*/($@","), /*program.string_debug*/($@"")))).Select((a, i) =>
             //    {
             //        var x = a.Split(',');
             //        return (
@@ -681,14 +698,14 @@ namespace dimorphics_dataset
 
             //if (limited_to_dimorphics_and_standard)
             //{
-            //    dimorphics_data = dimorphics_data.Where(a => a.class_name == $@"Single" || a.class_name == $@"Multiple").ToList();
+            //    dimorphics_data = dimorphics_data.Where(a => a.class_name == /*program.string_debug*/($@"Single" || a.class_name == /*program.string_debug*/($@"Multiple").ToList();
             //}
 
 
             //var pdb_id_list = dimorphics_data.Select(a => a.pdb_id.Trim().ToUpperInvariant()).Distinct().ToList();
 
 
-            var sifts_lookup = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, $@"sifts", $@"pdb_chain_uniprot.csv"), nameof(misc), nameof(get_uniprot_sequences)).Skip(2).Select(a =>
+            var sifts_lookup = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder, /*program.string_debug*/($@"sifts"), /*program.string_debug*/($@"pdb_chain_uniprot.csv")), nameof(misc), nameof(get_uniprot_sequences)).Skip(2).Select(a =>
             {
 
                 var x = a.Split(',');
@@ -707,11 +724,11 @@ namespace dimorphics_dataset
                 return y;
             }).ToList();
 
-            var pdb_folder = Path.Combine(program.data_root_folder, $@"pdb_split");
-            var uniprot_folder = Path.Combine(program.data_root_folder, $@"uniprot");
+            var pdb_folder = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb_split"));
+            var uniprot_folder = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"uniprot"));
 
 
-            var files = Directory.GetFiles(pdb_folder, $@"*.pdb");
+            var files = Directory.GetFiles(pdb_folder, /*program.string_debug*/($@"*.pdb"));
 
             foreach (var a in files)
             {
@@ -728,7 +745,7 @@ namespace dimorphics_dataset
 
                 //var data = (pdb: pdb, chain: chain, uniprot_id: uniprot_id, uniprot_header:uniprot_fasta.header, uniprot_sequence:uniprot_fasta.sequence);
 
-                var fn = Path.Combine(uniprot_folder, $@"{pdb}{chain}.fasta");
+                var fn = Path.Combine(uniprot_folder, /*program.string_debug*/($@"{pdb}{chain}.fasta"));
                 //Directory.CreateDirectory(Path.GetDirectoryName(fn));
                 io_proxy.WriteAllLines(fn, new string[] { uniprot_fasta.header, uniprot_fasta.sequence }, nameof(program), nameof(get_uniprot_sequences));
             }
@@ -742,11 +759,11 @@ namespace dimorphics_dataset
 
         internal static void check_buildmodel_position_scan_files_are_complete()
         {
-            var cmd_list_file = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"foldx_calc_buildmodel_position_scan.bat");
-            var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_buildmodel_position_scan.bat");
-            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_position_scan.bat");
+            var cmd_list_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"foldx_calc_buildmodel_position_scan.bat"));
+            var cmd_list_file_missing = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"missing_foldx_calc_buildmodel_position_scan.bat"));
+            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"del_missing_foldx_calc_buildmodel_position_scan.bat"));
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(a => a.Contains($@"--mutant-file=", StringComparison.Ordinal)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_position_scan_files_are_complete)).Where(a => a.Contains(/*program.string_debug*/($@"--mutant-file="), StringComparison.Ordinal)).ToList();
 
 
             var cmd_list_parsed = cmd_list.Select(a =>
@@ -754,15 +771,15 @@ namespace dimorphics_dataset
                 var s = a.Split();
 
 
-                var mutant_file = s.First(b => b.StartsWith($@"--mutant-file=", StringComparison.Ordinal)).Split('=').Last();
+                var mutant_file = s.First(b => b.StartsWith(/*program.string_debug*/($@"--mutant-file="), StringComparison.Ordinal)).Split('=').Last();
                 if (!File.Exists(mutant_file) || new FileInfo(mutant_file).Length == 0)
                 {
-                    io_proxy.WriteLine($@"missing mutant file: {mutant_file}");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"missing mutant file: {mutant_file}"));
                 }
 
-                var dif_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal);
-                var average_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal).Replace($@"Dif", $@"Average", StringComparison.Ordinal);
-                var raw_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal).Replace($@"Dif", $@"Raw", StringComparison.Ordinal);
+                var dif_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal);
+                var average_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Average"), StringComparison.Ordinal);
+                var raw_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Raw"), StringComparison.Ordinal);
 
 
 
@@ -784,13 +801,13 @@ namespace dimorphics_dataset
             foreach (var m in missing)
             {
                 var total_missing = m.mutant_data.Count - m.dif_fxout_data.Count;
-                io_proxy.WriteLine($@"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}"));
             }
 
 
 
-            io_proxy.WriteLine($@"total missing: {missing.Count}");
-            io_proxy.WriteLine($@"total not missing: {not_missing.Count}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"total missing: {missing.Count}"));
+            io_proxy.WriteLine(/*program.string_debug*/($@"total not missing: {not_missing.Count}"));
 
 
 
@@ -798,9 +815,9 @@ namespace dimorphics_dataset
 
 
             var missing_list = missing.Select(a => a.a).ToList();
-            var missing_list_del = missing_list.Where(a => a.StartsWith($@"if not exist", StringComparison.OrdinalIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
-            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace($@"Dif", $@"Average", StringComparison.Ordinal)).ToList());
-            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace($@"Dif", $@"Raw", StringComparison.Ordinal)).ToList());
+            var missing_list_del = missing_list.Where(a => a.StartsWith(/*program.string_debug*/($@"if not exist"), StringComparison.OrdinalIgnoreCase)).Select(b => /*program.string_debug*/($@"del {b.Split()[3]}")).ToList();
+            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Average"), StringComparison.Ordinal)).ToList());
+            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Raw"), StringComparison.Ordinal)).ToList());
 
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
@@ -816,11 +833,11 @@ namespace dimorphics_dataset
 
         internal static void check_buildmodel_subseq_mutant_files_are_complete()
         {
-            var cmd_list_file = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"foldx_calc_buildmodel_subsequence_mutant.bat");
-            var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_buildmodel_subsequence_mutant.bat");
-            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_buildmodel_subsequence_mutant.bat");
+            var cmd_list_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"foldx_calc_buildmodel_subsequence_mutant.bat"));
+            var cmd_list_file_missing = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"missing_foldx_calc_buildmodel_subsequence_mutant.bat"));
+            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"del_missing_foldx_calc_buildmodel_subsequence_mutant.bat"));
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(a => a.Contains($@"--mutant-file=", StringComparison.Ordinal)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_buildmodel_subseq_mutant_files_are_complete)).Where(a => a.Contains(/*program.string_debug*/($@"--mutant-file="), StringComparison.Ordinal)).ToList();
 
 
 
@@ -829,15 +846,15 @@ namespace dimorphics_dataset
                 var s = a.Split();
 
 
-                var mutant_file = s.First(b => b.StartsWith($@"--mutant-file=", StringComparison.Ordinal)).Split('=').Last();
+                var mutant_file = s.First(b => b.StartsWith(/*program.string_debug*/($@"--mutant-file="), StringComparison.Ordinal)).Split('=').Last();
                 if (!File.Exists(mutant_file) || new FileInfo(mutant_file).Length == 0)
                 {
-                    io_proxy.WriteLine($@"missing mutant file: {mutant_file}");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"missing mutant file: {mutant_file}"));
                 }
 
-                var dif_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal);
-                var average_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal).Replace($@"Dif", $@"Average", StringComparison.Ordinal);
-                var raw_fxout_file = s[3].Replace($@"""", $@"", StringComparison.Ordinal).Replace($@"Dif", $@"Raw", StringComparison.Ordinal);
+                var dif_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal);
+                var average_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Average"), StringComparison.Ordinal);
+                var raw_fxout_file = s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Raw"), StringComparison.Ordinal);
 
 
 
@@ -859,19 +876,19 @@ namespace dimorphics_dataset
             foreach (var m in missing)
             {
                 var total_missing = m.mutant_data.Count - m.dif_fxout_data.Count;
-                io_proxy.WriteLine($@"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"missing {total_missing} / {m.mutant_data.Count}: {m.mutant_file}"));
             }
 
 
 
-            io_proxy.WriteLine($@"total missing: {missing.Count}");
-            io_proxy.WriteLine($@"total not missing: {not_missing.Count}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"total missing: {missing.Count}"));
+            io_proxy.WriteLine(/*program.string_debug*/($@"total not missing: {not_missing.Count}"));
 
 
             var missing_list = missing.Select(a => a.a).ToList();
-            var missing_list_del = missing_list.Where(a => a.StartsWith($@"if not exist", StringComparison.OrdinalIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
-            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace($@"Dif", $@"Average", StringComparison.Ordinal)).ToList());
-            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace($@"Dif", $@"Raw", StringComparison.Ordinal)).ToList());
+            var missing_list_del = missing_list.Where(a => a.StartsWith(/*program.string_debug*/($@"if not exist"), StringComparison.OrdinalIgnoreCase)).Select(b => /*program.string_debug*/($@"del {b.Split()[3]}")).ToList();
+            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Average"), StringComparison.Ordinal)).ToList());
+            missing_list_del.AddRange(missing_list_del.Select(a => a.Replace(/*program.string_debug*/($@"Dif"), /*program.string_debug*/($@"Raw"), StringComparison.Ordinal)).ToList());
 
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
@@ -886,39 +903,39 @@ namespace dimorphics_dataset
 
         internal static void check_ala_scanning_files_are_complete()
         {
-            var ala_scan_folder = Path.Combine(program.data_root_folder, $@"foldx_ala_scan");
+            var ala_scan_folder = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx_ala_scan"));
 
-            var cmd_list_file = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"foldx_calc_ala_scanning.bat.skip");
-            var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx",$@"bat", $@"missing_foldx_calc_ala_scanning.bat.skip");
-            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_ala_scanning.bat.skip");
+            var cmd_list_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"foldx_calc_ala_scanning.bat.skip"));
+            var cmd_list_file_missing = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"missing_foldx_calc_ala_scanning.bat.skip"));
+            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"del_missing_foldx_calc_ala_scanning.bat.skip"));
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_ala_scanning_files_are_complete)).Where(a => a.Contains($@"--pdb=", StringComparison.Ordinal)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_ala_scanning_files_are_complete)).Where(a => a.Contains(/*program.string_debug*/($@"--pdb="), StringComparison.Ordinal)).ToList();
 
             var cmd_list_parsed = cmd_list.Select(a =>
             {
                 var s = a.Split();
 
-                var id = Path.GetFileNameWithoutExtension(s[3].Replace($@"""", $@"", StringComparison.Ordinal).Replace($@"--pdb=", $@"", StringComparison.Ordinal));
+                var id = Path.GetFileNameWithoutExtension(s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"--pdb="), /*program.string_debug*/($@""), StringComparison.Ordinal));
 
-                var pdb_file = Path.Combine(program.data_root_folder, $@"pdb_split_repair", $@"{id}.pdb");
+                var pdb_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb_split_repair"), /*program.string_debug*/($@"{id}.pdb"));
 
-                var ala_file = Path.Combine(ala_scan_folder, $@"{id}_AS.fxout");
+                var ala_file = Path.Combine(ala_scan_folder, /*program.string_debug*/($@"{id}_AS.fxout"));
 
                 var pdb_res = io_proxy
                     .ReadAllLines(pdb_file, nameof(misc), nameof(check_ala_scanning_files_are_complete))
-                    .Where(b => b.StartsWith($@"ATOM", StringComparison.Ordinal))
-                    .Select(c => $@"{c.Substring(17, 3)} {Int32.Parse(c.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)}")
+                    .Where(b => b.StartsWith(/*program.string_debug*/($@"ATOM"), StringComparison.Ordinal))
+                    .Select(c => /*program.string_debug*/($@"{c.Substring(17, 3)} {Int32.Parse(c.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)}"))
                     .Distinct()
                     .ToList();
 
                 var ala_res = io_proxy
                     .ReadAllLines(ala_file, nameof(misc), nameof(check_ala_scanning_files_are_complete))
                     .Where(c => !String.IsNullOrWhiteSpace(c))
-                    .Select(c => c.Substring(0, c.IndexOf($@" to ", StringComparison.Ordinal)).Trim())
+                    .Select(c => c.Substring(0, c.IndexOf(/*program.string_debug*/($@" to "), StringComparison.Ordinal)).Trim())
                     .ToList();
 
-                ala_res = ala_res.Select(b => b.Replace($@"H1S", $@"HIS", StringComparison.Ordinal)).ToList();
-                ala_res = ala_res.Select(b => b.Replace($@"H2S", $@"HIS", StringComparison.Ordinal)).ToList();
+                ala_res = ala_res.Select(b => b.Replace(/*program.string_debug*/($@"H1S"), /*program.string_debug*/($@"HIS"), StringComparison.Ordinal)).ToList();
+                ala_res = ala_res.Select(b => b.Replace(/*program.string_debug*/($@"H2S"), /*program.string_debug*/($@"HIS"), StringComparison.Ordinal)).ToList();
 
                 var present = pdb_res.Intersect(ala_res).ToList();
                 var missing1 = pdb_res.Except(ala_res).ToList();
@@ -933,15 +950,15 @@ namespace dimorphics_dataset
 
             var missing = cmd_list_parsed.Where(a => a.missing1.Count > 0 || a.extra.Count > 0).ToList();
 
-            io_proxy.WriteLine($@"missed: {missing.Count}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"missed: {missing.Count}"));
             foreach (var m in missing)
             {
-                io_proxy.WriteLine($@"{m.id}, extra: {String.Join($@"|", m.extra)}, missing: {String.Join($@"|", m.missing1)}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"{m.id}, extra: {String.Join(/*program.string_debug*/($@"|"), m.extra)}, missing: {String.Join(/*program.string_debug*/($@"|"), m.missing1)}"));
             }
 
 
             var missing_list = missing.Select(a => a.a).ToList();
-            var missing_list_del = missing_list.Where(a => a.StartsWith($@"if not exist", StringComparison.OrdinalIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
+            var missing_list_del = missing_list.Where(a => a.StartsWith(/*program.string_debug*/($@"if not exist"), StringComparison.OrdinalIgnoreCase)).Select(b => /*program.string_debug*/($@"del {b.Split()[3]}")).ToList();
 
             ///Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
@@ -957,22 +974,22 @@ namespace dimorphics_dataset
 
             var missing_res = compare_repaired_pdb_to_pdb();
 
-            var ps_folder = Path.Combine(program.data_root_folder, $@"foldx", $@"ps");
-            var file_mask = $@"PS_*.txt";
+            var ps_folder = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"ps"));
+            var file_mask = /*program.string_debug*/($@"PS_*.txt");
 
             var ps_files = Directory.GetFiles(ps_folder, file_mask, SearchOption.TopDirectoryOnly);
 
-            var cmd_list_file = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"foldx_calc_position_scanning.bat");
-            var cmd_list_file_missing = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"missing_foldx_calc_position_scanning.bat");
-            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, $@"foldx", $@"bat", $@"del_missing_foldx_calc_position_scanning.bat");
+            var cmd_list_file = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"foldx_calc_position_scanning.bat"));
+            var cmd_list_file_missing = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"missing_foldx_calc_position_scanning.bat"));
+            var cmd_list_file_missing_del = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"foldx"), /*program.string_debug*/($@"bat"), /*program.string_debug*/($@"del_missing_foldx_calc_position_scanning.bat"));
 
-            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Where(a => a.Contains($@"--positions=", StringComparison.Ordinal)).ToList();
+            var cmd_list = io_proxy.ReadAllLines(cmd_list_file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Where(a => a.Contains(/*program.string_debug*/($@"--positions="), StringComparison.Ordinal)).ToList();
 
             var cmd_list_parsed = cmd_list.Select(a =>
             {
                 var s = a.Split();
 
-                return (file: s[3].Replace($@"""", $@"", StringComparison.Ordinal), positions: s[5].Split('=').Last().Split(','), a);
+                return (file: s[3].Replace(/*program.string_debug*/($@""""), /*program.string_debug*/($@""), StringComparison.Ordinal), positions: s[5].Split('=').Last().Split(','), a);
             }).ToList();
 
             var incomplete_files = new List<string>();
@@ -990,13 +1007,13 @@ namespace dimorphics_dataset
 
                 var actual_miss = pdb_missing_res.SelectMany(a => a.original_except_repair).ToList();
 
-                var x = c.positions.Select(a => a[0] + a.Substring(1)).ToList();
+                var x = c.positions.Select(a => a[0] + a[1..]).ToList();
 
                 // convert 'd' to the 25 codes
 
                 x = x.SelectMany(a =>
                 {
-                    var rid = Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+                    var rid = Int32.Parse(string.Join(/*program.string_debug*/($@""), a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
 
                     if (actual_miss.Contains(rid))
                     {
@@ -1006,9 +1023,9 @@ namespace dimorphics_dataset
 
                     if (a.Last() == 'd')
                     {                //123456789012345678901234567890
-                        var d_codes = $@"GALVIPRTSCMKEQDNWYFypsh"; //e
+                        var d_codes = /*program.string_debug*/($@"GALVIPRTSCMKEQDNWYFypsh"); //e
 
-                        var output = d_codes.Select(d => a.Substring(0, a.Length - 1) + d).ToList();
+                        var output = d_codes.Select(d => a[0..^1] + d).ToList();
                         return output;
                     }
                     else
@@ -1018,18 +1035,18 @@ namespace dimorphics_dataset
                     }
                 }).Where(a => !String.IsNullOrWhiteSpace(a)).Distinct().ToList();
 
-                var x_res = x.Select(a => Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
+                var x_res = x.Select(a => Int32.Parse(string.Join(/*program.string_debug*/($@""), a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
 
                 var scanning_data = File.Exists(c.file) && new FileInfo(c.file).Length > 0 ? io_proxy.ReadAllLines(c.file, nameof(misc), nameof(check_foldx_position_scan_files_are_completed)).Select(a =>
                 {
                     var z = a.Split();
-                    z[0] = info_foldx.foldx_residues_aa_mutable.First(d => d.foldx_aa_code3 == z[0].Substring(0, 3)).standard_aa_code1 + z[0].Substring(3);
+                    z[0] = info_foldx.foldx_residues_aa_mutable.First(d => d.foldx_aa_code3 == z[0].Substring(0, 3)).standard_aa_code1 + z[0][3..];
                     return z;
                 }).Distinct().ToList() : new List<string[]>();
 
 
                 var data_codes = scanning_data.Select(a => a.First()).Distinct().ToList();
-                var data_codes_res = data_codes.Select(a => Int32.Parse(string.Join($@"", a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
+                var data_codes_res = data_codes.Select(a => Int32.Parse(string.Join(/*program.string_debug*/($@""), a.Where(b => Char.IsDigit(b)).ToList()), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
 
                 var missing1 = x.Except(data_codes).Distinct().ToList();
 
@@ -1040,9 +1057,9 @@ namespace dimorphics_dataset
                     incomplete_files.Add(file);
 
                     io_proxy.WriteLine();
-                    io_proxy.WriteLine($@"File: {file}");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"File: {file}"));
                     io_proxy.WriteLine();
-                    io_proxy.WriteLine($@"Missing {missing1.Count}: $@{string.Join($@", ", missing1)}");
+                    io_proxy.WriteLine(/*program.string_debug*/($@"Missing {missing1.Count}: $@{string.Join(/*program.string_debug*/($@", "), missing1)}"));
                     io_proxy.WriteLine();
                 }
                 else
@@ -1053,15 +1070,15 @@ namespace dimorphics_dataset
 
             }
 
-            io_proxy.WriteLine($@"incomplete_file_count: {incomplete_files.Count}");
-            io_proxy.WriteLine($@"complete_file_count: {complete_files.Count}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"incomplete_file_count: {incomplete_files.Count}"));
+            io_proxy.WriteLine(/*program.string_debug*/($@"complete_file_count: {complete_files.Count}"));
 
             //program.WriteAllLines(Path.Combine(program.data_root_folder,"foldx\ps_incomplete_files.txt", incomplete_files);
 
 
 
             var missing_list = missing.Select(a => a).ToList();
-            var missing_list_del = missing_list.Where(a => a.StartsWith($@"if not exist", StringComparison.OrdinalIgnoreCase)).Select(b => $@"del {b.Split()[3]}").ToList();
+            var missing_list_del = missing_list.Where(a => a.StartsWith(/*program.string_debug*/($@"if not exist"), StringComparison.OrdinalIgnoreCase)).Select(b => /*program.string_debug*/($@"del {b.Split()[3]}")).ToList();
 
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing));
             //Directory.CreateDirectory(Path.GetDirectoryName(cmd_list_file_missing_del));
@@ -1074,20 +1091,20 @@ namespace dimorphics_dataset
 
         internal static List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> compare_repaired_pdb_to_pdb()
         {
-            var split_pdbs = Path.Combine(program.data_root_folder, $@"pdb_split");
-            var split_pdbs_repair = Path.Combine(program.data_root_folder, $@"pdb_split_repair");
+            var split_pdbs = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb_split"));
+            var split_pdbs_repair = Path.Combine(program.data_root_folder, /*program.string_debug*/($@"pdb_split_repair"));
 
-            var pdbs_original = Directory.GetFiles(split_pdbs, $@"*.pdb");
-            var pdbs_repair = Directory.GetFiles(split_pdbs_repair, $@"*.pdb");
+            var pdbs_original = Directory.GetFiles(split_pdbs, /*program.string_debug*/($@"*.pdb"));
+            var pdbs_repair = Directory.GetFiles(split_pdbs_repair, /*program.string_debug*/($@"*.pdb"));
 
-            var ids = pdbs_original.Select(a => Path.GetFileNameWithoutExtension(a) ?? $@"").ToList();
+            var ids = pdbs_original.Select(a => Path.GetFileNameWithoutExtension(a) ?? /*program.string_debug*/($@"")).ToList();
 
             var pdbs = ids.Select((a, i) => (id: Path.GetFileNameWithoutExtension(pdbs_original[i]), id_repair: Path.GetFileNameWithoutExtension(pdbs_repair[i]), pdb_original: pdbs_original[i], pdb_repair: pdbs_repair[i])).ToList();
 
             List<(string id, string id_repair, List<int> res_id_original, List<int> res_id_repair, List<int> intersect, List<int> original_except_repair, List<int> repair_except_original)> diff = pdbs.Select(a =>
             {
-                var o = io_proxy.ReadAllLines(a.pdb_original, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith($@"ATOM", StringComparison.Ordinal)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
-                var r = io_proxy.ReadAllLines(a.pdb_repair, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith($@"ATOM", StringComparison.Ordinal)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
+                var o = io_proxy.ReadAllLines(a.pdb_original, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith(/*program.string_debug*/($@"ATOM"), StringComparison.Ordinal)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
+                var r = io_proxy.ReadAllLines(a.pdb_repair, nameof(misc), nameof(compare_repaired_pdb_to_pdb)).Where(b => b.StartsWith(/*program.string_debug*/($@"ATOM"), StringComparison.Ordinal)).Select(b => Int32.Parse(b.Substring(22, 4).Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo)).Distinct().ToList();
                 var i = o.Intersect(r).ToList();
                 var e1 = o.Except(r).ToList();
                 var e2 = r.Except(o).ToList();
@@ -1105,16 +1122,16 @@ namespace dimorphics_dataset
         internal static void get_limited_ids()
         {
 
-            var seqs_all = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences.txt"), nameof(misc), nameof(get_limited_ids));
-            var seqs_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,$@"betastrands_dataset_sequences_limited.txt"), nameof(misc), nameof(get_limited_ids));
+            var seqs_all = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,/*program.string_debug*/($@"betastrands_dataset_sequences.txt")), nameof(misc), nameof(get_limited_ids));
+            var seqs_limited = io_proxy.ReadAllLines(Path.Combine(program.data_root_folder,/*program.string_debug*/($@"betastrands_dataset_sequences_limited.txt")), nameof(misc), nameof(get_limited_ids));
 
             var ids = seqs_all.Select((a, i) => seqs_limited.Contains(a) ? i : -1).Distinct().Where(a => a != -1).ToList();
 
-            var fn = Path.Combine(program.data_root_folder,$@"copy_limited.bat");
+            var fn = Path.Combine(program.data_root_folder,/*program.string_debug*/($@"copy_limited.bat"));
 
             //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
-            var ids_lines = ids.Select(a => $@"copy {a}.* limited\").ToList();
+            var ids_lines = ids.Select(a => /*program.string_debug*/($@"copy {a}.* limited\")).ToList();
 
             io_proxy.WriteAllLines(fn, ids_lines, nameof(program), nameof(get_limited_ids));
             //Console.ReadKey();
@@ -1148,7 +1165,7 @@ namespace dimorphics_dataset
 
         //            for (var i = 0; i < x.Count; i++)
         //            {
-        //               // x[i] = string.Join($@",", z.a) + $@"," + x[i];
+        //               // x[i] = string.Join(/*program.string_debug*/($@","), z.a) + /*program.string_debug*/($@",") + x[i];
         //            }
         //            //results.AddRange(x);
 
@@ -1171,7 +1188,7 @@ namespace dimorphics_dataset
 
         //    program.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
 
-        //    io_proxy.WriteLine($@"Finished.");
+        //    io_proxy.WriteLine(/*program.string_debug*/($@"Finished.");
         //    Console.ReadLine();
         //}
 
@@ -1181,7 +1198,7 @@ namespace dimorphics_dataset
 
 
 
-        //subsequence_classification_data.encode_sequence($@"x", $@"ALGY");
+        //subsequence_classification_data.encode_sequence(/*program.string_debug*/($@"x", /*program.string_debug*/($@"ALGY");
 
         //xtodo: create dhc dataset with dhc found by dssp3, dssp7, stride3, stride7, for comparison
         //xtodo: to see which secondary structure definition gives the best performance in the classifier
@@ -1189,27 +1206,27 @@ namespace dimorphics_dataset
 
         //xtodo: ensure that data is placed in the correct column, in case of any features being empty/null/not included in some rows.
 
-        //var pdb_files = Directory.GetFiles(Path.Combine(program.data_root_folder,"pdb\", $@"*.pdb");
+        //var pdb_files = Directory.GetFiles(Path.Combine(program.data_root_folder,"pdb\", /*program.string_debug*/($@"*.pdb");
         //pdb_files.ToList().ForEach(a=>Atom.run_dssp(Path.GetFileNameWithoutExtension(a)));
         //pdb_files.ToList().ForEach(a=>Atom.split_pdb_chains(Path.GetFileNameWithoutExtension(a)));
-        //pdb_files.ToList().ForEach(a=>Program.WriteLine($@"dssp -i {Path.GetFileNameWithoutExtension(a)}.pdb -o {Path.GetFileNameWithoutExtension(a)}.dssp"));
+        //pdb_files.ToList().ForEach(a=>Program.WriteLine(/*program.string_debug*/($@"dssp -i {Path.GetFileNameWithoutExtension(a)}.pdb -o {Path.GetFileNameWithoutExtension(a)}.dssp"));
         //return;
 
         //if (run_larks_unknown)
         //{
         //    class_list.Add(
         //        (
-        //        nameof(run_larks_unknown).EndsWith($@"unknown") ? +1 : -1,
-        //        nameof(run_larks_unknown).Replace($@"run_", $@""),
-        //        $@"c:\bioinf\e_{nameof(run_larks_unknown).Replace($@"run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt",
-        //        $@"c:\bioinf\d_{nameof(run_larks_unknown).Replace($@"run_", $@"")}{(sequence_only_features ? $@"_seq_only" : $@"")}_{uid}.txt")
+        //        nameof(run_larks_unknown).EndsWith(/*program.string_debug*/($@"unknown") ? +1 : -1,
+        //        nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@"")),
+        //        /*program.string_debug*/($@"c:\bioinf\e_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt",
+        //        /*program.string_debug*/($@"c:\bioinf\d_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt")
 
         //    );
         //}
 
-        //else if (class_name == nameof(run_larks_unknown).Replace($@"run_", $@""))
+        //else if (class_name == nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@"")))
         //{
-        //    var larks = new List<string>() { $@"STGGYG", $@"GYNGFG", $@"SYSGYS", $@"SYSSYGQS", $@"GFGNFGTS" };
+        //    var larks = new List<string>() { /*program.string_debug*/($@"STGGYG", /*program.string_debug*/($@"GYNGFG", /*program.string_debug*/($@"SYSGYS", /*program.string_debug*/($@"SYSSYGQS", /*program.string_debug*/($@"GFGNFGTS" };
         //    sequence_list = larks;
         //}
 
@@ -1237,7 +1254,7 @@ namespace dimorphics_dataset
                 var group_prefix = new string('S', i);
                 var aa_subsequence = new string('S', i);
                 //var pse_ssc = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps,category_prefix, group_prefix, ss_seq, feature_calcs.seq_type.secondary_structure_sequence, mpsa_pse_aac_options);
-                //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, $@"dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
+                //var pse_ssc_dssp_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, /*program.string_debug* /($@"dssp_monomer", scd.dssp_monomer_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options);
                 var pse_aac_sequence_classification_data = subsequence_classification_data.calculate_aa_or_ss_sequence_classification_data(ps, category_prefix, group_prefix, aa_subsequence, feature_calcs.seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, 100);
 
                 io_proxy.WriteLine(pse_aac_sequence_classification_data.Count);
@@ -1251,7 +1268,7 @@ namespace dimorphics_dataset
             //    {
             //        var inp = new string('A', i);
             //        var x = feature_calcs.split_sequence(inp,3,0,b==1);
-            //        io_proxy.WriteLine(inp + $@": " + string.Join($@", ", x));
+            //        io_proxy.WriteLine(inp + /*program.string_debug*/($@": " + string.Join(/*program.string_debug*/($@", "), x));
             //    }
             //}
             //return;
@@ -1261,7 +1278,7 @@ namespace dimorphics_dataset
 
             //return;
             //r_peptides.init_r();
-            //io_proxy.WriteLine(r_peptides.get_values($@"AAAAAAAAAALLLLLLL"));
+            //io_proxy.WriteLine(r_peptides.get_values(/*program.string_debug*/($@"AAAAAAAAAALLLLLLL"));
             //for (var i = 0; i < 100; i++) Console.ReadLine();
 
             //return;
@@ -1274,7 +1291,7 @@ namespace dimorphics_dataset
             //return;
             ////pssm test
             //var blast_db_folder = @"c:\blast\db\";
-            //var blast_dbs =new[]{"nr", $@"swissprot", $@"uniref90"};
+            //var blast_dbs =new[]{"nr", /*program.string_debug*/($@"swissprot", /*program.string_debug*/($@"uniref90"};
             //var remotes = new[]{true, false};
             //var run = false;
             //foreach (var blast_db in blast_dbs)
@@ -1284,7 +1301,7 @@ namespace dimorphics_dataset
             //        get_pssms(blast_db, blast_db_folder, remote, run);
             //    }
             //}
-            //io_proxy.WriteLine($@"Finished");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"Finished");
             //Console.ReadLine();
             //return;
 
@@ -1296,31 +1313,31 @@ namespace dimorphics_dataset
 
             //for (var i = 3; i <= 5; i++)
             //{
-            //    var a = new string($@"ALGYALGY".ToCharArray(),0, i);
+            //    var a = new string(/*program.string_debug*/($@"ALGYALGY".ToCharArray(),0, i);
             //    var pepValues = r_peptides.get_values(a);
-            //    io_proxy.WriteLine($@"!!! length {i}: sequence {a}: features: {pepValues.Count}");
+            //    io_proxy.WriteLine(/*program.string_debug*/($@"!!! length {i}: sequence {a}: features: {pepValues.Count}");
             //}
 
             //Console.ReadKey();
             //return;
 
             //REngine engine = REngine.GetInstance();
-            ////engine.Evaluate($@"install.packages(""Peptides"")");
+            ////engine.Evaluate(/*program.string_debug*/($@"install.packages(""Peptides"")");
 
-            //var r_init_cmds = $@"
+            //var r_init_cmds = /*program.string_debug*/($@"
             //#install.packages(""devtools"", repos=""http://cran.us.r-project.org"")
             //#library(devtools)
             //#install_github(""dosorio/Peptides"")
             //library(Peptides)
             //";
-            //r_init_cmds.Split(new char[] { '\r', '\n'}).Where(a=>!string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith($@"#")).ToList().ForEach(a=> engine.Evaluate(a));
+            //r_init_cmds.Split(new char[] { '\r', '\n'}).Where(a=>!string.IsNullOrWhiteSpace(a) && !a.Trim().StartsWith(/*program.string_debug*/($@"#")).ToList().ForEach(a=> engine.Evaluate(a));
 
-            //var xyz_e = engine.Evaluate($@"xyz <- lengthpep(seq = ""GLPRKILCAIAKKKGKCKGPLKLVCKC"")").AsDataFrame();
-            //NumericVector xyz = engine.GetSymbol($@"xyz").AsNumeric();
+            //var xyz_e = engine.Evaluate(/*program.string_debug*/($@"xyz <- lengthpep(seq = ""GLPRKILCAIAKKKGKCKGPLKLVCKC"")").AsDataFrame();
+            //NumericVector xyz = engine.GetSymbol(/*program.string_debug*/($@"xyz").AsNumeric();
 
 
 
-            //var edge_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", $@"*.edges");
+            //var edge_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", /*program.string_debug*/($@"*.edges");
             ////var node_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\","*.nodes");
 
 
@@ -1368,14 +1385,14 @@ namespace dimorphics_dataset
             // pdb sequences test
             //get_pdb_sequences(limited_to_dimorphics_and_standard: false);
             //get_pdb_sequences(limited_to_dimorphics_and_standard: true);
-            //io_proxy.WriteLine($@"Finished");
+            //io_proxy.WriteLine(/*program.string_debug*/($@"Finished");
             //Console.ReadLine();
 
-            //var fghx = feature_calcs.feature_pse_aac($@"CCCCCCCCCCCCCEEEEEEEEHHHHHHT", feature_calcs.seq_type.secondary_structure_sequence, new feature_calcs.pse_aac_options(), false, true);
+            //var fghx = feature_calcs.feature_pse_aac(/*program.string_debug*/($@"CCCCCCCCCCCCCEEEEEEEEHHHHHHT", feature_calcs.seq_type.secondary_structure_sequence, new feature_calcs.pse_aac_options(), false, true);
             //io_proxy.WriteLine();
             //get_pdb_sequences();
             //return;
-            //var xxx = feature_calcs.feature_pse_aac($@"AAA", false, false);
+            //var xxx = feature_calcs.feature_pse_aac(/*program.string_debug*/($@"AAA", false, false);
 
             //return;
 
@@ -1395,16 +1412,16 @@ namespace dimorphics_dataset
             //return;
             // unknown classes
             //var run_larks_unknown = true;
-            //if (run_dimorphics_pos && run_dhc_pos) throw new Exception($@"{module_name}.{method_name}: Is that right?");
-            //if (run_coils_neg && run_strands_neg) throw new Exception($@"{module_name}.{method_name}: Is that right?");
+            //if (run_dimorphics_pos && run_dhc_pos) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Is that right?");
+            //if (run_coils_neg && run_strands_neg) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Is that right?");
             //var uid = 2;
-            //class_list.Add((-1, substructure_type.coil, 3, nameof(substructure_type.coil), $@"c:\bioinf\e_{nameof(substructure_type.coil)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.coil)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand, 2, nameof(substructure_type.standard_beta_strand), $@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand_with_host_coil, 3, nameof(substructure_type.standard_beta_strand_with_host_coil), $@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand_full_protein_sequence, 3, nameof(substructure_type.standard_beta_strand_full_protein_sequence), $@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics, 2, nameof(substructure_type.dimorphics), $@"c:\bioinf\e_{nameof(substructure_type.dimorphics)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.dimorphics)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics_with_host_coil, 3, nameof(substructure_type.dimorphics_with_host_coil), $@"c:\bioinf\e_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics_full_protein_sequence, 3, nameof(substructure_type.dimorphics_full_protein_sequence), $@"c:\bioinf\e_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}", $@"c:\bioinf\d_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}"));
+            //class_list.Add((-1, substructure_type.coil, 3, nameof(substructure_type.coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.coil)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand, 2, nameof(substructure_type.standard_beta_strand), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand_with_host_coil, 3, nameof(substructure_type.standard_beta_strand_with_host_coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand_full_protein_sequence, 3, nameof(substructure_type.standard_beta_strand_full_protein_sequence), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics, 2, nameof(substructure_type.dimorphics), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics_with_host_coil, 3, nameof(substructure_type.dimorphics_with_host_coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics_full_protein_sequence, 3, nameof(substructure_type.dimorphics_full_protein_sequence), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}"));
 
 
             //var make_distance_matrices = false;// true;
@@ -1484,7 +1501,7 @@ namespace dimorphics_dataset
         //    io_proxy.WriteLine();
         //    cl = Console.CursorLeft + 1;
         //    ct = Console.CursorTop;
-        //    io_proxy.WriteLine($@"[{new string('.', dimorphics_data.Count)}]");
+        //    io_proxy.WriteLine(/*program.string_debug*/($@"[{new string('.', dimorphics_data.Count)}]");
         //    io_proxy.WriteLine();
         //}
         //var console_lock = new object();

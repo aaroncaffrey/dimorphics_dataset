@@ -4,11 +4,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace dimorphics_dataset
 {
     internal static class subsequence_classification_data_r_methods
     {
+        public const string module_name = nameof(subsequence_classification_data_r_methods);
+
         public const string cache_r_protr_filename = @"e:\dataset\r_protr_cache.csv";
         public const string cache_r_peptides_filename = @"e:\dataset\r_peptides_cache.csv";
 
@@ -17,8 +20,9 @@ namespace dimorphics_dataset
 
         internal static void cache_r_servers()
         {
+            const string method_name = nameof(cache_r_servers);
             /*
-            var files = new string[] { $@"E:\dataset\l__(standard_coil).csv", $@"E:\dataset\l__(dimorphic_coil).csv" };
+            var files = new string[] { /*program.string_debug* /($@"E:\dataset\l__(standard_coil).csv", /*program.string_debug* /($@"E:\dataset\l__(dimorphic_coil).csv" };
 
             var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
 
@@ -61,7 +65,7 @@ namespace dimorphics_dataset
                     (aa_seq: a, features: call_r_protr(a))).ToList();
                 var r_protr_csv = r_protr_results.SelectMany(a =>
                         a.features.Select(b =>
-                            $@"{a.aa_seq},{String.Join($@",", b.key_value_list(true).Select(c => c.value).ToList())}").ToList())
+                            /*program.string_debug*/($@"{a.aa_seq},{String.Join(/*program.string_debug*/($@","), b.key_value_list(true).Select(c => c.value).ToList())}")).ToList())
                     .ToList();
                 io_proxy.WriteAllLines(cache_r_protr_filename, r_protr_csv);
             }
@@ -71,7 +75,7 @@ namespace dimorphics_dataset
                     (aa_seq: a, features: call_r_peptides(a))).ToList();
                 var r_peptides_csv = r_peptides_results.SelectMany(a =>
                         a.features.Select(b =>
-                            $@"{a.aa_seq},{String.Join($@",", b.key_value_list(true).Select(c => c.value).ToList())}").ToList())
+                            /*program.string_debug*/($@"{a.aa_seq},{String.Join(/*program.string_debug*/($@","), b.key_value_list(true).Select(c => c.value).ToList())}")).ToList())
                     .ToList();
                 io_proxy.WriteAllLines(cache_r_peptides_filename, r_peptides_csv);
             }
@@ -81,34 +85,52 @@ namespace dimorphics_dataset
 
         internal static List<string> cache_r_get_seqs()
         {
-            const string module_name = nameof(subsequence_classification_data_r_methods);
             const string method_name = nameof(cache_r_get_seqs);
 
             var files = new string[] { cache_r_protr_filename, cache_r_peptides_filename };
             
             var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(c => c.Length).ThenBy(c => c).ToList()).ToList();
 
-            if (!aa_seqs[0].SequenceEqual(aa_seqs[1])) throw new Exception($@"{module_name}.{method_name}: cache source sequences differ");
+            if (!aa_seqs[0].SequenceEqual(aa_seqs[1])) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: cache source sequences differ"));
 
             return aa_seqs.FirstOrDefault();
         }
 
         internal static void cache_r_servers_check()
         {
+            const string method_name = nameof(cache_r_servers_check);
+
             var files = new string[] { cache_r_protr_filename, cache_r_peptides_filename };
 
             var aa_seqs = files.Select(a => File.ReadAllLines(a).Select(b => b.Substring(0, b.IndexOf(','))).Distinct().OrderBy(c => c.Length).ThenBy(c => c).ToList()).ToList();
 
             var equal = aa_seqs[0].SequenceEqual(aa_seqs[1]);
 
-            io_proxy.WriteLine($"SequenceEqual: {equal}");
+            io_proxy.WriteLine(/*program.string_debug*/($@"SequenceEqual: {equal}"));
 
-            Console.WriteLine();
+            //Console.WriteLine();
 
+        }
+
+        internal static void cache_r_load()
+        {
+            const string method_name = nameof(cache_r_load);
+
+            if (File.Exists(subsequence_classification_data_r_methods.cache_r_protr_filename) && new FileInfo(subsequence_classification_data_r_methods.cache_r_protr_filename).Length > 0)
+            {
+                subsequence_classification_data_r_methods.cache_r_protr = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_protr_filename);
+            }
+
+            if (File.Exists(subsequence_classification_data_r_methods.cache_r_peptides_filename) && new FileInfo(subsequence_classification_data_r_methods.cache_r_peptides_filename).Length > 0)
+            {
+                subsequence_classification_data_r_methods.cache_r_peptides = subsequence_classification_data_r_methods.cache_r_load(subsequence_classification_data_r_methods.cache_r_peptides_filename);
+            }
         }
 
         internal static List<(string aa_sequence, List<feature_info> features)> cache_r_load(string cache_file)
         {
+            const string method_name = nameof(cache_r_load);
+
             // note: features must be in original order.  more important that it is correct than fast.  parallel was not any faster relatively.
 
             var sw1 = new Stopwatch();
@@ -143,12 +165,17 @@ namespace dimorphics_dataset
             var counts = features_grouped.Select(a => a.features.Count).Distinct().ToList();
             sw1.Stop();
 
-            io_proxy.WriteLine($@"Loaded: {features_grouped.Count} sequences ({string.Join($@", ", counts)} features) in {sw1.Elapsed:dd\:hh\:mm\:ss\.fff}", nameof(program), nameof(cache_r_load));
+            io_proxy.WriteLine(/*program.string_debug*/($@"Loaded: {features_grouped.Count} sequences ({string.Join(/*program.string_debug*/($@", "), counts)} features) in {sw1.Elapsed:dd\:hh\:mm\:ss\.fff}"), module_name, method_name);
             return features_grouped;
         }
 
-        internal static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
+        internal static List<feature_info> call_r_peptides(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle, CancellationTokenSource cts = null)
         {
+            const string method_name = nameof(call_r_peptides);
+
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
             if (cache_r_peptides != null && cache_r_peptides.Count > 0)
             {
                 var cache_item = cache_r_peptides.FirstOrDefault(a => string.Equals(a.aa_sequence, sequence, StringComparison.Ordinal));
@@ -165,8 +192,8 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._peptides_data_template == null)
                 {
-                    subsequence_classification_data_templates._peptides_data_template = call_r_peptides($@"ALG"/*, alphabet_name, source*/);
-                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { /*a.source = $@"";*/ a.feature_value = 0; });
+                    subsequence_classification_data_templates._peptides_data_template = call_r_peptides(/*program.string_debug*/($@"ALG")/*, alphabet_name, source*/);
+                    subsequence_classification_data_templates._peptides_data_template.ForEach(a => { /*a.source = /*program.string_debug* /($@"");*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._peptides_data_template == null)
@@ -175,7 +202,7 @@ namespace dimorphics_dataset
                 }
 
 
-                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = $@"{source}",*/ feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._peptides_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = /*program.string_debug* /($@"{source}"),*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -210,13 +237,13 @@ namespace dimorphics_dataset
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\peptides_server", StringComparison.Ordinal)), Path.GetFileName(this_exe).Replace($@"dimorphics_dataset", $@"peptides_server", StringComparison.Ordinal));
+            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace(/*program.string_debug*/($@"dimorphics_dataset\dimorphics_dataset"), /*program.string_debug*/($@"dimorphics_dataset\peptides_server"), StringComparison.Ordinal)), Path.GetFileName(this_exe).Replace(/*program.string_debug*/($@"dimorphics_dataset"), /*program.string_debug*/($@"peptides_server"), StringComparison.Ordinal));
 
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                //Arguments = $@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
-                Arguments = $@"{call_count} {sequence}",
+                //Arguments = /*program.string_debug*/($@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = /*program.string_debug*/($@"{call_count} {sequence}"),
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -236,16 +263,18 @@ namespace dimorphics_dataset
                     {
                         process.PriorityBoostEnabled = priority_boost;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        io_proxy.log_exception(e, $@"", module_name, method_name);
                     }
 
                     try
                     {
                         process.PriorityClass = priority;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        io_proxy.log_exception(e, $@"", module_name, method_name);
                     }
 
 
@@ -256,7 +285,7 @@ namespace dimorphics_dataset
 
                     process.WaitForExit();
 
-                    //io_proxy.WriteLine($@"Data: " + data);
+                    //io_proxy.WriteLine(/*program.string_debug*/($@"Data: " + data);
 
                     var r = feature_info_container.deserialise(stdout);
 
@@ -277,7 +306,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._peptides_data_template == null)
             {
-                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { /*source = $@"",*/ feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._peptides_data_template = result.Select(a => new feature_info(a) { /*source = /*program.string_debug* /($@""),*/ feature_value = 0 }).ToList();
             }
 
             //result.ForEach(a =>
@@ -287,11 +316,16 @@ namespace dimorphics_dataset
             //});
 
 
-            return result;
+            return !cts.IsCancellationRequested ? result : default;
         }
 
-        internal static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle)
+        internal static List<feature_info> call_r_protr(string sequence/*, string alphabet_name, enum_protein_data_source source*/, bool priority_boost = false, ProcessPriorityClass priority = ProcessPriorityClass.Idle, CancellationTokenSource cts = null)
         {
+            const string method_name = nameof(call_r_protr);
+
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
             if (cache_r_protr != null && cache_r_protr.Count > 0)
             {
                 var cache_item = cache_r_protr.FirstOrDefault(a => string.Equals(a.aa_sequence, sequence, StringComparison.Ordinal));
@@ -301,7 +335,7 @@ namespace dimorphics_dataset
                 }
             }
 
-            Console.WriteLine(sequence);
+            //Console.WriteLine(sequence);
             const int min_sequence_length = 1;
             var enable_cache = false;
 
@@ -309,8 +343,8 @@ namespace dimorphics_dataset
             {
                 if (subsequence_classification_data_templates._protr_data_template == null)
                 {
-                    subsequence_classification_data_templates._protr_data_template = call_r_protr($@"ALG"/*, alphabet_name, source*/);
-                    subsequence_classification_data_templates._protr_data_template.ForEach(a => {/* a.source = $@"";*/ a.feature_value = 0; });
+                    subsequence_classification_data_templates._protr_data_template = call_r_protr(/*program.string_debug*/($@"ALG")/*, alphabet_name, source*/);
+                    subsequence_classification_data_templates._protr_data_template.ForEach(a => {/* a.source = /*program.string_debug* /($@"");*/ a.feature_value = 0; });
                 }
 
                 if (subsequence_classification_data_templates._protr_data_template == null)
@@ -318,7 +352,7 @@ namespace dimorphics_dataset
                     throw new Exception();
                 }
 
-                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = $@"{source}",*/ feature_value = 0 }).ToList();
+                var template = subsequence_classification_data_templates._protr_data_template.Select(a => new feature_info(a) {/* alphabet = alphabet_name, source = /*program.string_debug* /($@"{source}"),*/ feature_value = 0 }).ToList();
 
                 return template;
             }
@@ -352,13 +386,13 @@ namespace dimorphics_dataset
             }
 
             var this_exe = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace($@"dimorphics_dataset\dimorphics_dataset", $@"dimorphics_dataset\protr_server", StringComparison.Ordinal)), Path.GetFileName(this_exe).Replace($@"dimorphics_dataset", $@"protr_server", StringComparison.Ordinal));
+            var exe = Path.Combine(Path.GetDirectoryName(this_exe.Replace(/*program.string_debug*/($@"dimorphics_dataset\dimorphics_dataset"), /*program.string_debug*/($@"dimorphics_dataset\protr_server"), StringComparison.Ordinal)), Path.GetFileName(this_exe).Replace(/*program.string_debug*/($@"dimorphics_dataset"), /*program.string_debug*/($@"protr_server"), StringComparison.Ordinal));
 
             var start = new ProcessStartInfo
             {
                 FileName = exe,
-                //Arguments = $@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
-                Arguments = $@"{call_count} {sequence}",
+                //Arguments = /*program.string_debug*/($@"{call_count} {alphabet_name} {source.ToString()} {sequence}",
+                Arguments = /*program.string_debug*/($@"{call_count} {sequence}"),
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 RedirectStandardOutput = true,
@@ -379,18 +413,18 @@ namespace dimorphics_dataset
                     {
                         process.PriorityBoostEnabled = priority_boost;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-
+                        io_proxy.log_exception(e, $@"", module_name, method_name);
                     }
 
                     try
                     {
                         process.PriorityClass = priority;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-
+                        io_proxy.log_exception(e, $@"", module_name, method_name);
                     }
 
 
@@ -403,7 +437,7 @@ namespace dimorphics_dataset
 
                     process.WaitForExit();
 
-                    //io_proxy.WriteLine($@"Data: " + data);
+                    //io_proxy.WriteLine(/*program.string_debug*/($@"Data: " + data);
 
                     var r = feature_info_container.deserialise(stdout);
 
@@ -425,7 +459,7 @@ namespace dimorphics_dataset
 
             if (subsequence_classification_data_templates._protr_data_template == null)
             {
-                subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = $@"", feature_value = 0 }).ToList();
+                subsequence_classification_data_templates._protr_data_template = result.Select(a => new feature_info(a) { source = /*program.string_debug*/($@""), feature_value = 0 }).ToList();
             }
 
             //result.ForEach(a =>
@@ -434,7 +468,7 @@ namespace dimorphics_dataset
             //    a.alphabet = alphabet_name;
             //});
 
-            return result;
+            return !cts.IsCancellationRequested ? result : default;
         }
     }
 }

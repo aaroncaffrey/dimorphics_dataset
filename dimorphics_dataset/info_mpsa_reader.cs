@@ -64,7 +64,7 @@ namespace dimorphics_dataset
         internal info_mpsa_reader(string format, List<(int index, char amino_acid, char predicted_ss_code, double prob_h, double prob_e, double prob_c)> ss_matrix)
         {
             this.ss_column_headers = new List<char>() {'H', 'E', 'C'};
-            this.filename = $@"";
+            this.filename = /*program.string_debug*/($@"");
             this.format = format;
             
             this.mpsa_matrix = ss_matrix.Select(a => new info_mpsa_reader_line_entry()
@@ -102,10 +102,10 @@ namespace dimorphics_dataset
 
         internal info_mpsa_reader(List<info_mpsa_reader> mpsa_readers)
         {
-            this.filename = $@"consensus";
-            this.format = $@"consensus";
+            this.filename = /*program.string_debug*/($@"consensus");
+            this.format = /*program.string_debug*/($@"consensus");
             this.mpsa_matrix = null;
-            this.ss_column_headers = $@"HEC".ToList();
+            this.ss_column_headers = /*program.string_debug*/($@"HEC").ToList();
             this.ss_overall_average = null;
             this.ss_probabilities_per_aa = null;
 
@@ -132,7 +132,7 @@ namespace dimorphics_dataset
                     index = index,
                     predicted_ss_code = predicted_ss_code,
                     line_prob_values = line_prob_values,
-                    ss_column_headers = $@"HEC".ToList()
+                    ss_column_headers = /*program.string_debug*/($@"HEC").ToList()
                 };
                 return x;
             }).ToList();
@@ -168,7 +168,7 @@ namespace dimorphics_dataset
         //    {
         //        var y = consensus_individual_probability(mpsa_readers, indexes);
 
-        //        var x = y.SelectMany(a => a.values.Where(b => $@"HECT".Contains(b.ss)).ToList()).GroupBy(a => a.ss).Select(a => (ss: a.Key, averge_value: a.Select(b => b.average_value).DefaultIfEmpty(0).Average())).OrderByDescending(a => a.averge_value).ToList();
+        //        var x = y.SelectMany(a => a.values.Where(b => /*program.string_debug*/($@"HECT".Contains(b.ss)).ToList()).GroupBy(a => a.ss).Select(a => (ss: a.Key, averge_value: a.Select(b => b.average_value).DefaultIfEmpty(0).Average())).OrderByDescending(a => a.averge_value).ToList();
 
         //        return x;
         //    }
@@ -196,7 +196,7 @@ namespace dimorphics_dataset
 
         //        var ss_seq = y.Select(a => a.predicted_ss).ToList();
 
-        //        var x = $@"HECT".Select(ss => (ss,feature_calcs.transform_value(ss_seq.Count(b => ss == b),ss_seq.Count,sqrt,as_dist))).ToList();
+        //        var x = /*program.string_debug*/($@"HECT".Select(ss => (ss,feature_calcs.transform_value(ss_seq.Count(b => ss == b),ss_seq.Count,sqrt,as_dist))).ToList();
         //        return x;
             
         //}
@@ -266,7 +266,7 @@ namespace dimorphics_dataset
             var as_dist = true;
             var sqrt = false;
 
-            var ss_codes = $@"HEC";//"HECT";
+            var ss_codes = /*program.string_debug*/($@"HEC");//"HECT";
 
             var seq_length = (double)mpsa_matrix.Count(b => ss_codes.Contains(b.predicted_ss_code, StringComparison.Ordinal));
 
@@ -322,17 +322,17 @@ namespace dimorphics_dataset
 
         internal static List<(int id, string format, string ss_codes)> secondary_structure_codes = new List<(int id, string format, string ss_codes)>()
         {
-            (00, $@"dpm", $@"HETCF"), // extra: T F
-            (01, $@"dsc", $@"HEC"), // non-standard format
-            (02, $@"gor1", $@"HETC"), // extra: T
-            (03, $@"gor3", $@"HEC"),
-            (04, $@"hnn", $@"HEC"),
-            (05, $@"mpsa", $@"HEC"),
-            (06, $@"phd", $@"HEC"/*"HECX"*/), // extra: X (reliability) // non-standard format
-            (07, $@"preda", $@"HEC"), // non-standard format
-            (08, $@"sopm", $@"HETC"), // extra: T
-            (09, $@"psipred-swissprot", $@"CHE"),
-            (10, $@"psipred-uniref90", $@"CHE"),
+            (00, /*program.string_debug*/($@"dpm"), /*program.string_debug*/($@"HETCF")), // extra: T F
+            (01, /*program.string_debug*/($@"dsc"), /*program.string_debug*/($@"HEC")), // non-standard format
+            (02, /*program.string_debug*/($@"gor1"), /*program.string_debug*/($@"HETC")), // extra: T
+            (03, /*program.string_debug*/($@"gor3"), /*program.string_debug*/($@"HEC")),
+            (04, /*program.string_debug*/($@"hnn"), /*program.string_debug*/($@"HEC")),
+            (05, /*program.string_debug*/($@"mpsa"), /*program.string_debug*/($@"HEC")),
+            (06, /*program.string_debug*/($@"phd"), /*program.string_debug*/($@"HEC"/*"HECX"*/)), // extra: X (reliability) // non-standard format
+            (07, /*program.string_debug*/($@"preda"), /*program.string_debug*/($@"HEC")), // non-standard format
+            (08, /*program.string_debug*/($@"sopm"), /*program.string_debug*/($@"HETC")), // extra: T
+            (09, /*program.string_debug*/($@"psipred-swissprot"), /*program.string_debug*/($@"CHE")),
+            (10, /*program.string_debug*/($@"psipred-uniref90"), /*program.string_debug*/($@"CHE")),
         };
 
         //HEC
@@ -413,6 +413,9 @@ namespace dimorphics_dataset
 
         private static (List<char> matrix_colum_headers, List<info_mpsa_reader_line_entry> individual_residue_predictions) read_mpsa_file(string filename)
         {
+            const string module_name = nameof(info_mpsa_reader);
+            const string method_name = nameof(read_mpsa_file);
+
             // common MPSA matrix format:
             // DPM, GOR1, GOR2, MPSA, HNN, SOPM
 
@@ -422,13 +425,13 @@ namespace dimorphics_dataset
 
             var format = Path.GetExtension(filename)[1..];
 
-            var mpsa_extensions_supported = new List<string> { $@"dpm", $@"gor1", $@"gor2", $@"gor3", $@"mpsa", $@"hnn", $@"sopm", $@"psipred-uniref90", $@"psipred-swissprot" };
-            var other_extensions_supported = new List<string> { $@"dsc", $@"phd", $@"preda" };
+            var mpsa_extensions_supported = new List<string> { /*program.string_debug*/($@"dpm"), /*program.string_debug*/($@"gor1"), /*program.string_debug*/($@"gor2"), /*program.string_debug*/($@"gor3"), /*program.string_debug*/($@"mpsa"), /*program.string_debug*/($@"hnn"), /*program.string_debug*/($@"sopm"), /*program.string_debug*/($@"psipred-uniref90"), /*program.string_debug*/($@"psipred-swissprot") };
+            var other_extensions_supported = new List<string> { /*program.string_debug*/($@"dsc"), /*program.string_debug*/($@"phd"), /*program.string_debug*/($@"preda") };
             mpsa_extensions_supported.AddRange(other_extensions_supported);
 
             if (!mpsa_extensions_supported.Contains(format, StringComparer.InvariantCultureIgnoreCase))
             {
-                io_proxy.WriteLine($@"File format not supported: {filename}");
+                io_proxy.WriteLine(/*program.string_debug*/($@"File format not supported: {filename}"), module_name, method_name);
                 return (null, null);
             }
 
@@ -438,17 +441,17 @@ namespace dimorphics_dataset
 
             if (File.Exists(filename) && new FileInfo(filename).Length > 0)
             {
-                lines = io_proxy.ReadAllLines(filename, nameof(info_mpsa_reader), nameof(read_mpsa_file)).ToList();
+                lines = io_proxy.ReadAllLines(filename, module_name, method_name).ToList();
             }
             
 
-            if (format.Equals($@"preda",StringComparison.OrdinalIgnoreCase))
+            if (format.Equals(/*program.string_debug*/($@"preda"), StringComparison.OrdinalIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith($@"HEADER  |- Residue -|  Pred  Rel      NAli   Asn", StringComparison.Ordinal));
+                var start_marker = lines.FindIndex(a => a.StartsWith(/*program.string_debug*/($@"HEADER  |- Residue -|  Pred  Rel      NAli   Asn"), StringComparison.Ordinal));
                 lines = lines.Skip(start_marker + 1).ToList();
-                lines = lines.Where(a => a.StartsWith($@"PRED", StringComparison.Ordinal)).ToList();
+                lines = lines.Where(a => a.StartsWith(/*program.string_debug*/($@"PRED"), StringComparison.Ordinal)).ToList();
 
-                var check_matrix_colum_headers = $@"HEC".ToList();
+                var check_matrix_colum_headers = /*program.string_debug*/($@"HEC").ToList();
 
                 if (!matrix_colum_headers.SequenceEqual(check_matrix_colum_headers)) throw new Exception();
 
@@ -570,15 +573,15 @@ namespace dimorphics_dataset
                 return (matrix_colum_headers, parsed_matrix1);
             }
 
-            if (format.Equals($@"dsc",StringComparison.OrdinalIgnoreCase))
+            if (format.Equals(/*program.string_debug*/($@"dsc"), StringComparison.OrdinalIgnoreCase))
             {
-                var start_marker = lines.FindIndex(a => a.StartsWith($@"NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C", StringComparison.Ordinal));
+                var start_marker = lines.FindIndex(a => a.StartsWith(/*program.string_debug*/($@"NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C"), StringComparison.Ordinal));
                 lines = lines.Skip(start_marker + 1).ToList();
                 lines = lines.Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
 
                 //NO.  RES   DSC_SEC PROB_H    PROB_E    PROB_C
 
-                var check_matrix_colum_headers = $@"HEC".ToList();
+                var check_matrix_colum_headers = /*program.string_debug*/($@"HEC").ToList();
 
                 if (!matrix_colum_headers.SequenceEqual(check_matrix_colum_headers)) throw new Exception();
 
@@ -638,28 +641,28 @@ namespace dimorphics_dataset
 
             }
 
-            if (format.Equals($@"phd",StringComparison.OrdinalIgnoreCase))
+            if (format.Equals(/*program.string_debug*/($@"phd"), StringComparison.OrdinalIgnoreCase))
             {
-                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith($@"*", StringComparison.Ordinal) && !a.StartsWith($@"END", StringComparison.Ordinal)).ToList();
+                lines = lines.Where(a => !string.IsNullOrWhiteSpace(a) && a.Length > 9 && !a.StartsWith(/*program.string_debug*/($@"*"), StringComparison.Ordinal) && !a.StartsWith(/*program.string_debug*/($@"END"), StringComparison.Ordinal)).ToList();
                 lines = lines.Select(a => a[9..]).ToList();
 
-                var titles = lines.Select(a => a.Substring(0, 4).Replace($@"-", $@"", StringComparison.Ordinal).Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
+                var titles = lines.Select(a => a.Substring(0, 4).Replace(/*program.string_debug*/($@"-"), /*program.string_debug*/($@""), StringComparison.Ordinal).Trim().ToUpperInvariant()).Distinct().Where(a => !string.IsNullOrWhiteSpace(a)).ToList();
                 var merged_lines = new List<(string title, string line, int len)>();
                 foreach (var t in titles)
                 {
-                    merged_lines.Add((t, $@"", 0));
+                    merged_lines.Add((t, /*program.string_debug*/($@""), 0));
                 }
 
                 foreach (var line in lines)
                 {
-                    var line_title = line.Substring(0, 4).Replace($@"-", $@"", StringComparison.Ordinal).Trim().ToUpperInvariant();
+                    var line_title = line.Substring(0, 4).Replace(/*program.string_debug*/($@"-"), /*program.string_debug*/($@""), StringComparison.Ordinal).Trim().ToUpperInvariant();
                     if (string.IsNullOrWhiteSpace(line_title)) continue;
 
-                    var line_data = line[5..].Replace($@"|", $@"", StringComparison.Ordinal);
+                    var line_data = line[5..].Replace(/*program.string_debug*/($@"|"), /*program.string_debug*/($@""), StringComparison.Ordinal);
 
-                    if (string.Equals(line_title, $@"PHD", StringComparison.Ordinal))
+                    if (string.Equals(line_title, /*program.string_debug*/($@"PHD"), StringComparison.Ordinal))
                     {
-                        line_data = line_data.Replace($@" ", $@"C", StringComparison.Ordinal).Replace($@"L", $@"C", StringComparison.Ordinal);
+                        line_data = line_data.Replace(/*program.string_debug*/($@" "), /*program.string_debug*/($@"C"), StringComparison.Ordinal).Replace(/*program.string_debug*/($@"L"), /*program.string_debug*/($@"C"), StringComparison.Ordinal);
                     }
 
                     var title_index = merged_lines.FindIndex(a => string.Equals(a.title, line_title, StringComparison.Ordinal));
@@ -670,16 +673,16 @@ namespace dimorphics_dataset
 
                 if (merged_lines.Select(a => a.line.Length).Distinct().Count() != 1) throw new Exception();
 
-                var aa_line = merged_lines.First(a => string.Equals(a.title, $@"AA", StringComparison.Ordinal)).line;
-                var rel_line = merged_lines.First(a => string.Equals(a.title, $@"REL", StringComparison.Ordinal)).line;
-                var phd_line = merged_lines.First(a => string.Equals(a.title, $@"PHD", StringComparison.Ordinal)).line;
+                var aa_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"AA"), StringComparison.Ordinal)).line;
+                var rel_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"REL"), StringComparison.Ordinal)).line;
+                var phd_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"PHD"), StringComparison.Ordinal)).line;
 
-                var prob_h_line = merged_lines.First(a => string.Equals(a.title, $@"PRH", StringComparison.Ordinal)).line;
-                var prob_e_line = merged_lines.First(a => string.Equals(a.title, $@"PRE", StringComparison.Ordinal)).line;
-                var prob_l_line = merged_lines.First(a => string.Equals(a.title, $@"PRL", StringComparison.Ordinal)).line;
+                var prob_h_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"PRH"), StringComparison.Ordinal)).line;
+                var prob_e_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"PRE"), StringComparison.Ordinal)).line;
+                var prob_l_line = merged_lines.First(a => string.Equals(a.title, /*program.string_debug*/($@"PRL"), StringComparison.Ordinal)).line;
 
 
-                var check_matrix_colum_headers = $@"HEC".ToList();//"HECX".ToList();
+                var check_matrix_colum_headers = /*program.string_debug*/($@"HEC").ToList();//"HECX".ToList();
 
                 if (!matrix_colum_headers.SequenceEqual(check_matrix_colum_headers)) throw new Exception();
 
@@ -695,10 +698,10 @@ namespace dimorphics_dataset
                         predicted_ss_code = 'C';
                     }
 
-                    var reliability = double.Parse($@"" + rel_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
-                    var prob_h = double.Parse($@"" + prob_h_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
-                    var prob_e = double.Parse($@"" + prob_e_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
-                    var prob_c = double.Parse($@"" + prob_l_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
+                    var reliability = double.Parse(/*program.string_debug*/($@"") + rel_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
+                    var prob_h = double.Parse(/*program.string_debug*/($@"") + prob_h_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
+                    var prob_e = double.Parse(/*program.string_debug*/($@"") + prob_e_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
+                    var prob_c = double.Parse(/*program.string_debug*/($@"") + prob_l_line[index], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
 
                     var prob_adjust_range = new double[] {prob_h, prob_e, prob_c}.Min();
 
@@ -740,9 +743,9 @@ namespace dimorphics_dataset
                 return (matrix_colum_headers, parsed_matrix1);
             }
 
-            var psipred_marker = lines.FindIndex(a=> a.StartsWith($@"# PSIPRED VFORMAT", StringComparison.Ordinal));//# PSIPRED VFORMAT (PSIPRED V4.0)
+            var psipred_marker = lines.FindIndex(a=> a.StartsWith(/*program.string_debug*/($@"# PSIPRED VFORMAT"), StringComparison.Ordinal));//# PSIPRED VFORMAT (PSIPRED V4.0)
 
-            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith($@"MPSA code :", StringComparison.Ordinal));
+            var mpsa_code_marker = lines.FindIndex(a => a.StartsWith(/*program.string_debug*/($@"MPSA code :"), StringComparison.Ordinal));
 
             var matrix_start = mpsa_code_marker + 3; // +2 or +3 ?
 

@@ -29,14 +29,15 @@ namespace dimorphics_dataset
             var x = csv_line.Split(',');
 
             var ix = csv_offset;
-            alphabet = x[ix++];
-            stats = x[ix++];
+            alphabet = /*program.string_debug*/(x[ix++]);
+            stats = /*program.string_debug*/(x[ix++]);
             dimension = int.Parse(x[ix++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-            category = x[ix++];
-            source = x[ix++];
+            category = /*program.string_debug*/(x[ix++]);
+            source = /*program.string_debug*/(x[ix++]);
             @group = x[ix++];
             member = x[ix++];
-            perspective = x[ix++];
+            perspective = /*program.string_debug*/(x[ix++]);
+
             feature_value = double.Parse(x[ix++], NumberStyles.Float, NumberFormatInfo.InvariantInfo);
 
             //"alphabet,dim?,1,r_peptides,,r_peptides_aIndex,r_peptides_aIndex,default,0"
@@ -82,14 +83,14 @@ namespace dimorphics_dataset
                 throw new ArgumentNullException(nameof(feature_info));
             }
 
-            this.alphabet = feature_info.alphabet;
-            this.stats = feature_info.stats;
+            this.alphabet = /*program.string_debug*/(feature_info.alphabet);
+            this.stats = /*program.string_debug*/(feature_info.stats);
             this.dimension = feature_info.dimension;
-            this.category = feature_info.category;
-            this.source = feature_info.source;
+            this.category = /*program.string_debug*/(feature_info.category);
+            this.source = /*program.string_debug*/(feature_info.source);
             this.@group = feature_info.@group;
             this.member = feature_info.member;
-            this.perspective = feature_info.perspective;
+            this.perspective = /*program.string_debug*/(feature_info.perspective);
             this.feature_value = feature_info.feature_value;
         }
 
@@ -136,7 +137,7 @@ namespace dimorphics_dataset
                     (nameof(@group), @group),
                     (nameof(member), member),
                     (nameof(perspective), perspective),
-                    (nameof(feature_value), $@"{feature_value:G17}")
+                    (nameof(feature_value), /*program.string_debug*/($@"{feature_value:G17}"))
                 };
             }
         }
@@ -146,7 +147,7 @@ namespace dimorphics_dataset
         {
             var data = key_value_list();
 
-            return string.Join($@", ", data);
+            return string.Join(/*program.string_debug*/($@", "), data);
         }
 
         public override string ToString()
@@ -158,22 +159,22 @@ namespace dimorphics_dataset
         {
             //var header_list = feature_list.Select(a => new feature_info(a) { feature_value = 0 }).ToList();
 
-            List<string> headers = new List<string> { $@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.stats)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}" };
-            headers.AddRange(feature_list.Select((a, fid) => $@"{fid},{a.alphabet},{a.stats},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+            List<string> headers = new List<string> { /*program.string_debug*/($@"fid,{nameof(feature_info.alphabet)},{nameof(feature_info.stats)},{nameof(feature_info.dimension)},{nameof(feature_info.category)},{nameof(feature_info.source)},{nameof(feature_info.@group)},{nameof(feature_info.member)},{nameof(feature_info.perspective)}") };
+            headers.AddRange(feature_list.Select((a, fid) => /*program.string_debug*/($@"{fid},{a.alphabet},{a.stats},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}")).ToList());
 
             return headers;
 
             // check for duplicately named features
-            //var header_list_str = header_list.Select((a, fid) => $@"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
+            //var header_list_str = header_list.Select((a, fid) => /*program.string_debug*/($@"{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList();
             //var dupes = find_duplicate_strings(header_list_str);
             //if (dupes != null && dupes.Count > 0)
             //{
-            //    throw new Exception($@"{module_name}.{method_name}: Duplicate headers found: " + string.Join($@", ", dupes));
+            //    throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Duplicate headers found: " + string.Join(/*program.string_debug*/($@", "), dupes));
             //}
 
             //var header_list_str_c = new List<string>();
-            //header_list_str_c.Add($@"fid,{nameof(subsequence_classification_data.feature_info.alphabet)},{nameof(subsequence_classification_data.feature_info.dimension)},{nameof(subsequence_classification_data.feature_info.category)},{nameof(subsequence_classification_data.feature_info.source)},{nameof(subsequence_classification_data.feature_info.@group)},{nameof(subsequence_classification_data.feature_info.member)},{nameof(subsequence_classification_data.feature_info.perspective)}");
-            //header_list_str_c.AddRange(header_list.Select((a, fid) => $@"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
+            //header_list_str_c.Add(/*program.string_debug*/($@"fid,{nameof(subsequence_classification_data.feature_info.alphabet)},{nameof(subsequence_classification_data.feature_info.dimension)},{nameof(subsequence_classification_data.feature_info.category)},{nameof(subsequence_classification_data.feature_info.source)},{nameof(subsequence_classification_data.feature_info.@group)},{nameof(subsequence_classification_data.feature_info.member)},{nameof(subsequence_classification_data.feature_info.perspective)}");
+            //header_list_str_c.AddRange(header_list.Select((a, fid) => /*program.string_debug*/($@"{fid.ToString(CultureInfo.InvariantCulture)},{a.alphabet},{a.dimension},{a.category},{a.source},{a.@group},{a.member},{a.perspective}").ToList());
 
             //return header_list_str_c;
         }

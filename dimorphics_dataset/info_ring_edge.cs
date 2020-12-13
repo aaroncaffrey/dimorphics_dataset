@@ -30,7 +30,7 @@ namespace dimorphics_dataset
         {
             var result = new List<info_ring_edge>();
 
-            var data = io_proxy.ReadAllLines(filename, nameof(info_ring_edge), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => string.Equals(b, $@"-999.9", StringComparison.Ordinal) ? $@"0" : b).ToList()).ToList();
+            var data = io_proxy.ReadAllLines(filename, nameof(info_ring_edge), nameof(load)).Skip(1).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Split('\t').Select(b => b.Trim()).Select(b => string.Equals(b, /*program.string_debug*/($@"-999.9"), StringComparison.Ordinal) ? /*program.string_debug*/($@"0") : b).ToList()).ToList();
 
             foreach (var d in data)
             {
@@ -41,14 +41,14 @@ namespace dimorphics_dataset
                 var NodeId2_a = (text: d[2], chain: d[2].Split(':')[0][0], res_id: int.Parse(d[2].Split(':')[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), icode: d[2].Split(':')[2][0] == '_' ? ' ' : d[2].Split(':')[2][0], amino_acid1: atom.Aa3To1(d[2].Split(':')[3]), amino_acid3: d[2].Split(':')[3]);
                 var Donor_a = (text: d[8], chain: d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', res_id: d[8].Length > 0 ? int.Parse(d[8].Split(':')[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) : 0,
 
-                    icode: d[8].Length > 0 ? (d[8].Split(':')[2][0] == '_' ? ' ' : d[8].Split(':')[2][0]) : ' ', amino_acid1: d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3: d[8].Length > 0 ? d[8].Split(':')[3] : $@"");
+                    icode: d[8].Length > 0 ? (d[8].Split(':')[2][0] == '_' ? ' ' : d[8].Split(':')[2][0]) : ' ', amino_acid1: d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3: d[8].Length > 0 ? d[8].Split(':')[3] : /*program.string_debug*/($@""));
 
                 var NodeId2_b = (text: d[0], chain: d[0].Split(':')[0][0], res_id: int.Parse(d[0].Split(':')[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), icode: d[0].Split(':')[2][0] == '_' ? ' ' : d[0].Split(':')[2][0], amino_acid1: atom.Aa3To1(d[0].Split(':')[3]), amino_acid3: d[0].Split(':')[3]);
                 var Interaction_b = (text: d[1], interaction_type: d[1].Split(':')[0], subtype_node1: d[1].Split(':')[1].Split('_')[1], subtype_node2: d[1].Split(':')[1].Split('_')[0]);
 
                 var NodeId1_b = (text: d[2], chain: d[2].Split(':')[0][0], res_id: int.Parse(d[2].Split(':')[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), icode: d[2].Split(':')[2][0] == '_' ? ' ' : d[2].Split(':')[2][0], amino_acid1: atom.Aa3To1(d[2].Split(':')[3]), amino_acid3: d[2].Split(':')[3]);
                 var Donor_b = (text: d[8], chain: d[8].Length > 0 ? d[8].Split(':')[0][0] : ' ', res_id: d[8].Length > 0 ? int.Parse(d[8].Split(':')[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) : 0,
-                    icode: d[8].Length > 0 ? (d[8].Split(':')[2][0] == '_' ? ' ' : d[8].Split(':')[2][0]) : ' ', amino_acid1: d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3: d[8].Length > 0 ? d[8].Split(':')[3] : $@"");
+                    icode: d[8].Length > 0 ? (d[8].Split(':')[2][0] == '_' ? ' ' : d[8].Split(':')[2][0]) : ' ', amino_acid1: d[8].Length > 0 ? atom.Aa3To1(d[8].Split(':')[3]) : ' ', amino_acid3: d[8].Length > 0 ? d[8].Split(':')[3] : /*program.string_debug*/($@""));
 
                 result.Add(new info_ring_edge()
                 {
@@ -56,7 +56,7 @@ namespace dimorphics_dataset
                     Interaction = Interaction_a,
                     NodeId2 = NodeId2_a,
                     Distance = d[3].Length > 0 ? double.Parse(d[3], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
-                    Angle = d[4].Length > 0 && !string.Equals(d[4], $@"-999.9", StringComparison.Ordinal) ? (double?)double.Parse(d[4], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : null,
+                    Angle = d[4].Length > 0 && !string.Equals(d[4], /*program.string_debug*/($@"-999.9"), StringComparison.Ordinal) ? (double?)double.Parse(d[4], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : null,
                     Energy = d[5].Length > 0 ? double.Parse(d[5], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
                     Atom1 = d[6],
                     Atom2 = d[7],
@@ -72,7 +72,7 @@ namespace dimorphics_dataset
                     Interaction = Interaction_b,
                     NodeId2 = NodeId2_b,
                     Distance = d[3].Length > 0 ? double.Parse(d[3], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
-                    Angle = d[4].Length > 0 && !string.Equals(d[4], $@"-999.9", StringComparison.Ordinal) ? (double?)double.Parse(d[4], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : null,
+                    Angle = d[4].Length > 0 && !string.Equals(d[4], /*program.string_debug*/($@"-999.9"), StringComparison.Ordinal) ? (double?)double.Parse(d[4], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : null,
                     Energy = d[5].Length > 0 ? double.Parse(d[5], NumberStyles.Float, NumberFormatInfo.InvariantInfo) : 0,
                     Atom1 = d[6],
                     Atom2 = d[7],

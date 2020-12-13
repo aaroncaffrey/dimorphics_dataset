@@ -7,46 +7,36 @@ namespace dimorphics_dataset
     internal class descriptive_stats_encoding_options
     {
         // defaults:
-        // internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options($@"all", true);
-        internal static readonly descriptive_stats_encoding_options options_default = new descriptive_stats_encoding_options($@"mean", false)
+        // internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options(/*program.string_debug*/($@"all", true);
+        internal static readonly descriptive_stats_encoding_options options_mean_arithmetic = new descriptive_stats_encoding_options(nameof(options_mean_arithmetic), false)
         {
-            count = false,
-            count_zero_values = false,
-            count_non_zero_values = false,
-            count_distinct_values = false,
-            sum = false,
-            mean_arithmetic = true, //
-            mean_geometric = false,
-            mean_harmonic = false,
-            min = false,
-            max = false,
-            range = false,
-            mid_range = false,
-            variance = false,
-            dev_standard = false,
-            root_mean_square = false,
-            skewness = false,
-            kurtosis = false,
-            interquartile_range = false,
-            median_q1 = false,
-            median_q2 = false,
-            median_q3 = false,
-            mad_mean_arithmetic = false,
-            mad_mean_harmonic = false,
-            mad_mean_geometric = false,
-            mad_median_q1 = false,
-            mad_median_q2 = false,
-            mad_median_q3 = false,
-            mad_mid_range = false,
-
-            intervals = null,
-            distances = null,
-            interquartile = null,
-            abs = null,
-            rescale = null
+            mean_arithmetic = true,
+            dev_standard = true
         };
 
-        internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options($@"all", true)
+        internal static readonly descriptive_stats_encoding_options options_mean_geometric = new descriptive_stats_encoding_options(nameof(options_mean_geometric), false)
+        {
+            mean_geometric_corrected = true,
+            mad_mean_geometric_corrected = true
+            //mean_geometric_nonzero = true
+        };
+
+        internal static readonly descriptive_stats_encoding_options options_mean_harmonic = new descriptive_stats_encoding_options(nameof(options_mean_harmonic), false)
+        {
+            mean_harmonic_corrected = true,
+            mad_mean_harmonic_corrected = true
+            //mean_harmonic_nonzero = true
+        };
+
+        internal static readonly descriptive_stats_encoding_options options_median_q2 = new descriptive_stats_encoding_options(nameof(options_median_q2), false)
+        {
+            median_q2 = true,
+            mad_median_q2 = true
+            //mean_harmonic_nonzero = true
+        };
+
+
+        internal static readonly descriptive_stats_encoding_options options_all = new descriptive_stats_encoding_options(nameof(options_all), true)
         {
             count = true,
             count_zero_values = true,
@@ -54,8 +44,10 @@ namespace dimorphics_dataset
             count_distinct_values = true,
             sum = true,
             mean_arithmetic = true,
-            mean_geometric = true,
-            mean_harmonic = true,
+            mean_geometric_corrected = true,
+            //mean_geometric_nonzero = true,
+            mean_harmonic_corrected = true,
+            //mean_harmonic_nonzero = true,
             min = true,
             max = true,
             range = true,
@@ -70,8 +62,8 @@ namespace dimorphics_dataset
             median_q2 = true,
             median_q3 = true,
             mad_mean_arithmetic = true,
-            mad_mean_harmonic = true,
-            mad_mean_geometric = true,
+            mad_mean_harmonic_corrected = true,
+            mad_mean_geometric_corrected = true,
             mad_median_q1 = true,
             mad_median_q2 = true,
             mad_median_q3 = true,
@@ -84,57 +76,66 @@ namespace dimorphics_dataset
             rescale = null
         };
 
-        internal static readonly descriptive_stats_encoding_options options_all_plus = new descriptive_stats_encoding_options(options_all, $@"all", true)
+        internal static readonly descriptive_stats_encoding_options options_all_plus = new descriptive_stats_encoding_options(options_all,nameof(options_all_plus), true)
         {
-            intervals = new descriptive_stats_encoding_options(options_all, $@"all_{nameof(intervals)}"),
-            distances = new descriptive_stats_encoding_options(options_all, $@"all_{nameof(distances)}"),
-            interquartile = new descriptive_stats_encoding_options(options_all, $@"all_{nameof(interquartile)}"),
-            abs = new descriptive_stats_encoding_options(options_all, $@"all_{nameof(abs)}"),
-            rescale = new descriptive_stats_encoding_options(options_all, $@"all_{nameof(rescale)}"),
+            intervals = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(intervals)}")),
+            distances = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(distances)}")),
+            interquartile = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(interquartile)}")),
+            abs = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(abs)}")),
+            rescale = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(rescale)}")),
         };
+
+        //internal static readonly descriptive_stats_encoding_options options_test = new descriptive_stats_encoding_options(options_all, nameof(options_test), false)
+        //{
+        //    intervals = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(intervals)}")),
+        //    //distances = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(distances)}")),
+        //    //interquartile = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(interquartile)}")),
+        //    //abs = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(abs)}")),
+        //    //rescale = new descriptive_stats_encoding_options(options_all, /*program.string_debug*/($@"all_plus_{nameof(rescale)}")),
+        //};
 
 
 
         // feature parameters:
-        internal static descriptive_stats_encoding_options[] dse_options_aa_index = new[] { new descriptive_stats_encoding_options(options_all_plus) };
-        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_entropy = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_abs = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_rel = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_distances = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_angles = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_energies = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_degrees = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_rapdf = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_atom_distances = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_curves = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_displacement = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_stat_values = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_sasa_all = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_ring_tap = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_iud_short = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_iud_long = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_iud_glob = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_anchor2 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_ala = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_sr1 = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm1_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm20col_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm20row_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm210_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm400_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm20colDT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm210DT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
-        internal static descriptive_stats_encoding_options[] dse_options_pssm400DT_ds = new[] { new descriptive_stats_encoding_options(options_default) };
+        internal static descriptive_stats_encoding_options[] dse_options_aa_index = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_entropy = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_abs = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_sable_ds_burial_rel = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_distances = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_angles = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_energies = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_degrees = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_rapdf = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_atom_distances = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_curves = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_displacement = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_tortuosity2_stat_values = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_sasa_all = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_ring_tap = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_iud_short = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_iud_long = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_iud_glob = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_anchor2 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_ala = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan1 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan2 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_pos_scan3 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_foldx_bm_sr1 = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm1_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm20col_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm20row_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm210_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm400_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm20colDT_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm210DT_ds = new[] { new descriptive_stats_encoding_options(options_all) };
+        internal static descriptive_stats_encoding_options[] dse_options_pssm400DT_ds = new[] { new descriptive_stats_encoding_options(options_all) };
 
 
 
-        internal string options_name = $@"";
+        internal string options_name;
 
         internal descriptive_stats_encoding_options intervals;
         internal descriptive_stats_encoding_options distances;
@@ -148,8 +149,10 @@ namespace dimorphics_dataset
         internal bool count_distinct_values;
         internal bool sum;
         internal bool mean_arithmetic;
-        internal bool mean_geometric;
-        internal bool mean_harmonic;
+        internal bool mean_geometric_corrected;
+        //internal bool mean_geometric_nonzero;
+        internal bool mean_harmonic_corrected;
+        //internal bool mean_harmonic_nonzero;
         internal bool min;
         internal bool max;
         internal bool range;
@@ -164,8 +167,8 @@ namespace dimorphics_dataset
         internal bool median_q2;
         internal bool median_q3;
         internal bool mad_mean_arithmetic;
-        internal bool mad_mean_harmonic;
-        internal bool mad_mean_geometric;
+        internal bool mad_mean_harmonic_corrected;
+        internal bool mad_mean_geometric_corrected;
         internal bool mad_median_q1;
         internal bool mad_median_q2;
         internal bool mad_median_q3;
@@ -175,7 +178,7 @@ namespace dimorphics_dataset
         {
             if (name != null)
             {
-                options_name = name;
+                options_name = /*program.string_debug*/(name);
             }
 
             if (enable != null)
@@ -202,8 +205,10 @@ namespace dimorphics_dataset
             this.count_distinct_values = enable;
             this.sum = enable;
             this.mean_arithmetic = enable;
-            this.mean_geometric = enable;
-            this.mean_harmonic = enable;
+            this.mean_geometric_corrected = enable;
+            //this.mean_geometric_nonzero = enable;
+            this.mean_harmonic_corrected = enable;
+            //this.mean_harmonic_nonzero = enable;
             this.min = enable;
             this.max = enable;
             this.range = enable;
@@ -218,8 +223,8 @@ namespace dimorphics_dataset
             this.median_q2 = enable;
             this.median_q3 = enable;
             this.mad_mean_arithmetic = enable;
-            this.mad_mean_harmonic = enable;
-            this.mad_mean_geometric = enable;
+            this.mad_mean_harmonic_corrected = enable;
+            this.mad_mean_geometric_corrected = enable;
             this.mad_median_q1 = enable;
             this.mad_median_q2 = enable;
             this.mad_median_q3 = enable;
@@ -242,8 +247,10 @@ namespace dimorphics_dataset
                 else if (string.Equals(names[i], nameof(count_distinct_values), StringComparison.OrdinalIgnoreCase)) count_distinct_values = enable;
                 else if (string.Equals(names[i], nameof(sum), StringComparison.OrdinalIgnoreCase)) sum = enable;
                 else if (string.Equals(names[i], nameof(mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mean_geometric), StringComparison.OrdinalIgnoreCase)) mean_geometric = enable;
-                else if (string.Equals(names[i], nameof(mean_harmonic), StringComparison.OrdinalIgnoreCase)) mean_harmonic = enable;
+                else if (string.Equals(names[i], nameof(mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mean_geometric_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mean_geometric_nonzero), StringComparison.OrdinalIgnoreCase)) mean_geometric_nonzero = enable;
+                else if (string.Equals(names[i], nameof(mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mean_harmonic_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mean_harmonic_nonzero), StringComparison.OrdinalIgnoreCase)) mean_harmonic_nonzero = enable;
                 else if (string.Equals(names[i], nameof(min), StringComparison.OrdinalIgnoreCase)) min = enable;
                 else if (string.Equals(names[i], nameof(max), StringComparison.OrdinalIgnoreCase)) max = enable;
                 else if (string.Equals(names[i], nameof(range), StringComparison.OrdinalIgnoreCase)) range = enable;
@@ -258,8 +265,8 @@ namespace dimorphics_dataset
                 else if (string.Equals(names[i], nameof(median_q2), StringComparison.OrdinalIgnoreCase)) median_q2 = enable;
                 else if (string.Equals(names[i], nameof(median_q3), StringComparison.OrdinalIgnoreCase)) median_q3 = enable;
                 else if (string.Equals(names[i], nameof(mad_mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mad_mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_harmonic), StringComparison.OrdinalIgnoreCase)) mad_mean_harmonic = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_geometric), StringComparison.OrdinalIgnoreCase)) mad_mean_geometric = enable;
+                else if (string.Equals(names[i], nameof(mad_mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_harmonic_corrected = enable;
+                else if (string.Equals(names[i], nameof(mad_mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_geometric_corrected = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q1), StringComparison.OrdinalIgnoreCase)) mad_median_q1 = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q2), StringComparison.OrdinalIgnoreCase)) mad_median_q2 = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q3), StringComparison.OrdinalIgnoreCase)) mad_median_q3 = enable;
@@ -272,7 +279,7 @@ namespace dimorphics_dataset
         {
             if (dse_options != null)
             {
-                this.options_name = dse_options.options_name;
+                this.options_name = dse_options.options_name != null ? /*program.string_debug*/(dse_options.options_name) : null;
 
                 this.intervals = dse_options.intervals != null ? new descriptive_stats_encoding_options(dse_options.intervals) : null;
                 this.distances = dse_options.distances != null ? new descriptive_stats_encoding_options(dse_options.distances) : null;
@@ -286,8 +293,10 @@ namespace dimorphics_dataset
                 this.count_distinct_values = dse_options.count_distinct_values;
                 this.sum = dse_options.sum;
                 this.mean_arithmetic = dse_options.mean_arithmetic;
-                this.mean_geometric = dse_options.mean_geometric;
-                this.mean_harmonic = dse_options.mean_harmonic;
+                this.mean_geometric_corrected = dse_options.mean_geometric_corrected;
+                //this.mean_geometric_nonzero = dse_options.mean_geometric_nonzero;
+                this.mean_harmonic_corrected = dse_options.mean_harmonic_corrected;
+                //this.mean_harmonic_nonzero = dse_options.mean_harmonic_nonzero;
                 this.min = dse_options.min;
                 this.max = dse_options.max;
                 this.range = dse_options.range;
@@ -302,8 +311,8 @@ namespace dimorphics_dataset
                 this.median_q2 = dse_options.median_q2;
                 this.median_q3 = dse_options.median_q3;
                 this.mad_mean_arithmetic = dse_options.mad_mean_arithmetic;
-                this.mad_mean_harmonic = dse_options.mad_mean_harmonic;
-                this.mad_mean_geometric = dse_options.mad_mean_geometric;
+                this.mad_mean_harmonic_corrected = dse_options.mad_mean_harmonic_corrected;
+                this.mad_mean_geometric_corrected = dse_options.mad_mean_geometric_corrected;
                 this.mad_median_q1 = dse_options.mad_median_q1;
                 this.mad_median_q2 = dse_options.mad_median_q2;
                 this.mad_median_q3 = dse_options.mad_median_q3;
@@ -312,7 +321,7 @@ namespace dimorphics_dataset
 
             if (name != null)
             {
-                this.options_name = name;
+                this.options_name = /*program.string_debug*/(name);
             }
 
             if (enable != null)
@@ -329,8 +338,10 @@ namespace dimorphics_dataset
             nameof(count_distinct_values),
             nameof(sum),
             nameof(mean_arithmetic),
-            nameof(mean_geometric),
-            nameof(mean_harmonic),
+            nameof(mean_geometric_corrected),
+            //nameof(mean_geometric_nonzero),
+            nameof(mean_harmonic_corrected),
+            //nameof(mean_harmonic_nonzero),
             nameof(min),
             nameof(max),
             nameof(range),
@@ -345,8 +356,8 @@ namespace dimorphics_dataset
             nameof(median_q2),
             nameof(median_q3),
             nameof(mad_mean_arithmetic),
-            nameof(mad_mean_harmonic),
-            nameof(mad_mean_geometric),
+            nameof(mad_mean_harmonic_corrected),
+            nameof(mad_mean_geometric_corrected),
             nameof(mad_median_q1),
             nameof(mad_median_q2),
             nameof(mad_median_q3),
@@ -362,8 +373,10 @@ namespace dimorphics_dataset
                 (nameof(count_distinct_values),         count_distinct_values),
                 (nameof(sum),                           sum),
                 (nameof(mean_arithmetic),               mean_arithmetic),
-                (nameof(mean_geometric),                mean_geometric),
-                (nameof(mean_harmonic),                 mean_harmonic),
+                (nameof(mean_geometric_corrected),      mean_geometric_corrected),
+                //(nameof(mean_geometric_nonzero),      mean_geometric_nonzero),
+                (nameof(mean_harmonic_corrected),       mean_harmonic_corrected),
+                //(nameof(mean_harmonic_nonzero),       mean_harmonic_nonzero),
                 (nameof(min),                           min),
                 (nameof(max),                           max),
                 (nameof(range),                         range),
@@ -378,19 +391,19 @@ namespace dimorphics_dataset
                 (nameof(median_q2),                     median_q2),
                 (nameof(median_q3),                     median_q3),
                 (nameof(mad_mean_arithmetic),           mad_mean_arithmetic),
-                (nameof(mad_mean_harmonic),             mad_mean_harmonic),
-                (nameof(mad_mean_geometric),            mad_mean_geometric),
+                (nameof(mad_mean_harmonic_corrected),   mad_mean_harmonic_corrected),
+                (nameof(mad_mean_geometric_corrected),  mad_mean_geometric_corrected),
                 (nameof(mad_median_q1),                 mad_median_q1),
                 (nameof(mad_median_q2),                 mad_median_q2),
                 (nameof(mad_median_q3),                 mad_median_q3),
                 (nameof(mad_mid_range),                 mad_mid_range),
             };
 
-            if (intervals != null) list.AddRange(intervals.key_value_list().Select(a => ($"{nameof(intervals)}.{a.key}", a.value)).ToArray());
-            if (distances != null) list.AddRange(distances.key_value_list().Select(a => ($"{nameof(distances)}.{a.key}", a.value)).ToArray());
-            if (interquartile != null) list.AddRange(interquartile.key_value_list().Select(a => ($"{nameof(interquartile)}.{a.key}", a.value)).ToArray());
-            if (abs != null) list.AddRange(abs.key_value_list().Select(a => ($"{nameof(abs)}.{a.key}", a.value)).ToArray());
-            if (rescale != null) list.AddRange(rescale.key_value_list().Select(a => ($"{nameof(rescale)}.{a.key}", a.value)).ToArray());
+            if (intervals != null) list.AddRange(intervals.key_value_list().Select(a => (/*program.string_debug*/($"{nameof(intervals)}.{a.key}"), a.value)).ToArray());
+            if (distances != null) list.AddRange(distances.key_value_list().Select(a => (/*program.string_debug*/($"{nameof(distances)}.{a.key}"), a.value)).ToArray());
+            if (interquartile != null) list.AddRange(interquartile.key_value_list().Select(a => (/*program.string_debug*/($"{nameof(interquartile)}.{a.key}"), a.value)).ToArray());
+            if (abs != null) list.AddRange(abs.key_value_list().Select(a => (/*program.string_debug*/($"{nameof(abs)}.{a.key}"), a.value)).ToArray());
+            if (rescale != null) list.AddRange(rescale.key_value_list().Select(a => (/*program.string_debug*/($"{nameof(rescale)}.{a.key}"), a.value)).ToArray());
 
             return list;
         }

@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace dimorphics_dataset
 {
     internal static class dataset_gen_coils
     {
-        internal static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int chain_number, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false)
+        public const string module_name = nameof(dataset_gen_coils);
+
+        internal static /*List<subsequence_classification_data>*/ List<protein_subsequence_info> find_coils(string dimer_type, string pdb_id, int chain_number, int class_id, string class_name, bool use_dssp3 = true, bool use_multimer_dssp = false, CancellationTokenSource cts = null)
         {
+            const string method_name = nameof(find_coils);
+
+            using var i_cts = new CancellationTokenSource();
+            if (cts == null) cts = i_cts;
+
             // find the coils within a given pdb file
             //var use_multimer_dssp = true;
 
@@ -49,7 +57,7 @@ namespace dimorphics_dataset
             //var tasks = new List<Task<List<subsequence_classification_data>>>();
             var tasks = new List<Task<List<protein_subsequence_info>>>();
 
-            var start_time = DateTime.Now;
+            var tasks_start_time = DateTime.Now;
             
             foreach (var loop_chain_id in chain_ids)
             {
@@ -57,12 +65,14 @@ namespace dimorphics_dataset
 
                 var task = Task.Run(() =>
                 {
+                    if (cts != null && cts.IsCancellationRequested) return default;
+
                     //var pdb_chain_coils = new List<subsequence_classification_data>();
                     var pdb_chain_coils = new List<protein_subsequence_info>();
                     
                     var pdb_chain_atoms = pdb_atoms.Where(a => a.chain_id == chain_id).ToList();
                     var pdb_chain_master_atoms = atom.select_amino_acid_master_atoms(pdb_id, pdb_chain_atoms);
-                    var pdb_chain_aa_sequence = string.Join($@"", pdb_chain_master_atoms.Select(a => a.amino_acid).ToList());
+                    var pdb_chain_aa_sequence = string.Join(/*program.string_debug*/($@""), pdb_chain_master_atoms.Select(a => a.amino_acid).ToList());
 
                     var coil_subsequence_atoms = new List<atom>();
                     var coil_subsequence_master_atoms = new List<atom>();
@@ -70,6 +80,8 @@ namespace dimorphics_dataset
 
                     for (var pdb_chain_master_atoms_index = 0; pdb_chain_master_atoms_index < pdb_chain_master_atoms.Count; pdb_chain_master_atoms_index++)
                     {
+                        if (cts != null && cts.IsCancellationRequested) return default;
+
                         var master_atom = pdb_chain_master_atoms[pdb_chain_master_atoms_index];
 
                         var master_atom_ss = ' ';
@@ -107,16 +119,16 @@ namespace dimorphics_dataset
                                 var psi = new protein_subsequence_info()
                                 {
                                     dimer_type = dimer_type,
-                                    symmetry_mode = $@"",
-                                    parallelism = $@"",
+                                    symmetry_mode = /*program.string_debug*/($@""),
+                                    parallelism = /*program.string_debug*/($@""),
                                     class_id = class_id,
                                     class_name = class_name,
                                     pdb_id = pdb_id,
                                     chain_id = chain_id,
                                     res_ids = coil_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
-                                    aa_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
-                                    //aa_before = $@"",
-                                    //aa_after = $@"",
+                                    aa_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
+                                    //aa_before = /*program.string_debug*/($@""),
+                                    //aa_after = /*program.string_debug*/($@""),
                                     //aa_protein = pdb_chain_aa_sequence,
                                 };
 
@@ -128,11 +140,11 @@ namespace dimorphics_dataset
                                 //    pdb_id = pdb_id,
                                 //    chain_id = chain_id,
                                 //    res_ids = coil_subsequence_master_atoms.Select(a => (a.residue_index, a.i_code, a.amino_acid)).ToList(),
-                                //    aa_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
-                                //    dssp_multimer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
-                                //    dssp_monomer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
-                                //    stride_multimer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.stride_multimer).ToList()),
-                                //    stride_monomer_subsequence = string.Join($@"", coil_subsequence_master_atoms.Select(a => a.stride_monomer).ToList()),
+                                //    aa_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.amino_acid).ToList()),
+                                //    dssp_multimer_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.multimer_dssp).ToList()),
+                                //    dssp_monomer_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.monomer_dssp).ToList()),
+                                //    stride_multimer_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.stride_multimer).ToList()),
+                                //    stride_monomer_subsequence = string.Join(/*program.string_debug*/($@""), coil_subsequence_master_atoms.Select(a => a.stride_monomer).ToList()),
                                 //    pdb_chain_atoms = pdb_chain_atoms,
                                 //    pdb_chain_master_atoms = pdb_chain_master_atoms,
                                 //    subsequence_atoms = coil_subsequence_atoms,
@@ -149,15 +161,18 @@ namespace dimorphics_dataset
                         }
                     }
 
-                    return pdb_chain_coils;
-                });
+                    return !cts.IsCancellationRequested ? pdb_chain_coils : default;
+                }, cts.Token);
 
                 tasks.Add(task);
+
+                program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, -1, module_name, method_name, cts);
+                if (cts != null && cts.IsCancellationRequested) return default;
             }
 
             //Task.WaitAll(tasks.ToArray<Task>());
-            program.wait_tasks(tasks.ToArray<Task>(), start_time, nameof(dataset_gen_coils), nameof(find_coils));
-
+            program.wait_tasks(tasks.ToArray<Task>(), tasks_start_time, 0, module_name, method_name, cts);
+            if (cts != null && cts.IsCancellationRequested) return default;
 
             var pdb_coils = tasks.SelectMany(a => a.Result).ToList();
 
