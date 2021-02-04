@@ -210,7 +210,7 @@ namespace dimorphics_dataset
 
             var num_complete_pct = num_total > 0 ? ((double)num_complete / (double)num_total) * 100 : 0;
 
-            var time_taken_ticks = DateTime.Now.Subtract(start_time).Ticks;
+            var time_taken_ticks = DateTime.UtcNow.Subtract(start_time).Ticks;
             var time_taken = TimeSpan.FromTicks(time_taken_ticks);
 
             var est_time_each = num_complete > 0 ? (double)time_taken_ticks / (double)num_complete : 0;
