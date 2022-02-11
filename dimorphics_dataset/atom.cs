@@ -577,7 +577,7 @@ namespace dimorphics_dataset
 
                 if (options.load_uniprot)
                 {
-                    // load uniprot sequence (& still to do: also load mapping and save in atoms)
+                    // load uniprot sequence (& still todo: also load mapping and save in atoms)
                     //var chain_ids = pdb_model_chain_atoms.Select(a => a.chain_id).Distinct().ToList();
                     foreach (var c in pdb_model_chain_atoms)
                     //    foreach (var chain_id in chain_ids)

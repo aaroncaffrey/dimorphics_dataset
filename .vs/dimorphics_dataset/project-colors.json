@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "1c001cf0-4e10-4425-84b0-49b030f41440": {
+      "ProjectGuid": "1c001cf0-4e10-4425-84b0-49b030f41440",
+      "DisplayName": "dimorphics_dataset",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}
