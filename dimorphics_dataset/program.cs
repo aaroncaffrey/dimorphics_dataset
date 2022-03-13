@@ -24,7 +24,7 @@ namespace dimorphics_dataset
         public const string module_name = nameof(program);
         internal static bool verbose = true;
 
-        internal static string data_root_folder = /*program.string_debug*/($@"C:\betastrands_dataset\");
+        internal static string data_root_folder = /*program.string_debug*/($@"C:\phd\betastrands_dataset\");
 
         internal static List<(string pdb_id, string dimer_type, string class_name, string symmetry_mode, string parallelism, int chain_number, string strand_seq, string optional_res_index)> get_dataset_pdb_id_list(string class_name_in_file = @"Single")
         {

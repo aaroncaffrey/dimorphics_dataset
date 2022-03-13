@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {}
+    "C:\\phd\\phd_work\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
+    "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
+        "projectUniqueName": "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
         "projectName": "dimorphics_dataset",
-        "projectPath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
+        "projectPath": "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj",
         "packagesPath": "C:\\Users\\Aaron\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\obj\\",
+        "outputPath": "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Aaron\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -66,18 +66,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {
+    "C:\\phd\\phd_work\\dimorphics_dataset\\peptides_server\\peptides_server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+        "projectUniqueName": "C:\\phd\\phd_work\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
         "projectName": "peptides_server",
-        "projectPath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
+        "projectPath": "C:\\phd\\phd_work\\dimorphics_dataset\\peptides_server\\peptides_server.csproj",
         "packagesPath": "C:\\Users\\Aaron\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\peptides_server\\obj\\",
+        "outputPath": "C:\\phd\\phd_work\\dimorphics_dataset\\peptides_server\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Aaron\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -94,8 +94,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
-                "projectPath": "C:\\Users\\Aaron\\Desktop\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
+              "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj": {
+                "projectPath": "C:\\phd\\phd_work\\dimorphics_dataset\\dimorphics_dataset\\dimorphics_dataset.csproj"
               }
             }
           }
@@ -136,7 +136,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     }

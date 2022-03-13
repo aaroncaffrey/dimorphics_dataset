@@ -28,11 +28,11 @@ namespace dimorphics_dataset
 
 
             //psiblast_args.Add(/*program.string_debug*/($@"-query query/{Path.GetFileName(seq_filename)}");
-            //psiblast_args.Add(/*program.string_debug*/($@"-db /*program.string_debug*/($@"")c:\blast\bin\db\{blast_database}""");
+            //psiblast_args.Add(/*program.string_debug*/($@"-db /*program.string_debug*/($@"")c:\phd\blast\bin\db\{blast_database}""");
 
 
             // get pssm for each globin
-            var psiblast_exe_filename = @"c:\blast\psiblast.exe";
+            var psiblast_exe_filename = @"c:\phd\blast\psiblast.exe";
 
             var num_threads = Environment.ProcessorCount;
 

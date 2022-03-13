@@ -2,7 +2,7 @@
 {
     internal class foldx_position_scanning_result
     {
-        // FoldX --command=PositionScan --pdb-dir=c:\betastrands_dataset\pdb\ --pdb=1AJYA.pdb --positions MA30d
+        // FoldX --command=PositionScan --pdb-dir=c:\phd\betastrands_dataset\pdb\ --pdb=1AJYA.pdb --positions MA30d
 
         // META30M 0
         // META30G 0.0440333

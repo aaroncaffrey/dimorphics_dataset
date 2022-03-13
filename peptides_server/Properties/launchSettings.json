@@ -1,7 +1,8 @@
 {
   "profiles": {
     "peptides_server": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "1 ALG"
     }
   }
 }

@@ -206,7 +206,7 @@ namespace dimorphics_dataset
             using var i_cts = new CancellationTokenSource();
             if (cts == null) cts = i_cts;
 
-            var lines_all = io_proxy.ReadAllLines(/*program.string_debug*/(@"c:\bioinf\fill_missing_chain.csv"), module_name, method_name);
+            var lines_all = io_proxy.ReadAllLines(/*program.string_debug*/(@"c:\phd\bioinf\fill_missing_chain.csv"), module_name, method_name);
 
             var lines_header = lines_all.First();
 
@@ -335,7 +335,7 @@ namespace dimorphics_dataset
             var result = lines.Select(a => String.Join(/*program.string_debug*/($@","), new string[] { a.pair_id, a.pdb_id, a.dimer_type, a.class_name, a.symmetry, a.parallelism, a.strand_seq_merged, a.strand_seq_unmerged, a.res_id, a.chain_colour, a.chain_id })).ToList();
             result.Insert(0, /*program.string_debug*/($@"{lines_header},chain_id"));
 
-            var fn = @"c:\bioinf\fixed_dataset.csv";
+            var fn = @"c:\phd\bioinf\fixed_dataset.csv";
 
             //Directory.CreateDirectory(Path.GetDirectoryName(fn));
 
@@ -470,14 +470,14 @@ namespace dimorphics_dataset
                 }
             }
 
-            var output_filename = @"c:\bioinf\betastrands_dataset_sequences.txt";
-            var rename_filename = @"c:\bioinf\rename_num_to_pdb.bat";
+            var output_filename = @"c:\phd\bioinf\betastrands_dataset_sequences.txt";
+            var rename_filename = @"c:\phd\bioinf\rename_num_to_pdb.bat";
 
 
             if (limited_to_dimorphics_and_standard)
             {
-                output_filename = @"c:\bioinf\betastrands_dataset_sequences_limited.txt";
-                rename_filename = @"c:\bioinf\rename_num_to_pdb_limited.bat";
+                output_filename = @"c:\phd\bioinf\betastrands_dataset_sequences_limited.txt";
+                rename_filename = @"c:\phd\bioinf\rename_num_to_pdb_limited.bat";
 
             }
 
@@ -510,7 +510,7 @@ namespace dimorphics_dataset
 
 
 
-        internal static void get_pssms(string blast_db = @"swissprot", string db_folder = @"c:\blast\db\", bool remote = false, bool run = false)
+        internal static void get_pssms(string blast_db = @"swissprot", string db_folder = @"c:\phd\blast\db\", bool remote = false, bool run = false)
         {
             int num_iterations = 3;
 
@@ -529,11 +529,11 @@ namespace dimorphics_dataset
             //var pssm_file = Path.Combine(program.data_root_folder,"blast_pssm_{blast_db}_{num_iterations}_{(remote ? /*program.string_debug*/($@"remote" : /*program.string_debug*/($@"local")}\{index1}.pssm";
 
 
-            var fasta_blast_input_folder = /*program.string_debug*/($@"c:\fasta\");
-            var fasta_output_folder = /*program.string_debug*/($@"c:\fasta\");
+            var fasta_blast_input_folder = /*program.string_debug*/($@"c:\phd\fasta\");
+            var fasta_output_folder = /*program.string_debug*/($@"c:\phd\fasta\");
 
-            //var pssm_blast_output_folder = /*program.string_debug*/($@"h:\data\blast_pssm_{blast_db}_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"new_remote" : /*program.string_debug*/($@"local")}";
-            //var already_calculated_pssms = program.ReadAllLines(@"C:\Users\aaron\Desktop\{}");
+            //var pssm_blast_output_folder = /*program.string_debug*/($@"c:\phd\data\blast_pssm_{blast_db}_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"new_remote" : /*program.string_debug*/($@"local")}";
+            //var already_calculated_pssms = program.ReadAllLines(@"C:\phd\{}");
 
 
 
@@ -572,8 +572,8 @@ namespace dimorphics_dataset
                 {
                     var cmd_lines = new List<string>() { };
 
-                    var pssm_blast_input_folder = /*program.string_debug*/($@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
-                    var pssm_blast_output_folder = /*program.string_debug*/($@"c:\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
+                    var pssm_blast_input_folder = /*program.string_debug*/($@"c:\phd\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
+                    var pssm_blast_output_folder = /*program.string_debug*/($@"c:\phd\pssm\blast_pssm_{(!remote ? num_iterations.ToString(CultureInfo.InvariantCulture) + /*program.string_debug*/($@"_") : /*program.string_debug*/($@""))}{(remote ? /*program.string_debug*/($@"remote") : /*program.string_debug*/($@"local"))}_{blast_db}_{evalue.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}_{inclusion_ethresh.ToString(/*program.string_debug*/($@"000.00000"), CultureInfo.InvariantCulture)}");
 
                     Directory.CreateDirectory(pssm_blast_input_folder);
                     Directory.CreateDirectory(pssm_blast_output_folder);
@@ -640,7 +640,7 @@ namespace dimorphics_dataset
 
         internal static void load_pssms()
         {
-            var txt_sequences = io_proxy.ReadAllLines(@"c:\bioinf\betastrands_dataset_sequences.txt", nameof(misc), nameof(load_pssms));
+            var txt_sequences = io_proxy.ReadAllLines(@"c:\phd\bioinf\betastrands_dataset_sequences.txt", nameof(misc), nameof(load_pssms));
 
 
 
@@ -651,7 +651,7 @@ namespace dimorphics_dataset
                 io_proxy.WriteLine(/*program.string_debug*/($@"Loading pssm {index1}"));
 
 
-                var pssm_matrix = info_blast_pssm.load_psi_blast_pssm(/*program.string_debug*/($@"c:\bs_pssm\{index1}.pssm"));
+                var pssm_matrix = info_blast_pssm.load_psi_blast_pssm(/*program.string_debug*/($@"c:\phd\bs_pssm\{index1}.pssm"));
 
                 pssm_matrix = info_blast_pssm.normalise_pssm(pssm_matrix);
 
@@ -1142,7 +1142,7 @@ namespace dimorphics_dataset
 
         //internal static void get_missing_data()
         //{
-        //    var lines = program.ReadAllLines(@"c:\bioinf\dimorphics_data_set.csv").Skip(1).Select(a => a.Split(',').ToList()).ToList();
+        //    var lines = program.ReadAllLines(@"c:\phd\bioinf\dimorphics_data_set.csv").Skip(1).Select(a => a.Split(',').ToList()).ToList();
 
         //    var pdb_id_col = 1;
         //    var seq_col = 5;
@@ -1186,7 +1186,7 @@ namespace dimorphics_dataset
 
         //    var results = tasks.SelectMany(a => a.Result).ToList();
 
-        //    program.WriteAllLines(@"c:\bioinf\res_ids_list.csv", results);
+        //    program.WriteAllLines(@"c:\phd\bioinf\res_ids_list.csv", results);
 
         //    io_proxy.WriteLine(/*program.string_debug*/($@"Finished.");
         //    Console.ReadLine();
@@ -1218,8 +1218,8 @@ namespace dimorphics_dataset
         //        (
         //        nameof(run_larks_unknown).EndsWith(/*program.string_debug*/($@"unknown") ? +1 : -1,
         //        nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@"")),
-        //        /*program.string_debug*/($@"c:\bioinf\e_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt",
-        //        /*program.string_debug*/($@"c:\bioinf\d_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt")
+        //        /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt",
+        //        /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(run_larks_unknown).Replace(/*program.string_debug*/($@"run_", /*program.string_debug*/($@""))}{(sequence_only_features ? /*program.string_debug*/($@"_seq_only" : /*program.string_debug*/($@""))}_{uid}.txt")
 
         //    );
         //}
@@ -1290,7 +1290,7 @@ namespace dimorphics_dataset
 
             //return;
             ////pssm test
-            //var blast_db_folder = @"c:\blast\db\";
+            //var blast_db_folder = @"c:\phd\blast\db\";
             //var blast_dbs =new[]{"nr", /*program.string_debug*/($@"swissprot", /*program.string_debug*/($@"uniref90"};
             //var remotes = new[]{true, false};
             //var run = false;
@@ -1337,8 +1337,8 @@ namespace dimorphics_dataset
 
 
 
-            //var edge_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", /*program.string_debug*/($@"*.edges");
-            ////var node_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\","*.nodes");
+            //var edge_files = Directory.GetFiles(@"C:\phd\ring_pdb\pdb\", /*program.string_debug*/($@"*.edges");
+            ////var node_files = Directory.GetFiles(@"C:\phd\ring_pdb\pdb\","*.nodes");
 
 
             //var ring_edges = edge_files.SelectMany(a=> ring.ring_edge.load(a));
@@ -1375,7 +1375,7 @@ namespace dimorphics_dataset
 
 
             // sable test
-            //sable.load(@"c:\sable\test.txt");
+            //sable.load(@"c:\phd\sable\test.txt");
             // return;
 
             // uniprot test
@@ -1415,13 +1415,13 @@ namespace dimorphics_dataset
             //if (run_dimorphics_pos && run_dhc_pos) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Is that right?");
             //if (run_coils_neg && run_strands_neg) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: Is that right?");
             //var uid = 2;
-            //class_list.Add((-1, substructure_type.coil, 3, nameof(substructure_type.coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.coil)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand, 2, nameof(substructure_type.standard_beta_strand), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand_with_host_coil, 3, nameof(substructure_type.standard_beta_strand_with_host_coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}"));
-            //class_list.Add((-1, substructure_type.standard_beta_strand_full_protein_sequence, 3, nameof(substructure_type.standard_beta_strand_full_protein_sequence), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics, 2, nameof(substructure_type.dimorphics), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics_with_host_coil, 3, nameof(substructure_type.dimorphics_with_host_coil), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}"));
-            //class_list.Add((+1, substructure_type.dimorphics_full_protein_sequence, 3, nameof(substructure_type.dimorphics_full_protein_sequence), /*program.string_debug*/($@"c:\bioinf\e_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}"));
+            //class_list.Add((-1, substructure_type.coil, 3, nameof(substructure_type.coil), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.coil)}_{uid}", /*program.string_debug*/($@"c:\bioinf\d_{nameof(substructure_type.coil)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand, 2, nameof(substructure_type.standard_beta_strand), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.standard_beta_strand)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.standard_beta_strand)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand_with_host_coil, 3, nameof(substructure_type.standard_beta_strand_with_host_coil), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.standard_beta_strand_with_host_coil)}_{uid}"));
+            //class_list.Add((-1, substructure_type.standard_beta_strand_full_protein_sequence, 3, nameof(substructure_type.standard_beta_strand_full_protein_sequence), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.standard_beta_strand_full_protein_sequence)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics, 2, nameof(substructure_type.dimorphics), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.dimorphics)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.dimorphics)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics_with_host_coil, 3, nameof(substructure_type.dimorphics_with_host_coil), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.dimorphics_with_host_coil)}_{uid}"));
+            //class_list.Add((+1, substructure_type.dimorphics_full_protein_sequence, 3, nameof(substructure_type.dimorphics_full_protein_sequence), /*program.string_debug*/($@"c:\phd\bioinf\e_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}", /*program.string_debug*/($@"c:\phd\bioinf\d_{nameof(substructure_type.dimorphics_full_protein_sequence)}_{uid}"));
 
 
             //var make_distance_matrices = false;// true;

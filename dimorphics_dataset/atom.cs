@@ -1434,8 +1434,8 @@ namespace dimorphics_dataset
 
         internal static void load_ring(string pdb_id, List<atom> atoms)
         {
-            //var edge_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", /*program.string_debug*/($@"*.edges");
-            //var node_files = Directory.GetFiles(@"C:\Users\aaron\Desktop\ring_pdb\pdb\", /*program.string_debug*/($@"*.nodes");
+            //var edge_files = Directory.GetFiles(@"C:\phd\ring_pdb\pdb\", /*program.string_debug*/($@"*.edges");
+            //var node_files = Directory.GetFiles(@"C:\phd\ring_pdb\pdb\", /*program.string_debug*/($@"*.nodes");
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
 
