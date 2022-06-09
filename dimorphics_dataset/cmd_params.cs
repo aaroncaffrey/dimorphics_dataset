@@ -276,7 +276,7 @@ namespace dimorphics_dataset
             if (param_list.Count == 0)
             {
                 var classes = new[] { (class_id: +1, class_name: dimorphic_coil), (class_id: -1, class_name: standard_coil) };
-                var output_folder = /*program.string_debug*/(@"e:\dataset\");
+                var output_folder = /*program.string_debug*/(@"c:\phd\dataset\");
                 program.verbose = true;
                 var exe = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
                 io_proxy.WriteLine(/*program.string_debug*/($@""));

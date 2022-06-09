@@ -14,7 +14,7 @@ namespace dimorphics_dataset
     internal static class program
     {
         // example launch args:
-        // -1i.aaindex -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=e:\dataset6\ -use_children=true -verbose=true -use_dssp3=true -first_index=151 -last_index=151
+        // -1i.aaindex -class_id=+1 -class_name=dimorphic_coil -min_sequence_length=3 -max_features=100 -output_folder=c:\phd\dataset\dataset6\ -use_children=true -verbose=true -use_dssp3=true -first_index=151 -last_index=151
 
         // todo: re-check tortusoity code, intramolecular distance code, and averageatom-atom distance cpde
 

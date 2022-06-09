@@ -1696,7 +1696,7 @@ namespace dimorphics_dataset
             return !cts.IsCancellationRequested ? features : default;
         }
 
-        internal static List<(string name, List<info_aaindex_entry> list)> aaindex_subset_templates_search(bool full_aaindex = true, bool papers = true, bool search_keyword = true)
+        internal static List<(string name, List<info_aaindex_entry> list)> aaindex_subset_templates_search(bool full_aaindex = true, bool paper_subsets = true, bool search_keyword_subsets = true)
         {
             var aaindices_subsections = new List<(string name, List<info_aaindex_entry> list)>();
 
@@ -1706,34 +1706,34 @@ namespace dimorphics_dataset
                 aaindices_subsections.Add(( /*program.string_debug*/($@"all"), info_aaindex.aaindex_entries));
             }
 
-            if (search_keyword)
+            if (search_keyword_subsets)
             {
                 // keyword search
                 var keywords = new List<(string name, string[] list)>
-        {
-          // energy terms
-          (/*program.string_debug*/($@"s_energy"), new[] { /*program.string_debug*/($@"thermodynamic"), /*program.string_debug*/($@"thermodynamics"), /*program.string_debug*/($@"thermal"), /*program.string_debug*/($@"energy"), /*program.string_debug*/($@"gibbs"), /*program.string_debug*/($@"solvation"), /*program.string_debug*/($@"entropy"), /*program.string_debug*/($@"entropies"), /*program.string_debug*/($@"energies"), /*program.string_debug*/($@"pka"), /*program.string_debug*/($@"pk"), /*program.string_debug*/($@"ph"), /*program.string_debug*/($@"heat"), /*program.string_debug*/($@"temperature"), /*program.string_debug*/($@"dg"), /*program.string_debug*/($@"ddg"), /*program.string_debug*/($@"delta-g"), /*program.string_debug*/($@"delta g") }),
-          // charge terms
-          (/*program.string_debug*/($@"s_charge"), new[] { /*program.string_debug*/($@"charge"), /*program.string_debug*/($@"polarity"), /*program.string_debug*/($@"polar"), /*program.string_debug*/($@"charged"), /*program.string_debug*/($@"positive"), /*program.string_debug*/($@"negative"), /*program.string_debug*/($@"electric"), /*program.string_debug*/($@"electricity"), /*program.string_debug*/($@"electrostatic") }),
-          // interaction terms
-          (/*program.string_debug*/($@"s_interaction"), new[] { /*program.string_debug*/($@"interaction"), /*program.string_debug*/($@"interactions"), /*program.string_debug*/($@"attraction"), /*program.string_debug*/($@"affinity"), /*program.string_debug*/($@"contact"), /*program.string_debug*/($@"contacts"), /*program.string_debug*/($@"complex"), /*program.string_debug*/($@"complexation"), /*program.string_debug*/($@"bind"), /*program.string_debug*/($@"bond"), /*program.string_debug*/($@"bonding"), /*program.string_debug*/($@"binding"), /*program.string_debug*/($@"bonded"), /*program.string_debug*/($@"partner"), /*program.string_debug*/($@"partnered"), /*program.string_debug*/($@"partnering"), /*program.string_debug*/($@"interaction"), /*program.string_debug*/($@"intramolecular"), /*program.string_debug*/($@"intermolecular"), /*program.string_debug*/($@"vdw"), /*program.string_debug*/($@"van der waals"), /*program.string_debug*/($@"electrostatic"), /*program.string_debug*/($@"statics"), /*program.string_debug*/($@"hydrogen"), /*program.string_debug*/($@"hbond") }),
-          // burial/exposed keywords
-          (/*program.string_debug*/($@"s_accessibility"), new[] { /*program.string_debug*/($@"buried"), /*program.string_debug*/($@"burial"), /*program.string_debug*/($@"exposed"), /*program.string_debug*/($@"exposure"), /*program.string_debug*/($@"hidden"), /*program.string_debug*/($@"accessibility"), /*program.string_debug*/($@"accessible"), /*program.string_debug*/($@"surface"), /*program.string_debug*/($@"surfacial"), /*program.string_debug*/($@"solvation"), /*program.string_debug*/($@"solvent") }),
-          // unordered regions keywords
-          (/*program.string_debug*/($@"s_disorder"), new[] { /*program.string_debug*/($@"unordered"), /*program.string_debug*/($@"disorder"), /*program.string_debug*/($@"randomness"), /*program.string_debug*/($@"random coil"), /*program.string_debug*/($@"random region"), /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"terminal"), /*program.string_debug*/($@"ambiguous"), /*program.string_debug*/($@"conformational change") }),
-          // beta-strand keywords
-          (/*program.string_debug*/($@"s_strand"), new[] { /*program.string_debug*/($@"β"), /*program.string_debug*/($@"β-strand"), /*program.string_debug*/($@"βstrand"), /*program.string_debug*/($@"strand"), /*program.string_debug*/($@"sheet"), /*program.string_debug*/($@"beta-strand"), /*program.string_debug*/($@"beta-sheet"), /*program.string_debug*/($@"strand-strand"), /*program.string_debug*/($@"sheet-sheet") }),
-          // alpha-helix keywords
-          (/*program.string_debug*/($@"s_helix"), new[] { /*program.string_debug*/($@"α"), /*program.string_debug*/($@"α-helix"), /*program.string_debug*/($@"αhelix"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"helice"), /*program.string_debug*/($@"helical"), /*program.string_debug*/($@"alphahelix"), /*program.string_debug*/($@"alpha-helix") }),
-          // coil keywords
-          (/*program.string_debug*/($@"s_coil"), new[] { /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"random coil"), /*program.string_debug*/($@"unstructured"), /*program.string_debug*/($@"unordered"), /*program.string_debug*/($@"coiled coil"), /*program.string_debug*/($@"terminal coil"), /*program.string_debug*/($@"coil-coil"), /*program.string_debug*/($@"coil-strand"), /*program.string_debug*/($@"coil-helix"), /*program.string_debug*/($@"strand-coil"), /*program.string_debug*/($@"helix-coil") }),
-          // all secondary structure keywords
-          (/*program.string_debug*/($@"s_ss"), new[] { /*program.string_debug*/($@"transformation"), /*program.string_debug*/($@"conversion"), /*program.string_debug*/($@"conformation"), /*program.string_debug*/($@"structure"), /*program.string_debug*/($@"structural"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"helice"), /*program.string_debug*/($@"helical"), /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"coiled"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"strand"), /*program.string_debug*/($@"sheet"), /*program.string_debug*/($@"ss"), /*program.string_debug*/($@"sec struct"), /*program.string_debug*/($@"secondary structure") }),
-          // hydrophobicity keywords
-          (/*program.string_debug*/($@"s_hydrophocity"), new[] { /*program.string_debug*/($@"hydropathy"), /*program.string_debug*/($@"hydrophobe"), /*program.string_debug*/($@"hydrophilathy"), /*program.string_debug*/($@"hydrophobicity"), /*program.string_debug*/($@"hydrophobic"), /*program.string_debug*/($@"hydrophil"), /*program.string_debug*/($@"hydrophile"), /*program.string_debug*/($@"hydrophilic"), /*program.string_debug*/($@"hydrophicility"), /*program.string_debug*/($@"hydro") }),
-          // composition keywords
-          (/*program.string_debug*/($@"s_composition"), new[] { /*program.string_debug*/($@"composition"), /*program.string_debug*/($@"propensity"), /*program.string_debug*/($@"distribution"), /*program.string_debug*/($@"frequency") })
-        };
+                {
+                  // energy terms
+                  (/*program.string_debug*/($@"s_energy"), new[] { /*program.string_debug*/($@"thermodynamic"), /*program.string_debug*/($@"thermodynamics"), /*program.string_debug*/($@"thermal"), /*program.string_debug*/($@"energy"), /*program.string_debug*/($@"gibbs"), /*program.string_debug*/($@"solvation"), /*program.string_debug*/($@"entropy"), /*program.string_debug*/($@"entropies"), /*program.string_debug*/($@"energies"), /*program.string_debug*/($@"pka"), /*program.string_debug*/($@"pk"), /*program.string_debug*/($@"ph"), /*program.string_debug*/($@"heat"), /*program.string_debug*/($@"temperature"), /*program.string_debug*/($@"dg"), /*program.string_debug*/($@"ddg"), /*program.string_debug*/($@"delta-g"), /*program.string_debug*/($@"delta g") }),
+                  // charge terms
+                  (/*program.string_debug*/($@"s_charge"), new[] { /*program.string_debug*/($@"charge"), /*program.string_debug*/($@"polarity"), /*program.string_debug*/($@"polar"), /*program.string_debug*/($@"charged"), /*program.string_debug*/($@"positive"), /*program.string_debug*/($@"negative"), /*program.string_debug*/($@"electric"), /*program.string_debug*/($@"electricity"), /*program.string_debug*/($@"electrostatic") }),
+                  // interaction terms
+                  (/*program.string_debug*/($@"s_interaction"), new[] { /*program.string_debug*/($@"interaction"), /*program.string_debug*/($@"interactions"), /*program.string_debug*/($@"attraction"), /*program.string_debug*/($@"affinity"), /*program.string_debug*/($@"contact"), /*program.string_debug*/($@"contacts"), /*program.string_debug*/($@"complex"), /*program.string_debug*/($@"complexation"), /*program.string_debug*/($@"bind"), /*program.string_debug*/($@"bond"), /*program.string_debug*/($@"bonding"), /*program.string_debug*/($@"binding"), /*program.string_debug*/($@"bonded"), /*program.string_debug*/($@"partner"), /*program.string_debug*/($@"partnered"), /*program.string_debug*/($@"partnering"), /*program.string_debug*/($@"interaction"), /*program.string_debug*/($@"intramolecular"), /*program.string_debug*/($@"intermolecular"), /*program.string_debug*/($@"vdw"), /*program.string_debug*/($@"van der waals"), /*program.string_debug*/($@"electrostatic"), /*program.string_debug*/($@"statics"), /*program.string_debug*/($@"hydrogen"), /*program.string_debug*/($@"hbond") }),
+                  // burial/exposed keywords
+                  (/*program.string_debug*/($@"s_accessibility"), new[] { /*program.string_debug*/($@"buried"), /*program.string_debug*/($@"burial"), /*program.string_debug*/($@"exposed"), /*program.string_debug*/($@"exposure"), /*program.string_debug*/($@"hidden"), /*program.string_debug*/($@"accessibility"), /*program.string_debug*/($@"accessible"), /*program.string_debug*/($@"surface"), /*program.string_debug*/($@"surfacial"), /*program.string_debug*/($@"solvation"), /*program.string_debug*/($@"solvent") }),
+                  // unordered regions keywords
+                  (/*program.string_debug*/($@"s_disorder"), new[] { /*program.string_debug*/($@"unordered"), /*program.string_debug*/($@"disorder"), /*program.string_debug*/($@"randomness"), /*program.string_debug*/($@"random coil"), /*program.string_debug*/($@"random region"), /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"terminal"), /*program.string_debug*/($@"ambiguous"), /*program.string_debug*/($@"conformational change") }),
+                  // beta-strand keywords
+                  (/*program.string_debug*/($@"s_strand"), new[] { /*program.string_debug*/($@"β"), /*program.string_debug*/($@"β-strand"), /*program.string_debug*/($@"βstrand"), /*program.string_debug*/($@"strand"), /*program.string_debug*/($@"sheet"), /*program.string_debug*/($@"beta-strand"), /*program.string_debug*/($@"beta-sheet"), /*program.string_debug*/($@"strand-strand"), /*program.string_debug*/($@"sheet-sheet") }),
+                  // alpha-helix keywords
+                  (/*program.string_debug*/($@"s_helix"), new[] { /*program.string_debug*/($@"α"), /*program.string_debug*/($@"α-helix"), /*program.string_debug*/($@"αhelix"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"helice"), /*program.string_debug*/($@"helical"), /*program.string_debug*/($@"alphahelix"), /*program.string_debug*/($@"alpha-helix") }),
+                  // coil keywords
+                  (/*program.string_debug*/($@"s_coil"), new[] { /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"random coil"), /*program.string_debug*/($@"unstructured"), /*program.string_debug*/($@"unordered"), /*program.string_debug*/($@"coiled coil"), /*program.string_debug*/($@"terminal coil"), /*program.string_debug*/($@"coil-coil"), /*program.string_debug*/($@"coil-strand"), /*program.string_debug*/($@"coil-helix"), /*program.string_debug*/($@"strand-coil"), /*program.string_debug*/($@"helix-coil") }),
+                  // all secondary structure keywords
+                  (/*program.string_debug*/($@"s_ss"), new[] { /*program.string_debug*/($@"transformation"), /*program.string_debug*/($@"conversion"), /*program.string_debug*/($@"conformation"), /*program.string_debug*/($@"structure"), /*program.string_debug*/($@"structural"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"helice"), /*program.string_debug*/($@"helical"), /*program.string_debug*/($@"coil"), /*program.string_debug*/($@"coiled"), /*program.string_debug*/($@"helix"), /*program.string_debug*/($@"strand"), /*program.string_debug*/($@"sheet"), /*program.string_debug*/($@"ss"), /*program.string_debug*/($@"sec struct"), /*program.string_debug*/($@"secondary structure") }),
+                  // hydrophobicity keywords
+                  (/*program.string_debug*/($@"s_hydrophocity"), new[] { /*program.string_debug*/($@"hydropathy"), /*program.string_debug*/($@"hydrophobe"), /*program.string_debug*/($@"hydrophilathy"), /*program.string_debug*/($@"hydrophobicity"), /*program.string_debug*/($@"hydrophobic"), /*program.string_debug*/($@"hydrophil"), /*program.string_debug*/($@"hydrophile"), /*program.string_debug*/($@"hydrophilic"), /*program.string_debug*/($@"hydrophicility"), /*program.string_debug*/($@"hydro") }),
+                  // composition keywords
+                  (/*program.string_debug*/($@"s_composition"), new[] { /*program.string_debug*/($@"composition"), /*program.string_debug*/($@"propensity"), /*program.string_debug*/($@"distribution"), /*program.string_debug*/($@"frequency") })
+                };
 
                 var search_title = true;
                 var search_desc = true;
@@ -1755,7 +1755,7 @@ namespace dimorphics_dataset
                 aaindices_subsections.AddRange(keywords_results);
             }
 
-            if (papers)
+            if (paper_subsets)
             {
                 //Table 5. Summary of pair-wise correlations between original 495 amino acid attributes for 20 amino acids and the factor scores
                 var factor1 = new string[] { "OOBM770101", "JANJ780103", "JANJ780101", "PRAM900101", "CHOC760102", "ROSM880102", "KUHL950101", "MEIH800102", "ROSM880101", "GRAR740102", "GUYH850101", "RACS770102", "CHOC760104", "DESM900101", "WOLR810101", "PONP800102", "PONP800108", "RADA880107", "FAUJ830101", "RADA880108", "BIOV880101", "BIOV880102", "JANJ790101", "MEIH800103", "RADA880101", "DH010101", "PONP800103", "EISD860103", "DH010104", "WARP780101", "ROSG850102", "EISD840101", "CHOC760103", "DH010103", "KYTJ820101", "DESM900102", "JURD980101", "JANJ790102", "DH010102", "JANJ780102" };
@@ -1766,9 +1766,9 @@ namespace dimorphics_dataset
 
                 var factor_intersection = new string[] { "CHAM820101", "CHAM830106", "CHOC760101", "FAUJ880103", "ISOY800106", "MAXF760106", "QIAN880137" };
                 var factor_union = (new string[][] { factor1, factor2, factor3, factor4, factor5 }).SelectMany(a => a).Distinct().ToList();
-                
 
-                
+
+
 
                 aaindices_subsections.Add((nameof(factor1), info_aaindex.aaindex_entries.Where(a => factor1.Contains(a.H_Accession_Number)).ToList()));
                 aaindices_subsections.Add((nameof(factor2), info_aaindex.aaindex_entries.Where(a => factor2.Contains(a.H_Accession_Number)).ToList()));
@@ -2604,23 +2604,23 @@ namespace dimorphics_dataset
                                             if (cts != null && cts.IsCancellationRequested) return default;
 
                                             var pssm1_values = info_blast_pssm.pssm_to_vector1(pssm_matrix, pssm_value_type, normalisation_method == enum_pssm_normalisation_method.norm_encoded_vector);
-                        //if (normalise_encoding) pssm1_values = pssm.normalise_array(pssm1_values);
+                                            //if (normalise_encoding) pssm1_values = pssm.normalise_array(pssm1_values);
 
-                        var pssm1_ds = descriptive_stats.get_stat_values(
-                          pssm1_values?.OrderBy(a => a).ToArray() ?? null,
-                          dse_options,
-                          /*program.string_debug*/($@""),
-                          /*program.string_debug*/($@"{sq_index}_pssm1_all_{dse_options.options_name}"),
-                          presorted: true
-                        );
+                                            var pssm1_ds = descriptive_stats.get_stat_values(
+                                              pssm1_values?.OrderBy(a => a).ToArray() ?? null,
+                                              dse_options,
+                                              /*program.string_debug*/($@""),
+                                              /*program.string_debug*/($@"{sq_index}_pssm1_all_{dse_options.options_name}"),
+                                              presorted: true
+                                            );
 
                                             var pssm1 = pssm1_ds.encode(
                           dse_options
                         );
 
-                        //if (pssm1.Count > max_features) pssm1 = null;
+                                            //if (pssm1.Count > max_features) pssm1 = null;
 
-                        return (database, /*program.string_debug*/($@"Overall"), dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm1)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm1);
+                                            return (database, /*program.string_debug*/($@"Overall"), dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm1)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm1);
                                         }, cts.Token);
 
                                         tasks2.Add(t1);
@@ -2662,9 +2662,9 @@ namespace dimorphics_dataset
                                 dse_options
                               )).ToList();
 
-                              //if (pssm20col.Count > max_features) pssm20col = null;
+                                                        //if (pssm20col.Count > max_features) pssm20col = null;
 
-                              return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20col)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20col);
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20col)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20col);
                                                     }, cts.Token);
 
                                                     tasks2.Add(t);
@@ -2701,9 +2701,9 @@ namespace dimorphics_dataset
                                 dse_options
                               )).ToList();
 
-                              //if (pssm20row.Count > max_features) pssm20row = null;
+                                                        //if (pssm20row.Count > max_features) pssm20row = null;
 
-                              return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20row)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20row);
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20row)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20row);
                                                     }, cts.Token);
 
                                                     tasks2.Add(t);
@@ -2740,9 +2740,9 @@ namespace dimorphics_dataset
                                 dse_options
                               )).ToList();
 
-                              //if (pssm210.Count > max_features) pssm210 = null;
+                                                        //if (pssm210.Count > max_features) pssm210 = null;
 
-                              return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm210)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm210);
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm210)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm210);
                                                     }, cts.Token);
 
                                                     tasks2.Add(t);
@@ -2779,9 +2779,9 @@ namespace dimorphics_dataset
                                 dse_options
                               )).ToList();
 
-                              //if (pssm400.Count > max_features) pssm400 = null;
+                                                        //if (pssm400.Count > max_features) pssm400 = null;
 
-                              return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm400)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm400);
+                                                        return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm400)}_{normalisation_method_str}_{pssm_value_type_str}"), pssm400);
                                                     }, cts.Token);
 
                                                     tasks2.Add(t);
@@ -2831,9 +2831,9 @@ namespace dimorphics_dataset
                                     dse_options
                                     )).ToList();
 
-                                  //if (pssm20colDT.Count > max_features) pssm20colDT = null;
+                                                                //if (pssm20colDT.Count > max_features) pssm20colDT = null;
 
-                                  return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20colDT)}_lag{pssm20colDT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20colDT);
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm20colDT)}_lag{pssm20colDT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm20colDT);
                                                             }, cts.Token);
                                                             tasks2.Add(t);
 
@@ -2879,9 +2879,9 @@ namespace dimorphics_dataset
                                     dse_options
                                     )).ToList();
 
-                                  //if (pssm210DT.Count > max_features) pssm210DT = null;
+                                                                //if (pssm210DT.Count > max_features) pssm210DT = null;
 
-                                  return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm210DT)}_lag{pssm210DT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm210DT);
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm210DT)}_lag{pssm210DT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm210DT);
                                                             }, cts.Token);
 
                                                             tasks2.Add(t);
@@ -2928,9 +2928,9 @@ namespace dimorphics_dataset
                                     dse_options
                                   )).ToList();
 
-                                  //if (pssm400DT.Count > max_features) pssm400DT = null;
+                                                                //if (pssm400DT.Count > max_features) pssm400DT = null;
 
-                                  return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm400DT)}_lag{pssm400DT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm400DT);
+                                                                return (database, alphabet.name, dse_options.options_name, sq.name, /*program.string_debug*/($@"{nameof(pssm400DT)}_lag{pssm400DT_lag}_{normalisation_method_str}_{pssm_value_type_str}"), pssm400DT);
                                                             }, cts.Token);
 
                                                             tasks2.Add(t);
@@ -3721,181 +3721,181 @@ namespace dimorphics_dataset
 
                 var r5 = alphabet_group_pairs.AsParallel().SelectMany(alphabet_group_pair =>
           {
-                  if (cts != null && cts.IsCancellationRequested) return default;
+              if (cts != null && cts.IsCancellationRequested) return default;
 
-                  var protein_area1_sequence_filtered = (name: area_pairs.name1, atoms: area_pairs.atoms1.Where(a => alphabet_group_pair.group_amino_acids1.Contains(a.amino_acid, StringComparison.CurrentCulture)).ToList());
-                  var protein_area2_sequence_filtered = (name: area_pairs.name2, atoms: area_pairs.atoms2.Where(a => alphabet_group_pair.group_amino_acids2.Contains(a.amino_acid, StringComparison.CurrentCulture)).ToList());
+              var protein_area1_sequence_filtered = (name: area_pairs.name1, atoms: area_pairs.atoms1.Where(a => alphabet_group_pair.group_amino_acids1.Contains(a.amino_acid, StringComparison.CurrentCulture)).ToList());
+              var protein_area2_sequence_filtered = (name: area_pairs.name2, atoms: area_pairs.atoms2.Where(a => alphabet_group_pair.group_amino_acids2.Contains(a.amino_acid, StringComparison.CurrentCulture)).ToList());
 
-                  var r2 = atom_types_pairs./*AsParallel().*/SelectMany(atom_type_pair =>
+              var r2 = atom_types_pairs./*AsParallel().*/SelectMany(atom_type_pair =>
+        {
+            if (cts != null && cts.IsCancellationRequested) return default;
+
+            var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type1, /*program.string_debug*/($@"all"), StringComparison.Ordinal) ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
+            var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type2, /*program.string_debug*/($@"all"), StringComparison.Ordinal) ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
+
+
+            var ret = new List<feature_info>();
+            double[] distances = null;
+            var vol = 0d;
+
+            if (protein_area1_sequence_filtered_filtered.atoms.Count > 0 || protein_area2_sequence_filtered_filtered.atoms.Count > 0)
             {
-                    if (cts != null && cts.IsCancellationRequested) return default;
+                var indexes1 = protein_area1_sequence_filtered_filtered.atoms.Select(a => a.intramolecular_contact_table_index).ToList();
+                var indexes2 = protein_area2_sequence_filtered_filtered.atoms.Select(a => a.intramolecular_contact_table_index).ToList();
 
-                    var protein_area1_sequence_filtered_filtered = (name: protein_area1_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type1, /*program.string_debug*/($@"all"), StringComparison.Ordinal) ? protein_area1_sequence_filtered.atoms : protein_area1_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type1).ToList()));
-                    var protein_area2_sequence_filtered_filtered = (name: protein_area2_sequence_filtered.name, atoms: (string.Equals(atom_type_pair.atom_type2, /*program.string_debug*/($@"all"), StringComparison.Ordinal) ? protein_area2_sequence_filtered.atoms : protein_area2_sequence_filtered.atoms.Where(a => a.atom_type == atom_type_pair.atom_type2).ToList()));
+                var same = indexes1.Intersect(indexes2).Count();
+                    //var tableA = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_ref_table;
+                    //var tableB = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_table;
+                    var tableC = area_pairs.atoms_both.FirstOrDefault()?.intramolecular_contact_table ?? null;
+
+                if (area_pairs.atoms_both != null && area_pairs.atoms_both.Count > 0)
+                {
+                    var min_x = area_pairs.atoms_both.Min(a => a.X);
+                    var min_y = area_pairs.atoms_both.Min(a => a.Y);
+                    var min_z = area_pairs.atoms_both.Min(a => a.Z);
+                    var max_x = area_pairs.atoms_both.Max(a => a.X);
+                    var max_y = area_pairs.atoms_both.Max(a => a.Y);
+                    var max_z = area_pairs.atoms_both.Max(a => a.Z);
+
+                    var len_x = Math.Abs(max_x - min_x);
+                    var len_y = Math.Abs(max_y - min_y);
+                    var len_z = Math.Abs(max_z - min_z);
+
+                    if (len_x == 0) len_x = 1;
+                    if (len_y == 0) len_y = 1;
+                    if (len_z == 0) len_z = 1;
+
+                    vol = len_x * len_y * len_z;
 
 
-                    var ret = new List<feature_info>();
-                    double[] distances = null;
-                    var vol = 0d;
+                        // i1,i2 and i2,i1 should be the same, because it is the same distance matrix (not separate matrices for each protein area).
+                        var q = (indexes1.Count * indexes2.Count) - same;
 
-                    if (protein_area1_sequence_filtered_filtered.atoms.Count > 0 || protein_area2_sequence_filtered_filtered.atoms.Count > 0)
+                    if (q > 0)
                     {
-                        var indexes1 = protein_area1_sequence_filtered_filtered.atoms.Select(a => a.intramolecular_contact_table_index).ToList();
-                        var indexes2 = protein_area2_sequence_filtered_filtered.atoms.Select(a => a.intramolecular_contact_table_index).ToList();
-
-                        var same = indexes1.Intersect(indexes2).Count();
-                  //var tableA = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_ref_table;
-                  //var tableB = protein_area1_sequence_filtered_filtered.atoms.First().intramolecular_contact_flat_table;
-                  var tableC = area_pairs.atoms_both.FirstOrDefault()?.intramolecular_contact_table ?? null;
-
-                        if (area_pairs.atoms_both != null && area_pairs.atoms_both.Count > 0)
+                        var k = -1;
+                        distances = new double[q];
+                        for (var i1 = 0; i1 < indexes1.Count; i1++)
                         {
-                            var min_x = area_pairs.atoms_both.Min(a => a.X);
-                            var min_y = area_pairs.atoms_both.Min(a => a.Y);
-                            var min_z = area_pairs.atoms_both.Min(a => a.Z);
-                            var max_x = area_pairs.atoms_both.Max(a => a.X);
-                            var max_y = area_pairs.atoms_both.Max(a => a.Y);
-                            var max_z = area_pairs.atoms_both.Max(a => a.Z);
-
-                            var len_x = Math.Abs(max_x - min_x);
-                            var len_y = Math.Abs(max_y - min_y);
-                            var len_z = Math.Abs(max_z - min_z);
-
-                            if (len_x == 0) len_x = 1;
-                            if (len_y == 0) len_y = 1;
-                            if (len_z == 0) len_z = 1;
-
-                            vol = len_x * len_y * len_z;
-
-
-                      // i1,i2 and i2,i1 should be the same, because it is the same distance matrix (not separate matrices for each protein area).
-                      var q = (indexes1.Count * indexes2.Count) - same;
-
-                            if (q > 0)
+                            for (var i2 = 0; i2 < indexes2.Count; i2++)
                             {
-                                var k = -1;
-                                distances = new double[q];
-                                for (var i1 = 0; i1 < indexes1.Count; i1++)
+                                var i1x = indexes1[i1];
+                                var i2x = indexes2[i2];
+                                if (i1x != i2x)
                                 {
-                                    for (var i2 = 0; i2 < indexes2.Count; i2++)
-                                    {
-                                        var i1x = indexes1[i1];
-                                        var i2x = indexes2[i2];
-                                        if (i1x != i2x)
-                                        {
-                                            k++;
+                                    k++;
 
-                                            distances[k] = tableC[i1x][i2x];
-                                        }
-                                    }
+                                    distances[k] = tableC[i1x][i2x];
                                 }
                             }
                         }
                     }
+                }
+            }
 
-                    var name1 = protein_area1_sequence_filtered.name;
-                    var name2 = protein_area2_sequence_filtered.name;
-                    var name3 = alphabet_group_pair.name;
-                    var name4 = alphabet_group_pair.group_name1;
-                    var name5 = alphabet_group_pair.group_name2;
-                    var name6 = atom_type_pair.atom_type1;
-                    var name7 = atom_type_pair.atom_type2;
-
-
-              //foreach (var dist_range in dist_ranges)
-              //{
-              var name8 = /*program.string_debug*/($@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"-"), StringComparison.Ordinal)}A");
-                    var name9 = /*program.string_debug*/($@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"-"), StringComparison.Ordinal)}A");
-
-              //io_proxy.WriteLine(/*program.string_debug*/($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
-
-              var dist_filt = (atom_type_pair.min_dist == 0 && atom_type_pair.max_dist == 0) ? distances.OrderBy(a => a).ToArray() : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).OrderBy(a => a).ToArray() ?? null);
+            var name1 = protein_area1_sequence_filtered.name;
+            var name2 = protein_area2_sequence_filtered.name;
+            var name3 = alphabet_group_pair.name;
+            var name4 = alphabet_group_pair.group_name1;
+            var name5 = alphabet_group_pair.group_name2;
+            var name6 = atom_type_pair.atom_type1;
+            var name7 = atom_type_pair.atom_type2;
 
 
-                    foreach (var dse_options in descriptive_stats_encoding_options.dse_options_atom_distances)
-                    {
-                        if (cts != null && cts.IsCancellationRequested) return default;
+                //foreach (var dist_range in dist_ranges)
+                //{
+                var name8 = /*program.string_debug*/($@"{atom_type_pair.min_dist.ToString(CultureInfo.InvariantCulture).Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"-"), StringComparison.Ordinal)}A");
+            var name9 = /*program.string_debug*/($@"{atom_type_pair.max_dist.ToString(CultureInfo.InvariantCulture).Replace(/*program.string_debug*/($@"."), /*program.string_debug*/($@"-"), StringComparison.Ordinal)}A");
 
-                        var distances_ds = descriptive_stats.get_stat_values(
-                    dist_filt,
-                    dse_options,
-                    /*program.string_debug*/($@""),
-                    /*program.string_debug*/($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                    presorted: true
-                  );
+                //io_proxy.WriteLine(/*program.string_debug*/($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}", nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
 
-                        var distances_ds_e = distances_ds.encode(
-                    dse_options
-                  );
-
-                  // area, alphabet, alphabet group 1&2, atom type1&2
-                  var distances_ds_e_f = distances_ds_e.Select(ds_stat => new feature_info()
-                        {
-                            alphabet = alphabet_group_pair.name,
-                            stats = dse_options.options_name,
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = /*program.string_debug*/($@"atom_distances"),
-                            @group = /*program.string_debug*/($@"{ds_stat.group_id}_atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                            member = /*program.string_debug*/($@"{ds_stat.member_id}"),
-                            perspective = /*program.string_debug*/($@"{ds_stat.perspective_id}"),
-                            feature_value = ds_stat.perspective_value
-                        }).ToList();
+                var dist_filt = (atom_type_pair.min_dist == 0 && atom_type_pair.max_dist == 0) ? distances.OrderBy(a => a).ToArray() : (distances?.Where(a => (atom_type_pair.min_dist == 0 || a >= atom_type_pair.min_dist) && (atom_type_pair.max_dist == 0 || a <= atom_type_pair.max_dist)).OrderBy(a => a).ToArray() ?? null);
 
 
-                        var counts_ds_e_f = new feature_info()
-                        {
-                            alphabet = alphabet_group_pair.name,
-                            stats = "",
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = /*program.string_debug*/($@"atom_counts"),
-                            @group = /*program.string_debug*/($@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                            member = /*program.string_debug*/($@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                            perspective = /*program.string_debug*/($@"count"),
-                            feature_value = dist_filt?.Length ?? 0d
-                        };
+            foreach (var dse_options in descriptive_stats_encoding_options.dse_options_atom_distances)
+            {
+                if (cts != null && cts.IsCancellationRequested) return default;
 
+                var distances_ds = descriptive_stats.get_stat_values(
+                dist_filt,
+                dse_options,
+                /*program.string_debug*/($@""),
+                /*program.string_debug*/($@"{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                presorted: true
+              );
 
-                        var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
-                        var density_ds_e_f = new feature_info()
-                        {
-                            alphabet = alphabet_group_pair.name,
-                            stats = "",
-                            dimension = 3,
-                            source = area_pairs.name1,
-                            category = /*program.string_debug*/($@"atom_density"),
-                            @group = /*program.string_debug*/($@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                            member = /*program.string_debug*/($@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
-                            perspective = /*program.string_debug*/($@"density"),
-                            feature_value = density
-                        };
+                var distances_ds_e = distances_ds.encode(
+                dse_options
+              );
 
-
-
-                        ret.Add(counts_ds_e_f);
-                        ret.Add(density_ds_e_f);
-                        ret.AddRange(distances_ds_e_f);
-                    }
-
-              //}
-
-              lock (_done_lock)
-                    {
-                        done++;
-                    }
-
-              //var time_each = (double)done / (double)sw.Elapsed.Ticks;
-              //var eta_ticks = (long) (time_each * (total - done));
-              //var ts = TimeSpan.FromTicks(eta_ticks);
-              //[ average {time_each:0.0000000000} ticks ] [ eta {ts:dd\:hh\:mm\:ss\.fff} ]
-              io_proxy.WriteLine(/*program.string_debug*/($@"{done} / {total} [ {((total > 0 ? (double)done / (double)total : 0d) * 100):0.00} ]"), nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
-
-                    return ret;
+                    // area, alphabet, alphabet group 1&2, atom type1&2
+                    var distances_ds_e_f = distances_ds_e.Select(ds_stat => new feature_info()
+                {
+                    alphabet = alphabet_group_pair.name,
+                    stats = dse_options.options_name,
+                    dimension = 3,
+                    source = area_pairs.name1,
+                    category = /*program.string_debug*/($@"atom_distances"),
+                    @group = /*program.string_debug*/($@"{ds_stat.group_id}_atom_dist_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                    member = /*program.string_debug*/($@"{ds_stat.member_id}"),
+                    perspective = /*program.string_debug*/($@"{ds_stat.perspective_id}"),
+                    feature_value = ds_stat.perspective_value
                 }).ToList();
 
-                  return r2;
-              }).ToList();
+
+                var counts_ds_e_f = new feature_info()
+                {
+                    alphabet = alphabet_group_pair.name,
+                    stats = "",
+                    dimension = 3,
+                    source = area_pairs.name1,
+                    category = /*program.string_debug*/($@"atom_counts"),
+                    @group = /*program.string_debug*/($@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                    member = /*program.string_debug*/($@"atom_count_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                    perspective = /*program.string_debug*/($@"count"),
+                    feature_value = dist_filt?.Length ?? 0d
+                };
+
+
+                var density = vol == 0d ? 0d : (double)(dist_filt?.Length ?? 0d) / (double)vol;
+                var density_ds_e_f = new feature_info()
+                {
+                    alphabet = alphabet_group_pair.name,
+                    stats = "",
+                    dimension = 3,
+                    source = area_pairs.name1,
+                    category = /*program.string_debug*/($@"atom_density"),
+                    @group = /*program.string_debug*/($@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                    member = /*program.string_debug*/($@"atom_density_{name1}_{name2}_{name3}_{name4}_{name5}_{name6}_{name7}_{name8}_{name9}"),
+                    perspective = /*program.string_debug*/($@"density"),
+                    feature_value = density
+                };
+
+
+
+                ret.Add(counts_ds_e_f);
+                ret.Add(density_ds_e_f);
+                ret.AddRange(distances_ds_e_f);
+            }
+
+                //}
+
+                lock (_done_lock)
+            {
+                done++;
+            }
+
+                //var time_each = (double)done / (double)sw.Elapsed.Ticks;
+                //var eta_ticks = (long) (time_each * (total - done));
+                //var ts = TimeSpan.FromTicks(eta_ticks);
+                //[ average {time_each:0.0000000000} ticks ] [ eta {ts:dd\:hh\:mm\:ss\.fff} ]
+                io_proxy.WriteLine(/*program.string_debug*/($@"{done} / {total} [ {((total > 0 ? (double)done / (double)total : 0d) * 100):0.00} ]"), nameof(subsequence_classification_data), nameof(calculate_atom_distances_classification_data));
+
+            return ret;
+        }).ToList();
+
+              return r2;
+          }).ToList();
 
                 return r5;
             }).ToList();
@@ -4103,9 +4103,9 @@ namespace dimorphics_dataset
                             motifs_binary = true,
                             dipeptides = true,
                             dipeptides_binary = true,
-                  //saac = true,
-                  //saac_binary = true,
-                  average_seq_position = true,
+                            //saac = true,
+                            //saac_binary = true,
+                            average_seq_position = true,
                             average_dipeptide_distance = true,
                         };
 
@@ -4240,10 +4240,10 @@ namespace dimorphics_dataset
                         if (cts != null && cts.IsCancellationRequested) return null;
 
                         var aa_index_classification_data = calculate_aa_index_classification_data(region.aa_sequence, source, cts);
-              //features_1d.AddRange(aa_index_classification_data);
+                        //features_1d.AddRange(aa_index_classification_data);
 
 
-              if (!check_headers(aa_index_classification_data))
+                        if (!check_headers(aa_index_classification_data))
                         {
                             throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: duplicate headers in {aa_index_classification_data}"));
                         }
@@ -4275,10 +4275,10 @@ namespace dimorphics_dataset
                         if (cts != null && cts.IsCancellationRequested) return null;
 
                         var sequence_geometry_classification_data = calculate_sequence_geometry_classification_data(scd, region, source, cts);
-              //features_1d.AddRange(sequence_geometry_classification_data);
+                        //features_1d.AddRange(sequence_geometry_classification_data);
 
 
-              if (!check_headers(sequence_geometry_classification_data))
+                        if (!check_headers(sequence_geometry_classification_data))
                         {
                             throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: duplicate headers in {sequence_geometry_classification_data}"));
                         }
@@ -4308,10 +4308,10 @@ namespace dimorphics_dataset
                         if (cts != null && cts.IsCancellationRequested) return null;
 
                         var intrinsically_unordered_data = calculate_intrinsically_unordered_data(region.master_atoms, source, cts);
-              //features_1d.AddRange(intrinsically_unordered_data);
+                        //features_1d.AddRange(intrinsically_unordered_data);
 
 
-              if (!check_headers(intrinsically_unordered_data))
+                        if (!check_headers(intrinsically_unordered_data))
                         {
                             throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: duplicate headers in {intrinsically_unordered_data}"));
                         }
@@ -4342,10 +4342,10 @@ namespace dimorphics_dataset
                         if (cts != null && cts.IsCancellationRequested) return null;
 
                         var dna_binding_prediction_data = calculate_chain_dna_binding_prediction_data(region.master_atoms, source, cts);
-              //features_1d.AddRange(dna_binding_prediction_data);
+                        //features_1d.AddRange(dna_binding_prediction_data);
 
 
-              if (!check_headers(dna_binding_prediction_data))
+                        if (!check_headers(dna_binding_prediction_data))
                         {
                             throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: duplicate headers in {dna_binding_prediction_data}"));
                         }
@@ -4381,11 +4381,11 @@ namespace dimorphics_dataset
                         var alphabet_name = /*program.string_debug*/($@"Overall");
                         var r_peptides_data = subsequence_classification_data_r_methods.call_r_peptides(region.aa_sequence/*, alphabet_name, source*/, cts: cts); //r_peptides.get_values(seq);
 
-              r_peptides_data.ForEach(a =>
-              {
-                          a.source = source.ToString();
-                          a.alphabet = alphabet_name;
-                      });
+                        r_peptides_data.ForEach(a =>
+                        {
+                            a.source = source.ToString();
+                            a.alphabet = alphabet_name;
+                        });
 
 
                         if (!check_headers(r_peptides_data))
@@ -4422,11 +4422,11 @@ namespace dimorphics_dataset
                         var alphabet_name = /*program.string_debug*/($@"Overall");
                         var r_protr_data = subsequence_classification_data_r_methods.call_r_protr(region.aa_sequence/*, alphabet_name, source*/, cts: cts); //r_protr.get_values(seq);
 
-              r_protr_data.ForEach(a =>
-              {
-                          a.source = source.ToString();
-                          a.alphabet = alphabet_name;
-                      });
+                        r_protr_data.ForEach(a =>
+                        {
+                            a.source = source.ToString();
+                            a.alphabet = alphabet_name;
+                        });
 
                         if (!check_headers(r_protr_data))
                         {
@@ -4586,14 +4586,14 @@ namespace dimorphics_dataset
                             motifs_binary = true,
                             dipeptides = true,
                             dipeptides_binary = true,
-                  //saac = true,
-                  //saac_binary = true,
-                  average_seq_position = true,
+                            //saac = true,
+                            //saac_binary = true,
+                            average_seq_position = true,
                             average_dipeptide_distance = true,
                         };
 
-              // todo: check if this dssp should be 7 or 3
-              var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 3, /*program.string_debug*/($@"dssp_monomer"), /*program.string_debug*/($@"dssp_monomer"), region.dssp_monomer, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, cts);
+                        // todo: check if this dssp should be 7 or 3
+                        var pse_ssc_dssp_classification_data = calculate_aa_or_ss_sequence_classification_data(source, 3, /*program.string_debug*/($@"dssp_monomer"), /*program.string_debug*/($@"dssp_monomer"), region.dssp_monomer, enum_seq_type.secondary_structure_sequence, aa_seq_pse_aac_options, cts);
 
 
                         if (!check_headers(pse_ssc_dssp_classification_data)) throw new Exception(/*program.string_debug*/($@"{module_name}.{method_name}: duplicate headers"));

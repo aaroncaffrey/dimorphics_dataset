@@ -12,8 +12,8 @@ namespace dimorphics_dataset
     {
         public const string module_name = nameof(subsequence_classification_data_r_methods);
 
-        public const string cache_r_protr_filename = @"e:\dataset\r_protr_cache.csv";
-        public const string cache_r_peptides_filename = @"e:\dataset\r_peptides_cache.csv";
+        public const string cache_r_protr_filename = @"c:\phd\dataset\r_protr_cache.csv";
+        public const string cache_r_peptides_filename = @"c:\phd\dataset\r_peptides_cache.csv";
 
         internal static List<(string aa_sequence, List<feature_info> features)> cache_r_protr;// = cache_r_load(cache_r_protr_filename);
         internal static List<(string aa_sequence, List<feature_info> features)> cache_r_peptides;// = cache_r_load(cache_r_peptides_filename);
@@ -22,7 +22,7 @@ namespace dimorphics_dataset
         {
             const string method_name = nameof(cache_r_servers);
             /*
-            var files = new string[] { /*program.string_debug* /($@"E:\dataset\l__(standard_coil).csv", /*program.string_debug* /($@"E:\dataset\l__(dimorphic_coil).csv" };
+            var files = new string[] { /*program.string_debug* /($@"c:\phd\dataset\l__(standard_coil).csv", /*program.string_debug* /($@"c:\phd\dataset\l__(dimorphic_coil).csv" };
 
             var psi_list = files.SelectMany(a => protein_subsequence_info.load(a)).ToList();
 

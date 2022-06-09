@@ -3,8 +3,8 @@
 :: ===========================
 
 setlocal EnableDelayedExpansion
-@set exe=%USERPROFILE%\Desktop\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net6.0\dimorphics_dataset.exe
-@set output=e:\dataset_2021_12_01\pos
+@set exe=c:\phd\phd_work\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net6.0\dimorphics_dataset.exe
+@set output=C:\phd\_march_2022_dataset\aaindex_only\pos\
 @md %output%\
 
 :: ===========================

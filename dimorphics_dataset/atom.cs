@@ -205,8 +205,8 @@ namespace dimorphics_dataset
 
             var drive_letter = use_ram_disk ? /*program.string_debug*/($@"r") : /*program.string_debug*/($@"c");
 
-            var pdb_in_folder = /*program.string_debug*/($@"{drive_letter}:\betastrands_dataset\pdb\");
-            var pdb_out_folder = /*program.string_debug*/($@"{drive_letter}:\betastrands_dataset\pdb_split\");
+            var pdb_in_folder = /*program.string_debug*/($@"{drive_letter}:\phd\betastrands_dataset\pdb\");
+            var pdb_out_folder = /*program.string_debug*/($@"{drive_letter}:\phd\betastrands_dataset\pdb_split\");
 
             pdb_id = Path.GetFileNameWithoutExtension(pdb_id);
             pdb_id = pdb_id.ToUpperInvariant();
@@ -250,8 +250,8 @@ namespace dimorphics_dataset
 
             var drive_letter = use_ram_disk ? /*program.string_debug*/($@"r") : /*program.string_debug*/($@"c");
 
-            var pdb_in_folder = /*program.string_debug*/($@"{drive_letter}:\betastrands_dataset\pdb\");
-            var pdb_out_folder = /*program.string_debug*/($@"{drive_letter}:\betastrands_dataset\pdb_split\");
+            var pdb_in_folder = /*program.string_debug*/($@"{drive_letter}:\phd\betastrands_dataset\pdb\");
+            var pdb_out_folder = /*program.string_debug*/($@"{drive_letter}:\phd\betastrands_dataset\pdb_split\");
 
             pdb_id = pdb_id.ToUpperInvariant();
             var pdb_lines = io_proxy.ReadAllLines(/*program.string_debug*/($@"{pdb_in_folder}{pdb_id}.pdb"), nameof(atom), nameof(extract_split_pdb_chains_res_ids)).ToList();
