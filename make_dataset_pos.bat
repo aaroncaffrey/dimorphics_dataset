@@ -4,7 +4,7 @@
 
 setlocal EnableDelayedExpansion
 @set exe=c:\phd\phd_work\dimorphics_dataset\dimorphics_dataset\bin\x64\Release\net6.0\dimorphics_dataset.exe
-@set output=C:\phd\_march_2022_dataset\aaindex_only\pos\
+@set output=C:\phd\_june_2022_dataset\aaindex_only\pos\
 @md %output%\
 
 :: ===========================
@@ -201,7 +201,12 @@ if "%features3p%" NEQ "" (
 	%exe% !features! -use_dssp3=%use_dssp3% -class_id=%class_id% -class_name=%class_name% -min_sequence_length=%min_sequence_length% -max_features=%max_features% -output_folder=%output%\ -use_children=%use_children% -verbose=%verbose% 1> !stdout! 2> !stderr!
 )
 
+:: ===========================
+:: ===========================
+:: ===========================
 
+md %output%\..\merged_files\
+copy /y %output%\*_(*)_(*)_(*).csv %output%\..\merged_files\
 
 :: ===========================
 :: ===========================
