@@ -14,19 +14,19 @@ namespace dimorphics_dataset
             dev_standard = true
         };
 
-        internal static readonly descriptive_stats_encoding_options options_mean_geometric = new descriptive_stats_encoding_options(nameof(options_mean_geometric), false)
-        {
-            mean_geometric_corrected = true,
-            mad_mean_geometric_corrected = true
+        //internal static readonly descriptive_stats_encoding_options options_mean_geometric = new descriptive_stats_encoding_options(nameof(options_mean_geometric), false)
+        //{
+            //mean_geometric_corrected = true,
+            //mad_mean_geometric_corrected = true
             //mean_geometric_nonzero = true
-        };
+        //};
 
-        internal static readonly descriptive_stats_encoding_options options_mean_harmonic = new descriptive_stats_encoding_options(nameof(options_mean_harmonic), false)
-        {
-            mean_harmonic_corrected = true,
-            mad_mean_harmonic_corrected = true
+        //internal static readonly descriptive_stats_encoding_options options_mean_harmonic = new descriptive_stats_encoding_options(nameof(options_mean_harmonic), false)
+        //{
+            //mean_harmonic_corrected = true,
+            //mad_mean_harmonic_corrected = true
             //mean_harmonic_nonzero = true
-        };
+        //};
 
         internal static readonly descriptive_stats_encoding_options options_median_q2 = new descriptive_stats_encoding_options(nameof(options_median_q2), false)
         {
@@ -44,9 +44,9 @@ namespace dimorphics_dataset
             count_distinct_values = true,
             sum = true,
             mean_arithmetic = true,
-            mean_geometric_corrected = true,
+            //mean_geometric_corrected = true,
             //mean_geometric_nonzero = true,
-            mean_harmonic_corrected = true,
+            //mean_harmonic_corrected = true,
             //mean_harmonic_nonzero = true,
             min = true,
             max = true,
@@ -62,8 +62,8 @@ namespace dimorphics_dataset
             median_q2 = true,
             median_q3 = true,
             mad_mean_arithmetic = true,
-            mad_mean_harmonic_corrected = true,
-            mad_mean_geometric_corrected = true,
+            //mad_mean_harmonic_corrected = true,
+            //mad_mean_geometric_corrected = true,
             mad_median_q1 = true,
             mad_median_q2 = true,
             mad_median_q3 = true,
@@ -149,9 +149,9 @@ namespace dimorphics_dataset
         internal bool count_distinct_values;
         internal bool sum;
         internal bool mean_arithmetic;
-        internal bool mean_geometric_corrected;
+        //internal bool mean_geometric_corrected;
         //internal bool mean_geometric_nonzero;
-        internal bool mean_harmonic_corrected;
+        //internal bool mean_harmonic_corrected;
         //internal bool mean_harmonic_nonzero;
         internal bool min;
         internal bool max;
@@ -167,8 +167,8 @@ namespace dimorphics_dataset
         internal bool median_q2;
         internal bool median_q3;
         internal bool mad_mean_arithmetic;
-        internal bool mad_mean_harmonic_corrected;
-        internal bool mad_mean_geometric_corrected;
+        //internal bool mad_mean_harmonic_corrected;
+        //internal bool mad_mean_geometric_corrected;
         internal bool mad_median_q1;
         internal bool mad_median_q2;
         internal bool mad_median_q3;
@@ -205,9 +205,9 @@ namespace dimorphics_dataset
             this.count_distinct_values = enable;
             this.sum = enable;
             this.mean_arithmetic = enable;
-            this.mean_geometric_corrected = enable;
+            //this.mean_geometric_corrected = enable;
             //this.mean_geometric_nonzero = enable;
-            this.mean_harmonic_corrected = enable;
+            //this.mean_harmonic_corrected = enable;
             //this.mean_harmonic_nonzero = enable;
             this.min = enable;
             this.max = enable;
@@ -223,8 +223,8 @@ namespace dimorphics_dataset
             this.median_q2 = enable;
             this.median_q3 = enable;
             this.mad_mean_arithmetic = enable;
-            this.mad_mean_harmonic_corrected = enable;
-            this.mad_mean_geometric_corrected = enable;
+            //this.mad_mean_harmonic_corrected = enable;
+            //this.mad_mean_geometric_corrected = enable;
             this.mad_median_q1 = enable;
             this.mad_median_q2 = enable;
             this.mad_median_q3 = enable;
@@ -247,9 +247,9 @@ namespace dimorphics_dataset
                 else if (string.Equals(names[i], nameof(count_distinct_values), StringComparison.OrdinalIgnoreCase)) count_distinct_values = enable;
                 else if (string.Equals(names[i], nameof(sum), StringComparison.OrdinalIgnoreCase)) sum = enable;
                 else if (string.Equals(names[i], nameof(mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mean_geometric_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mean_geometric_corrected = enable;
                 //else if (string.Equals(names[i], nameof(mean_geometric_nonzero), StringComparison.OrdinalIgnoreCase)) mean_geometric_nonzero = enable;
-                else if (string.Equals(names[i], nameof(mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mean_harmonic_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mean_harmonic_corrected = enable;
                 //else if (string.Equals(names[i], nameof(mean_harmonic_nonzero), StringComparison.OrdinalIgnoreCase)) mean_harmonic_nonzero = enable;
                 else if (string.Equals(names[i], nameof(min), StringComparison.OrdinalIgnoreCase)) min = enable;
                 else if (string.Equals(names[i], nameof(max), StringComparison.OrdinalIgnoreCase)) max = enable;
@@ -265,8 +265,8 @@ namespace dimorphics_dataset
                 else if (string.Equals(names[i], nameof(median_q2), StringComparison.OrdinalIgnoreCase)) median_q2 = enable;
                 else if (string.Equals(names[i], nameof(median_q3), StringComparison.OrdinalIgnoreCase)) median_q3 = enable;
                 else if (string.Equals(names[i], nameof(mad_mean_arithmetic), StringComparison.OrdinalIgnoreCase)) mad_mean_arithmetic = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_harmonic_corrected = enable;
-                else if (string.Equals(names[i], nameof(mad_mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_geometric_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mad_mean_harmonic_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_harmonic_corrected = enable;
+                //else if (string.Equals(names[i], nameof(mad_mean_geometric_corrected), StringComparison.OrdinalIgnoreCase)) mad_mean_geometric_corrected = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q1), StringComparison.OrdinalIgnoreCase)) mad_median_q1 = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q2), StringComparison.OrdinalIgnoreCase)) mad_median_q2 = enable;
                 else if (string.Equals(names[i], nameof(mad_median_q3), StringComparison.OrdinalIgnoreCase)) mad_median_q3 = enable;
@@ -293,9 +293,9 @@ namespace dimorphics_dataset
                 this.count_distinct_values = dse_options.count_distinct_values;
                 this.sum = dse_options.sum;
                 this.mean_arithmetic = dse_options.mean_arithmetic;
-                this.mean_geometric_corrected = dse_options.mean_geometric_corrected;
+                //this.mean_geometric_corrected = dse_options.mean_geometric_corrected;
                 //this.mean_geometric_nonzero = dse_options.mean_geometric_nonzero;
-                this.mean_harmonic_corrected = dse_options.mean_harmonic_corrected;
+                //this.mean_harmonic_corrected = dse_options.mean_harmonic_corrected;
                 //this.mean_harmonic_nonzero = dse_options.mean_harmonic_nonzero;
                 this.min = dse_options.min;
                 this.max = dse_options.max;
@@ -311,8 +311,8 @@ namespace dimorphics_dataset
                 this.median_q2 = dse_options.median_q2;
                 this.median_q3 = dse_options.median_q3;
                 this.mad_mean_arithmetic = dse_options.mad_mean_arithmetic;
-                this.mad_mean_harmonic_corrected = dse_options.mad_mean_harmonic_corrected;
-                this.mad_mean_geometric_corrected = dse_options.mad_mean_geometric_corrected;
+                //this.mad_mean_harmonic_corrected = dse_options.mad_mean_harmonic_corrected;
+                //this.mad_mean_geometric_corrected = dse_options.mad_mean_geometric_corrected;
                 this.mad_median_q1 = dse_options.mad_median_q1;
                 this.mad_median_q2 = dse_options.mad_median_q2;
                 this.mad_median_q3 = dse_options.mad_median_q3;
@@ -338,9 +338,9 @@ namespace dimorphics_dataset
             nameof(count_distinct_values),
             nameof(sum),
             nameof(mean_arithmetic),
-            nameof(mean_geometric_corrected),
+            //nameof(mean_geometric_corrected),
             //nameof(mean_geometric_nonzero),
-            nameof(mean_harmonic_corrected),
+            //nameof(mean_harmonic_corrected),
             //nameof(mean_harmonic_nonzero),
             nameof(min),
             nameof(max),
@@ -356,8 +356,8 @@ namespace dimorphics_dataset
             nameof(median_q2),
             nameof(median_q3),
             nameof(mad_mean_arithmetic),
-            nameof(mad_mean_harmonic_corrected),
-            nameof(mad_mean_geometric_corrected),
+            //nameof(mad_mean_harmonic_corrected),
+            //nameof(mad_mean_geometric_corrected),
             nameof(mad_median_q1),
             nameof(mad_median_q2),
             nameof(mad_median_q3),
@@ -373,9 +373,9 @@ namespace dimorphics_dataset
                 (nameof(count_distinct_values),         count_distinct_values),
                 (nameof(sum),                           sum),
                 (nameof(mean_arithmetic),               mean_arithmetic),
-                (nameof(mean_geometric_corrected),      mean_geometric_corrected),
+                //(nameof(mean_geometric_corrected),      mean_geometric_corrected),
                 //(nameof(mean_geometric_nonzero),      mean_geometric_nonzero),
-                (nameof(mean_harmonic_corrected),       mean_harmonic_corrected),
+                //(nameof(mean_harmonic_corrected),       mean_harmonic_corrected),
                 //(nameof(mean_harmonic_nonzero),       mean_harmonic_nonzero),
                 (nameof(min),                           min),
                 (nameof(max),                           max),
@@ -391,8 +391,8 @@ namespace dimorphics_dataset
                 (nameof(median_q2),                     median_q2),
                 (nameof(median_q3),                     median_q3),
                 (nameof(mad_mean_arithmetic),           mad_mean_arithmetic),
-                (nameof(mad_mean_harmonic_corrected),   mad_mean_harmonic_corrected),
-                (nameof(mad_mean_geometric_corrected),  mad_mean_geometric_corrected),
+                //(nameof(mad_mean_harmonic_corrected),   mad_mean_harmonic_corrected),
+                //(nameof(mad_mean_geometric_corrected),  mad_mean_geometric_corrected),
                 (nameof(mad_median_q1),                 mad_median_q1),
                 (nameof(mad_median_q2),                 mad_median_q2),
                 (nameof(mad_median_q3),                 mad_median_q3),

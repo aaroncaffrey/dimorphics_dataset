@@ -8,6 +8,7 @@ using System.Runtime.Loader;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace dimorphics_dataset
 {
@@ -402,7 +403,7 @@ namespace dimorphics_dataset
             //cache_r_servers_check();
             //return;
 
-            var main_cts = new CancellationTokenSource();
+            using var main_cts = new CancellationTokenSource();
             init.set_process_priority();
             init.close_notifications(main_cts);
             init.check_x64();
@@ -632,9 +633,24 @@ namespace dimorphics_dataset
             }
 
             // check for any non-double type features
+            var maxdcs = double.MaxValue.ToString(CultureInfo.InvariantCulture);
+            var mindcs = double.MinValue.ToString(CultureInfo.InvariantCulture);
+            var maxdcpp = "1.79769e+308";
+            var mindcpp = "-1.79769e+308";
+
             var invalid_features = text_features
                 .SelectMany(a =>
-                    a.Split(',').Select((b, i) => (string.IsNullOrEmpty(b) || string.Equals(b, /*program.string_debug*/($@"∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"+∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"-∞"), StringComparison.Ordinal) || string.Equals(b, /*program.string_debug*/($@"NaN"), StringComparison.Ordinal)) ? i : -1)
+                    a.Split(',').Select((b, i) => (
+                            string.IsNullOrEmpty(b) || 
+                            string.Equals(b, /*program.string_debug*/($@"∞"), StringComparison.Ordinal) || 
+                            string.Equals(b, /*program.string_debug*/($@"+∞"), StringComparison.Ordinal) || 
+                            string.Equals(b, /*program.string_debug*/($@"-∞"), StringComparison.Ordinal) || 
+                            string.Equals(b, /*program.string_debug*/($@"NaN"), StringComparison.Ordinal) ||
+                            string.Equals(b, /*program.string_debug*/(maxdcs), StringComparison.Ordinal) ||
+                            string.Equals(b, /*program.string_debug*/(mindcs), StringComparison.Ordinal) ||
+                            string.Equals(b, /*program.string_debug*/(maxdcpp), StringComparison.Ordinal) ||
+                            string.Equals(b, /*program.string_debug*/(mindcpp), StringComparison.Ordinal)
+                        ) ? i : -1)
                         .Where(a => a != -1).ToList()).Distinct().OrderBy(a => a).ToList();
 
             if (invalid_features.Count > 0)
@@ -719,7 +735,7 @@ namespace dimorphics_dataset
 
 
             using var stream = new BufferedStream(File.OpenRead(filename), 1024 * 1024 * 4);
-            using var sha256 = new SHA256Managed();
+            using var sha256 = SHA256.Create();
             var hash_bytes = sha256.ComputeHash(stream);
             var hash_str = BitConverter.ToString(hash_bytes);//.Replace(/*program.string_debug*/($@"-", String.Empty);
             return hash_str;

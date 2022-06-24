@@ -291,17 +291,17 @@ namespace dimorphics_dataset
                 if (dse_options.root_mean_square) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.root_mean_square)}"), stats.root_mean_square)); }
                 if (dse_options.mean_arithmetic) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_arithmetic)}"), stats.mean_arithmetic)); }
 
-                if (dse_options.mean_geometric_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_geometric_corrected)}"), stats.mean_geometric_corrected)); }
+                //if (dse_options.mean_geometric_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_geometric_corrected)}"), stats.mean_geometric_corrected)); }
                 //if (dse_options.mean_geometric_nonzero) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_geometric_nonzeros)}"), stats.mean_geometric_nonzeros)); }
 
-                if (dse_options.mean_harmonic_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_harmonic_corrected)}"), stats.mean_harmonic_corrected)); }
+                //if (dse_options.mean_harmonic_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_harmonic_corrected)}"), stats.mean_harmonic_corrected)); }
                 //if (dse_options.mean_harmonic_nonzero) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mean_harmonic_nonzeros)}"), stats.mean_harmonic_nonzeros)); }
 
                 if (dse_options.variance) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.variance)}"), stats.variance)); }
                 if (dse_options.dev_standard) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.dev_standard)}"), stats.dev_standard)); }
                 if (dse_options.mad_mean_arithmetic) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_mean_arithmetic)}"), stats.mad_mean_arithmetic)); }
-                if (dse_options.mad_mean_harmonic_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_mean_harmonic_corrected)}"), stats.mad_mean_harmonic_corrected)); }
-                if (dse_options.mad_mean_geometric_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_mean_geometric_corrected)}"), stats.mad_mean_geometric_corrected)); }
+                //if (dse_options.mad_mean_harmonic_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_mean_harmonic_corrected)}"), stats.mad_mean_harmonic_corrected)); }
+                //if (dse_options.mad_mean_geometric_corrected) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_mean_geometric_corrected)}"), stats.mad_mean_geometric_corrected)); }
                 if (dse_options.mad_median_q1) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_median_q1)}"), stats.mad_median_q1)); }
                 if (dse_options.mad_median_q2) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_median_q2)}"), stats.mad_median_q2)); }
                 if (dse_options.mad_median_q3) { z.Add((group_id: /*program.string_debug*/($@"{stats.ds_group_name}"), member_id: /*program.string_debug*/($@"{stats.ds_member_name}"), perspective_id: /*program.string_debug*/($@"{nameof(stats.mad_median_q3)}"), stats.mad_median_q3)); }
@@ -446,19 +446,19 @@ namespace dimorphics_dataset
                 mean_arithmetic = count != 0 ? sum / count : 0d;
             }
 
-            if (dse_options.mean_harmonic_corrected || /*dse_options.mean_harmonic_nonzero ||*/ dse_options.mad_mean_harmonic_corrected)
-            {
-                var hm = harmonic_mean(sorted_data);
-                mean_harmonic_corrected = hm.corrected;
-                //mean_harmonic_nonzeros = hm.nonzeros;
-            }
+            //if (dse_options.mean_harmonic_corrected || /*dse_options.mean_harmonic_nonzero ||*/ dse_options.mad_mean_harmonic_corrected)
+            //{
+            //    var hm = harmonic_mean(sorted_data);
+            //    mean_harmonic_corrected = hm.corrected;
+            //    //mean_harmonic_nonzeros = hm.nonzeros;
+            //}
 
-            if (dse_options.mean_geometric_corrected || /*dse_options.mean_geometric_nonzero ||*/ dse_options.mad_mean_geometric_corrected)
-            {
-                var gm = geometric_mean(sorted_data);
-                mean_geometric_corrected = gm.corrected;
-                //mean_geometric_nonzeros = gm.nonzeros;
-            }
+            //if (dse_options.mean_geometric_corrected || /*dse_options.mean_geometric_nonzero ||*/ dse_options.mad_mean_geometric_corrected)
+            //{
+            //    var gm = geometric_mean(sorted_data);
+            //    mean_geometric_corrected = gm.corrected;
+            //    //mean_geometric_nonzeros = gm.nonzeros;
+            //}
 
 
             if (dse_options.variance || dse_options.dev_standard || dse_options.kurtosis || dse_options.skewness)
@@ -516,8 +516,8 @@ namespace dimorphics_dataset
             //mode = modes.Select(a => a.Key).DefaultIfEmpty(0).Average();
 
             if (dse_options.mad_mean_arithmetic) { mad_mean_arithmetic = mad(sorted_data, mean_arithmetic); }
-            if (dse_options.mad_mean_geometric_corrected) { mad_mean_geometric_corrected = mad(sorted_data, mean_geometric_corrected); }
-            if (dse_options.mad_mean_harmonic_corrected) { mad_mean_harmonic_corrected = mad(sorted_data, mean_harmonic_corrected); }
+            //if (dse_options.mad_mean_geometric_corrected) { mad_mean_geometric_corrected = mad(sorted_data, mean_geometric_corrected); }
+            //if (dse_options.mad_mean_harmonic_corrected) { mad_mean_harmonic_corrected = mad(sorted_data, mean_harmonic_corrected); }
             if (dse_options.mad_median_q1) { mad_median_q1 = mad(sorted_data, median_q1); }
             if (dse_options.mad_median_q2) { mad_median_q2 = mad(sorted_data, median_q2); }
             if (dse_options.mad_median_q3) { mad_median_q3 = mad(sorted_data, median_q3); }
